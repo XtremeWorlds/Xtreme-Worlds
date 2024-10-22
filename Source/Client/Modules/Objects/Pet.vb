@@ -493,19 +493,19 @@ Module Pet
         End Select
 
         rect = New Microsoft.Xna.Framework.Rectangle(
-            anim * (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4),
-            spriteleft * (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4),
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4,
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4
+            anim * (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4),
+            spriteleft * (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4),
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4,
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4
         )
 
         ' Calculate the X
-        x = Type.Player(index).Pet.X * PicX + Type.Player(index).Pet.XOffset - ((Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4 - 32) / 2)
+        x = Type.Player(index).Pet.X * PicX + Type.Player(index).Pet.XOffset - ((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4 - 32) / 2)
 
         ' Is the player's height more than 32..?
-        If (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height / 4) > 32 Then
+        If (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height / 4) > 32 Then
             ' Create a 32 pixel offset for larger sprites
-            y = Type.Player(index).Pet.Y * PicY + Type.Player(index).Pet.YOffset - ((Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4) - 32)
+            y = Type.Player(index).Pet.Y * PicY + Type.Player(index).Pet.YOffset - ((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4) - 32)
         Else
             ' Proceed as normal
             y = Type.Player(index).Pet.Y * PicY + Type.Player(index).Pet.YOffset
@@ -554,7 +554,7 @@ Module Pet
             textY = ConvertMapY(Type.Player(index).Pet.Y * PicY) + Type.Player(index).Pet.YOffset - 16
         Else
             ' Determine location for text
-            textY = ConvertMapY(Type.Player(index).Pet.Y * PicY) + Type.Player(index).Pet.YOffset - (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, Type.Pet(Type.Player(index).Pet.Num).Sprite)).Height / 4) + 16
+            textY = ConvertMapY(Type.Player(index).Pet.Y * PicY) + Type.Player(index).Pet.YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.Pet(Type.Player(index).Pet.Num).Sprite)).Height / 4) + 16
         End If
 
         ' Draw name

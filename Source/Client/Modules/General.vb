@@ -342,11 +342,11 @@ Module General
                                         Dim sprite As Integer = Type.Animation(MyMap.Tile(x, y).Data1).Sprite(layer)
 
                                         If sprite > 0 Then
-                                            Dim graphicInfo As GameClient.GraphicInfo = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
+                                            Dim GfxInfo As GameClient.GfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
 
                                             ' Get dimensions and column count from controls and graphic info
-                                            Dim totalWidth As Integer = graphicInfo.Width
-                                            Dim totalHeight As Integer = graphicInfo.Height
+                                            Dim totalWidth As Integer = GfxInfo.Width
+                                            Dim totalHeight As Integer = GfxInfo.Height
                                             Dim columns As Integer = Type.Animation(MyMap.Tile(x, y).Data1).Frames(layer)
                                             Dim frameWidth As Integer
 

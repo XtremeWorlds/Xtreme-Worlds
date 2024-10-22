@@ -260,7 +260,7 @@ Module Text
         If Type.NPC(NPCNum).Sprite < 1 Or Type.NPC(NPCNum).Sprite > NumCharacters Then
             textY = ConvertMapY(MyMapNPC(MapNPCNum).Y * PicY) + MyMapNPC(MapNPCNum).YOffset - 16
         Else
-            textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * PicY) + MyMapNPC(MapNpcNum).YOffset - (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, Type.NPC(npcNum).Sprite)).Height / 4) + 16
+            textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * PicY) + MyMapNPC(MapNpcNum).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.NPC(npcNum).Sprite)).Height / 4) + 16
         End If
 
         ' Draw name
@@ -287,7 +287,7 @@ Module Text
                 textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - 16
             Else
                 ' Determine location for text
-                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, MapEvents(index).Graphic)).Height \ 4) + 16
+                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, MapEvents(index).Graphic)).Height \ 4) + 16
             End If
         ElseIf MapEvents(index).GraphicType = 2 Then
             If MapEvents(index).GraphicY2 > 0 Then
@@ -474,7 +474,7 @@ Module Text
             textY = ConvertMapY(GetPlayerY(index) * PicY) + Type.Player(MyIndex).YOffset - 16
         Else
             ' Determine location for text
-            textY = ConvertMapY(GetPlayerY(index) * PicY) + Type.Player(index).YOffset - (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, GetPlayerSprite(index))).Height / 4) + 16
+            textY = ConvertMapY(GetPlayerY(index) * PicY) + Type.Player(index).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GetPlayerSprite(index))).Height / 4) + 16
         End If
 
         ' Draw name

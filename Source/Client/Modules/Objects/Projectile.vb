@@ -236,7 +236,7 @@ Friend Module Projectile
         ' src rect
         With rec
             .Top = 0
-            .Bottom = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Projectiles, sprite)).Height
+            .Bottom = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Projectiles, sprite)).Height
             .Left = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Dir * PicX
             .Right = .Left + PicX
         End With

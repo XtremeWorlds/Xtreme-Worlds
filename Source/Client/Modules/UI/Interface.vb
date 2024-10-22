@@ -1160,8 +1160,8 @@ Module [Interface]
 
                     ' render icon
                     If .Icon > 0 Then
-                        width = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Width
-                        height = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Height
+                        width = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Width
+                        height = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Height
 
                         Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon & GfxExt), .Left + xO + .xOffset, .Top + yO + .yOffset, 0, 0, width, height, width, height)
                     End If
@@ -2023,10 +2023,10 @@ Module [Interface]
                 If CharSprite(I) > 0 Then ' Ensure character sprite is valid
                     ' Define the rectangle for the character sprite
                     Dim rect As New Rectangle(
-                         Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
-                         Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4,
-                         Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
-                         Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4
+                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
+                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4,
+                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
+                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4
                     )
 
                     ' Ensure the sprite index is within bounds
@@ -2077,10 +2077,10 @@ Module [Interface]
             IO.Path.Combine(Core.Path.Characters, imageChar),
             xO + 50, yO + 90,
             0, 0,
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4,
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
-             Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4,
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
+             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4
         )
     End Sub
 
@@ -2260,8 +2260,8 @@ Module [Interface]
             imageChar = Type.Job(newCharJob).FemaleSprite
         End If
 
-        Dim rect = New Rectangle((Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4),
-                               (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4))
+        Dim rect = New Rectangle((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4),
+                               (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4))
 
 
         ' render char

@@ -12,11 +12,11 @@ Module Animation
         Dim sprite As Integer = Type.Animation(AnimInstance(index).Animation).Sprite(layer)
         If sprite < 1 Or sprite > NumAnimations Then Return
 
-        Dim graphicInfo As GraphicInfo = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
+        Dim gfxInfo As GfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
 
         ' Get dimensions and column count from controls and graphic info
-        Dim totalWidth As Integer = graphicInfo.Width
-        Dim totalHeight As Integer = graphicInfo.Height
+        Dim totalWidth As Integer = gfxInfo.Width
+        Dim totalHeight As Integer = gfxInfo.Height
         Dim columns As Integer = Type.Animation(AnimInstance(index).Animation).Frames(layer)
         Dim frameWidth As Integer
 
@@ -106,8 +106,8 @@ Module Animation
         StreamAnimation(AnimInstance(index).Animation)
 
         ' Get dimensions and column count from controls and graphic info
-        Dim totalWidth As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Width
-        Dim totalHeight As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Height
+        Dim totalWidth As Integer = Client.GetgfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Width
+        Dim totalHeight As Integer = Client.GetgfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Height
         Dim columns As Integer = Type.Animation(AnimInstance(index).Animation).Frames(layer)
 
         ' Calculate frame dimensions

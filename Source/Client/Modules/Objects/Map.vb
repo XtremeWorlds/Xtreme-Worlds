@@ -57,14 +57,14 @@ Module Map
 
         Dim sX As Integer = 0
         Dim sY As Integer = 0
-        Dim sW As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width  ' Using the full width of the fog texture
-        Dim sH As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height ' Using the full height of the fog texture
+        Dim sW As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width  ' Using the full width of the fog texture
+        Dim sH As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height ' Using the full height of the fog texture
 
         ' These should match the scale calculations for full coverage plus extra area
         Dim dX As Integer = (FogOffsetX * 2.5) - 50
         Dim dY As Integer = (FogOffsetY * 3.5) - 50
-        Dim dW As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width + 200
-        Dim dH As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height + 200
+        Dim dW As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width + 200
+        Dim dH As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height + 200
 
         Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Fogs, fogNum), dX, dY, sX, sY, dW, dH, sW, sH, CurrentFogOpacity)
     End Sub
@@ -281,8 +281,8 @@ mapsync:
 
         Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Panoramas & index),
                       0, 0, 0, 0,
-                       Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height,
-                       Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height)
+                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height,
+                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height)
     End Sub
 
     Friend Sub DrawParallax(index As Integer)
@@ -298,8 +298,8 @@ mapsync:
 
         Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Parallax, index),
                       CInt(horz), CInt(vert), 0, 0,
-                       Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height,
-                       Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height)
+                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height,
+                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height)
     End Sub
 
     Friend Sub DrawPicture(Optional index As Integer = 0, Optional type As Integer = 0)
@@ -324,8 +324,8 @@ mapsync:
                 posY = 0 - Picture.yOffset
 
             Case PictureType.CenterScreen
-                posX = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width / 2 - Client.GetGraphicInfo((Core.Path.Pictures & index)).Width / 2 - Picture.xOffset
-                posY = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height / 2 - Client.GetGraphicInfo((Core.Path.Pictures & index)).Height / 2 - Picture.yOffset
+                posX = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width / 2 - Client.GetGfxInfo((Core.Path.Pictures & index)).Width / 2 - Picture.xOffset
+                posY = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height / 2 - Client.GetGfxInfo((Core.Path.Pictures & index)).Height / 2 - Picture.yOffset
 
             Case PictureType.CenterEvent
                 If CurrentEvents < Picture.EventId Then
@@ -346,7 +346,7 @@ mapsync:
         End Select
 
         Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Pictures, index), posX, posY, 0, 0,
-                       Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height)
+                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height)
     End Sub
 
 #End Region
