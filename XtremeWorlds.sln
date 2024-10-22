@@ -12,8 +12,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asfw", "Source\Network\Asfw
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{17067D41-98EF-470E-8A86-9C6587C3C69F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DarkUI", "Source\DarkUI\DarkUI\DarkUI.csproj", "{F19472F5-8C44-4C51-A8A0-B9DE5F555255}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,29 +88,12 @@ Global
 		{1919AC79-B888-4705-AF34-56FD9A26EC3C}.RelWithDebInfo|Any CPU.Build.0 = Debug|Any CPU
 		{1919AC79-B888-4705-AF34-56FD9A26EC3C}.RelWithDebInfo|x64.ActiveCfg = Debug|Any CPU
 		{1919AC79-B888-4705-AF34-56FD9A26EC3C}.RelWithDebInfo|x64.Build.0 = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|x64.Build.0 = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.MinSizeRel|Any CPU.ActiveCfg = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.MinSizeRel|Any CPU.Build.0 = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.MinSizeRel|x64.ActiveCfg = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.MinSizeRel|x64.Build.0 = Debug|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|x64.ActiveCfg = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|x64.Build.0 = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.RelWithDebInfo|Any CPU.ActiveCfg = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.RelWithDebInfo|Any CPU.Build.0 = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.RelWithDebInfo|x64.ActiveCfg = Release|Any CPU
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.RelWithDebInfo|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1919AC79-B888-4705-AF34-56FD9A26EC3C} = {17067D41-98EF-470E-8A86-9C6587C3C69F}
-		{F19472F5-8C44-4C51-A8A0-B9DE5F555255} = {17067D41-98EF-470E-8A86-9C6587C3C69F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34F4C6E4-D681-43B9-A894-4D9A534ABC40}

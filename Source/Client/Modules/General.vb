@@ -207,7 +207,6 @@ Module General
             ReDim Preserve MusicCache(counter)
 
             MusicCache(counter) = IO.Path.GetFileName(FileName)
-            Application.DoEvents()
         Next
     End Sub
 
@@ -222,7 +221,6 @@ Module General
             ReDim Preserve SoundCache(counter)
 
             SoundCache(counter) = IO.Path.GetFileName(FileName)
-            Application.DoEvents()
         Next
     End Sub
 
@@ -252,7 +250,7 @@ Module General
 
         ' Wait until connected or a few seconds have passed and report the server being down
         Do While (Not Socket.IsConnected()) And (GetTickCount() <= until)
-            Application.DoEvents()
+
         Loop
 
         ' return value
@@ -270,7 +268,6 @@ Module General
         ' break out of GameLoop
         InGame = False
         FreeBASS
-        Application.Exit()
         End
     End Sub
 
@@ -619,24 +616,14 @@ mapsync:
             Else
                 Fps += 1
             End If
-
-            If MyEditorType = EditorType.Map Then
-                frmEditor_Map.DrawTileset()
-            End If
-
-            If MyEditorType = EditorType.Animation Then
-                Client.EditorAnim_DrawSprite()
-            End If
-
+            
             If InGame Then
                 Client.Render_Game()
             Else
                 Client.Render_Menu()
             End If
-
-            Application.DoEvents()
+            
             ResizeGUI()
-            UpdateUI.UpdateUi()
         End While
     End Sub
 

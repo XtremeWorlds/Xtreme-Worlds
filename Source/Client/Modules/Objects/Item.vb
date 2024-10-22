@@ -30,11 +30,7 @@ Module Item
         Next
 
     End Sub
-
-    Friend Sub ClearChangedItem()
-        ReDim Item_Changed(MAX_ITEMS)
-    End Sub
-
+    
     Sub StreamItem(itemNum As Integer)
         If itemNum > 0 and Type.Item(itemNum).Name = "" Or Item_Loaded(itemNum) = False Then
             Item_Loaded(itemNum) = True

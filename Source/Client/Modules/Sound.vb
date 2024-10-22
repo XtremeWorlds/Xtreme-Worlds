@@ -57,28 +57,28 @@ Module Sound
                 FadeInSwitch = True
             End If
         Catch ex As Exception
-            MessageBox.Show($"Error playing music: {ex.Message}")
+            Console.WriteLine($"Error playing music: {ex.Message}")
         End Try
     End Sub
 
     Sub InitializeBASS()
         ' Initialize BASS with the default output device
         If Not Bass.Init(-1, 44100, DeviceInitFlags.Default) Then
-            MessageBox.Show($"Failed to initialize BASS. Error: {Bass.LastError}")
+            Console.WriteLine($"Failed to initialize BASS. Error: {Bass.LastError}")
             Exit Sub
         End If
 
         ' Load the SoundFont (.sf2) for MIDI playback
         Dim soundFontPath As String = "GeneralUser.sf2"
         If Not File.Exists(soundFontPath) Then
-            MessageBox.Show($"SoundFont not found: {soundFontPath}")
+            Console.WriteLine($"SoundFont not found: {soundFontPath}")
             Exit Sub
         End If
 
         ' Initialize the SoundFont
         SoundFontHandle = BassMidi.FontInit(soundFontPath, BassFlags.Default)
         If SoundFontHandle = 0 Then
-            MessageBox.Show($"Failed to load SoundFont. Error: {Bass.LastError}")
+            Console.WriteLine($"Failed to load SoundFont. Error: {Bass.LastError}")
             Exit Sub
         End If
 
@@ -109,12 +109,12 @@ Module Sound
         Dim fontCount As Integer = BassMidi.StreamSetFonts(MusicStream, fonts, fonts.Length)
 
         If fontCount = 0 Then
-            MessageBox.Show($"Failed to assign SoundFont. Error: {Bass.LastError}")
+            Console.WriteLine($"Failed to assign SoundFont. Error: {Bass.LastError}")
         End If
 
         ' Ensure the file exists before attempting to load it
         If Not File.Exists(filePath) Then
-            MessageBox.Show($"MIDI file not found: {filePath}")
+            Console.WriteLine($"MIDI file not found: {filePath}")
             Exit Sub
         End If
 
@@ -124,7 +124,7 @@ Module Sound
         Else
             ' Log the last error if stream creation fails
             Dim errorCode As Errors = Bass.LastError
-            MessageBox.Show($"Failed to load MIDI file. Error: {errorCode}")
+            Console.WriteLine($"Failed to load MIDI file. Error: {errorCode}")
         End If
     End Sub
 
@@ -150,7 +150,7 @@ Module Sound
                 Bass.ChannelPlay(SoundStream)
             End If
         Catch ex As Exception
-            MessageBox.Show($"Failed to load sound: {ex.Message}")
+            Console.WriteLine($"Failed to load sound: {ex.Message}")
         End Try
     End Sub
 
@@ -174,7 +174,7 @@ Module Sound
                 Bass.ChannelPlay(ExtraSoundStream)
             End If
         Catch ex As Exception
-            MessageBox.Show($"Failed to load extra sound: {ex.Message}")
+            Console.WriteLine($"Failed to load extra sound: {ex.Message}")
         End Try
     End Sub
 

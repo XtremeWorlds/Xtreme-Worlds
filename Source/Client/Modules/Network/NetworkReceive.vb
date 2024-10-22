@@ -1046,14 +1046,12 @@ Module NetworkReceive
         For i = 1 To MAX_MAPS
             MapNames(i) = buffer.ReadString()
         Next
-
-        InitMapReport = True
-
+        
         buffer.Dispose()
     End Sub
 
     Private Sub Packet_Admin(ByRef data() As Byte)
-        InitAdminForm = True
+
     End Sub
 
     Private Sub Packet_MapNames(ByRef data() As Byte)
@@ -1111,27 +1109,27 @@ Module NetworkReceive
     '***  EDITORS  ***
     '*****************
     Private Sub Packet_EditAnimation(ByRef data() As Byte)
-        InitAnimationEditor = True
+
     End Sub
 
     Private Sub Packet_ClassEditor(ByRef data() As Byte)
-        InitJobEditor = True
+
     End Sub
 
     Sub Packet_EditItem(ByRef data() As Byte)
-        InitItemEditor = True
+ 
     End Sub
 
     Private Sub Packet_NPCEditor(ByRef data() As Byte)
-        InitNPCEditor = True
+
     End Sub
 
     Private Sub Packet_ResourceEditor(ByRef data() As Byte)
-        InitResourceEditor = True
+
     End Sub
 
     Friend Sub Packet_PetEditor(ByRef data() As Byte)
-        InitPetEditor = True
+
     End Sub
 
     Friend Sub HandleProjectileEditor(ByRef data() As Byte)
@@ -1139,11 +1137,11 @@ Module NetworkReceive
     End Sub
 
     Private Sub Packet_EditShop(ByRef data() As Byte)
-        InitShopEditor = True
+
     End Sub
 
     Private Sub Packet_EditSkill(ByRef data() As Byte)
-        InitSkillEditor = True
+
     End Sub
 
     Private Sub Packet_Clock(ByRef data() As Byte)
@@ -1193,7 +1191,7 @@ Module NetworkReceive
     End Sub
 
     Sub Packet_EditMoral(ByRef data() As Byte)
-        InitMoralEditor = True
+
     End Sub
 
      Sub Packet_UpdateMoral(ByRef data() As Byte)

@@ -1,4 +1,5 @@
 ﻿Imports System.Windows.Forms
+Imports Microsoft.Xna.Framework.Audio
 Imports Microsoft.Xna.Framework.Input
 
 Public Structure ChatCursor
@@ -15,28 +16,7 @@ Public Structure ChatData
     Friend CachedMessage As String
     Friend CurrentMessage As String
     Friend Cursor As ChatCursor
-
-    Friend Function ProcessCharacter(ByRef evt As KeyPressEventArgs) As Boolean
-        If Not Active Then
-            Return False
-        End If
-
-        If CurrentMessage = Nothing Then CurrentMessage = ""
-
-        Select Case evt.KeyChar
-            Case vbBack
-                Exit Select
-
-            Case Else
-                CurrentMessage = CurrentMessage + evt.KeyChar
-                If (CurrentMessage.Length > MessageLimit) Then
-                    CurrentMessage = CurrentMessage.Substring(0, MessageLimit)
-                End If
-        End Select
-
-        Return True
-    End Function
-
+    
     Friend Function ProcessKey(ByVal keyboardState As KeyboardState) As Boolean
         Dim keys = keyboardState.GetPressedKeys()
 
@@ -95,7 +75,7 @@ Public Structure ChatData
 
                 Case Microsoft.Xna.Framework.Input.Keys.V
                     If keyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftControl) OrElse keyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightControl) Then
-                        CurrentMessage &= Clipboard.GetText()
+                        'CurrentMessage &= Clipboard.GetText()
                     End If
 
                 Case Else

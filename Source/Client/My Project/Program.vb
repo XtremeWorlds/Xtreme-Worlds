@@ -3,7 +3,6 @@ Imports Microsoft.Xna.Framework.Graphics
 Imports Microsoft.Xna.Framework.Input
 Imports Core
 Imports System.IO
-Imports SharpDX.Direct2D1
 Imports System.Runtime.InteropServices
 Imports System.Collections.Concurrent
 Imports System.Data
@@ -42,6 +41,13 @@ Public Class GameClient
     Private controlText As String = ""
     Private controlLocked As Boolean = False
     Private maxTextLength As Integer = 20
+    
+    Private TilesetWindow As RenderTarget2D
+    Private EditorAnimation_Anim1 As RenderTarget2D
+    Private EditorAnimation_Anim2 As RenderTarget2D
+    Private RenderTarget As RenderTarget2D
+    Private screenshotKey As Keys = Keys.F12 ' Key to trigger screenshot
+    Private TransparentTexture As Texture2D
 
     ' Ensure this class exists to store graphic info
     Public Class GraphicInfo
@@ -55,17 +61,6 @@ Public Class GameClient
         GfxInfoCache.TryGetValue(key, result)
         Return result
     End Function
-
-#Region "Declarations"
-
-    Friend TilesetWindow As RenderTarget2D
-    Friend EditorAnimation_Anim1 As RenderTarget2D
-    Friend EditorAnimation_Anim2 As RenderTarget2D
-    Friend RenderTarget As RenderTarget2D
-    Friend screenshotKey As Keys = Keys.F12 ' Key to trigger screenshot
-    Friend TransparentTexture As Texture2D
-
-#End Region
 
     Public Sub New()
         Settings.Load()
@@ -514,53 +509,7 @@ Public Class GameClient
                 Throw New ArgumentOutOfRangeException(NameOf(qbColor), "Invalid QbColor value.")
         End Select
     End Function
-
-    Public Sub RenderToPictureBox(pictureBox As PictureBox, texture As Texture2D)
-        ' Create a new RenderTarget2D matching the PictureBox dimensions
-        Dim renderTarget As New RenderTarget2D(GraphicsDevice, pictureBox.Width, pictureBox.Height)
-
-        ' Set the render target and clear it
-        GraphicsDevice.SetRenderTarget(renderTarget)
-        GraphicsDevice.Clear(Color.CornflowerBlue)
-
-        ' Begin SpriteBatch and render the texture
-        SpriteBatch.Begin()
-        SpriteBatch.Draw(texture, New Rectangle(0, 0, pictureBox.Width, pictureBox.Height), Color.White)
-        SpriteBatch.End()
-
-        ' Reset to the back buffer
-        GraphicsDevice.SetRenderTarget(Nothing)
-
-        ' Save RenderTarget2D to a Bitmap
-        Dim bitmap As Drawing.Bitmap = RenderTargetToBitmap(renderTarget)
-
-        ' Display the bitmap in the PictureBox
-        pictureBox.Image = bitmap
-
-        ' Dispose of resources
-        renderTarget.Dispose()
-    End Sub
-
-    ' Convert RenderTarget2D to Bitmap
-    Private Function RenderTargetToBitmap(renderTarget As RenderTarget2D) As Drawing.Bitmap
-        ' Get the pixel data from RenderTarget2D
-        Dim data(renderTarget.Width * renderTarget.Height - 1) As Color
-        renderTarget.GetData(data)
-
-        ' Create a new Bitmap
-        Dim bitmap As New Drawing.Bitmap(renderTarget.Width, renderTarget.Height, Imaging.PixelFormat.Format32bppArgb)
-
-        ' Copy the pixel data to the Bitmap
-        For y As Integer = 0 To renderTarget.Height - 1
-            For x As Integer = 0 To renderTarget.Width - 1
-                Dim color As Color = data(y * renderTarget.Width + x)
-                bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B))
-            Next
-        Next
-
-        Return bitmap
-    End Function
-
+    
     Friend Sub DrawEmote(x2 As Integer, y2 As Integer, sprite As Integer)
         Dim rec As Rectangle
         Dim x As Integer, y As Integer, anim As Integer
@@ -942,48 +891,7 @@ Public Class GameClient
 
         SpriteBatch.End()
     End Sub
-
-    Friend Sub DrawTileOutline()
-        ' Begin the sprite batch for drawing
-        SpriteBatch.Begin()
-
-        ' Example rectangle (replace with your actual logic)
-        Dim rect As New Rectangle(100, 100, 200, 100)
-        Dim fillColor As Color = Color.Transparent
-        Dim outlineColor As Color = Color.Blue
-        Dim outlineThickness As Integer = 2
-
-        ' Draw the outlined rectangle
-        DrawRectangleWithOutline(rect, fillColor, outlineColor, outlineThickness)
-
-        ' Render the tileset texture if in the correct editor tab
-        If frmEditor_Map.tabpages.SelectedTab Is frmEditor_Map.tpAttributes Then
-            ' No specific rendering here; only setting size for attributes
-        Else
-            Dim selectedTileTexture = IO.Path.Combine(Core.Path.Tilesets, frmEditor_Map.cmbTileSets.SelectedIndex + 1)
-            Dim rec2 As New Rectangle()
-
-            If EditorTileWidth = 1 AndAlso EditorTileHeight = 1 Then
-                EnqueueTexture(selectedTileTexture,
-                              ConvertMapX(CurX * PicX), ConvertMapY(CurY * PicY),
-                              EditorTileSelStart.X * PicX, EditorTileSelStart.Y * PicY,
-                              PicX, PicY)
-            ElseIf frmEditor_Map.cmbAutoTile.SelectedIndex > 0 Then
-                EnqueueTexture(selectedTileTexture,
-                              ConvertMapX(CurX * PicX), ConvertMapY(CurY * PicY),
-                              EditorTileSelStart.X * PicX, EditorTileSelStart.Y * PicY,
-                              EditorTileSelEnd.X * PicX, EditorTileSelEnd.Y * PicY)
-            End If
-
-            ' Draw a filled rectangle for the tile selection
-            Dim position As New Vector2(ConvertMapX(CurX * PicX), ConvertMapY(CurY * PicY))
-            'SpriteBatch.Draw(PixelTexture, New Rectangle(CInt(position.X), CInt(position.Y), CInt(rec2.Width), CInt(rec2.Height)), Color.White)
-        End If
-
-        ' End the sprite batch
-        SpriteBatch.End()
-    End Sub
-
+    
     Friend Sub DrawTarget(x2 As Integer, y2 As Integer)
         Dim rec As Rectangle
         Dim x As Integer, y As Integer
@@ -1022,195 +930,7 @@ Public Class GameClient
 
         EnqueueTexture(IO.Path.Combine(Core.Path.Misc, "Target"), x, y, rec.X, rec.Y, rec.Width, rec.Height, rec.Width, rec.Height)
     End Sub
-
-    Friend Sub EditorItem_DrawIcon()
-        Dim itemnum As Integer
-        itemnum = frmEditor_Item.nudIcon.Value
-
-        If itemnum < 1 Or itemnum > NumItems Then
-            frmEditor_Item.picItem.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "items\" & itemnum & GfxExt) Then
-            frmEditor_Item.picItem.BackgroundImage = Drawing.Image.FromFile(Core.Path.Graphics & "items\" & itemnum & GfxExt)
-        Else
-            frmEditor_Item.picItem.BackgroundImage = Nothing
-        End If
-    End Sub
-
-    Friend Sub EditorItem_DrawPaperdoll()
-        Dim Sprite As Integer
-
-        Sprite = frmEditor_Item.nudPaperdoll.Value
-
-        If Sprite < 1 Or Sprite > NumPaperdolls Then
-            frmEditor_Item.picPaperdoll.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "paperdolls\" & Sprite & GfxExt) Then
-            frmEditor_Item.picPaperdoll.BackgroundImage =
-                Drawing.Image.FromFile(Core.Path.Graphics & "paperdolls\" & Sprite & GfxExt)
-        End If
-    End Sub
-
-    Friend Sub EditorNPC_DrawSprite()
-        Dim Sprite As Integer
-
-        Sprite = frmEditor_NPC.nudSprite.Value
-
-        If Sprite < 1 Or Sprite > NumCharacters Then
-            frmEditor_NPC.picSprite.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "characters\" & Sprite & GfxExt) Then
-            frmEditor_NPC.picSprite.Width =
-                Drawing.Image.FromFile(Core.Path.Graphics & "characters\" & Sprite & GfxExt).Width / 4
-            frmEditor_NPC.picSprite.Height =
-                Drawing.Image.FromFile(Core.Path.Graphics & "characters\" & Sprite & GfxExt).Height / 4
-            frmEditor_NPC.picSprite.BackgroundImage =
-                Drawing.Image.FromFile(Core.Path.Graphics & "characters\" & Sprite & GfxExt)
-        End If
-    End Sub
-
-    Friend Sub EditorResource_DrawSprite()
-        Dim Sprite As Integer
-
-        ' normal sprite
-        Sprite = frmEditor_Resource.nudNormalPic.Value
-
-        If Sprite < 1 Or Sprite > NumResources Then
-            frmEditor_Resource.picNormalpic.BackgroundImage = Nothing
-        Else
-            If File.Exists(Core.Path.Graphics & "resources\" & Sprite & GfxExt) Then
-                frmEditor_Resource.picNormalpic.BackgroundImage =
-                    Drawing.Image.FromFile(Core.Path.Graphics & "resources\" & Sprite & GfxExt)
-            End If
-        End If
-
-        ' exhausted sprite
-        Sprite = frmEditor_Resource.nudExhaustedPic.Value
-
-        If Sprite < 1 Or Sprite > NumResources Then
-            frmEditor_Resource.picExhaustedPic.BackgroundImage = Nothing
-        Else
-            If File.Exists(Core.Path.Graphics & "resources\" & Sprite & GfxExt) Then
-                frmEditor_Resource.picExhaustedPic.BackgroundImage =
-                    Drawing.Image.FromFile(Core.Path.Graphics & "resources\" & Sprite & GfxExt)
-            End If
-        End If
-    End Sub
-
-    Friend Sub EditorEvent_DrawPicture()
-        Dim Sprite As Integer
-
-        Sprite = frmEditor_Event.nudShowPicture.Value
-
-        If Sprite < 1 Or Sprite > NumPictures Then
-            frmEditor_Event.picShowPic.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "pictures\" & Sprite & GfxExt) Then
-            frmEditor_Event.picShowPic.Width =
-                Drawing.Image.FromFile(Core.Path.Graphics & "pictures\" & Sprite & GfxExt).Width
-            frmEditor_Event.picShowPic.Height =
-                Drawing.Image.FromFile(Core.Path.Graphics & "pictures\" & Sprite & GfxExt).Height
-            frmEditor_Event.picShowPic.BackgroundImage =
-                Drawing.Image.FromFile(Core.Path.Graphics & "pictures\" & Sprite & GfxExt)
-        End If
-    End Sub
-
-    Friend Sub EditorSkill_DrawIcon()
-        Dim skillNum As Integer
-        skillNum = frmEditor_Skill.nudIcon.Value
-
-        If skillNum < 1 Or skillNum > NumItems Then
-            frmEditor_Skill.picSprite.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "Skills\" & skillNum & GfxExt) Then
-            frmEditor_Skill.picSprite.BackgroundImage = Drawing.Image.FromFile(Core.Path.Graphics & "Skills\" & skillNum & GfxExt)
-        Else
-            frmEditor_Skill.picSprite.BackgroundImage = Nothing
-        End If
-    End Sub
-
-    Friend Sub EditorAnim_DrawSprite()
-        With FrmEditor_Animation
-            ProcessAnimation(.nudSprite0, .nudFrameCount0, .nudLoopTime0, 0, EditorAnimation_Anim1, .picSprite0)
-            ProcessAnimation(.nudSprite1, .nudFrameCount1, .nudLoopTime1, 1, EditorAnimation_Anim2, .picSprite1)
-        End With
-    End Sub
-
-    Public Sub ProcessAnimation(animationControl As NumericUpDown,
-                            frameCountControl As NumericUpDown,
-                            loopCountControl As NumericUpDown,
-                            animationTimerIndex As Integer,
-                            animationDisplay As RenderTarget2D,
-                            backgroundColorControl As PictureBox)
-
-        ' Get the animation number and validate its range
-        Dim animationNum As Integer = animationControl.Value
-        If animationNum <= 0 OrElse animationNum > NumAnimations Then Exit Sub
-
-        ' Retrieve animation texture dimensions
-        Dim totalWidth As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, animationNum)).Width
-        Dim totalHeight As Integer = Client.GetGraphicInfo(System.IO.Path.Combine(Core.Path.Animations, animationNum)).Height
-
-        ' Get the number of columns from the control
-        Dim columns As Integer = frameCountControl.Value
-        If columns <= 0 Then Exit Sub ' Avoid division by zero
-
-        ' Calculate frame dimensions (assuming square frames)
-        Dim frameWidth As Integer = totalWidth \ columns
-        Dim frameHeight As Integer = frameWidth ' Adjust if frames are not square
-
-        ' Calculate the number of rows and total frames
-        Dim rows As Integer = If(frameHeight > 0, totalHeight \ frameHeight, 1)
-        Dim frameCount As Integer = rows * columns
-
-        ' Get loop time from the control
-        Dim looptime As Integer = loopCountControl.Value
-
-        ' Check if it's time to update the frame
-        If AnimEditorTimer(animationTimerIndex) + looptime <= GetTickCount() Then
-            If AnimEditorFrame(animationTimerIndex) >= frameCount Then
-                AnimEditorFrame(animationTimerIndex) = 1 ' Loop back to the first frame
-            Else
-                AnimEditorFrame(animationTimerIndex) += 1
-            End If
-            AnimEditorTimer(animationTimerIndex) = GetTickCount()
-        End If
-
-        ' Render the current frame to the RenderTarget2D
-        GraphicsDevice.SetRenderTarget(animationDisplay)
-        GraphicsDevice.Clear(Color.Black) ' Clear with background color
-
-        ' Begin SpriteBatch for rendering
-        SpriteBatch.Begin()
-
-        ' Calculate the current frame index and its position in the texture
-        Dim frameIndex As Integer = AnimEditorFrame(animationTimerIndex) - 1
-        Dim column As Integer = frameIndex Mod columns
-        Dim row As Integer = frameIndex \ columns
-        Dim sourceRect As New Rectangle(column * frameWidth, row * frameHeight, frameWidth, frameHeight)
-
-        ' Render the texture to the target
-        SpriteBatch.Draw(Client.GetTexture(Core.Path.Animations & animationNum),
-                         New Rectangle(0, 0, frameWidth, frameHeight),
-                         sourceRect,
-                         Color.White)
-
-        SpriteBatch.End()
-
-        ' Reset to the default back buffer
-        GraphicsDevice.SetRenderTarget(Nothing)
-    End Sub
-
+    
     Public Sub DrawChatBubble(ByVal Index As Long)
         Dim theArray() As String, x As Long, y As Long, i As Long, MaxWidth As Long, x2 As Long, y2 As Long, Color As Integer, tmpNum As Long
 
@@ -1429,32 +1149,7 @@ Public Class GameClient
             DrawEmote(x, y, Type.Player(MyIndex).Emote)
         End If
     End Sub
-
-    Public Sub EditorEvent_DrawGraphic()
-        If Not frmEditor_Event.picGraphicSel.Visible Then Exit Sub
-
-        Select Case frmEditor_Event.cmbGraphic.SelectedIndex
-            Case 0 ' None
-                frmEditor_Event.picGraphicSel.BackgroundImage = Nothing
-
-            Case 1 ' Character Graphic
-                If frmEditor_Event.nudGraphic.Value > 0 And frmEditor_Event.nudGraphic.Value <= NumCharacters Then
-                    RenderToPictureBox(frmEditor_Event.picGraphic, GetTexture(IO.Path.Combine(Core.Path.Characters, frmEditor_Event.nudGraphic.Value & GfxExt)))
-                Else
-                    frmEditor_Event.picGraphic.BackgroundImage = Nothing
-                End If
-
-            Case 2 ' Tileset Graphic
-                If frmEditor_Event.nudGraphic.Value > 0 And frmEditor_Event.nudGraphic.Value <= NumTileSets Then
-                    Dim texture As Texture2D = GetTexture(IO.Path.Combine(Core.Path.Tilesets, frmEditor_Event.nudGraphic.Value & GfxExt))
-                    RenderToPictureBox(frmEditor_Event.picGraphic, texture)
-                    RenderToPictureBox(frmEditor_Event.picGraphicSel, texture)
-                Else
-                    frmEditor_Event.picGraphicSel.BackgroundImage = Nothing
-                End If
-        End Select
-    End Sub
-
+    
     Friend Sub DrawEvents()
         If MyMap.EventCount <= 0 Then Exit Sub ' Exit early if no events
 
@@ -1812,14 +1507,7 @@ Public Class GameClient
         If MapGrid = True And MyEditorType = EditorType.Map Then
             Client.DrawGrid()
         End If
-
-        If MyEditorType = EditorType.Map Then
-            Client.DrawTileOutline()
-            If EyeDropper = True Then
-                Client.DrawEyeDropper()
-            End If
-        End If
-
+        
         For i = 1 To MAX_PLAYERS
             If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
                 DrawPlayerName(i)
@@ -1852,20 +1540,6 @@ Public Class GameClient
             DrawActionMsg(i)
         Next
 
-        If MyEditorType = EditorType.Map Then
-            If frmEditor_Map.tabpages.SelectedTab Is frmEditor_Map.tpDirBlock Then
-                For x = TileView.Left - 1 To TileView.Right + 1
-                    For y = TileView.Top - 1 To TileView.Bottom + 1
-                        If IsValidMapPoint(x, y) Then
-                            Call Client.DrawDirections(x, y)
-                        End If
-                    Next
-                Next
-            End If
-
-            DrawMapAttributes()
-        End If
-
         For i = 1 To Byte.MaxValue
             If ChatBubble(i).Active Then
                 Client.DrawChatBubble(i)
@@ -1889,15 +1563,6 @@ Public Class GameClient
         End If
 
         DrawMapName()
-
-        If MyEditorType = EditorType.Map And frmEditor_Map.tabpages.SelectedTab Is frmEditor_Map.tpEvents Then
-            Client.DrawEvents()
-            Client.EditorEvent_DrawGraphic()
-        End If
-
-        If MyEditorType = EditorType.Projectile Then
-            EditorProjectile_DrawProjectile()
-        End If
 
         Client.DrawBars()
         DrawMapFade()

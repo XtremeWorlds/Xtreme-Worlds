@@ -261,71 +261,7 @@ Friend Module Projectile
         Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Projectiles & sprite), x, y, rec.Left, rec.Top, 32, 32)
 
     End Sub
-
-    Friend Sub EditorProjectile_DrawProjectile()
-        Dim iconnum As Integer
-
-        iconnum = frmEditor_Projectile.nudPic.Value
-
-        If iconnum < 1 Or iconnum > NumProjectiles Then
-            frmEditor_Projectile.picProjectile.BackgroundImage = Nothing
-            Exit Sub
-        End If
-
-        If File.Exists(Core.Path.Graphics & "Projectiles\" & iconnum & GfxExt) Then
-            frmEditor_Projectile.picProjectile.BackgroundImage = Drawing.Image.FromFile(Core.Path.Graphics & "Projectiles\" & iconnum & GfxExt)
-        End If
-
-    End Sub
-#End Region
-
-#Region "Projectile Editor"
-
-    Friend Sub ProjectileEditorInit()
-        EditorIndex = frmEditor_Projectile.lstIndex.SelectedIndex + 1
-
-        With Type.Projectile(EditorIndex)
-            frmEditor_Projectile.txtName.Text = .Name
-            frmEditor_Projectile.nudPic.Value = .Sprite
-            frmEditor_Projectile.nudRange.Value = .Range
-            frmEditor_Projectile.nudSpeed.Value = .Speed
-            frmEditor_Projectile.nudDamage.Value = .Damage
-        End With
-
-        ProjectileChanged(EditorIndex) = True
-
-    End Sub
-
-    Friend Sub ProjectileEditorOk()
-        Dim i As Integer
-
-       For i = 1 To MAX_PROJECTILES
-            If ProjectileChanged(i) Then
-                Call SendSaveProjectile(i)
-            End If
-        Next
-
-        MyEditorType = -1
-        ClearChanged_Projectile()
-        SendCloseEditor()
-    End Sub
-
-    Friend Sub ProjectileEditorCancel()
-        MyEditorType = -1
-        ClearChanged_Projectile()
-        ClearProjectile()
-        SendCloseEditor()
-    End Sub
-
-    Friend Sub ClearChanged_Projectile()
-        Dim i As Integer
-
-        For i = 1 To MAX_PROJECTILES
-            ProjectileChanged(i) = False
-        Next
-
-    End Sub
-
+    
 #End Region
 
 End Module

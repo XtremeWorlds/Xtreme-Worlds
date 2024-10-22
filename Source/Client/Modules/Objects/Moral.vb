@@ -21,10 +21,6 @@ Friend Module Moral
         Next
     End Sub
 
-    Friend Sub ClearChangedMoral()
-        ReDim Moral_Changed(MAX_MORALS)
-    End Sub
-
     Friend Sub StreamMoral(moralNum As Integer)
         If moralnum > 0 and Type.Moral(moralNum).Name = "" Or Moral_Loaded(moralNum) = False Then
             Moral_Loaded(moralNum) = True

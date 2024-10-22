@@ -1,5 +1,6 @@
 ﻿Imports Client.GameClient
 Imports Core
+Imports Microsoft.Xna.Framework
 Imports Mirage.Sharp.Asfw
 
 Module Animation

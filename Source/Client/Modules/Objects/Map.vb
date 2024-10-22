@@ -95,14 +95,9 @@ Module Map
                         .Width = PicX
                         .Height = PicY
                     End With
-
-                    ' Set transparency for layers if editing
-                    If MyEditorType = EditorType.Map AndAlso HideLayers Then
-                        alpha = If(i = frmEditor_Map.cmbLayers.SelectedIndex, 255, 127)
-                    Else
-                        alpha = 255
-                    End If
-
+                    
+                    alpha = 255
+                    
                     ' Render the tile
                     Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * PicX), ConvertMapY(y * PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
 
@@ -159,12 +154,7 @@ mapsync:
                         .Height = PicY
                     End With
 
-                    ' Adjust alpha transparency based on whether layers are hidden in editor mode
-                    If MyEditorType = EditorType.Map AndAlso HideLayers Then
-                        alpha = If(i = frmEditor_Map.cmbLayers.SelectedIndex, 255, 127)
-                    Else
-                        alpha = 255
-                    End If
+                    alpha = 255
 
                     ' Render the tile with the calculated rectangle and transparency
                     Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * PicX), ConvertMapY(y * PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
@@ -486,8 +476,7 @@ HistoryIndex = 0
 
     Friend Sub Packet_EditMap(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
-        InitMapEditor = True
-
+        
         buffer.Dispose()
     End Sub
 

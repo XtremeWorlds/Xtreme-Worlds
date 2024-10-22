@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <TargetFramework>net8.0-windows</TargetFramework>
-	<StartupObject>Client.FrmGame</StartupObject>
-    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
-	<MyType>WindowsForms</MyType>
+	<MyType>Empty</MyType>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ManifestCertificateThumbprint>181BBD77C201FB969E61DF100063FD42A08B2BE6</ManifestCertificateThumbprint>
     <ManifestKeyFile>XtremeWorlds.pfx</ManifestKeyFile>
@@ -29,10 +28,6 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-	<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-	<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
-	<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\..\Build\Client\</OutputPath>
@@ -50,53 +45,6 @@
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Remove="My Project\app.manifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <Import Include="System.Drawing" />
-    <Import Include="System.Windows.Forms" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="My Project\Resources.Designer.vb">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Animation.Designer.vb">
-      <DependentUpon>frmEditor_Animation.vb</DependentUpon>
-    </Compile>
-	  <Compile Update="Forms\Editors\frmEditor_Job.Designer.vb">
-      <DependentUpon>frmEditor_Job.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Event.Designer.vb">
-      <DependentUpon>frmEditor_Event.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Item.Designer.vb">
-      <DependentUpon>frmEditor_Item.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Map.designer.vb">
-      <DependentUpon>frmEditor_Map.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_NPC.Designer.vb">
-      <DependentUpon>frmEditor_NPC.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Pet.Designer.vb">
-      <DependentUpon>frmEditor_Pet.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Projectile.Designer.vb">
-      <DependentUpon>frmEditor_Projectile.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Resource.Designer.vb">
-      <DependentUpon>frmEditor_Resource.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Shop.Designer.vb">
-      <DependentUpon>frmEditor_Shop.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Editors\frmEditor_Skill.Designer.vb">
-      <DependentUpon>frmEditor_Skill.vb</DependentUpon>
-    </Compile>
-    <Compile Update="Forms\Game\frmAdmin.Designer.vb">
-      <DependentUpon>frmAdmin.vb</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="appSetting.client.json">
@@ -6966,13 +6914,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="icon.ico" />
-    <Content Include="Resources\Clear.png" />
-    <Content Include="Resources\Exit.png" />
-    <Content Include="Resources\Fill.png" />
-    <Content Include="Resources\Grid.png" />
-    <Content Include="Resources\Preview.png" />
-    <Content Include="Resources\Save.png" />
-    <Content Include="Resources\ScreenShot.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">
@@ -6982,19 +6923,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vbproj" />
-    <ProjectReference Include="..\DarkUI\DarkUI\DarkUI.csproj" />
     <ProjectReference Include="..\Network\Asfw.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="My Project\Resources.resx">
-      <CustomToolNamespace>My.Resources</CustomToolNamespace>
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ManagedBass" />
     <PackageReference Include="ManagedBass.Midi" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\.nuget\packages\monogame.framework.desktopgl\3.8.2.1105\lib\net8.0\MonoGame.Framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>

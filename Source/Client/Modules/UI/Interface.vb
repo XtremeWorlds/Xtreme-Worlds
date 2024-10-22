@@ -4,6 +4,7 @@ Imports Core.Enum
 Imports Type
 Imports Microsoft.Xna.Framework.Graphics
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+Imports Microsoft.Xna.Framework
 Imports SharpDX.Direct2D1
 
 Module [Interface]

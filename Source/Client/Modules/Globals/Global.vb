@@ -1,4 +1,5 @@
 ﻿Imports Core
+Imports Microsoft.Xna.Framework
 Imports Mirage.Sharp.Asfw.IO.Encryption
 
 Module [Global]
@@ -233,34 +234,8 @@ Module [Global]
     Public Pet_Loaded(MAX_PETS)
     Public Moral_Loaded(MAX_MORALS)
 
-    ' Editor edited items array
-    Public Item_Changed(MAX_ITEMS) As Boolean
-    Public NPC_Changed(MAX_NPCS) As Boolean
-    Public Resource_Changed(MAX_RESOURCES) As Boolean
-    Public Animation_Changed(MAX_ANIMATIONS) As Boolean
-    Public Skill_Changed(MAX_SKILLS) As Boolean
-    Public Shop_Changed(MAX_SHOPS) As Boolean
-    Public Pet_Changed(MAX_PETS) As Boolean
-    Public Job_Changed(MAX_JOBS) As Boolean
-    Public Moral_Changed(MAX_MORALS) As Boolean
-
     Public AnimEditorFrame(1) As Integer
     Public AnimEditorTimer(1) As Integer
-
-    ' Editors
-    Public InitEditor As Boolean
-    Public InitMapEditor As Boolean
-    Public InitPetEditor As Boolean
-    Public InitItemEditor As Boolean
-    Public InitResourceEditor As Boolean
-    Public InitNPCEditor As Boolean
-    Public InitSkillEditor As Boolean
-    Public InitShopEditor As Boolean
-    Public InitAnimationEditor As Boolean
-    Public InitJobEditor As Boolean
-    Public InitMoralEditor As Boolean
-    Public InitAdminForm As Boolean
-    Public InitMapReport As Boolean
 
     Public MovementSpeed As Double
     Public CurrentCameraX As Double
@@ -282,4 +257,15 @@ Module [Global]
     Friend NumInterface As Integer
     Friend NumGradients As Integer
     Friend NumDesigns As Integer
+    
+    Friend GameDestroyed As Boolean
+
+    Friend VbKeyRight As Boolean
+    Friend VbKeyLeft As Boolean
+    Friend VbKeyUp As Boolean
+    Friend VbKeyDown As Boolean
+    Friend VbKeyShift As Boolean
+    Friend VbKeyControl As Boolean
+    Friend VbKeyAlt As Boolean
+    Friend VbKeyEnter As Boolean
 End Module
