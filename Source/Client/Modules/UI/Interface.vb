@@ -4060,7 +4060,7 @@ Module [Interface]
     Sub DrawMenuBG()
         ' row 1
         Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "1"), ResolutionWidth - 512, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "2"), -1024, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "2"), ResolutionWidth - 1024, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
         Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "3"), ResolutionWidth - 1536, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
         Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "4"), ResolutionWidth - 2048, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
 
