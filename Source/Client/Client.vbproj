@@ -6930,9 +6930,7 @@
     <PackageReference Include="ManagedBass.Midi" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\.nuget\packages\monogame.framework.desktopgl\3.8.2.1105\lib\net8.0\MonoGame.Framework.dll</HintPath>
-    </Reference>
+    <Folder Include="Content\Graphics\Paperdolls\" />
   </ItemGroup>
   <PropertyGroup>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
