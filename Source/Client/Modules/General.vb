@@ -14,6 +14,7 @@ Module General
         InMenu = True
         ClearGameData()
         LoadGame()
+        Client.LoadingCompleted.WaitOne()
         GameLoop()
     End Sub
 

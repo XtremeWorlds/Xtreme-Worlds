@@ -7,6 +7,7 @@ Imports System.Runtime.InteropServices
 Imports System.Collections.Concurrent
 Imports System.Data
 Imports System.Net.Mime
+Imports System.Threading
 
 Public Class GameClient
     Inherits Game
@@ -18,6 +19,10 @@ Public Class GameClient
     Public ReadOnly MouseCache As New ConcurrentDictionary(Of String, Integer)
     Public ReadOnly KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
     Public ReadOnly MultiplyBlendState As New BlendState()
+    
+    ' ManualResetEvent to signal when loading is complete
+    Public LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
+    Private isLoading As Boolean = True
 
     ' Thread-safe queue to hold render commands
     Public RenderQueue As New ConcurrentQueue(Of RenderCommand)()
@@ -163,6 +168,10 @@ Public Class GameClient
         TransparentTexture.SetData(New Color() {Color.White})
 
         LoadFonts()
+        
+        ' Signal that loading is complete
+        loadingCompleted.Set()
+        isLoading = False
     End Sub
 
     Public Function LoadFont(path As String, font As FontType) As SpriteFont
@@ -240,6 +249,7 @@ Public Class GameClient
 
     Protected Overrides Sub Draw(gameTime As GameTime)
         GraphicsDevice.Clear(Color.Black)
+        GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
 
         SpriteBatch.Begin()
 
