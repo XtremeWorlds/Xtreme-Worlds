@@ -149,32 +149,7 @@ Public Class GameClient
         Public Property Color As Color
         Public Property Color2 As Color
     End Class
-
-    Public Sub RenderTexture(ByRef texture As Texture2D, dX As Integer, dY As Integer,
-                         sX As Integer, sY As Integer, dW As Integer, dH As Integer,
-                         Optional sW As Integer = 1, Optional sH As Integer = 1,
-                         Optional alpha As Byte = 255, Optional red As Byte = 255,
-                         Optional green As Byte = 255, Optional blue As Byte = 255)
-
-        ' If texture is still nothing, exit to avoid null reference exception
-        If texture Is Nothing Then
-            Console.WriteLine("Texture not found or failed to load.")
-            Exit Sub
-        End If
-
-        ' Create source and destination rectangles
-        Dim sourceRect As New Rectangle(sX, sY, sW, sH)
-        Dim destinationRect As New Rectangle(dX, dY, dW, dH)
-
-        ' Create a color with specified alpha and RGB values
-        Dim color As New Color(red, green, blue, alpha)
-
-        ' Draw the texture using SpriteBatch
-        SpriteBatch.Begin()
-        SpriteBatch.Draw(texture, destinationRect, sourceRect, color)
-        SpriteBatch.End()
-    End Sub
-
+    
     Private Sub LoadFonts()
         For i = 1 To FontType.Count - 1
             Fonts(i) = LoadFont(Core.Path.Fonts, i)
@@ -296,8 +271,6 @@ Public Class GameClient
     End Sub
 
     Protected Overrides Sub Update(gameTime As GameTime)
-        Dim mouseButton As MouseButton
-
         MyBase.Update(gameTime)
 
         ' Poll the current keyboard state
