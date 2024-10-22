@@ -80,13 +80,6 @@
     <ProjectReference Include="..\Core\Core.vbproj" />
     <ProjectReference Include="..\Network\Asfw.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ManagedBass" />
-    <PackageReference Include="ManagedBass.Midi" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Content\Graphics\Paperdolls\" />
-  </ItemGroup>
   <PropertyGroup>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
