@@ -83,7 +83,7 @@ Public Class GameClient
         Content.RootDirectory = "Content"
 
         ' Hook into the Exiting event to handle window close
-        AddHandler Me.Exiting, AddressOf WindowClosed
+        AddHandler Me.Exiting, AddressOf OnWindowClose
     End Sub
 
     ' Populate the dictionary in a shared Sub or Constructor
@@ -331,9 +331,7 @@ Public Class GameClient
         previousScrollValue = currentScrollValue
     End Sub
 
-    Private Sub WindowClosed(ByVal sender As Object, ByVal e As EventArgs)
-        ' Handle any cleanup logic before the game exits
-        Console.WriteLine("Window Closed")
+    Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()
         Environment.Exit(0)
     End Sub

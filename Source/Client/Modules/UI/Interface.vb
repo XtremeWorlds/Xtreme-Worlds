@@ -1155,15 +1155,20 @@ Module [Interface]
 
                     ' render image
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt), .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)), .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
                     End If
 
                     ' render icon
                     If .Icon > 0 Then
-                        width = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Width
-                        height = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Items, .Icon)).Height
+                        Dim gfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Items, .Icon))
+                        If gfxInfo Is Nothing Then
+                            Return ' Handle the missing texture case
+                        End If
 
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon & GfxExt), .Left + xO + .xOffset, .Top + yO + .yOffset, 0, 0, width, height, width, height)
+                        width = gfxInfo.Width
+                        height = gfxInfo.Height
+
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon), .Left + xO + .xOffset, .Top + yO + .yOffset, 0, 0, width, height, width, height)
                     End If
 
                     ' for changing the text space
@@ -1260,7 +1265,7 @@ Module [Interface]
                             If .Value = 0 Then sprite = 2 Else sprite = 3
 
                             ' render box
-                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite & GfxExt), .Left + xO, .Top + yO, 0, 0, 16, 16, 16, 16)
+                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite), .Left + xO, .Top + yO, 0, 0, 16, 16, 16, 16)
 
                             ' find text position
                             Select Case .Align
@@ -1287,11 +1292,11 @@ Module [Interface]
 
                         Case DesignType.ChkBuying
                             If .Value = 0 Then sprite = 58 Else sprite = 56
-                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite & GfxExt), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
+                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
 
                         Case DesignType.ChkSelling
                             If .Value = 0 Then sprite = 59 Else sprite = 57
-                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite & GfxExt), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
+                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), sprite), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
                     End Select
 
                 ' comboboxes
@@ -1309,12 +1314,11 @@ Module [Interface]
                             End If
 
                             ' draw the little arow
-                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), "66" & GfxExt), .Left + xO + .Width, .Top + yO, 0, 0, 5, 4, 5, 4)
+                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), "66"), .Left + xO + .Width, .Top + yO, 0, 0, 5, 4, 5, 4)
                     End Select
             End Select
 
             If Not .OnDraw Is Nothing Then .OnDraw()
-
         End With
 
     End Sub
@@ -1336,7 +1340,7 @@ Module [Interface]
 
             Select Case .Design(0)
                 Case DesignType.ComboMenuNorm
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1" & GfxExt), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0)
 
                     ' text
                     If UBound(.List) > 0 Then
@@ -1346,7 +1350,7 @@ Module [Interface]
                         For i = 1 To UBound(.List)
                             ' render select
                             If i = .Value Or i = .Group Then
-                                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1" & GfxExt), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0)
+                                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0)
                             End If
 
                             ' render text
@@ -1366,7 +1370,7 @@ Module [Interface]
             Select Case .Design(.State)
 
                 Case DesignType.Win_Black
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "61" & GfxExt), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255)
 
                 Case DesignType.Win_Norm
                     ' render window
@@ -1374,7 +1378,7 @@ Module [Interface]
                     RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
 
                     ' render icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon & GfxExt), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
 
                     ' render the caption
                     RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
@@ -1389,7 +1393,7 @@ Module [Interface]
                     RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
 
                     ' render the icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon & GfxExt), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
 
                     ' render the caption
                     RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
@@ -2073,15 +2077,19 @@ Module [Interface]
         End Select
 
         ' Render the character's face
+        Dim gfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
+        If gfxInfo Is Nothing Then
+            Return ' Or skip this frame to avoid the crash
+        End If
+
         Client.EnqueueTexture(
             IO.Path.Combine(Core.Path.Characters, imageChar),
             xO + 50, yO + 90,
             0, 0,
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4,
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4,
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4
-        )
+            gfxInfo.Width / 4, gfxInfo.Height / 4,
+            gfxInfo.Width / 4, gfxInfo.Height / 4
+            )
+
     End Sub
 
     Public Sub Jobs_DrawText()
@@ -2260,9 +2268,17 @@ Module [Interface]
             imageChar = Type.Job(newCharJob).FemaleSprite
         End If
 
-        Dim rect = New Rectangle((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4),
-                               (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Width / 4), (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar)).Height / 4))
+        Dim gfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
+        If gfxInfo Is Nothing Then
+            Return ' Or handle this case gracefully
+        End If
 
+        Dim rect = New Rectangle(
+            gfxInfo.Width / 4,
+            gfxInfo.Height / 4,
+            gfxInfo.Width / 4,
+            gfxInfo.Height / 4
+            )
 
         ' render char
         Client.EnqueueTexture(IO.Path.Combine(Core.Path.Characters, imageChar), xO + 190, yO + 100, 0, 0, rect.Width, rect.Height, rect.Width, rect.Height)
@@ -3210,6 +3226,8 @@ Module [Interface]
     Public Sub DrawCharacter()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, sprite As Long, itemNum As Long, ItemIcon As Long
 
+        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        
         xO = Windows(GetWindowIndex("winCharacter")).Window.Left
         yO = Windows(GetWindowIndex("winCharacter")).Window.Top
 
@@ -3313,6 +3331,8 @@ Module [Interface]
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, itemNum As Long, ItemIcon As Long, x As Long, Top As Long, Left As Long, Amount As String
         Dim Color As Microsoft.Xna.Framework.Color, skipItem As Boolean, amountModifier As Long, tmpItem As Long
 
+        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        
         xO = Windows(GetWindowIndex("winInventory")).Window.Left
         yO = Windows(GetWindowIndex("winInventory")).Window.Top
         Width = Windows(GetWindowIndex("winInventory")).Window.Width
@@ -3733,6 +3753,8 @@ Module [Interface]
     Public Sub DrawSkills()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, Skillnum As Long, SkillPic As Long, x As Long, Top As Long, Left As Long
 
+        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        
         xO = Windows(GetWindowIndex("winSkills")).Window.Left
         yO = Windows(GetWindowIndex("winSkills")).Window.Top
 
@@ -4079,6 +4101,9 @@ Module [Interface]
 
     Public Sub DrawHotbar()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, t As Long, sS As String
+        
+        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        
         xO = Windows(GetWindowIndex("winHotbar")).Window.Left
         yO = Windows(GetWindowIndex("winHotbar")).Window.Top
 
@@ -4242,6 +4267,8 @@ Module [Interface]
         Dim Left As Long, top As Long
         Dim color As Long, skipItem As Boolean, amount As Long, tmpItem As Long
 
+        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        
         Xo = Windows(GetWindowIndex("winBank")).Window.Left
         Yo = Windows(GetWindowIndex("winBank")).Window.Top
         width = Windows(GetWindowIndex("winBank")).Window.Width
