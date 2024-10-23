@@ -76,8 +76,6 @@ Public Class GameClient
         ' Set the desired window size
         Graphics.PreferredBackBufferWidth = ResolutionWidth
         Graphics.PreferredBackBufferHeight = ResolutionHeight
-        IsFixedTimeStep = False
-        graphics.SynchronizeWithVerticalRetrace = True ' Enable VSync to reduce tearing
 
         ' Apply changes to ensure the window resizes
         Graphics.ApplyChanges()
