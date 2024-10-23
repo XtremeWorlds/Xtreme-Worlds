@@ -19,6 +19,20 @@ Public Class GameClient
     Public ReadOnly MouseCache As New ConcurrentDictionary(Of String, Integer)
     Public ReadOnly KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
     Public ReadOnly MultiplyBlendState As New BlendState()
+    Public TextureCounter As Integer
+    
+    ' Queue to maintain FIFO order of batches
+    Public Batches As New ConcurrentQueue(Of RenderBatch)()
+
+    Public Class RenderBatch
+        Public Property Texture As Texture2D
+        Public Property Commands As New List(Of RenderCommand)()
+        
+        Public Property TextureID As Integer
+    End Class
+
+    ' List to store all render commands to check for duplicates
+    Private allCommands As New List(Of String)() ' Track "Path-Position" keys
     
     ' ManualResetEvent to signal when loading is complete
     Public LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
@@ -194,49 +208,76 @@ Public Class GameClient
 
         RenderQueue.Enqueue(command)
     End Sub
-    
-    Private batches As New ConcurrentQueue(Of RenderBatch)()
-    
-    Public Class RenderBatch
-        Public Property Texture As Texture2D
-        Public Property Commands As New List(Of RenderCommand)()
-    End Class
-    
+
+    ' Method to enqueue textures and manage duplicates
     Public Sub EnqueueTexture(ByRef path As String, dX As Integer, dY As Integer,
                               sX As Integer, sY As Integer, dW As Integer, dH As Integer,
                               Optional sW As Integer = 1, Optional sH As Integer = 1,
                               Optional alpha As Byte = 255, Optional red As Byte = 255,
                               Optional green As Byte = 255, Optional blue As Byte = 255)
 
-        ' Create the destination and source rectangles
+        ' Create destination and source rectangles
         Dim dRect As New Rectangle(dX, dY, dW, dH)
         Dim sRect As New Rectangle(sX, sY, sW, sH)
         Dim color As New Color(red, green, blue, alpha)
 
         path = EnsureFileExtension(path)
 
-        ' Retrieve the texture once
+        ' Generate a unique key for the texture and position
+        Dim commandKey As String = $"{path}-{dX}-{dY}"
+
+        ' Avoid duplicate commands
+        If allCommands.Contains(commandKey) Then
+            Return ' Skip if the same command already exists
+        End If
+
+        ' Retrieve the texture
         Dim texture = GetTexture(path)
         If texture Is Nothing Then
             Console.WriteLine($"Texture not found: {path}")
             Return
         End If
 
-        ' Add the render command to the appropriate batch
-        Dim batch = batches.FirstOrDefault(Function(b) b.Texture Is texture)
-        If batch Is Nothing Then
-            batch = New RenderBatch() With {.Texture = texture}
-            
-            batch.Commands.Add(New RenderCommand With {
-                                  .Type = RenderType.Texture,
-                                  .Path = path,
-                                  .dRect = dRect,
-                                  .sRect = sRect,
-                                  .Color = color
-                                  })
-            batches.Enqueue(batch)
-        End If
+        ' Track this command
+        allCommands.Add(commandKey)
+
+        ' Increment the TextureCounter
+        Client.TextureCounter += 1
+
+        ' Create a new batch with the texture and TextureID
+        Dim batch = New RenderBatch() With {
+                .Texture = texture,
+                .TextureID = Client.TextureCounter
+                }
+        batch.Commands.Add(New RenderCommand With {
+                              .Type = RenderType.Texture,
+                              .Path = path,
+                              .dRect = dRect,
+                              .sRect = sRect,
+                              .Color = color
+                              })
+
+        ' Enqueue the new batch
+        batches.Enqueue(batch)
     End Sub
+
+    Private Sub CleanUpDuplicates()
+        Dim seenTextureIDs As New HashSet(Of Integer)()
+        Dim cleanedQueue As New ConcurrentQueue(Of RenderBatch)()
+        Dim batch As RenderBatch
+
+        ' Filter batches to keep only the latest ones per TextureID
+        While batches.TryDequeue(batch)
+            If Not seenTextureIDs.Contains(batch.TextureID) Then
+                seenTextureIDs.Add(batch.TextureID) ' Track this TextureID
+                cleanedQueue.Enqueue(batch) ' Keep the batch
+            End If
+        End While
+
+        ' Replace the original queue with the cleaned one
+        batches = cleanedQueue
+    End Sub
+
 
     Public Function GetTexture(path As String) As Texture2D
         If Not TextureCache.ContainsKey(path) Then
@@ -278,14 +319,19 @@ Public Class GameClient
         SpriteBatch.Begin()
 
         ' Directly iterate over the ConcurrentBag
-        For Each batch In batches
-            For Each command In batch.Commands
-                SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
+        SyncLock batches
+            For Each batch In batches
+                For Each command In batch.Commands.ToArray()
+                    SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
+                Next
             Next
-        Next
+        End SyncLock
         SpriteBatch.End()
 
         MyBase.Draw(gameTime)
+        
+        ' Clean up any duplicates with the same TextureID
+        CleanUpDuplicates()
     End Sub
     
     Dim frameCount As Integer = 0

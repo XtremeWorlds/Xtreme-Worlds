@@ -1,4 +1,5 @@
-﻿Imports Client.GameClient
+﻿Imports System.Collections.Concurrent
+Imports Client.GameClient
 Imports Core
 Imports System.IO
 
@@ -108,7 +109,6 @@ Module General
     Friend Sub CheckDesigns()
         NumDesigns = GetFileCount(Core.Path.Designs)
     End Sub
-
 
     Function GetResolutionSize(Resolution As Byte, ByRef Width As Integer, ByRef Height As Integer)
         Select Case Resolution
@@ -302,6 +302,7 @@ Module General
             ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
 
             frameTime = tick
+            Client.TextureCounter = 0
 
             DirUp = VbKeyUp
             DirDown = VbKeyDown
