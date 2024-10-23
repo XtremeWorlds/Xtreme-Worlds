@@ -80,7 +80,7 @@ namespace Mirage.Sharp.Asfw.Network
         return;
       try
       {
-        this._socket.EndConnect(ar);
+        this._socket?.EndConnect(ar);
       }
       catch
       {
