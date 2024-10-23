@@ -2,11 +2,11 @@
 Imports System.Reflection
 
 Public Module [Path]
-
-    ''' <summary> Returns app directory </summary>
+    ''' <summary> Returns the application directory </summary>
     Public ReadOnly Property Local As String
         Get
-            Return IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+            Dim assemblyPath = Assembly.GetEntryAssembly().Location
+            Return IO.Directory.GetParent(assemblyPath).FullName
         End Get
     End Property
 
