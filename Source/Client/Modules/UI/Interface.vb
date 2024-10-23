@@ -1419,11 +1419,11 @@ Module [Interface]
         Select Case design
             Case DesignType.MenuHeader
                 ' render the header
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61" & GfxExt), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29)
 
             Case DesignType.MenuOption
                 ' render the option
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61" & GfxExt), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98)
 
             Case DesignType.Wood
                 bs = 4
@@ -1431,7 +1431,7 @@ Module [Interface]
                 RenderEntity_Square(1, left, top, width, height, bs, alpha)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1" & GfxExt), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha)
 
             Case DesignType.Wood_Small
                 bs = 2
@@ -1439,7 +1439,7 @@ Module [Interface]
                 RenderEntity_Square(8, left + bs, top + bs, width, height, bs, alpha)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1" & GfxExt), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2))
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2))
 
             Case DesignType.Wood_Empty
                 bs = 4
@@ -1452,7 +1452,7 @@ Module [Interface]
                 RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "1" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "1"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Green_Hover
                 bs = 2
@@ -1460,7 +1460,7 @@ Module [Interface]
                 RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "2" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "2"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Green_Click
                 bs = 2
@@ -1468,7 +1468,7 @@ Module [Interface]
                 RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "3" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "3"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red
                 bs = 2
@@ -1476,7 +1476,7 @@ Module [Interface]
                 RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "4" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "4"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red_Hover
                 bs = 2
@@ -1484,7 +1484,7 @@ Module [Interface]
                 RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "5" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "5"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red_Click
                 bs = 2
@@ -1492,7 +1492,7 @@ Module [Interface]
                 RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "6" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "6"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue
                 bs = 2
@@ -1500,7 +1500,7 @@ Module [Interface]
                 RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "8" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "8"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue_Hover
                 bs = 2
@@ -1508,7 +1508,7 @@ Module [Interface]
                 RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "9" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "9"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue_Click
                 bs = 2
@@ -1516,7 +1516,7 @@ Module [Interface]
                 RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "10" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "10"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange
                 bs = 2
@@ -1524,7 +1524,7 @@ Module [Interface]
                 RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "11" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "11"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange_Hover
                 bs = 2
@@ -1532,7 +1532,7 @@ Module [Interface]
                 RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "12" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "12"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange_Click
                 bs = 2
@@ -1540,7 +1540,7 @@ Module [Interface]
                 RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "13" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "13"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Grey
                 bs = 2
@@ -1548,7 +1548,7 @@ Module [Interface]
                 RenderEntity_Square(17, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "14" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "14"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Parchment
                 bs = 20

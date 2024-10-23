@@ -14,7 +14,7 @@ Public Class GameClient
 
     Public Graphics As GraphicsDeviceManager
     Public SpriteBatch As Graphics.SpriteBatch
-    Public ReadOnly TextureCache As New Dictionary(Of String, Texture2D)()
+    Public ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
     Public ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
     Public ReadOnly MouseCache As New ConcurrentDictionary(Of String, Integer)
     Public ReadOnly KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
@@ -195,12 +195,19 @@ Public Class GameClient
         RenderQueue.Enqueue(command)
     End Sub
     
+    Private batches As New ConcurrentQueue(Of RenderBatch)()
+    
+    Public Class RenderBatch
+        Public Property Texture As Texture2D
+        Public Property Commands As New List(Of RenderCommand)()
+    End Class
+    
     Public Sub EnqueueTexture(ByRef path As String, dX As Integer, dY As Integer,
                               sX As Integer, sY As Integer, dW As Integer, dH As Integer,
                               Optional sW As Integer = 1, Optional sH As Integer = 1,
                               Optional alpha As Byte = 255, Optional red As Byte = 255,
                               Optional green As Byte = 255, Optional blue As Byte = 255)
-        
+
         ' Create the destination and source rectangles
         Dim dRect As New Rectangle(dX, dY, dW, dH)
         Dim sRect As New Rectangle(sX, sY, sW, sH)
@@ -208,15 +215,27 @@ Public Class GameClient
 
         path = EnsureFileExtension(path)
 
-        ' Enqueue the render command
-        Dim command As New RenderCommand With {
-                .Type = RenderType.Texture,
-                .Path = path,
-                .dRect = dRect,
-                .sRect = sRect,
-                .Color = color
-                }
-        RenderQueue.Enqueue(command)
+        ' Retrieve the texture once
+        Dim texture = GetTexture(path)
+        If texture Is Nothing Then
+            Console.WriteLine($"Texture not found: {path}")
+            Return
+        End If
+
+        ' Add the render command to the appropriate batch
+        Dim batch = batches.FirstOrDefault(Function(b) b.Texture Is texture)
+        If batch Is Nothing Then
+            batch = New RenderBatch() With {.Texture = texture}
+            
+            batch.Commands.Add(New RenderCommand With {
+                                  .Type = RenderType.Texture,
+                                  .Path = path,
+                                  .dRect = dRect,
+                                  .sRect = sRect,
+                                  .Color = color
+                                  })
+            batches.Enqueue(batch)
+        End If
     End Sub
 
     Public Function GetTexture(path As String) As Texture2D
@@ -249,38 +268,24 @@ Public Class GameClient
             Return Nothing
         End Try
     End Function
-
+    
     Protected Overrides Sub Draw(gameTime As GameTime)
-        MyBase.Draw(gameTime)
-        
         GraphicsDevice.Clear(Color.Black)
         GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
 
-        SpriteBatch.Begin()
-        
-        ' Dequeue and process all render commands
         Dim command As RenderCommand
         
-        While RenderQueue.TryDequeue(command)
-            Select Case command.Type
-                Case RenderType.Texture
-                    SpriteBatch.Draw(GetTexture(command.Path), command.dRect, command.sRect, command.Color)
+        SpriteBatch.Begin()
 
-                Case RenderType.Font
-                    ' Calculate the shadow position
-                    Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
-
-                    ' Draw the shadow (backString equivalent)
-                    Client.SpriteBatch.DrawString(Fonts(command.Font), command.Text, shadowPosition, command.Color2,
-                                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
-
-                    ' Draw the main text (frontString equivalent)
-                    Client.SpriteBatch.DrawString(Fonts(command.Font), command.Text, New Vector2(command.X, command.Y), command.Color,
-                                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
-            End Select
-        End While
-
+        ' Directly iterate over the ConcurrentBag
+        For Each batch In batches
+            For Each command In batch.Commands
+                SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
+            Next
+        Next
         SpriteBatch.End()
+
+        MyBase.Draw(gameTime)
     End Sub
     
     Dim frameCount As Integer = 0
