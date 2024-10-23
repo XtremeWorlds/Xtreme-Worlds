@@ -23,6 +23,23 @@ Public Class GameClient
     
     ' Queue to maintain FIFO order of batches
     Public Batches As New ConcurrentQueue(Of RenderBatch)()
+    
+    Private Shared _gameFps As Integer
+    Private Shared ReadOnly FpsLock As New Object()
+
+    ' Safely set FPS with a lock
+    Public Sub SetFps(newFps As Integer)
+        SyncLock FpsLock
+            _gameFps = newFps
+        End SyncLock
+    End Sub
+
+    ' Safely get FPS with a lock
+    Public Function GetFps() As Integer
+        SyncLock FpsLock
+            Return _gameFps
+        End SyncLock
+    End Function
 
     Public Class RenderBatch
         Public Property Texture As Texture2D
@@ -370,11 +387,11 @@ Public Class GameClient
             TakeScreenshot()
         End If
         
-        GameFPS += 1
+        SetFps(_gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
         
         If elapsedTime.TotalSeconds >= 1 Then
-            GameFPS = 0
+            SetFps(0)
             elapsedTime = TimeSpan.Zero
         End If
         
@@ -1615,7 +1632,7 @@ Public Class GameClient
         Next
 
         If Bfps Then
-            Dim fps As String = "FPS: " & GameFps
+            Dim fps As String = "FPS: " & client.GetFps()
             Call RenderText(fps, Camera.Left - 24, Camera.Top + 60, Microsoft.Xna.Framework.Color.Yellow, Microsoft.Xna.Framework.Color.Black)
         End If
 

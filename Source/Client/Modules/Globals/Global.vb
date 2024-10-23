@@ -167,7 +167,6 @@ Module [Global]
 
     ' FPS and Time-based movement vars
     Public ElapsedTime As Integer
-    Public GameFps As Integer
     Public GameLps As Integer
 
     ' Text vars
