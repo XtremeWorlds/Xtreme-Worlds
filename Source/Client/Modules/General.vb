@@ -609,18 +609,6 @@ mapsync:
                 fadetmr = tick + 30
             End If
 
-            ' Calculate fps
-            If TickFPS < tick Then
-                GameFps = Fps
-                TickFPS = tick + 1000
-                Fps = 0
-            Else
-                Fps += 1
-            End If
-
-            ' Clear the render queue
-            Client.RenderQueue.Clear()
-
             ' Render game or menu based on state
             If InGame Then
                 Client.Render_Game()
@@ -629,9 +617,6 @@ mapsync:
             End If
             
             ResizeGUI()
-            
-            ' Add a 1ms wait to avoid race conditions or throttling
-            Threading.Thread.Sleep(1)
         End While
     End Sub
 

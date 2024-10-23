@@ -83,7 +83,6 @@ Module [Global]
     Public ChatBubbleindex As Integer
 
     ' Gui
-    Public Fps As Integer
     Public Lps As Integer
     Public PingToDraw As String
     Public ShowRClick As Boolean
