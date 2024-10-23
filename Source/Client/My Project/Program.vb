@@ -14,7 +14,7 @@ Public Class GameClient
 
     Public Graphics As GraphicsDeviceManager
     Public SpriteBatch As Graphics.SpriteBatch
-    Public ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
+    Public ReadOnly TextureCache As New Dictionary(Of String, Texture2D)()
     Public ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
     Public ReadOnly MouseCache As New ConcurrentDictionary(Of String, Integer)
     Public ReadOnly KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
@@ -76,6 +76,8 @@ Public Class GameClient
         ' Set the desired window size
         Graphics.PreferredBackBufferWidth = ResolutionWidth
         Graphics.PreferredBackBufferHeight = ResolutionHeight
+        IsFixedTimeStep = False
+        graphics.SynchronizeWithVerticalRetrace = True ' Enable VSync to reduce tearing
 
         ' Apply changes to ensure the window resizes
         Graphics.ApplyChanges()
@@ -84,6 +86,7 @@ Public Class GameClient
 
         ' Hook into the Exiting event to handle window close
         AddHandler Me.Exiting, AddressOf OnWindowClose
+        AddHandler graphics.DeviceReset, AddressOf OnDeviceReset
     End Sub
 
     ' Populate the dictionary in a shared Sub or Constructor
@@ -193,52 +196,54 @@ Public Class GameClient
 
         RenderQueue.Enqueue(command)
     End Sub
-
+    
     Public Sub EnqueueTexture(ByRef path As String, dX As Integer, dY As Integer,
-                          sX As Integer, sY As Integer, dW As Integer, dH As Integer,
-                          Optional sW As Integer = 1, Optional sH As Integer = 1,
-                          Optional alpha As Byte = 255, Optional red As Byte = 255,
-                          Optional green As Byte = 255, Optional blue As Byte = 255)
-
+                              sX As Integer, sY As Integer, dW As Integer, dH As Integer,
+                              Optional sW As Integer = 1, Optional sH As Integer = 1,
+                              Optional alpha As Byte = 255, Optional red As Byte = 255,
+                              Optional green As Byte = 255, Optional blue As Byte = 255)
+        
         ' Create the destination and source rectangles
         Dim dRect As New Rectangle(dX, dY, dW, dH)
         Dim sRect As New Rectangle(sX, sY, sW, sH)
-
-        ' Create the color with the specified alpha and RGB values
         Dim color As New Color(red, green, blue, alpha)
 
         path = EnsureFileExtension(path)
 
         ' Enqueue the render command
         Dim command As New RenderCommand With {
-            .Type = RenderType.Texture,
-            .Path = path,
-            .dRect = dRect,
-            .sRect = sRect,
-            .Color = color
-        }
-
+                .Type = RenderType.Texture,
+                .Path = path,
+                .dRect = dRect,
+                .sRect = sRect,
+                .Color = color
+                }
         RenderQueue.Enqueue(command)
     End Sub
 
-    ' Load or retrieve a texture from the cache
     Public Function GetTexture(path As String) As Texture2D
-        If TextureCache.ContainsKey(path) Then
-            ' Return the already loaded texture
-            Return TextureCache(path)
+        If Not TextureCache.ContainsKey(path) Then
+            Dim texture = LoadTexture(path)
+            return texture
         End If
-
-        ' Load the texture and add it to the cache
+        
+        Return TextureCache(path)
+    End Function
+    
+    Public Function LoadTexture(path As String) As Texture2D
         Try
             Using stream As New FileStream(path, FileMode.Open)
-                Dim texture As Texture2D = Texture2D.FromStream(GraphicsDevice, stream)
+                Dim texture = Texture2D.FromStream(GraphicsDevice, stream)
+                
+                ' Cache graphics information
+                Dim gfxInfo As New GfxInfo With {
+                        .Width = texture.Width,
+                        .Height = texture.Height
+                        }
+                GfxInfoCache.TryAdd(path, gfxInfo)
+                
                 TextureCache(path) = texture
 
-                Dim graphcsInfo = New GfxInfo
-                graphcsInfo.Width = texture.Width
-                graphcsInfo.Height = texture.Height
-
-                GfxInfoCache.TryAdd(path, graphcsInfo)
                 Return texture
             End Using
         Catch ex As Exception
@@ -248,14 +253,16 @@ Public Class GameClient
     End Function
 
     Protected Overrides Sub Draw(gameTime As GameTime)
+        MyBase.Draw(gameTime)
+        
         GraphicsDevice.Clear(Color.Black)
         GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
 
         SpriteBatch.Begin()
-
+        
         ' Dequeue and process all render commands
         Dim command As RenderCommand
-
+        
         While RenderQueue.TryDequeue(command)
             Select Case command.Type
                 Case RenderType.Texture
@@ -276,10 +283,11 @@ Public Class GameClient
         End While
 
         SpriteBatch.End()
-
-        MyBase.Draw(gameTime)
     End Sub
-
+    
+    Dim frameCount As Integer = 0
+    Dim elapsedTime As TimeSpan = TimeSpan.Zero
+    
     Protected Overrides Sub Update(gameTime As GameTime)
         MyBase.Update(gameTime)
 
@@ -293,6 +301,15 @@ Public Class GameClient
         ' Capture screenshot when the screenshot key is pressed
         If currentKeyboardState.IsKeyDown(screenshotKey) Then
             TakeScreenshot()
+        End If
+        
+        frameCount += 1
+        elapsedTime += gameTime.ElapsedGameTime
+
+        If elapsedTime.TotalSeconds >= 1 Then
+            Console.WriteLine($"FPS: {frameCount}")
+            frameCount = 0
+            elapsedTime = TimeSpan.Zero
         End If
 
         ' Save the current state as the previous state for the next frame
@@ -334,6 +351,10 @@ Public Class GameClient
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()
         Environment.Exit(0)
+    End Sub
+    
+    Private Sub OnDeviceReset()
+        Console.WriteLine("Device Reset")
     End Sub
 
     Public Sub TakeScreenshot()
