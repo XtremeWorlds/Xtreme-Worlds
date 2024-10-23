@@ -617,9 +617,6 @@ mapsync:
             Else
                 Fps += 1
             End If
-            
-            ' Add a 1ms wait to avoid race conditions or throttling
-            Threading.Thread.Sleep(1)
 
             ' Clear the render queue
             Client.RenderQueue.Clear()
@@ -632,6 +629,9 @@ mapsync:
             End If
             
             ResizeGUI()
+            
+            ' Add a 1ms wait to avoid race conditions or throttling
+            Threading.Thread.Sleep(1)
         End While
     End Sub
 
