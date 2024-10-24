@@ -1112,12 +1112,31 @@ HistoryIndex = 0
     End Sub
 
     Friend Sub ClearMapEvents()
-        ReDim MapEvents(MyMap.EventCount)
-
         For i = 0 To MyMap.EventCount
-            MapEvents(i).Name = ""
+            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
+
+            SyncLock Client.BatchLock
+                For Each batch In batchList
+                    Dim existingCommand As GameClient.RenderCommand
+                    ' Search for an existing command and update its properties
+                    Select Case MapEvents(i).GraphicType
+                        Case 0
+                            Exit Sub
+                        Case 1
+                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, MapEvents(i).Graphic))
+                        Case 2
+                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(i).Graphic))
+                    End Select
+                    
+                    if existingCommand.dRect.X = MapEvents(i).X And existingCommand.dRect.Y = Type.MapEvents(i).Y Then
+                        batch.Commands.Remove(existingCommand)
+                        Exit For
+                    End If
+                Next
+            End SyncLock
         Next
 
+        ReDim MapEvents(MyMap.EventCount)
         CurrentEvents = 0
 
     End Sub
