@@ -23,6 +23,7 @@ Public Class GameClient
     
     ' Queue to maintain FIFO order of batches
     Public Batches As New ConcurrentQueue(Of RenderBatch)()
+    Private Shared ReadOnly batchLock As New Object()
     
     Private Shared _gameFps As Integer
     Private Shared ReadOnly FpsLock As New Object()
@@ -287,7 +288,7 @@ Public Class GameClient
 
         For Each batch In batchList
             If batch.TextureID = textureID Then
-                SyncLock batch.Commands
+                SyncLock batchLock
                     ' Search for an existing command and update its position
                     Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = newCommand.Path)
                     If existingCommand IsNot Nothing Then
@@ -343,7 +344,7 @@ Public Class GameClient
         SpriteBatch.Begin()
 
         ' Directly iterate over the ConcurrentBag
-        SyncLock batches
+        SyncLock batchLock
             For Each batch In batches
                 For Each command In batch.Commands.ToArray()
                         Select Case command.Type
