@@ -324,25 +324,43 @@ Module General
     End Sub
     
     Private Sub HandleScrollWheel()
-        ' Handle scroll wheel (assuming delta calculation happens elsewhere)
-        Dim scrollValue = GetMouseScrollDelta()
-        If scrollValue > 0 Then
-            ScrollChatBox(0) ' Scroll up
-        ElseIf scrollValue < 0 Then
-            ScrollChatBox(1) ' Scroll down
-        End If
-        
-        if scrollvalue <> 0 Then
-            HandleInterfaceEvents(entState.MouseScroll)
-        End If
+        SyncLock InputLock
+            ' Handle scroll wheel (assuming delta calculation happens elsewhere)
+            Dim scrollValue = GetMouseScrollDelta()
+            If scrollValue > 0 Then
+                ScrollChatBox(0) ' Scroll up
+            ElseIf scrollValue < 0 Then
+                ScrollChatBox(1) ' Scroll down
+            End If
+            
+            if scrollvalue <> 0 Then
+                HandleInterfaceEvents(entState.MouseScroll)
+            End If
+        End SyncLock
     End Sub
     
     Private Sub HandleLeftClick()
-        Dim currentTime As Integer = Environment.TickCount
-
         SyncLock InputLock
+            Dim currentTime As Integer = Environment.TickCount
+            
             ' Check if the left button has just been released after being pressed
             If CurrentMouseState.LeftButton = ButtonState.Pressed Then
+                ' Detect MouseMove event (when the mouse position changes)
+                If CurrentMouseState.X <> PreviousMouseState.X OrElse
+                   CurrentMouseState.Y <> PreviousMouseState.Y Then
+                    HandleInterfaceEvents(EntState.MouseMove)
+                End If
+                
+                ' Detect MouseDown event (when a button is pressed)
+                If CurrentMouseState.LeftButton = ButtonState.Pressed Then
+                    HandleInterfaceEvents(EntState.MouseDown)
+                End If
+
+                ' Detect MouseUp event (when a button is released)
+                If CurrentMouseState.LeftButton = ButtonState.Released Then
+                    HandleInterfaceEvents(EntState.MouseUp)
+                End If
+                
                 If PreviousMouseState.LeftButton = ButtonState.Released Then
                     ' Handle double-click logic
                     If currentTime - LastLeftClickTime <= DoubleClickTImer Then
@@ -384,20 +402,18 @@ Module General
     End Sub
     
     Private Sub HandleRightClickMenu()
-        SyncLock InputLock
-            ' Loop through all players and display the right-click menu for the matching one
-            For i = 1 To MAX_PLAYERS
-                If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
-                    If GetPlayerX(i) = CurX AndAlso GetPlayerY(i) = CurY Then
-                        ' Use current mouse state for the X and Y positions
-                        ShowPlayerMenu(i, CurrentMouseState.X, CurrentMouseState.Y)
-                    End If
+        ' Loop through all players and display the right-click menu for the matching one
+        For i = 1 To MAX_PLAYERS
+            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
+                If GetPlayerX(i) = CurX AndAlso GetPlayerY(i) = CurY Then
+                    ' Use current mouse state for the X and Y positions
+                    ShowPlayerMenu(i, CurrentMouseState.X, CurrentMouseState.Y)
                 End If
-            Next
+            End If
+        Next
 
-            ' Perform player search at the current cursor position
-            PlayerSearch(CurX, CurY, 1)
-        End SyncLock
+        ' Perform player search at the current cursor position
+        PlayerSearch(CurX, CurY, 1)
     End Sub
     
     Sub GameLoop()
