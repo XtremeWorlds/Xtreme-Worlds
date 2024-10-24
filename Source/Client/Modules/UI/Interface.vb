@@ -1111,12 +1111,11 @@ Module [Interface]
                     End If
 
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                               .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
                Case EntityType.TextBox
-                               
                     ' Render the design if available
                     If .Design(.State) > 0 Then
                         RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
@@ -1124,7 +1123,7 @@ Module [Interface]
 
                     ' Render the image if present
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                               .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
@@ -1145,7 +1144,7 @@ Module [Interface]
                     Dim padding = actualWidth / 6.0
                     Dim left = .Left + xO + .xOffset + padding
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
-
+                   
                     ' Render the final text
                     RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
 
@@ -1565,31 +1564,31 @@ Module [Interface]
         bs = borderSize
 
         ' Draw center
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha)
 
         ' Draw top side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha)
 
         ' Draw left side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha)
 
         ' Draw right side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha)
 
         ' Draw bottom side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha)
 
         ' Draw top left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x, y, 0, 0, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y, 0, 0, bs, bs, bs, bs, alpha)
 
         ' Draw top right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha)
 
         ' Draw bottom left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha)
 
         ' Draw bottom right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite & GfxExt), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha)
     End Sub
 
     ' Trade

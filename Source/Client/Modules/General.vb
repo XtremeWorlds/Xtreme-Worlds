@@ -314,8 +314,79 @@ Module General
             End If
         End If
         
+        if IsKeyStateActive(keys.Enter) Then
+            HandlePressEnter()
+        End If
+        
+        HandleTextInput()
         HandleMouseInputs()
     End Sub
+    
+    Private Sub HandleTextInput()
+        ' Loop through all keys in the current keyboard state
+        For Each key As Keys In System.[Enum].GetValues(GetType(Keys))
+            ' Check if the key was just pressed
+            If CurrentKeyboardState.IsKeyDown(key) Then
+                ' Convert the key to a character (if possible)
+                Dim character As Char? = ConvertKeyToChar(key, VbKeyShift)
+
+                ' Ignore invalid characters and control keys
+                If character Is Nothing Then Continue For
+
+                ' Check if the active window and control are valid
+                If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
+                   Windows(activeWindow).ActiveControl > 0 Then
+                    
+                    ' Ensure the control is not locked
+                    If Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Locked Then Continue For
+
+                    ' Check if the control's text length exceeds the allowed limit
+                    If Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length >= Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Length Then Continue For
+
+                    ' Append the character to the control's text
+                    Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value
+                End If
+            End If
+        Next
+    End Sub
+
+    ' Convert a key to a character (if possible)
+    Private Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char?
+        ' Handle alphabetic keys
+        If key >= Keys.A AndAlso key <= Keys.Z Then
+            Dim baseChar As Char = ChrW(AscW("A"c) + (key - Keys.A))
+            Return If(shiftPressed, baseChar, Char.ToLower(baseChar))
+        End If
+
+        ' Handle numeric keys (0-9)
+        If key >= Keys.D0 AndAlso key <= Keys.D9 Then
+            Dim digit As Char = ChrW(AscW("0"c) + (key - Keys.D0))
+            Return If(shiftPressed, GetShiftedDigit(digit), digit)
+        End If
+
+        ' Handle space key
+        If key = Keys.Space Then Return " "c
+
+        ' Ignore unsupported keys (e.g., function keys, control keys)
+        Return Nothing
+    End Function
+
+    ' Get the shifted version of a digit key (for symbols)
+    Private Function GetShiftedDigit(digit As Char) As Char
+        Select Case digit
+            Case "1"c : Return "!"c
+            Case "2"c : Return "@"c
+            Case "3"c : Return "#"c
+            Case "4"c : Return "$"c
+            Case "5"c : Return "%"c
+            Case "6"c : Return "^"c
+            Case "7"c : Return "&"c
+            Case "8"c : Return "*"c
+            Case "9"c : Return "("c
+            Case "0"c : Return ")"c
+            Case Else : Return digit
+        End Select
+    End Function
     
     Private Sub HandleMouseInputs()
         HandleLeftClick()
