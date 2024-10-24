@@ -328,20 +328,15 @@ Module General
             End If
         End If
         
-        If IsKeyStateActive(Keys.Enter)
-            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
-                ShowChat()
-                inSmallChat = False
-                Exit Sub
-            End If
-
-            HandlePressEnter()
-        End If
-        
         If IsKeyStateActive(Keys.Space) Then
             CheckMapGetItem()
         End If
-
+        
+        HandleHotbarInput()
+        HandleMouseInputs()
+        HandleActiveWindowInput()
+        HandleTextInput()
+        
         If Windows(GetWindowIndex("winEscMenu")).Window.visible Then Exit Sub
         
         If IsKeyStateActive(Keys.I) Then
@@ -359,10 +354,15 @@ Module General
             If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Skills
         End If
         
-        HandleActiveWindowInput()
-        HandleTextInput()
-        HandleMouseInputs()
-        HandleHotbarInput()
+        If IsKeyStateActive(Keys.Enter)
+            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
+                ShowChat()
+                inSmallChat = False
+                Exit Sub
+            End If
+
+            HandlePressEnter()
+        End If
     End Sub
     
     Private Sub HandleActiveWindowInput()
