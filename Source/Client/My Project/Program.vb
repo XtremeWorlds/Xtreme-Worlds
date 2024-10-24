@@ -7,6 +7,7 @@ Imports System.Runtime.InteropServices
 Imports System.Collections.Concurrent
 Imports System.Data
 Imports System.Net.Mime
+Imports System.Runtime.InteropServices.JavaScript
 Imports System.Threading
 
 Public Class GameClient
@@ -16,6 +17,7 @@ Public Class GameClient
     Public SpriteBatch As SpriteBatch
     Public ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
     Public ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
+    Public LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
 
     Public ReadOnly MultiplyBlendState As New BlendState()
     Public TextureCounter As Integer
@@ -24,20 +26,20 @@ Public Class GameClient
     Public Batches As New ConcurrentQueue(Of RenderBatch)()
     Private Shared ReadOnly batchLock As New Object()
     
-    Private Shared _gameFps As Integer
+    Private Shared gameFps As Integer
     Private Shared ReadOnly FpsLock As New Object()
 
     ' Safely set FPS with a lock
     Public Sub SetFps(newFps As Integer)
         SyncLock FpsLock
-            _gameFps = newFps
+            gameFps = newFps
         End SyncLock
     End Sub
 
     ' Safely get FPS with a lock
     Public Function GetFps() As Integer
         SyncLock FpsLock
-            Return _gameFps
+            Return gameFps
         End SyncLock
     End Function
 
@@ -49,12 +51,10 @@ Public Class GameClient
     End Class
     
     ' ManualResetEvent to signal when loading is complete
-    Public LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
-    Private isLoading As Boolean = True
-
-    ' Thread-safe queue to hold render commands
-    Public RenderQueue As New ConcurrentQueue(Of RenderCommand)()
-
+    Public Shared IsLoading As Boolean = True
+    Public Shared ReadOnly loadLock As New Object()
+    Public initWindow As Boolean
+    
     ' State tracking variables
     ' Shared keyboard and mouse states for cross-thread access
     Public Shared CurrentKeyboardState As KeyboardState
@@ -122,6 +122,8 @@ Public Class GameClient
     End Sub
     
     Protected Overrides Sub Initialize()
+        Window.Title = Setting.GameName
+
         ' Create the RenderTarget2D with the same size as the screen
         RenderTarget = New RenderTarget2D(
             GraphicsDevice,
@@ -132,8 +134,6 @@ Public Class GameClient
             DepthFormat.Depth24)
 
         InitializeMultiplyBlendState()
-
-        Window.Title = Setting.GameName
 
         MyBase.Initialize()
     End Sub
@@ -167,7 +167,26 @@ Public Class GameClient
             Fonts(i) = LoadFont(Core.Path.Fonts, i)
         Next
     End Sub
+    
+    ' Method to center the window using GraphicsAdapter
+    Private Sub CenterWindow()
+        ' Get the primary display's resolution
+        Dim displayMode As DisplayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode
 
+        Dim screenWidth As Integer = displayMode.Width
+        Dim screenHeight As Integer = displayMode.Height
+
+        Dim windowWidth As Integer = graphics.PreferredBackBufferWidth
+        Dim windowHeight As Integer = graphics.PreferredBackBufferHeight
+
+        ' Calculate centered position
+        Dim posX As Integer = (screenWidth - windowWidth) / 2
+        Dim posY As Integer = (screenHeight - windowHeight) / 2
+
+        ' Set the new window position
+        Window.Position = New Point(posX, posY)
+    End Sub
+    
     Protected Overrides Sub LoadContent()
         SpriteBatch = New SpriteBatch(GraphicsDevice)
 
@@ -178,7 +197,6 @@ Public Class GameClient
         
         ' Signal that loading is complete
         loadingCompleted.Set()
-        isLoading = False
     End Sub
 
     Public Function LoadFont(path As String, font As FontType) As SpriteFont
@@ -330,6 +348,8 @@ Public Class GameClient
     Protected Overrides Sub Draw(gameTime As GameTime)
         GraphicsDevice.Clear(Color.Black)
         GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
+        
+        If IsLoading then Exit Sub
 
         Dim command As RenderCommand
         
@@ -366,8 +386,6 @@ Public Class GameClient
     End Sub
     
     Protected Overrides Sub Update(gameTime As GameTime)
-        MyBase.Update(gameTime)
-        
         UpdateMouseCache()
         UpdateKeyCache()
 
@@ -376,7 +394,7 @@ Public Class GameClient
             TakeScreenshot()
         End If
         
-        SetFps(_gameFps + 1)
+        SetFps(gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
         
         If elapsedTime.TotalSeconds >= 1 Then
