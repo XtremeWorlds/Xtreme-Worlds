@@ -1115,46 +1115,51 @@ Public Sub RenderEntity(winNum As Long, entNum As Long)
                                           .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                 End If
 
-             Case EntityType.TextBox
-                ' Set additional text if the TextBox is active
+            Case EntityType.TextBox
+                ' render specific designs
+                If .Design(.State) > 0 Then
+                    RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
+                End If
+                
+                ' render image
+                If Not .Image(.State) = 0 Then
+                  Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)), .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
+                End If
+              
+                ' Set additional text if active
                 If activeWindow = winNum And Windows(winNum).ActiveControl = entNum Then
                     taddText = chatShowLine
                 End If
 
-                ' Final text with potential censoring and additional input
                 Dim finalText As String = If(.Censor, CensorText(.Text), .Text) & taddText
 
-                ' Measure the text size
                 Dim actualSize = Fonts(.Font).MeasureString(finalText)
                 Dim actualWidth = actualSize.X
                 Dim actualHeight = actualSize.Y
-
-                ' Apply padding and calculate position
-                Dim padding = actualWidth / 6.0
-                Dim left = .Left + xO + .xOffset + padding
+                  
+                Dim left = .Left + xO + .xOffset + (actualWidth / 6.0)
                 Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
-                ' Render the final text
                 RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
 
             Case EntityType.Button
-                ' Render the button design if defined
+                ' Render the button design
                 If .Design(.State) > 0 Then
                     RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
                 End If
 
-                ' Enqueue button image if present
+                ' Enqueue the image if present
                 If Not .Image(.State) = 0 Then
                     Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                           .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
                 End If
 
-                ' Render the icon if available
+                ' Render the icon if present
                 If .Icon > 0 Then
                     Dim gfxInfo = Client.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
                     If gfxInfo IsNot Nothing Then
                         Dim gfxWidth = gfxInfo.Width
-                        Dim gfxHeight = gfxInfo.Height
+                        Dim gfxHeight  = gfxInfo.Height
 
                         Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon),
                                               .Left + xO + .xOffset, .Top + yO + .yOffset,
@@ -1162,19 +1167,15 @@ Public Sub RenderEntity(winNum As Long, entNum As Long)
                     End If
                 End If
 
-                ' Measure button text size
-                Dim textSize = Fonts(.Font).MeasureString(.Text)
-                Dim actualWidth = textSize.X
-                Dim actualHeight = textSize.Y
+                ' Measure and center the text
+                Dim actualSize = Fonts(.Font).MeasureString(.Text)
+                Dim actualWidth = actualSize.X
+                Dim actualHeight = actualSize.Y
 
-                ' Apply padding and calculate centered position
-                Dim padding = actualWidth / 6.0
-                Dim horCentre = .Left + xO + .xOffset + ((.Width - actualWidth) / 2.0) + padding - 4
+                Dim horCentre = .Left + xO + .xOffset + ((.Width - actualWidth) / 2.0) - 4
                 Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
-                ' Render the button's text
                 RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-
 
            Case EntityType.Label
             If Len(.Text) > 0 Then
