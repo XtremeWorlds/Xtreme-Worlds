@@ -343,14 +343,14 @@ Module General
         SyncLock InputLock
             Dim currentTime As Integer = Environment.TickCount
             
+            ' Detect MouseMove event (when the mouse position changes)
+            If CurrentMouseState.X <> PreviousMouseState.X OrElse
+               CurrentMouseState.Y <> PreviousMouseState.Y Then
+                HandleInterfaceEvents(EntState.MouseMove)
+            End If
+            
             ' Check if the left button has just been released after being pressed
             If CurrentMouseState.LeftButton = ButtonState.Pressed Then
-                ' Detect MouseMove event (when the mouse position changes)
-                If CurrentMouseState.X <> PreviousMouseState.X OrElse
-                   CurrentMouseState.Y <> PreviousMouseState.Y Then
-                    HandleInterfaceEvents(EntState.MouseMove)
-                End If
-                
                 ' Detect MouseDown event (when a button is pressed)
                 If CurrentMouseState.LeftButton = ButtonState.Pressed Then
                     HandleInterfaceEvents(EntState.MouseDown)

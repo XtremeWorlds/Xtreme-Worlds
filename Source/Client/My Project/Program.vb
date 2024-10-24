@@ -269,12 +269,23 @@ Public Class GameClient
                 SyncLock batchLock
                     ' Search for an existing command and update its position
                     Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = newCommand.Path)
-                    If existingCommand IsNot Nothing Then
-                        existingCommand.dRect = newCommand.dRect ' Update position
-                        existingCommand.X = newCommand.X
-                        existingCommand.Y = newCommand.Y
-                    Else
-                        batch.Commands.Add(newCommand) ' Add new command if not found
+                    
+                    If existingCommand?.Path = newCommand?.Path Then
+                        If existingCommand IsNot Nothing Then
+                            existingCommand.sRect = newCommand.sRect
+                            existingCommand.dRect = newCommand.dRect
+                            existingCommand.X = newCommand.X
+                            existingCommand.Y = newCommand.Y
+                            existingCommand.Color = newCommand.Color
+                            existingCommand.Color2 = newCommand.Color2
+                        Else
+                            batch.Commands.Add(newCommand) ' Add new command if not found
+                        End If
+                    Else 
+                        Dim command = batch.Commands.FirstOrDefault()
+                        batch.Texture = GetTexture(newCommand.Path)
+                        batch.Commands.Remove(command)
+                        batch.Commands.Add(newCommand)
                     End If
                 End SyncLock
                 Return True
