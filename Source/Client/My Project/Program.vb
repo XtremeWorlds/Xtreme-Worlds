@@ -278,6 +278,7 @@ Public Class GameClient
                             existingCommand.Y = newCommand.Y
                             existingCommand.Color = newCommand.Color
                             existingCommand.Color2 = newCommand.Color2
+                            existingCommand.Text = newCommand.Text
                         Else
                             batch.Commands.Add(newCommand) ' Add new command if not found
                         End If
