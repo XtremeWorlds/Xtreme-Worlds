@@ -23,8 +23,8 @@ Public Class GameClient
     Public TextureCounter As Integer
     
     ' Queue to maintain FIFO order of batches
-    Public Batches As New ConcurrentQueue(Of RenderBatch)()
-    Private Shared ReadOnly batchLock As New Object()
+    Public Shared Batches As New ConcurrentQueue(Of RenderBatch)()
+    Public Shared ReadOnly BatchLock As New Object()
     
     Private Shared gameFps As Integer
     Private Shared ReadOnly FpsLock As New Object()
@@ -282,7 +282,7 @@ Public Class GameClient
     Private Function UpdateBatchInQueue(textureID As Integer, newCommand As RenderCommand, windowID As Integer) As Boolean
         Dim batchList = batches.ToList() ' Snapshot of the queue
 
-        SyncLock batchLock
+        SyncLock BatchLock
             For Each batch In batchList
                 ' Check if the window or batch associated with the command is hidden
                 If batch.WindowID > 0 And IsWindowHidden(batch.WindowID) Then
@@ -800,7 +800,7 @@ Public Class GameClient
         End If
 
         ' Draw shadow and NPC sprite
-        DrawShadow(x, y + 16)
+        'DrawShadow(x, y + 16)
         DrawCharacterSprite(sprite, x, y, rect)
     End Sub
 
@@ -1259,7 +1259,7 @@ Public Class GameClient
                                (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spritenum)).Width / 4), (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spritenum)).Height / 4))
 
         ' render the actual sprite
-        DrawShadow(x, y + 16)
+        'DrawShadow(x, y + 16)
         DrawCharacterSprite(spritenum, x, y, rect)
 
         'check for paperdolling

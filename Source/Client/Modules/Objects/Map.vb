@@ -434,6 +434,20 @@ HistoryIndex = 0
     End Sub
 
     Sub ClearMapItem(index As Integer)
+        Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
+
+        SyncLock Client.BatchLock
+            For Each batch In batchList
+                ' Search for an existing command and update its properties
+                Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.Item(MyMapItem(index).Num).Icon))
+                
+                if existingCommand.dRect.X = MyMapItem(index).X And existingCommand.dRect.Y = MyMapItem(index).Y Then
+                    batch.Commands.Remove(existingCommand)
+                    Exit For
+                End If
+            Next
+        End SyncLock
+        
         MyMapItem(index).Num = 0
         MyMapItem(index).Value = 0
         MyMapItem(index).X = 0
@@ -442,6 +456,20 @@ HistoryIndex = 0
 
     Sub ClearMapNPC(index As Integer)
         With MyMapNPC(index)
+            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
+
+            SyncLock Client.BatchLock
+                For Each batch In batchList
+                    ' Search for an existing command and update its properties
+                    Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.NPC(.Num).Sprite))
+                
+                    if existingCommand.dRect.X = .X And existingCommand.dRect.Y = .Y Then
+                        batch.Commands.Remove(existingCommand)
+                        Exit For
+                    End If
+                Next
+            End SyncLock
+            
             .Attacking = 0
             .AttackTimer = 0
             .Dir = 0
