@@ -80,6 +80,11 @@
     <ProjectReference Include="..\Core\Core.vbproj" />
     <ProjectReference Include="..\Network\Asfw.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\.nuget\packages\monogame.framework.desktopgl\3.8.2.1105\lib\net8.0\MonoGame.Framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <PropertyGroup>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
