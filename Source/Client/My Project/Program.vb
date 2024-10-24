@@ -353,16 +353,12 @@ Public Class GameClient
     
     Protected Overrides Sub Update(gameTime As GameTime)
         MyBase.Update(gameTime)
-
-        ' Poll the current keyboard state
-        currentKeyboardState = Keyboard.GetState()
-        currentMouseState = Mouse.GetState()
-
+        
         UpdateMouseCache()
         UpdateKeyCache()
 
         ' Capture screenshot when the screenshot key is pressed
-        If currentKeyboardState.IsKeyDown(screenshotKey) Then
+        If CurrentKeyboardState.IsKeyDown(screenshotKey) Then
             TakeScreenshot()
         End If
         
@@ -373,10 +369,6 @@ Public Class GameClient
             SetFps(0)
             elapsedTime = TimeSpan.Zero
         End If
-        
-        ' Save the current state as the previous state for the next frame
-        previousKeyboardState = currentKeyboardState
-        previousMouseState = currentMouseState
 
         MyBase.Update(gameTime)
     End Sub
@@ -387,8 +379,8 @@ Public Class GameClient
             Dim keyboardState As KeyboardState = Keyboard.GetState()
 
             ' Update the previous and current states
-            previousKeyboardState = currentKeyboardState
-            currentKeyboardState = keyboardState
+            PreviousKeyboardState = currentKeyboardState
+            CurrentKeyboardState = keyboardState
         End SyncLock
     End Sub
     
@@ -398,39 +390,38 @@ Public Class GameClient
             Dim mouseState As MouseState = Mouse.GetState()
 
             ' Update the previous and current states
-            previousMouseState = currentMouseState
-            currentMouseState = mouseState
+            PreviousMouseState = CurrentMouseState
+            CurrentMouseState = mouseState
         End SyncLock
     End Sub
-
     
     Public Shared Function GetMouseScrollDelta() As Integer
         SyncLock ScrollLock
             ' Calculate the scroll delta between the previous and current states
-            Return currentMouseState.ScrollWheelValue - previousMouseState.ScrollWheelValue
+            Return CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue
         End SyncLock
     End Function
     
     Public Shared Function IsKeyStateActive(key As Keys) As Boolean
         SyncLock InputLock
             ' Check if the key is down in the current keyboard state
-            Return currentKeyboardState.IsKeyDown(key)
+            Return CurrentKeyboardState.IsKeyDown(key)
         End SyncLock
     End Function
 
     Public Shared Function GetMousePosition() As Tuple(Of Integer, Integer)
         SyncLock InputLock
             ' Return the current mouse position as a Tuple
-            Return New Tuple(Of Integer, Integer)(currentMouseState.X, currentMouseState.Y)
+            Return New Tuple(Of Integer, Integer)(CurrentMouseState.X, CurrentMouseState.Y)
         End SyncLock
     End Function
 
     Public Shared Function IsMouseButtonDown(button As ButtonState) As Boolean
         SyncLock InputLock
             ' Check if the specified mouse button is pressed
-            Return (button = currentMouseState.LeftButton OrElse 
-                    button = currentMouseState.RightButton OrElse 
-                    button = currentMouseState.MiddleButton)
+            Return (button = CurrentMouseState.LeftButton OrElse 
+                    button = CurrentMouseState.RightButton OrElse 
+                    button = CurrentMouseState.MiddleButton)
         End SyncLock
     End Function
 

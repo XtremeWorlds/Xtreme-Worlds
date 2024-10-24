@@ -341,17 +341,20 @@ Module General
         Dim currentTime As Integer = Environment.TickCount
 
         SyncLock InputLock
-            ' Check if the left button is pressed
-            If currentMouseState.LeftButton = ButtonState.Pressed Then
-                If currentTime - LastLeftClickTime <= DoubleClickTImer Then
-                    HandleInterfaceEvents(EntState.DblClick)
-                    LastLeftClickTime = 0 ' Reset the timer to avoid multiple double-clicks
-                Else
-                    HandleInterfaceEvents(EntState.MouseDown)
-                    LastLeftClickTime = currentTime
+            ' Check if the left button has just been released after being pressed
+            If CurrentMouseState.LeftButton = ButtonState.Pressed Then
+                If PreviousMouseState.LeftButton = ButtonState.Released Then
+                    ' Handle double-click logic
+                    If currentTime - LastLeftClickTime <= DoubleClickTImer Then
+                        HandleInterfaceEvents(EntState.DblClick)
+                        LastLeftClickTime = 0 ' Reset to avoid consecutive double-clicks
+                    Else
+                        HandleInterfaceEvents(EntState.MouseDown)
+                        LastLeftClickTime = currentTime ' Track time for future double-clicks
+                    End If
                 End If
 
-                ' In-game interactions on left-click
+                ' In-game interactions after a successful left-click
                 If inGame Then
                     If PetAlive(MyIndex) AndAlso IsInBounds() Then
                         PetMove(CurX, CurY)
@@ -366,11 +369,11 @@ Module General
     Private Sub HandleRightClick()
         SyncLock InputLock
             ' Check if the right button is pressed
-            If currentMouseState.RightButton = ButtonState.Pressed Then
+            If CurrentMouseState.RightButton = ButtonState.Pressed Then
                 If VbKeyShift Then
                     ' Admin warp if Shift is held and the player has moderator access
                     If GetPlayerAccess(MyIndex) >= AccessType.Moderator Then
-                        AdminWarp(currentMouseState.X, currentMouseState.Y)
+                        AdminWarp(CurrentMouseState.X, CurrentMouseState.Y)
                     End If
                 Else
                     ' Handle the right-click menu
@@ -387,7 +390,7 @@ Module General
                 If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
                     If GetPlayerX(i) = CurX AndAlso GetPlayerY(i) = CurY Then
                         ' Use current mouse state for the X and Y positions
-                        ShowPlayerMenu(i, currentMouseState.X, currentMouseState.Y)
+                        ShowPlayerMenu(i, CurrentMouseState.X, CurrentMouseState.Y)
                     End If
                 End If
             Next
