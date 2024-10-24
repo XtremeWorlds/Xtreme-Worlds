@@ -45,7 +45,6 @@ Public Class GameClient
 
     Public Class RenderBatch
         Public Property Texture As Texture2D
-        Public Property Font as SpriteFont
         Public Property Commands As New List(Of RenderCommand)()
         Public Property TextureID As Integer
     End Class
@@ -273,8 +272,6 @@ Public Class GameClient
                     .TextureID = Client.TextureCounter
                     }
             batch.Commands.Add(newCommand)
-
-            ' Enqueue the new batch
             batches.Enqueue(batch)
         End If
     End Sub
@@ -282,9 +279,9 @@ Public Class GameClient
     Private Function UpdateBatchInQueue(textureID As Integer, newCommand As RenderCommand) As Boolean
         Dim batchList = batches.ToList() ' Snapshot of the queue
 
-        For Each batch In batchList
-            If batch.TextureID = textureID Then
-                SyncLock batchLock
+        SyncLock batchLock
+            For Each batch In batchList
+                If batch.TextureID = textureID Then
                     ' Search for an existing command and update its position
                     Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = newCommand.Path)
                     
@@ -300,16 +297,22 @@ Public Class GameClient
                         Else
                             batch.Commands.Add(newCommand) ' Add new command if not found
                         End If
-                    Else 
+                    Else
                         Dim command = batch.Commands.FirstOrDefault()
-                        batch.Texture = GetTexture(newCommand.Path)
+                        
+                        If Not batch.Texture Is Nothing Then
+                            If Not newCommand.Path = Core.Path.Fonts Then
+                                batch.Texture = GetTexture(newCommand.Path)
+                            End If
+                        End If
+
                         batch.Commands.Remove(command)
                         batch.Commands.Add(newCommand)
                     End If
-                End SyncLock
-                Return True
-            End If
-        Next
+                    Return True
+                End If
+            Next
+        End SyncLock
 
         Return False ' No matching batch found
     End Function
