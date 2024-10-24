@@ -349,8 +349,10 @@ Public Class GameClient
         GraphicsDevice.Clear(Color.Black)
         GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
         
-        If IsLoading then Exit Sub
-
+        SyncLock loadLock
+            If IsLoading then Exit Sub
+        End SyncLock
+        
         Dim command As RenderCommand
         
         SpriteBatch.Begin()
