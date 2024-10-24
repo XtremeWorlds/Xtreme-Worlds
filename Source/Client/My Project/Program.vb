@@ -43,8 +43,8 @@ Public Class GameClient
 
     Public Class RenderBatch
         Public Property Texture As Texture2D
+        Public Property Font as SpriteFont
         Public Property Commands As New List(Of RenderCommand)()
-        
         Public Property TextureID As Integer
     End Class
     
@@ -199,7 +199,7 @@ Public Class GameClient
                 .Color = frontColor,
                 .Color2 = backColor
                 }
-
+        
         ' Increment a counter (similar to TextureCounter) for tracking text commands
         Client.TextureCounter += 1
 
@@ -271,6 +271,8 @@ Public Class GameClient
                     Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = newCommand.Path)
                     If existingCommand IsNot Nothing Then
                         existingCommand.dRect = newCommand.dRect ' Update position
+                        existingCommand.X = newCommand.X
+                        existingCommand.Y = newCommand.Y
                     Else
                         batch.Commands.Add(newCommand) ' Add new command if not found
                     End If
