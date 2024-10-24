@@ -13,11 +13,11 @@ Public Class GameClient
     Inherits Game
 
     Public Graphics As GraphicsDeviceManager
-    Public SpriteBatch As Graphics.SpriteBatch
+    Public SpriteBatch As SpriteBatch
     Public ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
     Public ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
-    Public ReadOnly MouseCache As New ConcurrentDictionary(Of String, Integer)
-    Public ReadOnly KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
+    Public ReadOnly Shared MouseCache As New ConcurrentDictionary(Of String, Integer)
+    Public ReadOnly Shared KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
     Public ReadOnly MultiplyBlendState As New BlendState()
     Public TextureCounter As Integer
     
@@ -124,22 +124,7 @@ Public Class GameClient
         MouseCache.TryAdd("MiddleButton", 0)
         MouseCache.TryAdd("ScrollDelta", 0)
     End Sub
-
-    ' Get the current state of a specific key
-    Public Function GetKeyState(key As Keys) As Boolean
-        Return KeyCache.GetOrAdd(key, False)
-    End Function
-
-    ' Get the current state of a specific mouse button
-    Public Function GetMouseButtonState(button As String) As Boolean
-        Return MouseCache.GetOrAdd(button, 0) = 1
-    End Function
-
-    ' Get the current scroll delta from the cache
-    Public Function GetMouseScrollWheelDelta() As Integer
-        Return MouseCache.GetOrAdd("ScrollDelta", 0)
-    End Function
-
+    
     Protected Overrides Sub Initialize()
         ' Create the RenderTarget2D with the same size as the screen
         RenderTarget = New RenderTarget2D(

@@ -2,6 +2,7 @@
 Imports Client.GameClient
 Imports Core
 Imports System.IO
+Imports Microsoft.Xna.Framework.Input
 
 Module General
     Public Client As New GameClient()
@@ -271,20 +272,134 @@ Module General
         FreeBASS
         End
     End Sub
-
-    Friend Function GetExceptionInfo(ex As Exception) As String
-        Dim result As String
-        Dim hr As Integer = Runtime.InteropServices.Marshal.GetHRForException(ex)
-        result = ex.GetType.ToString & "(0x" & hr.ToString("X8") & "): " & ex.Message & Environment.NewLine & ex.StackTrace & Environment.NewLine
-        Dim st As StackTrace = New StackTrace(ex, True)
-        For Each sf As StackFrame In st.GetFrames
-            If sf.GetFileLineNumber() > 0 Then
-                result &= "Line:" & sf.GetFileLineNumber() & " Filename: " & IO.Path.GetFileName(sf.GetFileName) & Environment.NewLine
+    
+    Private Sub HandleRightClickMenu()
+        For i = 1 To MAX_PLAYERS
+            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
+                If GetPlayerX(i) = CurX And GetPlayerY(i) = CurY Then
+                    ShowPlayerMenu(i, Client.MouseCache("X"), Client.MouseCache("Y"))
+                End If
             End If
         Next
-        Return result
-    End Function
+        PlayerSearch(CurX, CurY, 1)
+    End Sub
+    
+    Public Sub ProcessInputs()
+        DirUp = VbKeyUp
+        DirDown = VbKeyDown
+        DirLeft = VbKeyLeft
+        DirRight = VbKeyRight
+            
+        ' Convert adjusted coordinates to game world coordinates
+        CurX = TileView.Left + Math.Floor((MouseCache("X") + Camera.Left) / PicX)
+        CurY = TileView.Top + Math.Floor((MouseCache("Y") + Camera.Top) / PicY)
 
+        ' Store raw mouse coordinates for interface interactions
+        CurMouseX = MouseCache("X")
+        CurMouseY = MouseCache("Y")
+        
+        ' Handle movement
+        VbKeyUp = KeyCache(Keys.W) Or KeyCache(Keys.Up)
+        VbKeyDown = KeyCache(Keys.S) Or KeyCache(Keys.Down)
+        VbKeyLeft = KeyCache(Keys.A) Or KeyCache(Keys.Left)
+        VbKeyRight = KeyCache(Keys.D) Or KeyCache(Keys.Right)
+
+        ' Handle action keys
+        VbKeyControl = KeyCache(Keys.LeftControl)
+        VbKeyShift = KeyCache(Keys.LeftShift)
+        
+        ' Handle escape key to toggle menus
+        If KeyCache(Keys.Escape) Then
+            If InMenu Then Exit Sub
+
+            If Windows(GetWindowIndex("winOptions")).Window.visible Then
+                HideWindow(GetWindowIndex("winOptions"))
+                CloseComboMenu()
+            ElseIf Windows(GetWindowIndex("winChat")).Window.Visible Then
+                Windows(GetWindowIndex("winChat")).Controls(GetControlIndex("winChat", "txtChat")).Text = ""
+                HideChat()
+            ElseIf Windows(GetWindowIndex("winEscMenu")).Window.visible Then
+                HideWindow(GetWindowIndex("winEscMenu"))
+            Else
+                ShowWindow(GetWindowIndex("winEscMenu"), True)
+            End If
+        End If
+
+        ' Handle enter key for chat
+        If KeyCache(Keys.Enter) Then
+            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
+                ShowChat()
+                inSmallChat = False
+            Else
+                HandlePressEnter()
+            End If
+        End If
+
+        ' Handle space key to pick up items
+        If KeyCache(Keys.Space) Then CheckMapGetItem()
+
+        ' Handle hotbar inputs
+        If inSmallChat Then
+            For i = 1 To MAX_HOTBAR - 1
+                If KeyCache(Keys.D1 + i - 1) Then SendUseHotbarSlot(i)
+            Next
+        End If
+
+        ' Handle inventory, character, and skills toggling
+        If KeyCache(Keys.I) Then btnMenu_Inv()
+        If KeyCache(Keys.C) Then btnMenu_Char()
+        If KeyCache(Keys.K) Then btnMenu_Skills()
+
+        ' Handle mouse inputs
+        HandleMouseInputs()
+    End Sub
+    
+    Private Sub HandleLeftClick()
+        Dim currentTime As Integer = Environment.TickCount
+        
+        If MouseCache("LeftButton") Then
+            If currentTime - LastLeftClickTime <= DoubleClickTImer Then
+                HandleInterfaceEvents(EntState.DblClick)
+                LastLeftClickTime = 0
+            Else
+                HandleInterfaceEvents(EntState.MouseDown)
+                LastLeftClickTime = currentTime
+            End If
+
+            If inGame Then
+                If PetAlive(MyIndex) AndAlso IsInBounds() Then PetMove(CurX, CurY)
+                CheckAttack(True)
+                PlayerSearch(CurX, CurY, 0)
+            End If
+        End If
+    End Sub
+    
+    Private Sub HandleRightCLick()
+        ' Handle right-click interactions
+        If MouseCache("RightButton") Then
+            If VbKeyShift Then
+                If GetPlayerAccess(MyIndex) >= AccessType.Moderator Then
+                    AdminWarp(MouseCache("X"), MouseCache("Y"))
+                End If
+            Else
+                HandleRightClickMenu()
+            End If
+        End If
+    End Sub
+    
+    Private Sub HandleMouseInputs()
+        HandleLeftClick()
+        HandleRightCLick()
+
+        ' Handle scroll wheel actions
+        Dim scrollValue As Integer = MouseCache("ScrollDelta")
+        If scrollValue > 0 Then
+            ScrollChatBox(0) ' Scroll up
+        ElseIf scrollValue < 0 Then
+            ScrollChatBox(1) ' Scroll down
+        End If
+    End Sub
+    
     Sub GameLoop()
         Dim i As Integer
         Dim tmr1000 As Integer, tick As Integer, fogtmr As Integer, chattmr As Integer
@@ -303,19 +418,8 @@ Module General
 
             frameTime = tick
             Client.TextureCounter = 0
-
-            DirUp = VbKeyUp
-            DirDown = VbKeyDown
-            DirLeft = VbKeyLeft
-            DirRight = VbKeyRight
-
-            ' Convert adjusted coordinates to game world coordinates
-            CurX = TileView.Left + Math.Floor((Client.MouseCache("X") + Camera.Left) / PicX)
-            CurY = TileView.Top + Math.Floor((Client.MouseCache("Y") + Camera.Top) / PicY)
-
-            ' Store raw mouse coordinates for interface interactions
-            CurMouseX = Client.MouseCache("X")
-            CurMouseY = Client.MouseCache("Y")
+            
+            ProcessInputs()
 
             If GameStarted() Then
                 'Calculate FPS
