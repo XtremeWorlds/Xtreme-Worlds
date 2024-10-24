@@ -85,7 +85,7 @@ Module NetworkSend
                 SendLogin(user, pass)
             Else
                 InitNetwork()
-                Dialogue("Connection Problem", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
+                Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
             End If
         End With
     End Sub

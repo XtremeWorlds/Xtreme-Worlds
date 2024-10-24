@@ -732,7 +732,7 @@ Continue1:
                 body2 = "Please try another name."
 
             Case DialogueMsg.Database
-                header = "Connection Problem"
+                header = "Invalid Connection"
                 body = "Cannot connect to database."
                 body2 = "Please try again later."
 
@@ -963,7 +963,7 @@ Continue1:
             Call SendAddChar(name, sex, job)
         Else
             InitNetwork()
-            Dialogue("Connection Problem", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
+            Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
         End If
     End Sub
 

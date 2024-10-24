@@ -1093,7 +1093,8 @@ Module [Interface]
     Public Sub RenderEntity(winNum As Long, entNum As Long)
         Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
         Dim textArray() As String, count As Long, i As Long, taddText As String
-
+        Dim yOffset As Long
+        
         ' Check if the window and entity exist
         If winNum <= 0 Or winNum > WindowCount OrElse entNum <= 0 Or entNum > Windows(winNum).ControlCount Then
             Exit Sub
@@ -1188,81 +1189,81 @@ Module [Interface]
                     
                 Case EntityType.Label
                     If Len(.Text) > 0 Then
-                    Select Case .Align
-                        Case AlignmentType.Left
-                            If TextWidth(.Text, .Font) > .Width Then
-                                WordWrap(.Text, .Font, .Width, textArray)
-                                count = UBound(textArray)
-                                For i = 1 To count
+                        Select Case .Align
+                            Case AlignmentType.Left
+                                If TextWidth(.Text, .Font) > .Width Then
+                                    WordWrap(.Text, .Font, .Width, textArray)
+                                    count = UBound(textArray)
+                                    For i = 1 To count
+                                        Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                        Dim actualWidth = actualSize.X
+                                        Dim padding = actualWidth / 6.0
+                                        Dim left = .Left + xO + .xOffset + padding
+
+                                        RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                        yOffset += 14
+                                    Next
+                                Else
                                     Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                     Dim actualWidth = actualSize.X
-                                    Dim padding = actualWidth / 6.0
-                                    Dim left = .Left + xO + .xOffset + padding
+                                    Dim left = .Left + xO + .xOffset
 
-                                    RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                    RenderText(.Text, left, .Top + yO + .yOffset,
                                                .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                    .yOffset += 14
-                                Next
-                            Else
-                                Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
-                                Dim actualWidth = actualSize.X
-                                Dim left = .Left + xO + .xOffset
+                                End If
 
-                                RenderText(.Text, left, .Top + yO + .yOffset,
-                                           .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                            End If
+                            Case AlignmentType.Right
+                                If TextWidth(.Text, .Font) > .Width Then
+                                    WordWrap(.Text, .Font, .Width, textArray)
+                                    count = UBound(textArray)
+                                    For i = 1 To count
+                                        Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                        Dim actualWidth = actualSize.X
+                                        Dim padding = actualWidth / 6.0
+                                        Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
 
-                        Case AlignmentType.Right
-                            If TextWidth(.Text, .Font) > .Width Then
-                                WordWrap(.Text, .Font, .Width, textArray)
-                                count = UBound(textArray)
-                                For i = 1 To count
+                                        RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                        yOffset += 14
+                                    Next
+                                Else
                                     Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                     Dim actualWidth = actualSize.X
-                                    Dim padding = actualWidth / 6.0
-                                    Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
+                                    Dim left = .Left + .Width - actualSize.X + xO + .xOffset
 
-                                    RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                    RenderText(.Text, left, .Top + yO + .yOffset,
                                                .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                    .yOffset += 14
-                                Next
-                            Else
-                                Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
-                                Dim actualWidth = actualSize.X
-                                Dim left = .Left + .Width - actualSize.X + xO + .xOffset
+                                End If
 
-                                RenderText(.Text, left, .Top + yO + .yOffset,
-                                           .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                            End If
+                            Case AlignmentType.Center
+                                If TextWidth(.Text, .Font) > .Width Then
+                                    WordWrap(.Text, .Font, .Width, textArray)
+                                    count = UBound(textArray)
 
-                        Case AlignmentType.Center
-                            If TextWidth(.Text, .Font) > .Width Then
-                                WordWrap(.Text, .Font, .Width, textArray)
-                                count = UBound(textArray)
+                                    For i = 1 To count
+                                        Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                        Dim actualWidth = actualSize.X
+                                        Dim actualHeight = actualSize.Y
+                                        Dim padding = actualWidth / 6.0
+                                        Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
+                                        Dim top = .Top + yO + .yOffset + yOffset + ((.Height - actualHeight) / 2.0)
 
-                                For i = 1 To count
-                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                        RenderText(textArray(i), left, top,
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                        yOffset += 14
+                                    Next
+                                Else
+                                    Dim actualSize = Fonts(.Font).MeasureString(.Text)
                                     Dim actualWidth = actualSize.X
                                     Dim actualHeight = actualSize.Y
                                     Dim padding = actualWidth / 6.0
                                     Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
                                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
-                                    RenderText(textArray(i), left, top,
+                                    RenderText(.Text, left, top,
                                                .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                    .yOffset += 14
-                                Next
-                            Else
-                                Dim actualSize = Fonts(.Font).MeasureString(.Text)
-                                Dim actualWidth = actualSize.X
-                                Dim actualHeight = actualSize.Y
-                                Dim padding = actualWidth / 6.0
-                                Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
-                                Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
-
-                                RenderText(.Text, left, top,
-                                           .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                            End If
+                                End If
                         End Select
                     End If
             End Select
@@ -1811,7 +1812,7 @@ Module [Interface]
                 SendRegister(User, Pass)
             Else
                 InitNetwork()
-                Dialogue("Connection Problem", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
+                Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
             End If
         End With
     End Sub
