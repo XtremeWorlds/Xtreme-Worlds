@@ -16,8 +16,7 @@ Public Class GameClient
     Public SpriteBatch As SpriteBatch
     Public ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
     Public ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
-    Public ReadOnly Shared MouseCache As New ConcurrentDictionary(Of String, Integer)
-    Public ReadOnly Shared KeyCache As New ConcurrentDictionary(Of Keys, Boolean)
+
     Public ReadOnly MultiplyBlendState As New BlendState()
     Public TextureCounter As Integer
     
@@ -57,15 +56,22 @@ Public Class GameClient
     Public RenderQueue As New ConcurrentQueue(Of RenderCommand)()
 
     ' State tracking variables
-    Private currentKeyboardState As KeyboardState
-    Private previousKeyboardState As KeyboardState
-    Private currentMouseState As MouseState
-    Private previousMouseState As MouseState
+    ' Shared keyboard and mouse states for cross-thread access
+    Public Shared CurrentKeyboardState As KeyboardState
+    Public Shared PreviousKeyboardState As KeyboardState
+
+    Public Shared CurrentMouseState As MouseState
+    Public Shared PreviousMouseState As MouseState
+
+    ' Lock object to ensure thread safety
+    Public Shared ReadOnly InputLock As New Object()
+
     Private inGame As Boolean = True
     Private inMenu As Boolean = False
     Private inSmallChat As Boolean = False
 
     ' Track the previous scroll value to compute delta
+    Private Shared ReadOnly ScrollLock As New Object()
     Private previousScrollValue As Integer = 0
 
     Private elapsedTime As TimeSpan = TimeSpan.Zero
@@ -114,16 +120,6 @@ Public Class GameClient
         AddHandler Me.Exiting, AddressOf OnWindowClose
         AddHandler graphics.DeviceReset, AddressOf OnDeviceReset
     End Sub
-
-    ' Populate the dictionary in a shared Sub or Constructor
-    Public Sub InitializeMouseCache()
-        MouseCache.TryAdd("X", 0)
-        MouseCache.TryAdd("Y", 0)
-        MouseCache.TryAdd("LeftButton", 0)
-        MouseCache.TryAdd("RightButton", 0)
-        MouseCache.TryAdd("MiddleButton", 0)
-        MouseCache.TryAdd("ScrollDelta", 0)
-    End Sub
     
     Protected Overrides Sub Initialize()
         ' Create the RenderTarget2D with the same size as the screen
@@ -135,11 +131,8 @@ Public Class GameClient
             GraphicsDevice.PresentationParameters.BackBufferFormat,
             DepthFormat.Depth24)
 
-        InitializeMouseCache()
-
         InitializeMultiplyBlendState()
 
-        ' Optional: Set the title of the window
         Window.Title = Setting.GameName
 
         MyBase.Initialize()
@@ -176,7 +169,7 @@ Public Class GameClient
     End Sub
 
     Protected Overrides Sub LoadContent()
-        SpriteBatch = New Graphics.SpriteBatch(GraphicsDevice)
+        SpriteBatch = New SpriteBatch(GraphicsDevice)
 
         TransparentTexture = New Texture2D(GraphicsDevice, 1, 1)
         TransparentTexture.SetData(New Color() {Color.White})
@@ -366,7 +359,7 @@ Public Class GameClient
         currentMouseState = Mouse.GetState()
 
         UpdateMouseCache()
-        UpdateKeyboardCache()
+        UpdateKeyCache()
 
         ' Capture screenshot when the screenshot key is pressed
         If currentKeyboardState.IsKeyDown(screenshotKey) Then
@@ -388,34 +381,58 @@ Public Class GameClient
         MyBase.Update(gameTime)
     End Sub
 
-    Private Sub UpdateKeyboardCache()
-        Dim keyboardState As KeyboardState = Keyboard.GetState()
-        For Each key As Keys In System.[Enum].GetValues(GetType(Keys))
-            KeyCache(key) = keyboardState.IsKeyDown(key)
-        Next
+    Private Shared Sub UpdateKeyCache()
+        SyncLock InputLock
+            ' Get the current keyboard state
+            Dim keyboardState As KeyboardState = Keyboard.GetState()
+
+            ' Update the previous and current states
+            previousKeyboardState = currentKeyboardState
+            currentKeyboardState = keyboardState
+        End SyncLock
+    End Sub
+    
+    Private Shared Sub UpdateMouseCache()
+        SyncLock InputLock
+            ' Get the current mouse state
+            Dim mouseState As MouseState = Mouse.GetState()
+
+            ' Update the previous and current states
+            previousMouseState = currentMouseState
+            currentMouseState = mouseState
+        End SyncLock
     End Sub
 
-    Private Sub UpdateMouseCache()
-        Dim mouseState As MouseState = Mouse.GetState()
+    
+    Public Shared Function GetMouseScrollDelta() As Integer
+        SyncLock ScrollLock
+            ' Calculate the scroll delta between the previous and current states
+            Return currentMouseState.ScrollWheelValue - previousMouseState.ScrollWheelValue
+        End SyncLock
+    End Function
+    
+    Public Shared Function IsKeyStateActive(key As Keys) As Boolean
+        SyncLock InputLock
+            ' Check if the key is down in the current keyboard state
+            Return currentKeyboardState.IsKeyDown(key)
+        End SyncLock
+    End Function
 
-        ' Update the mouse state
-        MouseCache("X") = currentMouseState.X
-        MouseCache("Y") = currentMouseState.Y
+    Public Shared Function GetMousePosition() As Tuple(Of Integer, Integer)
+        SyncLock InputLock
+            ' Return the current mouse position as a Tuple
+            Return New Tuple(Of Integer, Integer)(currentMouseState.X, currentMouseState.Y)
+        End SyncLock
+    End Function
 
-        MouseCache("LeftButton") = If(currentMouseState.LeftButton = ButtonState.Pressed, 1, 0)
-        MouseCache("RightButton") = If(currentMouseState.RightButton = ButtonState.Pressed, 1, 0)
-        MouseCache("MiddleButton") = If(currentMouseState.MiddleButton = ButtonState.Pressed, 1, 0)
-
-        ' Calculate scroll delta
-        Dim currentScrollValue As Integer = mouseState.ScrollWheelValue
-        Dim delta As Integer = currentScrollValue - previousScrollValue
-
-        ' Update scroll delta in the cache
-        MouseCache("ScrollDelta") = delta
-
-        ' Save the current scroll value for the next frame
-        previousScrollValue = currentScrollValue
-    End Sub
+    Public Shared Function IsMouseButtonDown(button As ButtonState) As Boolean
+        SyncLock InputLock
+            ' Check if the specified mouse button is pressed
+            Return (button = currentMouseState.LeftButton OrElse 
+                    button = currentMouseState.RightButton OrElse 
+                    button = currentMouseState.MiddleButton)
+        End SyncLock
+    End Function
 
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()

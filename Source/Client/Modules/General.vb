@@ -273,43 +273,32 @@ Module General
         End
     End Sub
     
-    Private Sub HandleRightClickMenu()
-        For i = 1 To MAX_PLAYERS
-            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
-                If GetPlayerX(i) = CurX And GetPlayerY(i) = CurY Then
-                    ShowPlayerMenu(i, Client.MouseCache("X"), Client.MouseCache("Y"))
-                End If
-            End If
-        Next
-        PlayerSearch(CurX, CurY, 1)
-    End Sub
-    
     Public Sub ProcessInputs()
-        DirUp = VbKeyUp
-        DirDown = VbKeyDown
-        DirLeft = VbKeyLeft
-        DirRight = VbKeyRight
-            
+        ' Get the mouse position from the cache
+        Dim mousePos As Tuple(Of Integer, Integer) = GetMousePosition()
+        Dim mouseX As Integer = mousePos.Item1
+        Dim mouseY As Integer = mousePos.Item2
+
         ' Convert adjusted coordinates to game world coordinates
-        CurX = TileView.Left + Math.Floor((MouseCache("X") + Camera.Left) / PicX)
-        CurY = TileView.Top + Math.Floor((MouseCache("Y") + Camera.Top) / PicY)
+        CurX = TileView.Left + Math.Floor((mouseX + Camera.Left) / PicX)
+        CurY = TileView.Top + Math.Floor((mouseY + Camera.Top) / PicY)
 
         ' Store raw mouse coordinates for interface interactions
-        CurMouseX = MouseCache("X")
-        CurMouseY = MouseCache("Y")
-        
-        ' Handle movement
-        VbKeyUp = KeyCache(Keys.W) Or KeyCache(Keys.Up)
-        VbKeyDown = KeyCache(Keys.S) Or KeyCache(Keys.Down)
-        VbKeyLeft = KeyCache(Keys.A) Or KeyCache(Keys.Left)
-        VbKeyRight = KeyCache(Keys.D) Or KeyCache(Keys.Right)
+        CurMouseX = mouseX
+        CurMouseY = mouseY
 
-        ' Handle action keys
-        VbKeyControl = KeyCache(Keys.LeftControl)
-        VbKeyShift = KeyCache(Keys.LeftShift)
-        
-        ' Handle escape key to toggle menus
-        If KeyCache(Keys.Escape) Then
+        ' Check for movement keys
+        DirUp = IsKeyStateActive(Keys.W) Or IsKeyStateActive(Keys.Up)
+        DirDown = IsKeyStateActive(Keys.S) Or IsKeyStateActive(Keys.Down)
+        DirLeft = IsKeyStateActive(Keys.A) Or IsKeyStateActive(Keys.Left)
+        DirRight = IsKeyStateActive(Keys.D) Or IsKeyStateActive(Keys.Right)
+
+        ' Check for action keys
+        VbKeyControl = IsKeyStateActive(Keys.LeftControl)
+        VbKeyShift = IsKeyStateActive(Keys.LeftShift)
+
+        ' Handle Escape key to toggle menus
+        If IsKeyStateActive(Keys.Escape) Then
             If InMenu Then Exit Sub
 
             If Windows(GetWindowIndex("winOptions")).Window.visible Then
@@ -324,80 +313,88 @@ Module General
                 ShowWindow(GetWindowIndex("winEscMenu"), True)
             End If
         End If
-
-        ' Handle enter key for chat
-        If KeyCache(Keys.Enter) Then
-            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
-                ShowChat()
-                inSmallChat = False
-            Else
-                HandlePressEnter()
-            End If
-        End If
-
-        ' Handle space key to pick up items
-        If KeyCache(Keys.Space) Then CheckMapGetItem()
-
-        ' Handle hotbar inputs
-        If inSmallChat Then
-            For i = 1 To MAX_HOTBAR - 1
-                If KeyCache(Keys.D1 + i - 1) Then SendUseHotbarSlot(i)
-            Next
-        End If
-
-        ' Handle inventory, character, and skills toggling
-        If KeyCache(Keys.I) Then btnMenu_Inv()
-        If KeyCache(Keys.C) Then btnMenu_Char()
-        If KeyCache(Keys.K) Then btnMenu_Skills()
-
-        ' Handle mouse inputs
-        HandleMouseInputs()
-    End Sub
-    
-    Private Sub HandleLeftClick()
-        Dim currentTime As Integer = Environment.TickCount
         
-        If MouseCache("LeftButton") Then
-            If currentTime - LastLeftClickTime <= DoubleClickTImer Then
-                HandleInterfaceEvents(EntState.DblClick)
-                LastLeftClickTime = 0
-            Else
-                HandleInterfaceEvents(EntState.MouseDown)
-                LastLeftClickTime = currentTime
-            End If
-
-            If inGame Then
-                If PetAlive(MyIndex) AndAlso IsInBounds() Then PetMove(CurX, CurY)
-                CheckAttack(True)
-                PlayerSearch(CurX, CurY, 0)
-            End If
-        End If
-    End Sub
-    
-    Private Sub HandleRightCLick()
-        ' Handle right-click interactions
-        If MouseCache("RightButton") Then
-            If VbKeyShift Then
-                If GetPlayerAccess(MyIndex) >= AccessType.Moderator Then
-                    AdminWarp(MouseCache("X"), MouseCache("Y"))
-                End If
-            Else
-                HandleRightClickMenu()
-            End If
-        End If
+        HandleMouseInputs()
     End Sub
     
     Private Sub HandleMouseInputs()
         HandleLeftClick()
-        HandleRightCLick()
-
-        ' Handle scroll wheel actions
-        Dim scrollValue As Integer = MouseCache("ScrollDelta")
+        HandleRightClick()
+        HandleScrollWheel()
+    End Sub
+    
+    Private Sub HandleScrollWheel()
+        ' Handle scroll wheel (assuming delta calculation happens elsewhere)
+        Dim scrollValue = GetMouseScrollDelta()
         If scrollValue > 0 Then
             ScrollChatBox(0) ' Scroll up
         ElseIf scrollValue < 0 Then
             ScrollChatBox(1) ' Scroll down
         End If
+        
+        if scrollvalue <> 0 Then
+            HandleInterfaceEvents(entState.MouseScroll)
+        End If
+    End Sub
+    
+    Private Sub HandleLeftClick()
+        Dim currentTime As Integer = Environment.TickCount
+
+        SyncLock InputLock
+            ' Check if the left button is pressed
+            If currentMouseState.LeftButton = ButtonState.Pressed Then
+                If currentTime - LastLeftClickTime <= DoubleClickTImer Then
+                    HandleInterfaceEvents(EntState.DblClick)
+                    LastLeftClickTime = 0 ' Reset the timer to avoid multiple double-clicks
+                Else
+                    HandleInterfaceEvents(EntState.MouseDown)
+                    LastLeftClickTime = currentTime
+                End If
+
+                ' In-game interactions on left-click
+                If inGame Then
+                    If PetAlive(MyIndex) AndAlso IsInBounds() Then
+                        PetMove(CurX, CurY)
+                    End If
+                    CheckAttack(True)
+                    PlayerSearch(CurX, CurY, 0)
+                End If
+            End If
+        End SyncLock
+    End Sub
+
+    Private Sub HandleRightClick()
+        SyncLock InputLock
+            ' Check if the right button is pressed
+            If currentMouseState.RightButton = ButtonState.Pressed Then
+                If VbKeyShift Then
+                    ' Admin warp if Shift is held and the player has moderator access
+                    If GetPlayerAccess(MyIndex) >= AccessType.Moderator Then
+                        AdminWarp(currentMouseState.X, currentMouseState.Y)
+                    End If
+                Else
+                    ' Handle the right-click menu
+                    HandleRightClickMenu()
+                End If
+            End If
+        End SyncLock
+    End Sub
+    
+    Private Sub HandleRightClickMenu()
+        SyncLock InputLock
+            ' Loop through all players and display the right-click menu for the matching one
+            For i = 1 To MAX_PLAYERS
+                If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
+                    If GetPlayerX(i) = CurX AndAlso GetPlayerY(i) = CurY Then
+                        ' Use current mouse state for the X and Y positions
+                        ShowPlayerMenu(i, currentMouseState.X, currentMouseState.Y)
+                    End If
+                End If
+            Next
+
+            ' Perform player search at the current cursor position
+            PlayerSearch(CurX, CurY, 1)
+        End SyncLock
     End Sub
     
     Sub GameLoop()
