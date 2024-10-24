@@ -322,21 +322,27 @@ Module General
         HandleMouseInputs()
     End Sub
     
-    Private Sub HandleTextInput()
+   Private Sub HandleTextInput()
         ' Loop through all keys in the current keyboard state
-        For Each key As Keys In System.[Enum].GetValues(GetType(Keys))
-            ' Check if the key was just pressed
+        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+            ' Check if the key is currently pressed and was not pressed in the previous state
             If CurrentKeyboardState.IsKeyDown(key) Then
-                ' Convert the key to a character (if possible)
-                Dim character As Char? = ConvertKeyToChar(key, VbKeyShift)
+                ' Handle special keys (Backspace, Clipboard Paste)
+                If key = Keys.Back Then
+                    HandleBackspace()
+                    Continue For
+                End If
 
-                ' Ignore invalid characters and control keys
-                If character Is Nothing Then Continue For
+                ' Convert the key to a character (if possible)
+                Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+
+                ' Ignore invalid characters
+                If character.HasValue = False Then Continue For
 
                 ' Check if the active window and control are valid
                 If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
                    Windows(activeWindow).ActiveControl > 0 Then
-                    
+
                     ' Ensure the control is not locked
                     If Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Locked Then Continue For
 
@@ -348,6 +354,21 @@ Module General
                 End If
             End If
         Next
+    End Sub
+
+    ' Handle Backspace to remove the last character from the active control
+    Private Sub HandleBackspace()
+        If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
+           Windows(activeWindow).ActiveControl > 0 Then
+
+            ' Ensure the control is not locked
+            If  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Locked Then Exit Sub
+
+            ' Remove the last character if the text is not empty
+            If  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length > 0 Then
+                Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text =  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Substring(0,  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length - 1)
+            End If
+        End If
     End Sub
 
     ' Convert a key to a character (if possible)
