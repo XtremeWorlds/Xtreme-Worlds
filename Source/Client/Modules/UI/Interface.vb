@@ -1141,8 +1141,7 @@ Module [Interface]
                     Dim actualHeight = actualSize.Y
 
                     ' Apply padding and calculate position
-                    Dim padding = actualWidth / 6.0
-                    Dim left = .Left + xO + .xOffset + padding
+                    Dim left = .Left + xO + .xOffset
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
                    
                     ' Render the final text
@@ -1207,8 +1206,7 @@ Module [Interface]
                             Else
                                 Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                 Dim actualWidth = actualSize.X
-                                Dim padding = actualWidth / 6.0
-                                Dim left = .Left + xO + .xOffset + padding
+                                Dim left = .Left + xO + .xOffset
 
                                 RenderText(.Text, left, .Top + yO + .yOffset,
                                            .Color, Microsoft.Xna.Framework.Color.Black, .Font)
@@ -1231,8 +1229,7 @@ Module [Interface]
                             Else
                                 Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                 Dim actualWidth = actualSize.X
-                                Dim padding = actualWidth / 6.0
-                                Dim left = .Left + .Width - actualSize.X + xO + .xOffset + padding
+                                Dim left = .Left + .Width - actualSize.X + xO + .xOffset
 
                                 RenderText(.Text, left, .Top + yO + .yOffset,
                                            .Color, Microsoft.Xna.Framework.Color.Black, .Font)
