@@ -1288,7 +1288,7 @@ Public Class GameClient
     Friend Sub DrawEvents()
         If MyMap.EventCount <= 0 Then Exit Sub ' Exit early if no events
 
-        For i As Integer = 1 To MyMap.EventCount
+        For i = 1 To MyMap.EventCount
             Dim x = ConvertMapX(MyMap.Event(i).X * PicX)
             Dim y = ConvertMapY(MyMap.Event(i).Y * PicY)
 
@@ -1372,7 +1372,30 @@ Public Class GameClient
     Friend Sub DrawEvent(id As Integer) ' draw on map, outside the editor
         Dim x As Integer, y As Integer, width As Integer, height As Integer, sRect As Rectangle, anim As Integer, spritetop As Integer
 
-        If MapEvents(id).Visible = 0 Then Exit Sub
+        If MapEvents(id).Visible = 0 Then
+            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
+
+            SyncLock Client.BatchLock
+                For Each batch In batchList
+                    Dim existingCommand As RenderCommand
+                    ' Search for an existing command and update its properties
+                    Select Case MapEvents(id).GraphicType
+                        Case 0
+                            Exit Sub
+                        Case 1
+                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, MapEvents(id).Graphic))
+                        Case 2
+                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(id).Graphic))
+                    End Select
+                    
+                    if existingCommand.dRect.X = MapEvents(id).X And existingCommand.dRect.Y = Type.MapEvents(id).Y Then
+                        batch.Commands.Remove(existingCommand)
+                        Exit For
+                    End If
+                Next
+            End SyncLock
+            Exit Sub
+        End If
 
         Select Case MapEvents(id).GraphicType
             Case 0
@@ -1460,7 +1483,6 @@ Public Class GameClient
         End Select
 
     End Sub
-
 
     Friend Sub Render_Game()
         Dim x As Integer, y As Integer, i As Integer
