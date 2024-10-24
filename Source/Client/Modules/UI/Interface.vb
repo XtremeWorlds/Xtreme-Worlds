@@ -1090,189 +1090,190 @@ Module [Interface]
         Loop
     End Sub
 
-Public Sub RenderEntity(winNum As Long, entNum As Long)
-    Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
-    Dim textArray() As String, count As Long, i As Long, taddText As String
+    Public Sub RenderEntity(winNum As Long, entNum As Long)
+        Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
+        Dim textArray() As String, count As Long, i As Long, taddText As String
 
-    ' Check if the window and entity exist
-    If winNum <= 0 Or winNum > WindowCount OrElse entNum <= 0 Or entNum > Windows(winNum).ControlCount Then
-        Exit Sub
-    End If
+        ' Check if the window and entity exist
+        If winNum <= 0 Or winNum > WindowCount OrElse entNum <= 0 Or entNum > Windows(winNum).ControlCount Then
+            Exit Sub
+        End If
 
-    ' Get the window's position offsets
-    xO = Windows(winNum).Window.Left
-    yO = Windows(winNum).Window.Top
+        ' Get the window's position offsets
+        xO = Windows(winNum).Window.Left
+        yO = Windows(winNum).Window.Top
 
-    With Windows(winNum).Controls(entNum)
-        Select Case .Type
-            Case EntityType.PictureBox
-                If .Design(.State) > 0 Then
-                    RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
-                End If
-
-                If Not .Image(.State) = 0 Then
-                    Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
-                                          .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
-                End If
-
-           Case EntityType.TextBox
-                           
-                ' Render the design if available
-                If .Design(.State) > 0 Then
-                    RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
-                End If
-
-                ' Render the image if present
-                If Not .Image(.State) = 0 Then
-                    Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
-                                          .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
-                End If
-
-                ' Handle active window text input
-                If activeWindow = winNum And Windows(winNum).ActiveControl = entNum Then
-                    taddText = chatShowLine
-                End If
-
-                ' Final text with potential censoring and additional input
-                Dim finalText As String = If(.Censor, CensorText(.Text), .Text) & taddText
-
-                ' Measure the text size
-                Dim actualSize = Fonts(.Font).MeasureString(finalText)
-                Dim actualWidth = actualSize.X
-                Dim actualHeight = actualSize.Y
-
-                ' Apply padding and calculate position
-                Dim padding = actualWidth / 6.0
-                Dim left = .Left + xO + .xOffset + padding
-                Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
-
-                ' Render the final text
-                RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-
-            Case EntityType.Button
-                ' Render the button design if defined
-                If .Design(.State) > 0 Then
-                    RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
-                End If
-
-                ' Enqueue the button image if present
-                If Not .Image(.State) = 0 Then
-                    Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                          .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
-                End If
-
-                ' Render the icon if available
-                If .Icon > 0 Then
-                    Dim gfxInfo = Client.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
-                    If gfxInfo IsNot Nothing Then
-                        Dim iconWidth = gfxInfo.Width
-                        Dim iconHeight = gfxInfo.Height
-
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon),
-                                              .Left + xO + .xOffset, .Top + yO + .yOffset,
-                                              0, 0, iconWidth, iconHeight, iconWidth, iconHeight)
+        With Windows(winNum).Controls(entNum)
+            Select Case .Type
+                Case EntityType.PictureBox
+                    If .Design(.State) > 0 Then
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
                     End If
-                End If
 
-                ' Measure button text size and apply padding
-                Dim textSize = Fonts(.Font).MeasureString(.Text)
-                Dim actualWidth = textSize.X
-                Dim actualHeight = textSize.Y
+                    If Not .Image(.State) = 0 Then
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
+                    End If
 
-                ' Calculate horizontal and vertical centers with padding
-                Dim padding = actualWidth / 6.0
-                Dim horCentre = .Left + xO + .xOffset + ((.Width - actualWidth) / 2.0) + padding - 4
-                Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
+               Case EntityType.TextBox
+                               
+                    ' Render the design if available
+                    If .Design(.State) > 0 Then
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
+                    End If
 
-                ' Render the button's text
-                RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                
-            Case EntityType.Label
-                If Len(.Text) > 0 Then
-                Select Case .Align
-                    Case AlignmentType.Left
-                        If TextWidth(.Text, .Font) > .Width Then
-                            WordWrap(.Text, .Font, .Width, textArray)
-                            count = UBound(textArray)
-                            For i = 1 To count
+                    ' Render the image if present
+                    If Not .Image(.State) = 0 Then
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State) & GfxExt),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
+                    End If
+
+                    ' Handle active window text input
+                    If activeWindow = winNum And Windows(winNum).ActiveControl = entNum Then
+                        taddText = chatShowLine
+                    End If
+
+                    ' Final text with potential censoring and additional input
+                    Dim finalText As String = If(.Censor, CensorText(.Text), .Text) & taddText
+
+                    ' Measure the text size
+                    Dim actualSize = Fonts(.Font).MeasureString(finalText)
+                    Dim actualWidth = actualSize.X
+                    Dim actualHeight = actualSize.Y
+
+                    ' Apply padding and calculate position
+                    Dim padding = actualWidth / 6.0
+                    Dim left = .Left + xO + .xOffset + padding
+                    Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
+
+                    ' Render the final text
+                    RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+
+                Case EntityType.Button
+                    ' Render the button design if defined
+                    If .Design(.State) > 0 Then
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
+                    End If
+
+                    ' Enqueue the button image if present
+                    If Not .Image(.State) = 0 Then
+                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
+                    End If
+
+                    ' Render the icon if available
+                    If .Icon > 0 Then
+                        Dim gfxInfo = Client.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
+                        If gfxInfo IsNot Nothing Then
+                            Dim iconWidth = gfxInfo.Width
+                            Dim iconHeight = gfxInfo.Height
+
+                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon),
+                                                  .Left + xO + .xOffset, .Top + yO + .yOffset,
+                                                  0, 0, iconWidth, iconHeight, iconWidth, iconHeight)
+                        End If
+                    End If
+
+                    ' Measure button text size and apply padding
+                    Dim textSize = Fonts(.Font).MeasureString(.Text)
+                    Dim actualWidth = textSize.X
+                    Dim actualHeight = textSize.Y
+
+                    ' Calculate horizontal and vertical centers with padding
+                    Dim padding = actualWidth / 4.0
+                    Dim horCentre = .Left + xO + .xOffset + ((.Width - actualWidth) / 2.0) + padding - 4
+                    padding = actualHeight / 4.0
+                    Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0) + padding
+
+                    ' Render the button's text
+                    RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                    
+                Case EntityType.Label
+                    If Len(.Text) > 0 Then
+                    Select Case .Align
+                        Case AlignmentType.Left
+                            If TextWidth(.Text, .Font) > .Width Then
+                                WordWrap(.Text, .Font, .Width, textArray)
+                                count = UBound(textArray)
+                                For i = 1 To count
+                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    Dim actualWidth = actualSize.X
+                                    Dim padding = actualWidth / 6.0
+                                    Dim left = .Left + xO + .xOffset + padding
+
+                                    RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                    .yOffset += 14
+                                Next
+                            Else
                                 Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                 Dim actualWidth = actualSize.X
                                 Dim padding = actualWidth / 6.0
                                 Dim left = .Left + xO + .xOffset + padding
 
-                                RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                RenderText(.Text, left, .Top + yO + .yOffset,
                                            .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                .yOffset += 14
-                            Next
-                        Else
-                            Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
-                            Dim actualWidth = actualSize.X
-                            Dim padding = actualWidth / 6.0
-                            Dim left = .Left + xO + .xOffset + padding
+                            End If
 
-                            RenderText(.Text, left, .Top + yO + .yOffset,
-                                       .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                        End If
+                        Case AlignmentType.Right
+                            If TextWidth(.Text, .Font) > .Width Then
+                                WordWrap(.Text, .Font, .Width, textArray)
+                                count = UBound(textArray)
+                                For i = 1 To count
+                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    Dim actualWidth = actualSize.X
+                                    Dim padding = actualWidth / 6.0
+                                    Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
 
-                    Case AlignmentType.Right
-                        If TextWidth(.Text, .Font) > .Width Then
-                            WordWrap(.Text, .Font, .Width, textArray)
-                            count = UBound(textArray)
-                            For i = 1 To count
+                                    RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                    .yOffset += 14
+                                Next
+                            Else
                                 Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                 Dim actualWidth = actualSize.X
                                 Dim padding = actualWidth / 6.0
-                                Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
+                                Dim left = .Left + .Width - actualSize.X + xO + .xOffset + padding
 
-                                RenderText(textArray(i), left, .Top + yO + .yOffset,
+                                RenderText(.Text, left, .Top + yO + .yOffset,
                                            .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                .yOffset += 14
-                            Next
-                        Else
-                            Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
-                            Dim actualWidth = actualSize.X
-                            Dim padding = actualWidth / 6.0
-                            Dim left = .Left + .Width - actualSize.X + xO + .xOffset + padding
+                            End If
 
-                            RenderText(.Text, left, .Top + yO + .yOffset,
-                                       .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                        End If
+                        Case AlignmentType.Center
+                            If TextWidth(.Text, .Font) > .Width Then
+                                WordWrap(.Text, .Font, .Width, textArray)
+                                count = UBound(textArray)
 
-                    Case AlignmentType.Center
-                        If TextWidth(.Text, .Font) > .Width Then
-                            WordWrap(.Text, .Font, .Width, textArray)
-                            count = UBound(textArray)
+                                For i = 1 To count
+                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    Dim actualWidth = actualSize.X
+                                    Dim actualHeight = actualSize.Y
+                                    Dim padding = actualWidth / 6.0
+                                    Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
+                                    Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
-                            For i = 1 To count
-                                Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    RenderText(textArray(i), left, top,
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                    .yOffset += 14
+                                Next
+                            Else
+                                Dim actualSize = Fonts(.Font).MeasureString(.Text)
                                 Dim actualWidth = actualSize.X
                                 Dim actualHeight = actualSize.Y
                                 Dim padding = actualWidth / 6.0
                                 Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
                                 Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
-                                RenderText(textArray(i), left, top,
+                                RenderText(.Text, left, top,
                                            .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                                .yOffset += 14
-                            Next
-                        Else
-                            Dim actualSize = Fonts(.Font).MeasureString(.Text)
-                            Dim actualWidth = actualSize.X
-                            Dim actualHeight = actualSize.Y
-                            Dim padding = actualWidth / 6.0
-                            Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
-                            Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
+                            End If
+                        End Select
+                    End If
+            End Select
 
-                            RenderText(.Text, left, top,
-                                       .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                        End If
-                    End Select
-                End If
-        End Select
-
-        If Not .OnDraw Is Nothing Then .OnDraw()
-    End With
-End Sub
+            If Not .OnDraw Is Nothing Then .OnDraw()
+        End With
+    End Sub
 
     Public Sub RenderWindow(winNum As Long)
         Dim x As Long, y As Long, i As Long, left As Long
