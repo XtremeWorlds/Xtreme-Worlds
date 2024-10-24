@@ -1108,24 +1108,24 @@ Module [Interface]
             Select Case .Type
                 Case EntityType.PictureBox
                     If .Design(.State) > 0 Then
-                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha, winNum)
                     End If
 
                     If Not .Image(.State) = 0 Then
                         Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha, , , , winNum)
                     End If
 
                Case EntityType.TextBox
                     ' Render the design if available
                     If .Design(.State) > 0 Then
-                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha, winNum)
                     End If
 
                     ' Render the image if present
                     If Not .Image(.State) = 0 Then
                         Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha, , , , winNum)
                     End If
 
                     ' Handle active window text input
@@ -1146,18 +1146,18 @@ Module [Interface]
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
                    
                     ' Render the final text
-                    RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                    RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
 
                 Case EntityType.Button
                     ' Render the button design if defined
                     If .Design(.State) > 0 Then
-                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, , winNum)
                     End If
 
                     ' Enqueue the button image if present
                     If Not .Image(.State) = 0 Then
                         Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height)
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
                     End If
 
                     ' Render the icon if available
@@ -1169,7 +1169,7 @@ Module [Interface]
 
                             Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon),
                                                   .Left + xO + .xOffset, .Top + yO + .yOffset,
-                                                  0, 0, iconWidth, iconHeight, iconWidth, iconHeight)
+                                                  0, 0, iconWidth, iconHeight, iconWidth, iconHeight, , , , , winNum)
                         End If
                     End If
 
@@ -1185,7 +1185,7 @@ Module [Interface]
                     Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0) + padding
 
                     ' Render the button's text
-                    RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                    RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                     
                 Case EntityType.Label
                     If Len(.Text) > 0 Then
@@ -1201,7 +1201,7 @@ Module [Interface]
                                         Dim left = .Left + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1210,7 +1210,7 @@ Module [Interface]
                                     Dim left = .Left + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                 End If
 
                             Case AlignmentType.Right
@@ -1224,7 +1224,7 @@ Module [Interface]
                                         Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1233,7 +1233,7 @@ Module [Interface]
                                     Dim left = .Left + .Width - actualSize.X + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                 End If
 
                             Case AlignmentType.Center
@@ -1250,7 +1250,7 @@ Module [Interface]
                                         Dim top = .Top + yO + .yOffset + yOffset + ((.Height - actualHeight) / 2.0)
 
                                         RenderText(textArray(i), left, top,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1262,7 +1262,7 @@ Module [Interface]
                                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
                                     RenderText(.Text, left, top,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
                                 End If
                         End Select
                     End If
@@ -1289,7 +1289,7 @@ Module [Interface]
 
             Select Case .Design(0)
                 Case DesignType.ComboMenuNorm
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0, , , winNum)
 
                     ' text
                     If UBound(.List) > 0 Then
@@ -1299,16 +1299,16 @@ Module [Interface]
                         For i = 1 To UBound(.List)
                             ' render select
                             If i = .Value Or i = .Group Then
-                                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0)
+                                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0, , , winNum)
                             End If
 
                             ' render text
                             left = x + (.Width \ 2) - (TextWidth(.List(i), .Font) \ 2)
 
                             If i = .Value Or i = .Group Then
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
+                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
                             Else
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
+                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
                             End If
                             y = y + 16
                         Next
@@ -1319,42 +1319,42 @@ Module [Interface]
             Select Case .Design(.State)
 
                 Case DesignType.Win_Black
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255, , , winNum)
 
                 Case DesignType.Win_Norm
                     ' render window
-                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
-                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
+                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23, , winNum)
 
                     ' render icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
 
                     ' render the caption
-                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
+                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
 
                 Case DesignType.Win_NoBar
                     ' render window
-                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height, , winNum)
 
                 Case DesignType.Win_Empty
                     ' render window
-                    RenderDesign(DesignType.Wood_Empty, .Left, .Top, .Width, .Height)
-                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
+                    RenderDesign(DesignType.Wood_Empty, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23, , winNum)
 
                     ' render the icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
+                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
 
                     ' render the caption
-                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
+                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
 
                 Case DesignType.Win_Desc
-                    RenderDesign(DesignType.Win_Desc, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Win_Desc, .Left, .Top, .Width, .Height, , winNum)
 
                 Case DesignType.Win_Shadow
-                    RenderDesign(DesignType.Win_Shadow, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Win_Shadow, .Left, .Top, .Width, .Height, , winNum)
 
                 Case DesignType.Win_Party
-                    RenderDesign(DesignType.Win_Party, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Win_Party, .Left, .Top, .Width, .Height, , winNum)
             End Select
 
             If Not .OnDraw Is Nothing Then .OnDraw()
@@ -1362,231 +1362,231 @@ Module [Interface]
 
     End Sub
 
-    Public Sub RenderDesign(design As Long, left As Long, top As Long, width As Long, height As Long, Optional alpha As Long = 255)
+    Public Sub RenderDesign(design As Long, left As Long, top As Long, width As Long, height As Long, Optional alpha As Long = 255, Optional windowID As Integer = 0)
         Dim bs As Long
 
         Select Case design
             Case DesignType.MenuHeader
                 ' render the header
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29, windowID)
 
             Case DesignType.MenuOption
                 ' render the option
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98, windowID)
 
             Case DesignType.Wood
                 bs = 4
                 ' render the wood box
-                RenderEntity_Square(1, left, top, width, height, bs, alpha)
+                RenderEntity_Square(1, left, top, width, height, bs, alpha, windowID)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha, , , , windowID)
 
             Case DesignType.Wood_Small
                 bs = 2
                 ' render the wood box
-                RenderEntity_Square(8, left + bs, top + bs, width, height, bs, alpha)
+                RenderEntity_Square(8, left + bs, top + bs, width, height, bs, alpha, windowID)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2))
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha, , , , windowID)
 
             Case DesignType.Wood_Empty
                 bs = 4
                 ' render the wood box
-                RenderEntity_Square(9, left, top, width, height, bs, alpha)
+                RenderEntity_Square(9, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.Green
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "1"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "1"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Green_Hover
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "2"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "2"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Green_Click
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "3"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "3"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Red
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "4"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "4"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Red_Hover
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "5"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "5"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Red_Click
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "6"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "6"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Blue
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "8"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "8"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Blue_Hover
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "9"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "9"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Blue_Click
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "10"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "10"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Orange
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "11"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "11"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Orange_Hover
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "12"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "12"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Orange_Click
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "13"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "13"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Grey
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(17, left, top, width, height, bs, alpha)
+                RenderEntity_Square(17, left, top, width, height, bs, alpha, windowID)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "14"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "14"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Parchment
                 bs = 20
                 ' render the parchment box
-                RenderEntity_Square(4, left, top, width, height, bs, alpha)
+                RenderEntity_Square(4, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.BlackOval
                 bs = 4
                 ' render the black oval
-                RenderEntity_Square(5, left, top, width, height, bs, alpha)
+                RenderEntity_Square(5, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.TextBlack
                 bs = 5
                 ' render the black oval
-                RenderEntity_Square(6, left, top, width, height, bs, alpha)
+                RenderEntity_Square(6, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.TextWhite
                 bs = 5
                 ' render the black oval
-                RenderEntity_Square(7, left, top, width, height, bs, alpha)
+                RenderEntity_Square(7, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.TextBlack_Sq
                 bs = 4
                 ' render the black oval
-                RenderEntity_Square(10, left, top, width, height, bs, alpha)
+                RenderEntity_Square(10, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.Win_Desc
                 bs = 8
                 ' render black square
-                RenderEntity_Square(11, left, top, width, height, bs, alpha)
+                RenderEntity_Square(11, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.DescPic
                 bs = 3
                 ' render the green box
-                RenderEntity_Square(12, left, top, width, height, bs, alpha)
+                RenderEntity_Square(12, left, top, width, height, bs, alpha, windowID)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "7" & GfxExt), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
+                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "7"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
 
             Case DesignType.Win_Shadow
                 bs = 35
                 ' render the green box
-                RenderEntity_Square(13, left - bs, top - bs, width + (bs * 2), height + (bs * 2), bs, alpha)
+                RenderEntity_Square(13, left - bs, top - bs, width + (bs * 2), height + (bs * 2), bs, alpha, windowID)
 
             Case DesignType.Win_Party
                 bs = 12
                 ' render black square
-                RenderEntity_Square(16, left, top, width, height, bs, alpha)
+                RenderEntity_Square(16, left, top, width, height, bs, alpha, windowID)
 
             Case DesignType.TileBox
                 bs = 4
                 ' render box
-                RenderEntity_Square(18, left, top, width, height, bs, alpha)
+                RenderEntity_Square(18, left, top, width, height, bs, alpha, windowID)
         End Select
 
     End Sub
 
-    Public Sub RenderEntity_Square(sprite As Integer, x As Long, y As Long, width As Long, height As Long, borderSize As Long, Optional alpha As Long = 255)
+    Public Sub RenderEntity_Square(sprite As Integer, x As Long, y As Long, width As Long, height As Long, borderSize As Long, Optional alpha As Long = 255, Optional windowID As Integer = 0)
         Dim bs As Long
 
         ' Set the border size
         bs = borderSize
 
         ' Draw center
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha, , , , windowID)
 
         ' Draw top side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha, ,  , , windowID)
 
         ' Draw left side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha , , , , windowID)
 
         ' Draw right side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha, , , , windowID)
 
         ' Draw bottom side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha, , , , windowID)
 
         ' Draw top left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y, 0, 0, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y, 0, 0, bs, bs, bs, bs, alpha, , , , windowID)
 
         ' Draw top right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha, , , , windowID)
 
         ' Draw bottom left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha, , , , windowID)
 
         ' Draw bottom right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha)
+        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha, , , , windowID)
     End Sub
 
     ' Trade
@@ -1951,9 +1951,9 @@ Module [Interface]
         yO = Windows(GetWindowIndex("winBars")).Window.Top
 
         ' Bars
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, BarWidth_GuiHP, 13, BarWidth_GuiHP, 13)
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 28), xO + 15, yO + 32, 0, 0, BarWidth_GuiSP, 13, BarWidth_GuiSP, 13)
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 29), xO + 15, yO + 49, 0, 0, BarWidth_GuiEXP, 13, BarWidth_GuiEXP, 13)
+        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, BarWidth_GuiHP, 13, BarWidth_GuiHP, 13, , , , , GetWindowIndex("winBars"))
+        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 28), xO + 15, yO + 32, 0, 0, BarWidth_GuiSP, 13, BarWidth_GuiSP, 13, , , , , GetWindowIndex("winBars"))
+        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 29), xO + 15, yO + 49, 0, 0, BarWidth_GuiEXP, 13, BarWidth_GuiEXP, 13, , , , GetWindowIndex("winBars"))
     End Sub
 
     ' #######################
@@ -1990,7 +1990,8 @@ Module [Interface]
                             x + 30, yO + 100,
                             0, 0,
                             rect.Width, rect.Height,
-                            rect.Width, rect.Height
+                            rect.Width, rect.Height,
+                            , , , , GetWindowIndex("WinChars")
                         )
                     End If
                 End If
@@ -2132,14 +2133,14 @@ Module [Interface]
         RenderDesign(DesignType.Win_Desc, xO, yO, 352, 152)
 
         ' draw the input box
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22)
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22)
+        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22, , , , , winIndex)
+        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22, , , , , winIndex)
 
         ' call the chat render
         DrawChat()
     End Sub
 
-    Public Sub OnDraw_ChatSmall()
+    Public Sub ChatSmall_OnDraw()
         Dim winIndex As Long, xO As Long, yO As Long
 
         winIndex = GetWindowIndex("winChatSmall")
@@ -2151,7 +2152,7 @@ Module [Interface]
         yO = ResolutionHeight - 10
 
         ' draw the background
-        RenderDesign(DesignType.Win_Shadow, xO, yO, 160, 10)
+        RenderDesign(DesignType.Win_Shadow, xO, yO, 160, 10, , winIndex)
     End Sub
 
     Public Sub chkChat_Game()
@@ -2230,7 +2231,7 @@ Module [Interface]
             )
 
         ' render char
-        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Characters, imageChar), xO + 190, yO + 100, 0, 0, rect.Width, rect.Height, rect.Width, rect.Height)
+        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Characters, imageChar), xO + 190, yO + 100, 0, 0, rect.Width, rect.Height, rect.Width, rect.Height, , , , , GetWindowIndex("winNewChar"))
     End Sub
 
     Public Sub btnNewChar_Left()
@@ -2544,13 +2545,13 @@ Module [Interface]
                 Case PartType.Item
                     If .Value Then
                         texNum = Type.Item(.Value).Icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO, yO, 0, 0, 32, 32, 32, 32)
+                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO, yO, 0, 0, 32, 32, 32, 32, , , , , winIndex)
                     End If
 
                 Case PartType.Skill
                     If .Value Then
                         texNum = Type.Skill(.Value).Icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO, yO, 0, 0, 32, 32, 32, 32)
+                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO, yO, 0, 0, 32, 32, 32, 32, , , , , winIndex)
                     End If
             End Select
         End With
@@ -3028,7 +3029,7 @@ Module [Interface]
 
     Public Sub CreateWindow_ChatSmall()
         ' Create window
-        CreateWindow("winChatSmall", "", FontType.Georgia, zOrder_Win, 8, 0, 0, 0, 0, False, , , , , , , , , , , , , , New Action(AddressOf OnDraw_ChatSmall), False, , , True)
+        CreateWindow("winChatSmall", "", FontType.Georgia, zOrder_Win, 8, 0, 0, 0, 0, False, , , , , , , , , , , , , , New Action(AddressOf ChatSmall_OnDraw), False, , , True)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
@@ -3415,7 +3416,7 @@ Module [Interface]
                 texNum = Type.Item(descItem).Icon
 
                 ' render sprite
-                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32)
+                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32, , , , , GetWindowIndex("winDescription"))
 
             Case 2 ' Skill Icon
                 texNum = Type.Skill(descItem).Icon
@@ -3423,12 +3424,12 @@ Module [Interface]
                 ' render bar
                 With Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "picBar"))
                     If .Visible Then
-                        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12)
+                        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12, , , , , GetWindowIndex("winDescription"))
                     End If
                 End With
 
                 ' render sprite
-                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32)
+                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32, , , , , GetWindowIndex("winDescription"))
         End Select
 
         ' render text array

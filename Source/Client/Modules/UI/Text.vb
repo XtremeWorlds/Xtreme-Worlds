@@ -231,9 +231,9 @@ Module Text
     End Function
 
     Public Sub RenderText(text As String, x As Integer, y As Integer,
-                               frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia, Optional textSize As Byte = 10)
+                               frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia, Optional windowID As Integer = 0)
 
-        Client.EnqueueText(text, Path.Fonts, x, y, font, frontColor, backColor)
+        Client.EnqueueText(text, Path.Fonts, x, y, font, frontColor, backColor, windowID)
     End Sub
 
     Sub DrawNPCName(MapNpcNum As Integer)
@@ -403,7 +403,7 @@ Module Text
 
                     ' continue on
                     yOffset = yOffset - (14 * lineCount)
-                    RenderText(tmpText, xO, yO + yOffset, Color2, Color2)
+                    RenderText(tmpText, xO, yO + yOffset, Color2, Color2, , GetWindowIndex("winChat"))
                     rLines = rLines + lineCount
 
                     ' set the top width
@@ -415,7 +415,7 @@ Module Text
                     ' normal
                     yOffset = yOffset - 14
 
-                    RenderText(Chat(i).Text, xO, yO + yOffset, Color2, Color2)
+                    RenderText(Chat(i).Text, xO, yO + yOffset, Color2, Color2, , GetWindowIndex("winChat"))
                     rLines = rLines + 1
 
                     ' set the top width
