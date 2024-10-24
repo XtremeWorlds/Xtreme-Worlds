@@ -2,6 +2,7 @@
 Imports Client.GameClient
 Imports Core
 Imports System.IO
+Imports Microsoft.Extensions.DependencyInjection
 Imports Microsoft.Xna.Framework.Input
 
 Module General
@@ -301,31 +302,130 @@ Module General
         If IsKeyStateActive(Keys.Escape) Then
             If InMenu Then Exit Sub
 
+            ' Hide options screen
             If Windows(GetWindowIndex("winOptions")).Window.visible Then
                 HideWindow(GetWindowIndex("winOptions"))
                 CloseComboMenu()
-            ElseIf Windows(GetWindowIndex("winChat")).Window.Visible Then
+                Exit Sub
+            End If
+
+            ' hide/show chat window
+            If Windows(GetWindowIndex("winChat")).Window.Visible Then
                 Windows(GetWindowIndex("winChat")).Controls(GetControlIndex("winChat", "txtChat")).Text = ""
                 HideChat()
-            ElseIf Windows(GetWindowIndex("winEscMenu")).Window.visible Then
+                Exit Sub
+            End If
+
+            If Windows(GetWindowIndex("winEscMenu")).Window.visible Then
                 HideWindow(GetWindowIndex("winEscMenu"))
+                Exit Sub
             Else
-                ShowWindow(GetWindowIndex("winEscMenu"), True)
+                ' show them
+                If Windows(GetWindowIndex("winChat")).Window.Visible = False Then
+                    ShowWindow(GetWindowIndex("winEscMenu"), True)
+                    Exit Sub
+                End If
             End If
         End If
         
-        if IsKeyStateActive(keys.Enter) Then
+        If IsKeyStateActive(Keys.Enter)
+            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
+                ShowChat()
+                inSmallChat = False
+                Exit Sub
+            End If
+
             HandlePressEnter()
         End If
         
+        If IsKeyStateActive(Keys.Space) Then
+            CheckMapGetItem()
+        End If
+
+        If Windows(GetWindowIndex("winEscMenu")).Window.visible Then Exit Sub
+        
+        If IsKeyStateActive(Keys.I) Then
+            ' hide/show inventory
+            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Inv
+        End If
+            
+        If IsKeyStateActive(Keys.C) Then
+            ' hide/show char
+            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Char
+        End If
+        
+        If IsKeyStateActive(Keys.K) Then
+            ' hide/show skills
+            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Skills
+        End If
+        
+        HandleActiveWindowInput()
         HandleTextInput()
         HandleMouseInputs()
+        HandleHotbarInput()
+    End Sub
+    
+    Private Sub HandleActiveWindowInput()
+        ' Check for active window
+        If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible Then
+            ' Check if an active control exists
+            If Windows(activeWindow).ActiveControl > 0 Then
+                ' Get the active control
+                Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+
+                ' Handle input based on key presses
+                If CurrentKeyboardState.IsKeyDown(Keys.Insert) Then
+                    SendRequestAdmin()
+
+                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Back) Then
+                    ' Handle Backspace: Remove the last character if the control is not empty
+                    If activeControl.Text.Length > 0 Then
+                        activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
+                    End If
+
+                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
+                    ' Handle Enter: Call the control’s callback or activate a new control
+                    If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
+                        activeControl.CallBack(EntState.Enter) = Nothing
+                    Else
+                        Dim n As Integer = ActivateControl()
+
+                        If n = 0 Then
+                            ActivateControl(n, False)
+                        End If
+                    End If
+
+                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Tab) Then
+                    ' Handle Tab: Switch to the next control
+                    Dim n As Integer = ActivateControl()
+
+                    If n = 0 Then
+                        ActivateControl(n, False)
+                    End If
+                End If
+            End If
+        End If
+    End Sub
+
+    
+    ' Handles the hotbar key presses using KeyboardState
+    Private Sub HandleHotbarInput()
+        If inSmallChat Then
+            ' Iterate through hotbar slots and check for corresponding keys
+            For i = 1 To MAX_HOTBAR
+                ' Check if the corresponding hotbar key is pressed
+                If CurrentKeyboardState.IsKeyDown(Keys.D0 + i) Then
+                    SendUseHotbarSlot(i)
+                    Exit Sub ' Exit once the matching slot is used
+                End If
+            Next
+        End If
     End Sub
     
    Private Sub HandleTextInput()
         ' Loop through all keys in the current keyboard state
         For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-            ' Check if the key is currently pressed and was not pressed in the previous state
+            ' Check if the key is currently pressed
             If CurrentKeyboardState.IsKeyDown(key) Then
                 ' Handle special keys (Backspace, Clipboard Paste)
                 If key = Keys.Back Then
