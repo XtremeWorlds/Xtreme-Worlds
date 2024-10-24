@@ -51,6 +51,9 @@
         <Content  Include="libbass.so" CopyToOutputDirectory="PreserveNewest" />
         <Content  Include="libbassmidi.so" CopyToOutputDirectory="PreserveNewest" />
         <Content  Include="GeneralUser.sf2" CopyToOutputDirectory="PreserveNewest" />
+        <EmbeddedResource Include="Icon.bmp">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

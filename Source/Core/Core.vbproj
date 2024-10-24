@@ -26,11 +26,5 @@
     <PackageReference Include="NLua" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Update="appsettings.core.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>
