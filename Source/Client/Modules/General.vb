@@ -6,6 +6,9 @@ Imports Microsoft.Extensions.DependencyInjection
 Imports Microsoft.Xna.Framework.Input
 
 Module General
+    ' Keep track of the key states to avoid repeated input
+    Private ReadOnly KeyStates As New Dictionary(Of Keys, Boolean)
+    
     Public Client As New GameClient()
     Public Random As New Random()
 
@@ -332,6 +335,10 @@ Module General
             CheckMapGetItem()
         End If
         
+        If IsKeyStateActive(Keys.Insert) Then
+            SendRequestAdmin()
+        End If
+        
         HandleHotbarInput()
         HandleMouseInputs()
         HandleActiveWindowInput()
@@ -373,17 +380,7 @@ Module General
                 ' Get the active control
                 Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                ' Handle input based on key presses
-                If CurrentKeyboardState.IsKeyDown(Keys.Insert) Then
-                    SendRequestAdmin()
-
-                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Back) Then
-                    ' Handle Backspace: Remove the last character if the control is not empty
-                    If activeControl.Text.Length > 0 Then
-                        activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
-                    End If
-
-                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
+                If CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
                     ' Handle Enter: Call the control’s callback or activate a new control
                     If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
                         activeControl.CallBack(EntState.Enter) = Nothing
@@ -422,38 +419,43 @@ Module General
         End If
     End Sub
     
-   Private Sub HandleTextInput()
-        ' Loop through all keys in the current keyboard state
-        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-            ' Check if the key is currently pressed
-            If CurrentKeyboardState.IsKeyDown(key) Then
-                ' Handle special keys (Backspace, Clipboard Paste)
-                If key = Keys.Back Then
-                    HandleBackspace()
-                    Continue For
+    Private Sub HandleTextInput()
+        SyncLock InputLock
+            ' Loop through all keys in the keyboard state
+            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+                Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
+
+                ' Check if the key state has changed to 'pressed'
+                If isKeyDown AndAlso Not KeyStates.ContainsKey(key) Then
+                    KeyStates(key) = True ' Mark key as pressed
+
+                    ' Handle special keys (Backspace)
+                    If key = Keys.Back Then
+                        HandleBackspace()
+                        Continue For
+                    End If
+
+                    ' Convert the key to a character (accounting for Shift)
+                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+
+                    If character.HasValue AndAlso activeWindow > 0 AndAlso
+                       Windows(activeWindow).Window.Visible AndAlso
+                       Windows(activeWindow).ActiveControl > 0 Then
+
+                        Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+
+                        ' Ensure the control is not locked and within text limit
+                        If Not control.Locked AndAlso control.Text.Length < control.Length Then
+                            ' Append the character to the control's text
+                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value
+                        End If
+                    End If
+                ElseIf Not isKeyDown AndAlso KeyStates.ContainsKey(key) Then
+                    ' Remove the key from the dictionary when it is released
+                    KeyStates.Remove(key)
                 End If
-
-                ' Convert the key to a character (if possible)
-                Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-
-                ' Ignore invalid characters
-                If character.HasValue = False Then Continue For
-
-                ' Check if the active window and control are valid
-                If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
-                   Windows(activeWindow).ActiveControl > 0 Then
-
-                    ' Ensure the control is not locked
-                    If Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Locked Then Continue For
-
-                    ' Check if the control's text length exceeds the allowed limit
-                    If Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length >= Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Length Then Continue For
-
-                    ' Append the character to the control's text
-                    Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value
-                End If
-            End If
-        Next
+            Next
+        End SyncLock
     End Sub
 
     ' Handle Backspace to remove the last character from the active control

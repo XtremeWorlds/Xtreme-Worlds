@@ -413,10 +413,12 @@ Public Class GameClient
         UpdateMouseCache()
         UpdateKeyCache()
 
-        ' Capture screenshot when the screenshot key is pressed
-        If CurrentKeyboardState.IsKeyDown(screenshotKey) Then
-            TakeScreenshot()
-        End If
+        SyncLock InputLock
+            ' Capture screenshot when the screenshot key is pressed
+            If CurrentKeyboardState.IsKeyDown(screenshotKey) Then
+                TakeScreenshot()
+            End If
+        End SyncLock
         
         SetFps(gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
