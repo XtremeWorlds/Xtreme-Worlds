@@ -412,13 +412,10 @@ Public Class GameClient
     Protected Overrides Sub Update(gameTime As GameTime)
         UpdateMouseCache()
         UpdateKeyCache()
-
-        SyncLock InputLock
-            ' Capture screenshot when the screenshot key is pressed
-            If CurrentKeyboardState.IsKeyDown(screenshotKey) Then
-                TakeScreenshot()
-            End If
-        End SyncLock
+        
+        If IsKeyStateActive(screenshotKey)
+            TakeScreenshot()
+        End If
         
         SetFps(gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
