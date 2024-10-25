@@ -441,7 +441,7 @@ HistoryIndex = 0
                 ' Search for an existing command and update its properties
                 Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.Item(MyMapItem(index).Num).Icon))
                 
-                if existingCommand.dRect.X = MyMapItem(index).X And existingCommand.dRect.Y = MyMapItem(index).Y Then
+                if existingCommand?.dRect.X = MyMapItem(index).X And existingCommand?.dRect.Y = MyMapItem(index).Y Then
                     batch.Commands.Remove(existingCommand)
                     Exit For
                 End If
@@ -463,7 +463,7 @@ HistoryIndex = 0
                     ' Search for an existing command and update its properties
                     Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.NPC(.Num).Sprite))
                 
-                    if existingCommand.dRect.X = .X And existingCommand.dRect.Y = .Y Then
+                    if existingCommand?.dRect.X = .X And existingCommand?.dRect.Y = .Y Then
                         batch.Commands.Remove(existingCommand)
                         Exit For
                     End If
@@ -1128,7 +1128,7 @@ HistoryIndex = 0
                             existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(i).Graphic))
                     End Select
                     
-                    if existingCommand.dRect.X = MapEvents(i).X And existingCommand.dRect.Y = Type.MapEvents(i).Y Then
+                    if existingCommand?.dRect.X = MapEvents(i).X And existingCommand?.dRect.Y = Type.MapEvents(i).Y Then
                         batch.Commands.Remove(existingCommand)
                         Exit For
                     End If

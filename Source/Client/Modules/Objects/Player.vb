@@ -27,7 +27,7 @@ Module Player
                 ' Search for an existing command and update its properties
                 Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.Player(index).Sprite))
                 
-                if existingCommand.dRect.X = Type.Player(index).X And existingCommand.dRect.Y = Type.Player(index).Y Then
+                if existingCommand?.dRect.X = Type.Player(index).X And existingCommand?.dRect.Y = Type.Player(index).Y Then
                     batch.Commands.Remove(existingCommand)
                     Exit For
                 End If

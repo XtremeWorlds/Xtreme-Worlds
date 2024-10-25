@@ -1388,7 +1388,7 @@ Public Class GameClient
                             existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(id).Graphic))
                     End Select
                     
-                    if existingCommand.dRect.X = MapEvents(id).X And existingCommand.dRect.Y = Type.MapEvents(id).Y Then
+                    if existingCommand?.dRect.X = MapEvents(id).X And existingCommand?.dRect.Y = Type.MapEvents(id).Y Then
                         batch.Commands.Remove(existingCommand)
                         Exit For
                     End If
