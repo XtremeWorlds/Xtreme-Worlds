@@ -410,6 +410,13 @@ Public Class GameClient
     End Sub
     
     Protected Overrides Sub Update(gameTime As GameTime)
+        ' Ignore input if the window is minimized or inactive
+        If Not IsActive OrElse Window.ClientBounds.Width = 0 Or Window.ClientBounds.Height = 0 Then
+            ResetInputStates()
+            MyBase.Update(gameTime)
+            Return
+        End If
+        
         UpdateMouseCache()
         UpdateKeyCache()
         
@@ -426,6 +433,16 @@ Public Class GameClient
         End If
 
         MyBase.Update(gameTime)
+    End Sub
+    
+    ' Reset keyboard and mouse states
+    Private Sub ResetInputStates()
+        SyncLock InputLock
+            CurrentKeyboardState = New KeyboardState()
+            PreviousKeyboardState = New KeyboardState()
+            CurrentMouseState = New MouseState()
+            PreviousMouseState = New MouseState()
+        End SyncLock
     End Sub
 
     Private Shared Sub UpdateKeyCache()
@@ -471,14 +488,22 @@ Public Class GameClient
         End SyncLock
     End Function
 
-    Public Shared Function IsMouseButtonDown(button As ButtonState) As Boolean
+    Public Shared Function IsMouseButtonDown(button As MouseButton) As Boolean
         SyncLock InputLock
-            ' Check if the specified mouse button is pressed
-            Return (button = CurrentMouseState.LeftButton OrElse 
-                    button = CurrentMouseState.RightButton OrElse 
-                    button = CurrentMouseState.MiddleButton)
+            Dim state As MouseState = Mouse.GetState()
+            Select Case button
+                Case MouseButton.Left
+                    Return state.LeftButton = ButtonState.Pressed
+                Case MouseButton.Right
+                    Return state.RightButton = ButtonState.Pressed
+                Case MouseButton.Middle
+                    Return state.MiddleButton = ButtonState.Pressed
+                Case Else
+                    Return False
+            End Select
         End SyncLock
     End Function
+
 
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()

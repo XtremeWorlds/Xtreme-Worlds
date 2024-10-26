@@ -538,7 +538,7 @@ Module General
             Dim currentTime As Integer = Environment.TickCount
             
             ' Detect MouseMove event (when the mouse position changes)
-            If CurrentMouseState.X <> PreviousMouseState.X OrElse
+            If PreviousMouseState.LeftButton = ButtonState.Released And CurrentMouseState.X <> PreviousMouseState.X OrElse
                CurrentMouseState.Y <> PreviousMouseState.Y Then
                 HandleInterfaceEvents(EntState.MouseMove)
             End If

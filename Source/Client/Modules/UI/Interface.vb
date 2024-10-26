@@ -893,7 +893,7 @@ Module [Interface]
 
                     If entState = EntState.MouseMove Then
                         If .CanDrag Then
-                            If .State = EntState.MouseDown Then
+                            If Client.IsMouseButtonDown(MouseButton.Left) Then
                                 .Left = Clamp(.Left + ((CurMouseX - .Left) - .movedX), 0, ResolutionWidth - .Width)
                                 .Top = Clamp(.Top + ((CurMouseY - .Top) - .movedY), 0, ResolutionHeight - .Height)
                             End If
