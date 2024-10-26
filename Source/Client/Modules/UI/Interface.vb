@@ -928,6 +928,7 @@ Module [Interface]
                         If entState = EntState.MouseMove Then
                             If .CanDrag Then
                                 If .State = EntState.MouseDown Then
+                                    .State = entState.Normal
                                     .Left = Clamp(.Left + ((CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
                                     .Top = Clamp(.Top + ((CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
                                 End If
