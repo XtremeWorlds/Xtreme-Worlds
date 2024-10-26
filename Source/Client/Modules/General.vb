@@ -419,44 +419,65 @@ Module General
         End If
     End Sub
     
-    Private Sub HandleTextInput()
-        SyncLock InputLock
-            ' Loop through all keys in the keyboard state
-            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-                Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
+    ' Define a dictionary to store the last time a key was processed
+Private KeyRepeatTimers As New Dictionary(Of Keys, DateTime)
 
-                ' Check if the key state has changed to 'pressed'
-                If isKeyDown AndAlso Not KeyStates.ContainsKey(key) Then
-                    KeyStates(key) = True ' Mark key as pressed
+' Minimum interval (in milliseconds) between repeated key inputs
+Private Const KeyRepeatInterval As Integer = 50
 
-                    ' Handle special keys (Backspace)
+Private Sub HandleTextInput()
+    SyncLock InputLock
+        ' Loop through all keys in the keyboard state
+        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+            Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
+
+            If isKeyDown Then
+                ' Check if enough time has passed since the last key press processing
+                If CanProcessKey(key) Then
+                    ' Handle Backspace separately
                     If key = Keys.Back Then
                         HandleBackspace()
                         Continue For
                     End If
 
-                    ' Convert the key to a character (accounting for Shift)
+                    ' Convert key to character
                     Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
 
+                    ' If valid character and active control is available, add text
                     If character.HasValue AndAlso activeWindow > 0 AndAlso
                        Windows(activeWindow).Window.Visible AndAlso
                        Windows(activeWindow).ActiveControl > 0 Then
 
                         Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                        ' Ensure the control is not locked and within text limit
+                        ' Ensure the control is not locked and text limit is respected
                         If Not control.Locked AndAlso control.Text.Length < control.Length Then
-                            ' Append the character to the control's text
-                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value
+                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
                         End If
                     End If
-                ElseIf Not isKeyDown AndAlso KeyStates.ContainsKey(key) Then
-                    ' Remove the key from the dictionary when it is released
-                    KeyStates.Remove(key)
                 End If
-            Next
-        End SyncLock
-    End Sub
+            ElseIf KeyStates.ContainsKey(key) Then
+                ' Remove the key from KeyStates when it is released
+                KeyStates.Remove(key)
+                KeyRepeatTimers.Remove(key) ' Reset the key's timer
+            End If
+        Next
+
+        ' Store the current state as the previous state for the next frame
+        PreviousKeyboardState = CurrentKeyboardState
+    End SyncLock
+End Sub
+
+' Check if the key can be processed (with interval-based repeat logic)
+Private Function CanProcessKey(key As Keys) As Boolean
+    Dim now = DateTime.Now
+    If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
+        KeyRepeatTimers(key) = now ' Update the timer for the key
+        Return True
+    End If
+    Return False
+End Function
+
 
     ' Handle Backspace to remove the last character from the active control
     Private Sub HandleBackspace()
