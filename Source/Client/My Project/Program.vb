@@ -490,14 +490,13 @@ Public Class GameClient
 
     Public Shared Function IsMouseButtonDown(button As MouseButton) As Boolean
         SyncLock InputLock
-            Dim state As MouseState = Mouse.GetState()
             Select Case button
                 Case MouseButton.Left
-                    Return state.LeftButton = ButtonState.Pressed
+                    Return CurrentMouseState.LeftButton = ButtonState.Pressed
                 Case MouseButton.Right
-                    Return state.RightButton = ButtonState.Pressed
+                    Return CurrentMouseState.RightButton = ButtonState.Pressed
                 Case MouseButton.Middle
-                    Return state.MiddleButton = ButtonState.Pressed
+                    Return CurrentMouseState.MiddleButton = ButtonState.Pressed
                 Case Else
                     Return False
             End Select
