@@ -9,6 +9,12 @@ Module General
     ' Keep track of the key states to avoid repeated input
     Private ReadOnly KeyStates As New Dictionary(Of Keys, Boolean)
     
+    ' Define a dictionary to store the last time a key was processed
+    Private KeyRepeatTimers As New Dictionary(Of Keys, DateTime)
+
+    ' Minimum interval (in milliseconds) between repeated key inputs
+    Private Const KeyRepeatInterval As Integer = 50
+    
     Public Client As New GameClient()
     Public Random As New Random()
 
@@ -418,67 +424,60 @@ Module General
             Next
         End If
     End Sub
-    
-    ' Define a dictionary to store the last time a key was processed
-Private KeyRepeatTimers As New Dictionary(Of Keys, DateTime)
 
-' Minimum interval (in milliseconds) between repeated key inputs
-Private Const KeyRepeatInterval As Integer = 50
+    Private Sub HandleTextInput()
+        SyncLock InputLock
+            ' Loop through all keys in the keyboard state
+            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+                Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
 
-Private Sub HandleTextInput()
-    SyncLock InputLock
-        ' Loop through all keys in the keyboard state
-        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-            Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
+                If isKeyDown Then
+                    ' Check if enough time has passed since the last key press processing
+                    If CanProcessKey(key) Then
+                        ' Handle Backspace separately
+                        If key = Keys.Back Then
+                            HandleBackspace()
+                            Continue For
+                        End If
 
-            If isKeyDown Then
-                ' Check if enough time has passed since the last key press processing
-                If CanProcessKey(key) Then
-                    ' Handle Backspace separately
-                    If key = Keys.Back Then
-                        HandleBackspace()
-                        Continue For
-                    End If
+                        ' Convert key to character
+                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
 
-                    ' Convert key to character
-                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                        ' If valid character and active control is available, add text
+                        If character.HasValue AndAlso activeWindow > 0 AndAlso
+                           Windows(activeWindow).Window.Visible AndAlso
+                           Windows(activeWindow).ActiveControl > 0 Then
 
-                    ' If valid character and active control is available, add text
-                    If character.HasValue AndAlso activeWindow > 0 AndAlso
-                       Windows(activeWindow).Window.Visible AndAlso
-                       Windows(activeWindow).ActiveControl > 0 Then
+                            Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                        Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
-
-                        ' Ensure the control is not locked and text limit is respected
-                        If Not control.Locked AndAlso control.Text.Length < control.Length Then
-                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
+                            ' Ensure the control is not locked and text limit is respected
+                            If Not control.Locked AndAlso control.Text.Length < control.Length Then
+                                Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
+                            End If
                         End If
                     End If
+                ElseIf KeyStates.ContainsKey(key) Then
+                    ' Remove the key from KeyStates when it is released
+                    KeyStates.Remove(key)
+                    KeyRepeatTimers.Remove(key) ' Reset the key's timer
                 End If
-            ElseIf KeyStates.ContainsKey(key) Then
-                ' Remove the key from KeyStates when it is released
-                KeyStates.Remove(key)
-                KeyRepeatTimers.Remove(key) ' Reset the key's timer
-            End If
-        Next
+            Next
 
-        ' Store the current state as the previous state for the next frame
-        PreviousKeyboardState = CurrentKeyboardState
-    End SyncLock
-End Sub
+            ' Store the current state as the previous state for the next frame
+            PreviousKeyboardState = CurrentKeyboardState
+        End SyncLock
+    End Sub
 
-' Check if the key can be processed (with interval-based repeat logic)
-Private Function CanProcessKey(key As Keys) As Boolean
-    Dim now = DateTime.Now
-    If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
-        KeyRepeatTimers(key) = now ' Update the timer for the key
-        Return True
-    End If
-    Return False
-End Function
-
-
+    ' Check if the key can be processed (with interval-based repeat logic)
+    Private Function CanProcessKey(key As Keys) As Boolean
+        Dim now = DateTime.Now
+        If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
+            KeyRepeatTimers(key) = now ' Update the timer for the key
+            Return True
+        End If
+        Return False
+    End Function
+    
     ' Handle Backspace to remove the last character from the active control
     Private Sub HandleBackspace()
         If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
