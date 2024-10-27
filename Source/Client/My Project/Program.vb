@@ -288,6 +288,7 @@ Public Class GameClient
                 If batch.WindowID > 0 And IsWindowHidden(batch.WindowID) Then
                     ' Remove all commands for this hidden window
                     batch.Commands.Clear()
+                    batch.WindowID = 0
                     Continue For ' Move to the next batch
                 End If
                 
@@ -419,6 +420,7 @@ Public Class GameClient
         
         UpdateMouseCache()
         UpdateKeyCache()
+        ProcessInputs()
         
         If IsKeyStateActive(screenshotKey)
             TakeScreenshot()

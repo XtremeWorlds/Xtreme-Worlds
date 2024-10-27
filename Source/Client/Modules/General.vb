@@ -13,7 +13,7 @@ Module General
     Private KeyRepeatTimers As New Dictionary(Of Keys, DateTime)
 
     ' Minimum interval (in milliseconds) between repeated key inputs
-    Private Const KeyRepeatInterval As Integer = 50
+    Private Const KeyRepeatInterval As Integer = 100
     
     Public Client As New GameClient()
     Public Random As New Random()
@@ -386,7 +386,7 @@ Module General
                 ' Get the active control
                 Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                If CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
+                If IsKeyStateActive(Keys.Enter) Then
                     ' Handle Enter: Call the control’s callback or activate a new control
                     If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
                         activeControl.CallBack(EntState.Enter) = Nothing
@@ -398,13 +398,11 @@ Module General
                         End If
                     End If
 
-                ElseIf CurrentKeyboardState.IsKeyDown(Keys.Tab) Then
+                ElseIf IsKeyStateActive(Keys.Tab) Then
                     ' Handle Tab: Switch to the next control
                     Dim n As Integer = ActivateControl()
-
-                    If n = 0 Then
-                        ActivateControl(n, False)
-                    End If
+                    
+                    ActivateControl(n, False)
                 End If
             End If
         End If
@@ -417,7 +415,7 @@ Module General
             ' Iterate through hotbar slots and check for corresponding keys
             For i = 1 To MAX_HOTBAR
                 ' Check if the corresponding hotbar key is pressed
-                If CurrentKeyboardState.IsKeyDown(Keys.D0 + i) Then
+                If  IsKeyStateActive(Keys.D0 + i) Then
                     SendUseHotbarSlot(i)
                     Exit Sub ' Exit once the matching slot is used
                 End If
@@ -426,46 +424,41 @@ Module General
     End Sub
 
     Private Sub HandleTextInput()
-        SyncLock InputLock
-            ' Loop through all keys in the keyboard state
-            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-                Dim isKeyDown = CurrentKeyboardState.IsKeyDown(key)
+        ' Loop through all keys in the keyboard state
+        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+            Dim isKeyDown =  IsKeyStateActive(key)
 
-                If isKeyDown Then
-                    ' Check if enough time has passed since the last key press processing
-                    If CanProcessKey(key) Then
-                        ' Handle Backspace separately
-                        If key = Keys.Back Then
-                            HandleBackspace()
-                            Continue For
-                        End If
+            If isKeyDown Then
+                ' Check if enough time has passed since the last key press processing
+                If CanProcessKey(key) Then
+                    ' Handle Backspace separately
+                    If key = Keys.Back Then
+                        HandleBackspace()
+                        Continue For
+                    End If
 
-                        ' Convert key to character
-                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                    ' Convert key to character
+                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, IsKeyStateActive(Keys.LeftShift))
 
-                        ' If valid character and active control is available, add text
-                        If character.HasValue AndAlso activeWindow > 0 AndAlso
-                           Windows(activeWindow).Window.Visible AndAlso
-                           Windows(activeWindow).ActiveControl > 0 Then
+                    ' If valid character and active control is available, add text
+                    If character.HasValue AndAlso activeWindow > 0 AndAlso
+                       Windows(activeWindow).Window.Visible AndAlso
+                       Windows(activeWindow).ActiveControl > 0 Then
 
-                            Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+                        Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                            ' Ensure the control is not locked and text limit is respected
-                            If Not control.Locked AndAlso control.Text.Length < control.Length Then
-                                Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
-                            End If
+                        ' Ensure the control is not locked and text limit is respected
+                        If Not control.Locked AndAlso control.Text.Length < control.Length Then
+                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
                         End If
                     End If
-                ElseIf KeyStates.ContainsKey(key) Then
-                    ' Remove the key from KeyStates when it is released
-                    KeyStates.Remove(key)
-                    KeyRepeatTimers.Remove(key) ' Reset the key's timer
                 End If
-            Next
-
-            ' Store the current state as the previous state for the next frame
-            PreviousKeyboardState = CurrentKeyboardState
-        End SyncLock
+            ElseIf KeyStates.ContainsKey(key) Then
+                ' Remove the key from KeyStates when it is released
+                KeyStates.Remove(key)
+                KeyRepeatTimers.Remove(key) ' Reset the key's timer
+            End If
+        Next
     End Sub
 
     ' Check if the key can be processed (with interval-based repeat logic)
@@ -648,8 +641,6 @@ Module General
 
             frameTime = tick
             Client.TextureCounter = 0
-            
-            ProcessInputs()
 
             If GameStarted() Then
                 'Calculate FPS
