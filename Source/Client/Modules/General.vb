@@ -402,7 +402,10 @@ Module General
                     ' Handle Tab: Switch to the next control
                     Dim n As Integer = ActivateControl()
                     
-                    ActivateControl(n, False)
+                    
+                    If n = 0 Then
+                        ActivateControl(n, False)
+                    End If
                 End If
             End If
         End If
