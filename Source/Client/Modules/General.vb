@@ -284,133 +284,135 @@ Module General
     End Sub
     
     Public Sub ProcessInputs()
-        ' Get the mouse position from the cache
-        Dim mousePos As Tuple(Of Integer, Integer) = GetMousePosition()
-        Dim mouseX As Integer = mousePos.Item1
-        Dim mouseY As Integer = mousePos.Item2
+        SyncLock InputLock
+            ' Get the mouse position from the cache
+            Dim mousePos As Tuple(Of Integer, Integer) = GetMousePosition()
+            Dim mouseX As Integer = mousePos.Item1
+            Dim mouseY As Integer = mousePos.Item2
 
-        ' Convert adjusted coordinates to game world coordinates
-        CurX = TileView.Left + Math.Floor((mouseX + Camera.Left) / PicX)
-        CurY = TileView.Top + Math.Floor((mouseY + Camera.Top) / PicY)
+            ' Convert adjusted coordinates to game world coordinates
+            CurX = TileView.Left + Math.Floor((mouseX + Camera.Left) / PicX)
+            CurY = TileView.Top + Math.Floor((mouseY + Camera.Top) / PicY)
 
-        ' Store raw mouse coordinates for interface interactions
-        CurMouseX = mouseX
-        CurMouseY = mouseY
+            ' Store raw mouse coordinates for interface interactions
+            CurMouseX = mouseX
+            CurMouseY = mouseY
 
-        ' Check for movement keys
-        DirUp = IsKeyStateActive(Keys.W) Or IsKeyStateActive(Keys.Up)
-        DirDown = IsKeyStateActive(Keys.S) Or IsKeyStateActive(Keys.Down)
-        DirLeft = IsKeyStateActive(Keys.A) Or IsKeyStateActive(Keys.Left)
-        DirRight = IsKeyStateActive(Keys.D) Or IsKeyStateActive(Keys.Right)
+            ' Check for movement keys
+            DirUp = IsKeyStateActive(Keys.W) Or IsKeyStateActive(Keys.Up)
+            DirDown = IsKeyStateActive(Keys.S) Or IsKeyStateActive(Keys.Down)
+            DirLeft = IsKeyStateActive(Keys.A) Or IsKeyStateActive(Keys.Left)
+            DirRight = IsKeyStateActive(Keys.D) Or IsKeyStateActive(Keys.Right)
 
-        ' Check for action keys
-        VbKeyControl = IsKeyStateActive(Keys.LeftControl)
-        VbKeyShift = IsKeyStateActive(Keys.LeftShift)
+            ' Check for action keys
+            VbKeyControl = IsKeyStateActive(Keys.LeftControl)
+            VbKeyShift = IsKeyStateActive(Keys.LeftShift)
 
-        ' Handle Escape key to toggle menus
-        If IsKeyStateActive(Keys.Escape) Then
-            If InMenu Then Exit Sub
+            ' Handle Escape key to toggle menus
+            If IsKeyStateActive(Keys.Escape) Then
+                If InMenu Then Exit Sub
 
-            ' Hide options screen
-            If Windows(GetWindowIndex("winOptions")).Window.visible Then
-                HideWindow(GetWindowIndex("winOptions"))
-                CloseComboMenu()
-                Exit Sub
-            End If
-
-            ' hide/show chat window
-            If Windows(GetWindowIndex("winChat")).Window.Visible Then
-                Windows(GetWindowIndex("winChat")).Controls(GetControlIndex("winChat", "txtChat")).Text = ""
-                HideChat()
-                Exit Sub
-            End If
-
-            If Windows(GetWindowIndex("winEscMenu")).Window.visible Then
-                HideWindow(GetWindowIndex("winEscMenu"))
-                Exit Sub
-            Else
-                ' show them
-                If Windows(GetWindowIndex("winChat")).Window.Visible = False Then
-                    ShowWindow(GetWindowIndex("winEscMenu"), True)
+                ' Hide options screen
+                If Windows(GetWindowIndex("winOptions")).Window.visible Then
+                    HideWindow(GetWindowIndex("winOptions"))
+                    CloseComboMenu()
                     Exit Sub
                 End If
-            End If
-        End If
-        
-        If IsKeyStateActive(Keys.Space) Then
-            CheckMapGetItem()
-        End If
-        
-        If IsKeyStateActive(Keys.Insert) Then
-            SendRequestAdmin()
-        End If
-        
-        HandleHotbarInput()
-        HandleMouseInputs()
-        HandleActiveWindowInput()
-        HandleTextInput()
-        
-        If Windows(GetWindowIndex("winEscMenu")).Window.visible Then Exit Sub
-        
-        If IsKeyStateActive(Keys.I) Then
-            ' hide/show inventory
-            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Inv
-        End If
-            
-        If IsKeyStateActive(Keys.C) Then
-            ' hide/show char
-            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Char
-        End If
-        
-        If IsKeyStateActive(Keys.K) Then
-            ' hide/show skills
-            If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Skills
-        End If
-        
-        If IsKeyStateActive(Keys.Enter)
-            If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
-                ShowChat()
-                inSmallChat = False
-                Exit Sub
-            End If
 
-            HandlePressEnter()
-        End If
+                ' hide/show chat window
+                If Windows(GetWindowIndex("winChat")).Window.Visible Then
+                    Windows(GetWindowIndex("winChat")).Controls(GetControlIndex("winChat", "txtChat")).Text = ""
+                    HideChat()
+                    Exit Sub
+                End If
+
+                If Windows(GetWindowIndex("winEscMenu")).Window.visible Then
+                    HideWindow(GetWindowIndex("winEscMenu"))
+                    Exit Sub
+                Else
+                    ' show them
+                    If Windows(GetWindowIndex("winChat")).Window.Visible = False Then
+                        ShowWindow(GetWindowIndex("winEscMenu"), True)
+                        Exit Sub
+                    End If
+                End If
+            End If
+            
+            If IsKeyStateActive(Keys.Space) Then
+                CheckMapGetItem()
+            End If
+            
+            If IsKeyStateActive(Keys.Insert) Then
+                SendRequestAdmin()
+            End If
+            
+            HandleHotbarInput()
+            HandleMouseInputs()
+            HandleActiveWindowInput()
+            HandleTextInput()
+            
+            If Windows(GetWindowIndex("winEscMenu")).Window.visible Then Exit Sub
+            
+            If IsKeyStateActive(Keys.I) Then
+                ' hide/show inventory
+                If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Inv
+            End If
+                
+            If IsKeyStateActive(Keys.C) Then
+                ' hide/show char
+                If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Char
+            End If
+            
+            If IsKeyStateActive(Keys.K) Then
+                ' hide/show skills
+                If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Skills
+            End If
+            
+            If IsKeyStateActive(Keys.Enter)
+                If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
+                    ShowChat()
+                    inSmallChat = False
+                    Exit Sub
+                End If
+
+                HandlePressEnter()
+            End If
+        End SyncLock
     End Sub
     
     Private Sub HandleActiveWindowInput()
-        ' Check for active window
-        If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible Then
-            ' Check if an active control exists
-            If Windows(activeWindow).ActiveControl > 0 Then
-                ' Get the active control
-                Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+        SyncLock InputLock
+            ' Check for active window
+            If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible Then
+                ' Check if an active control exists
+                If Windows(activeWindow).ActiveControl > 0 Then
+                    ' Get the active control
+                    Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                If IsKeyStateActive(Keys.Enter) Then
-                    ' Handle Enter: Call the control’s callback or activate a new control
-                    If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
-                        activeControl.CallBack(EntState.Enter) = Nothing
-                    Else
+                    If IsKeyStateActive(Keys.Enter) Then
+                        ' Handle Enter: Call the control’s callback or activate a new control
+                        If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
+                            activeControl.CallBack(EntState.Enter) = Nothing
+                        Else
+                            Dim n As Integer = ActivateControl()
+
+                            If n = 0 Then
+                                ActivateControl(n, False)
+                            End If
+                        End If
+
+                    ElseIf IsKeyStateActive(Keys.Tab) Then
+                        ' Handle Tab: Switch to the next control
                         Dim n As Integer = ActivateControl()
-
+                        
                         If n = 0 Then
                             ActivateControl(n, False)
                         End If
                     End If
-
-                ElseIf IsKeyStateActive(Keys.Tab) Then
-                    ' Handle Tab: Switch to the next control
-                    Dim n As Integer = ActivateControl()
-                    
-                    
-                    If n = 0 Then
-                        ActivateControl(n, False)
-                    End If
                 End If
             End If
-        End If
+        End SyncLock
     End Sub
-
     
     ' Handles the hotbar key presses using KeyboardState
     Private Sub HandleHotbarInput()
@@ -437,7 +439,13 @@ Module General
                     If CanProcessKey(key) Then
                         ' Handle Backspace separately
                         If key = Keys.Back Then
-                            HandleBackspace()
+                            Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+                            
+                            ' Ensure the control is not locked and text limit is respected
+                            If Not control.Locked AndALso control.Text.Length > 0 Then
+                                
+                                Windows(ActiveWindow).Controls(Windows(activeWindow).ActiveControl).Text = control.Text.Substring(0, control.Text.Length - 1)
+                            End If
                             Continue For
                         End If
 
@@ -475,21 +483,6 @@ Module General
         End If
         Return False
     End Function
-    
-    ' Handle Backspace to remove the last character from the active control
-    Private Sub HandleBackspace()
-        If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible AndAlso
-           Windows(activeWindow).ActiveControl > 0 Then
-
-            ' Ensure the control is not locked
-            If  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Locked Then Exit Sub
-
-            ' Remove the last character if the text is not empty
-            If  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length > 0 Then
-                Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text =  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Substring(0,  Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text.Length - 1)
-            End If
-        End If
-    End Sub
 
     ' Convert a key to a character (if possible)
     Private Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char?
