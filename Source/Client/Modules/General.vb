@@ -427,41 +427,43 @@ Module General
     End Sub
 
     Private Sub HandleTextInput()
-        ' Loop through all keys in the keyboard state
-        For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-            Dim isKeyDown =  IsKeyStateActive(key)
+        SyncLock InputLock
+            ' Loop through all keys in the keyboard state
+            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
+                Dim isKeyDown =  IsKeyStateActive(key)
 
-            If isKeyDown Then
-                ' Check if enough time has passed since the last key press processing
-                If CanProcessKey(key) Then
-                    ' Handle Backspace separately
-                    If key = Keys.Back Then
-                        HandleBackspace()
-                        Continue For
-                    End If
+                If isKeyDown Then
+                    ' Check if enough time has passed since the last key press processing
+                    If CanProcessKey(key) Then
+                        ' Handle Backspace separately
+                        If key = Keys.Back Then
+                            HandleBackspace()
+                            Continue For
+                        End If
 
-                    ' Convert key to character
-                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, IsKeyStateActive(Keys.LeftShift))
+                        ' Convert key to character
+                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, IsKeyStateActive(Keys.LeftShift))
 
-                    ' If valid character and active control is available, add text
-                    If character.HasValue AndAlso activeWindow > 0 AndAlso
-                       Windows(activeWindow).Window.Visible AndAlso
-                       Windows(activeWindow).ActiveControl > 0 Then
+                        ' If valid character and active control is available, add text
+                        If character.HasValue AndAlso activeWindow > 0 AndAlso
+                           Windows(activeWindow).Window.Visible AndAlso
+                           Windows(activeWindow).ActiveControl > 0 Then
 
-                        Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
+                            Dim control = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                        ' Ensure the control is not locked and text limit is respected
-                        If Not control.Locked AndAlso control.Text.Length < control.Length Then
-                            Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
+                            ' Ensure the control is not locked and text limit is respected
+                            If Not control.Locked AndAlso control.Text.Length < control.Length Then
+                                Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl).Text &= character.Value ' Add the character
+                            End If
                         End If
                     End If
+                ElseIf KeyStates.ContainsKey(key) Then
+                    ' Remove the key from KeyStates when it is released
+                    KeyStates.Remove(key)
+                    KeyRepeatTimers.Remove(key) ' Reset the key's timer
                 End If
-            ElseIf KeyStates.ContainsKey(key) Then
-                ' Remove the key from KeyStates when it is released
-                KeyStates.Remove(key)
-                KeyRepeatTimers.Remove(key) ' Reset the key's timer
-            End If
-        Next
+            Next
+        End SyncLock
     End Sub
 
     ' Check if the key can be processed (with interval-based repeat logic)
