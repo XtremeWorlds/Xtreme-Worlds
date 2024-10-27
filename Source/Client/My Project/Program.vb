@@ -84,7 +84,6 @@ Public Class GameClient
     Private EditorAnimation_Anim1 As RenderTarget2D
     Private EditorAnimation_Anim2 As RenderTarget2D
     Private RenderTarget As RenderTarget2D
-    Private screenshotKey As Keys = Keys.F12 ' Key to trigger screenshot
     Private TransparentTexture As Texture2D
 
     ' Ensure this class exists to store graphic info
@@ -385,7 +384,7 @@ Public Class GameClient
         End SyncLock
         
         Dim command As RenderCommand
-        
+    
         SpriteBatch.Begin()
 
         ' Directly iterate over the ConcurrentBag
@@ -469,7 +468,7 @@ Public Class GameClient
         UpdateKeyCache()
         ProcessInputs()
         
-        If IsKeyStateActive(screenshotKey)
+        If IsKeyStateActive(Keys.F12)
             TakeScreenshot()
         End If
         
@@ -477,6 +476,7 @@ Public Class GameClient
         elapsedTime += gameTime.ElapsedGameTime
         
         If elapsedTime.TotalSeconds >= 1 Then
+            Console.WriteLine("FPS: " & GetFps())    
             SetFps(0)
             elapsedTime = TimeSpan.Zero
         End If
