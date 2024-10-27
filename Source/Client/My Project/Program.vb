@@ -374,13 +374,28 @@ Public Class GameClient
         ' Directly iterate over the ConcurrentBag
         SyncLock batchLock
             For Each batch In batches
+                ' Group commands by their WindowID
+                Dim groupedCommands = batch.Commands.GroupBy(Function(cmd) cmd.WindowID)
+
+                For Each group In groupedCommands
+                    If group.Key > 0 AndAlso group.Count() > 1 Then
+                        ' Remove all but the first command with the same WindowID
+                        For Each duplicateCommand In group.Skip(1).ToList()
+                            batch.Commands.Remove(duplicateCommand)
+                        Next
+                    End If
+                Next
+                
                 For Each command In batch.Commands.ToArray()
+                    if command.WindowID > 0 And IsWindowHidden(command.WindowID)
+                        batch.Commands.Remove(command)
+                        Continue For
+                    End If
+                    
                     Select Case command.Type
                         Case RenderType.Texture
-                            If batch.Texture IsNot Nothing AndAlso Not batch.Texture.IsDisposed Then
-                                SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
-                            End If
-
+                            SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
+                            
                         Case RenderType.Font
                             ' Calculate the shadow position
                             Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
