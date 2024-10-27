@@ -414,7 +414,7 @@ Public Class GameClient
                                     Windows(i).Window.Top + deltaY,
                                     0, ResolutionHeight - Windows(i).Window.Height
                                     )
-
+          
                                 ' Ensure the mouse movement is within a valid range for the window
                                 If Math.Abs(deltaX) <= Windows(i).Window.Width AndAlso 
                                    Math.Abs(deltaY) <= Windows(i).Window.Height Then
@@ -427,11 +427,11 @@ Public Class GameClient
                             End If
                         Next
                         
-                        If Not foundWindow And command.EntityID > 0 Then
-                            batch.Commands.Remove(command)
+                        If Not foundWindow And command.EntityID > 0 And Not IsWindowHidden(command.EntityID) Then
+                            batch.Commands.RemoveAll(Function(cmd) cmd.EntityID = command.EntityID)
                             Continue For
                         End If
-                            
+                        
                         Select Case command.Type
                             Case RenderType.Texture
                                 SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
