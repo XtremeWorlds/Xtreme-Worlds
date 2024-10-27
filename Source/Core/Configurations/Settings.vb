@@ -37,8 +37,6 @@ Public Class Settings
 
     Public TimeSpeed As Integer = 1
 
-    Public MaxFps As Integer = 60
-
     Public Autotile As Boolean = True
 
      Public Shared Sub Load()
