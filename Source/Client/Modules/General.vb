@@ -645,7 +645,10 @@ Module General
             ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
 
             frameTime = tick
-            Client.TextureCounter = 0
+            
+            SyncLock loadLock
+                TextureCounter = 0
+            End SyncLock
 
             If GameStarted() Then
                 'Calculate FPS

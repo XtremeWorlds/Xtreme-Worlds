@@ -11,7 +11,7 @@ Module [Interface]
     ' GUI
     Public Windows() As WindowStruct
     Public WindowCount As Long
-    Public activeWindow As Long
+    Public ActiveWindow As Long
 
     ' GUI parts
     Public DragBox As EntityPartStruct
@@ -927,7 +927,7 @@ Module [Interface]
 
                         If entState = EntState.MouseMove Then
                             If .CanDrag Then
-                                If .State = EntState.MouseDown Then
+                                If Client.IsMouseButtonDown(MouseButton.Left) Then
                                     .State = entState.Normal
                                     .Left = Clamp(.Left + ((CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
                                     .Top = Clamp(.Top + ((CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
@@ -949,7 +949,7 @@ Module [Interface]
                         End If
                     End If
 
-                    If entState = EntState.MouseDown Then
+                    If Client.IsMouseButtonDown(MouseButton.Left) Then
                         If .CanDrag Then
                             .movedX = CurMouseX - .Left
                             .movedY = CurMouseY - .Top
@@ -998,7 +998,7 @@ Module [Interface]
                         End If
                     End If
 
-                    If entState = EntState.MouseDown Then
+                    If Client.IsMouseButtonDown(MouseButton.Left) Then
                         If .CanDrag Then
                             .movedX = CurMouseX - .Left
                             .movedY = CurMouseY - .Top
