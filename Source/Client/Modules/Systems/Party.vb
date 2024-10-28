@@ -37,7 +37,7 @@ Module Party
         ' exit out if we're not in a party
         If inParty = 0 Then
             ClearParty()
-            UpdatePartyInterface
+            Gui.UpdatePartyInterface
             ' exit out early
             buffer.Dispose()
             Exit Sub
@@ -50,7 +50,7 @@ Module Party
         Next
         Type.Party.MemberCount = buffer.ReadInt32
 
-        UpdatePartyInterface
+        Gui.UpdatePartyInterface
 
         buffer.Dispose()
     End Sub

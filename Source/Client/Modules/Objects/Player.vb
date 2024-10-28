@@ -820,7 +820,7 @@ Module Player
             GameState.BarWidth_GuiHP_Max = 0
         End If
 
-        UpdateStats_UI()
+        Gui.UpdateStats_UI()
 
         buffer.Dispose()
     End Sub
@@ -837,7 +837,7 @@ Module Player
             GameState.BarWidth_GuiSP_Max = 0
         End If
 
-        UpdateStats_UI()
+        Gui.UpdateStats_UI()
 
         buffer.Dispose()
     End Sub
@@ -888,33 +888,33 @@ Module Player
             GameState.DirRight = False
 
             ' set form
-            With Windows(GetWindowIndex("winCharacter"))
-                .Controls(GetControlIndex("winCharacter", "lblName")).Text = "Name"
-                .Controls(GetControlIndex("winCharacter", "lblClass")).Text = "Class"
-                .Controls(GetControlIndex("winCharacter", "lblLevel")).Text = "Level"
-                .Controls(GetControlIndex("winCharacter", "lblGuild")).Text = "Guild"
-                .Controls(GetControlIndex("winCharacter", "lblName2")).Text = GetPlayerName(GameState.MyIndex)
-                .Controls(GetControlIndex("winCharacter", "lblClass2")).Text =Type.Job(GetPlayerJob(GameState.MyIndex)).Name
-                .Controls(GetControlIndex("winCharacter", "lblLevel2")).Text = GetPlayerLevel(GameState.MyIndex)
-                .Controls(GetControlIndex("winCharacter", "lblGuild2")).Text = "None"
-                UpdateStats_UI()
+            With Gui.Windows(Gui.GetWindowIndex("winCharacter"))
+                .Controls(Gui.GetControlIndex("winCharacter", "lblName")).Text = "Name"
+                .Controls(Gui.GetControlIndex("winCharacter", "lblClass")).Text = "Class"
+                .Controls(Gui.GetControlIndex("winCharacter", "lblLevel")).Text = "Level"
+                .Controls(Gui.GetControlIndex("winCharacter", "lblGuild")).Text = "Guild"
+                .Controls(Gui.GetControlIndex("winCharacter", "lblName2")).Text = GetPlayerName(GameState.MyIndex)
+                .Controls(Gui.GetControlIndex("winCharacter", "lblClass2")).Text =Type.Job(GetPlayerJob(GameState.MyIndex)).Name
+                .Controls(Gui.GetControlIndex("winCharacter", "lblLevel2")).Text = GetPlayerLevel(GameState.MyIndex)
+                .Controls(Gui.GetControlIndex("winCharacter", "lblGuild2")).Text = "None"
+                Gui.UpdateStats_UI()
 
                 ' stats
                 For x = 1 To StatType.Count - 1
-                    .Controls(GetControlIndex("winCharacter", "lblStat_" & x)).Text = GetPlayerStat(GameState.MyIndex, x)
+                    .Controls(Gui.GetControlIndex("winCharacter", "lblStat_" & x)).Text = GetPlayerStat(GameState.MyIndex, x)
                 Next
 
                 ' points
-                .Controls(GetControlIndex("winCharacter", "lblPoints")).Text = GetPlayerPoints(GameState.MyIndex)
+                .Controls(Gui.GetControlIndex("winCharacter", "lblPoints")).Text = GetPlayerPoints(GameState.MyIndex)
 
                 ' grey out buttons
                 If GetPlayerPoints(GameState.MyIndex) = 0 Then
                     For x = 1 To StatType.Count - 1
-                        .Controls(GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = True
+                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = True
                     Next
                 Else
                     For x = 1 To StatType.Count - 1
-                        .Controls(GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = False
+                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = False
                     Next
                 End If
             End With
@@ -995,7 +995,7 @@ Module Player
         End If
 
         ' Update GUI
-        UpdateStats_UI()
+        Gui.UpdateStats_UI()
 
         buffer.Dispose()
     End Sub

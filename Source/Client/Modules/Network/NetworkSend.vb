@@ -77,9 +77,9 @@ Module NetworkSend
     Public Sub btnLogin_Click()
         Dim user As String, pass As String
 
-        With Windows(GetWindowIndex("winLogin"))
-            user = .Controls(GetControlIndex("winLogin", "txtUsername")).Text
-            pass = .Controls(GetControlIndex("winLogin", "txtPassword")).Text
+        With Gui.Windows(Gui.GetWindowIndex("winLogin"))
+            user = .Controls(Gui.GetControlIndex("winLogin", "txtUsername")).Text
+            pass = .Controls(Gui.GetControlIndex("winLogin", "txtPassword")).Text
 
             If Socket.IsConnected() Then
                 SendLogin(user, pass)

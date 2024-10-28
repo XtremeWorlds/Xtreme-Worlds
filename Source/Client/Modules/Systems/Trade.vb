@@ -37,7 +37,7 @@ Module Trade
 
     Sub Packet_CloseTrade(ByRef data() As Byte)
         InTrade = 0
-        HideWindow(GetWindowIndex("winTrade"))
+        Gui.HideWindow(Gui.GetWindowIndex("winTrade"))
     End Sub
 
     Sub Packet_TradeUpdate(ByRef data() As Byte)
@@ -52,14 +52,14 @@ Module Trade
                 TradeYourOffer(i).Value = buffer.ReadInt32
             Next
             yourWorth = buffer.ReadInt32
-            Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblYourValue")).text = yourWorth & "g"
+            Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblYourValue")).text = yourWorth & "g"
         ElseIf dataType = 1 Then 'theirs
             For i = 1 To MAX_INV
                 TradeTheirOffer(i).Num = buffer.ReadInt32
                 TradeTheirOffer(i).Value = buffer.ReadInt32
             Next
             theirWorth = buffer.ReadInt32
-            Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblTheirValue")).text = theirWorth & "g"
+            Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblTheirValue")).text = theirWorth & "g"
         End If
 
         buffer.Dispose()
@@ -73,13 +73,13 @@ Module Trade
 
         Select Case tradeStatus
             Case 0 ' clear
-                Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblStatus")).text = "Choose items to offer."
+                Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblStatus")).text = "Choose items to offer."
             Case 1 ' they've accepted
-                Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblStatus")).text = "Other player has accepted."
+                Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblStatus")).text = "Other player has accepted."
             Case 2 ' you've accepted
-                Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblStatus")).text = "Waiting for other player to accept."
+                Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblStatus")).text = "Waiting for other player to accept."
             Case 3 ' no room
-                Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "lblStatus")).text = "Not enough inventory space."
+                Gui.Windows(Gui.GetWindowIndex("winTrade")).Controls(Gui.GetControlIndex("winTrade", "lblStatus")).text = "Not enough inventory space."
         End Select
 
         buffer.Dispose()

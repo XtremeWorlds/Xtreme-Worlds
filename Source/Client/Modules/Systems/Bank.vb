@@ -33,8 +33,8 @@ Module Bank
 
         GameState.InBank = True
 
-        If Not Windows(GetWindowIndex("winBank")).Window.visible Then
-            ShowWindow(GetWindowIndex("winBank"), , False)
+        If Not Gui.Windows(Gui.GetWindowIndex("winBank")).Window.visible Then
+            Gui.ShowWindow(Gui.GetWindowIndex("winBank"), , False)
         End If
 
         buffer.Dispose()
@@ -78,8 +78,8 @@ Module Bank
     End Sub
 
     Friend Sub CloseBank()
-        If Windows(GetWindowIndex("winBank")).Window.visible Then
-            HideWindow(GetWindowIndex("winBank"))
+        If Gui.Windows(Gui.GetWindowIndex("winBank")).Window.visible Then
+            Gui.HideWindow(Gui.GetWindowIndex("winBank"))
         End If
 
         Dim buffer As New ByteStream(4)

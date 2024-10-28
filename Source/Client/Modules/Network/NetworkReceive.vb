@@ -146,25 +146,25 @@ Module NetworkReceive
         kick = buffer.ReadInt32()
 
         If menuReset > 0 Then
-            HideWindows()
+            Gui.HideWindows()
 
             Select Case menuReset
                 Case MenuType.Login
-                    ShowWindow(GetWindowIndex("winLogin"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winLogin"))
                 Case MenuType.Chars
-                    ShowWindow(GetWindowIndex("winChars"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winChars"))
                 Case MenuType.Job
-                    ShowWindow(GetWindowIndex("winJob"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winJob"))
                 Case MenuType.NewChar
-                    ShowWindow(GetWindowIndex("winNewChar"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winNewChar"))
                 Case MenuType.Main
-                    ShowWindow(GetWindowIndex("winLogin"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winLogin"))
                 Case MenuType.Register
-                    ShowWindow(GetWindowIndex("winRegister"))
+                    Gui.ShowWindow(Gui.GetWindowIndex("winRegister"))
             End Select
         Else
             If kick > 0 Or GameState.InGame = False Then
-                ShowWindow(GetWindowIndex("winLogin"))
+                Gui.ShowWindow(Gui.GetWindowIndex("winLogin"))
                 InitNetwork()
                 DialogueAlert(dialogueIndex)
                 Exit Sub
@@ -194,7 +194,7 @@ Module NetworkReceive
     Sub Packet_PlayerChars(ByRef data() As Byte)
         Dim buffer As New ByteStream(data), I As Long, winNum As Long, conNum As Long, isSlotEmpty(MAX_CHARS) As Boolean, x As Long
 
-        Type.Setting.Username = Windows(GetWindowIndex("winLogin")).Controls(GetControlIndex("winLogin", "txtUsername")).Text
+        Type.Setting.Username = Gui.Windows(Gui.GetWindowIndex("winLogin")).Controls(Gui.GetControlIndex("winLogin", "txtUsername")).Text
         Type.Setting.Save()
 
         For I = 1 To MAX_CHARS
@@ -209,14 +209,14 @@ Module NetworkReceive
 
         buffer.Dispose()
 
-        HideWindows()
-        ShowWindow(GetWindowIndex("winChars"))
+        Gui.HideWindows()
+        Gui.ShowWindow(Gui.GetWindowIndex("winChars"))
 
         ' set GUI window up
-        winNum = GetWindowIndex("winChars")
+        winNum = Gui.GetWindowIndex("winChars")
         For I = 1 To MAX_CHARS
-            conNum = GetControlIndex("winChars", "lblCharName_" & I)
-            With Windows(winNum).Controls(conNum)
+            conNum = Gui.GetControlIndex("winChars", "lblCharName_" & I)
+            With Gui.Windows(winNum).Controls(conNum)
                 If Not isSlotEmpty(I) Then
                     .Text = GameState.CharName(I)
                 Else
@@ -227,24 +227,24 @@ Module NetworkReceive
             ' hide/show buttons
             If isSlotEmpty(I) Then
                 ' create button
-                conNum = GetControlIndex("winChars", "btnCreateChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = True
+                conNum = Gui.GetControlIndex("winChars", "btnCreateChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = True
                 ' select button
-                conNum = GetControlIndex("winChars", "btnSelectChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = False
+                conNum = Gui.GetControlIndex("winChars", "btnSelectChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = False
                 ' delete button
-                conNum = GetControlIndex("winChars", "btnDelChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = False
+                conNum = Gui.GetControlIndex("winChars", "btnDelChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = False
             Else
                 ' create button
-                conNum = GetControlIndex("winChars", "btnCreateChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = False
+                conNum = Gui.GetControlIndex("winChars", "btnCreateChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = False
                 ' select button
-                conNum = GetControlIndex("winChars", "btnSelectChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = True
+                conNum = Gui.GetControlIndex("winChars", "btnSelectChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = True
                 ' delete button
-                conNum = GetControlIndex("winChars", "btnDelChar_" & I)
-                Windows(winNum).Controls(conNum).Visible = True
+                conNum = Gui.GetControlIndex("winChars", "btnDelChar_" & I)
+                Gui.Windows(winNum).Controls(conNum).Visible = True
             End If
         Next
     End Sub
@@ -316,14 +316,14 @@ Module NetworkReceive
     Private Sub Packet_InGame(ByRef data() As Byte)
         GameState.InMenu = False
         GameState.InGame = True
-        HideWindows()
+        Gui.HideWindows()
         GameState.CanMoveNow = True
         GameState.MyEditorType = -1
 
         ' show gui
-        ShowWindow(GetWindowIndex("winHotbar"), , False)
-        ShowWindow(GetWindowIndex("winMenu"), , False)
-        ShowWindow(GetWindowIndex("winBars"), , False)
+        Gui.ShowWindow(Gui.GetWindowIndex("winHotbar"), , False)
+        Gui.ShowWindow(Gui.GetWindowIndex("winMenu"), , False)
+        Gui.ShowWindow(Gui.GetWindowIndex("winBars"), , False)
         HideChat()
 
         GameInit()
