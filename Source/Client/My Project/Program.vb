@@ -441,9 +441,19 @@ Public Class GameClient
                         
                         Select Case command.Type
                             Case RenderType.Texture
+                                If batch.Texture Is Nothing Then
+                                    batch.Commands.Remove(command)
+                                    Continue For
+                                End If
+                                
                                 SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
                                 
                             Case RenderType.Font
+                                If batch.Font Is Nothing Then
+                                    batch.Commands.Remove(command)
+                                    Continue For
+                                End If
+                                
                                 ' Calculate the shadow position
                                 Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
 
