@@ -1,39 +1,6 @@
 ﻿Imports Core
 
 Friend Module Autotile
-
-#Region "Globals and Type"
-
-    ' Autotiles
-    Friend Const AutoInner As Byte = 1
-
-    Friend Const AutoOuter As Byte = 2
-    Friend Const AutoHorizontal As Byte = 3
-    Friend Const AutoVertical As Byte = 4
-    Friend Const AutoFill As Byte = 5
-
-    ' Autotile Type
-    Friend Const AutotileNone As Byte = 0
-
-    Friend Const AutotileNormal As Byte = 1
-    Friend Const AutotileFake As Byte = 2
-    Friend Const AutotileAnim As Byte = 3
-    Friend Const AutotileCliff As Byte = 4
-    Friend Const AutotileWaterfall As Byte = 5
-
-    ' Rendering
-    Friend Const RenderStateNone As Integer = 0
-
-    Friend Const RenderStateNormal As Integer = 1
-    Friend Const RenderStateAutotile As Integer = 2
-
-    ' Map animations
-    Friend WaterfallFrame As Integer
-
-    Friend AutoTileFrame As Integer
-
-#End Region
-
     Sub ClearAutotiles()
         Dim x As Integer, y As Integer, i As Integer
 
@@ -299,17 +266,17 @@ Friend Module Autotile
 
         With MyMap.Tile(x, y)
             ' check if the tile can be rendered
-            If .Layer(layerNum).Tileset <= 0 Or .Layer(layerNum).Tileset > NumTileSets Then
-                Type.Autotile(x, y).Layer(layerNum).RenderState = RenderStateNone
+            If .Layer(layerNum).Tileset <= 0 Or .Layer(layerNum).Tileset > GameState.NumTileSets Then
+                Type.Autotile(x, y).Layer(layerNum).RenderState = GameState.RenderStateNone
                 Exit Sub
             End If
 
             ' check if it needs to be rendered as an autotile
-            If .Layer(layerNum).AutoTile = AutotileNone Or .Layer(layerNum).AutoTile = AutotileFake Then
+            If .Layer(layerNum).AutoTile = GameState.AutotileNone Or .Layer(layerNum).AutoTile = GameState.AutotileFake Then
                 ' default to... default
-                Type.Autotile(x, y).Layer(layerNum).RenderState = RenderStateNormal
+                Type.Autotile(x, y).Layer(layerNum).RenderState = GameState.RenderStateNormal
             Else
-                Type.Autotile(x, y).Layer(layerNum).RenderState = RenderStateAutotile
+                Type.Autotile(x, y).Layer(layerNum).RenderState = GameState.RenderStateAutotile
                 ' cache tileset positioning
                 For quarterNum = 0 To 4
                     Type.Autotile(x, y).Layer(layerNum).SrcX(quarterNum) = (MyMap.Tile(x, y).Layer(layerNum).X * 32) + Type.Autotile(x, y).Layer(layerNum).QuarterTile(quarterNum).X
@@ -334,7 +301,7 @@ Friend Module Autotile
         ' Okay, we have autotiling but which one?
         Select Case MyMap.Tile(x, y).Layer(layerNum).AutoTile
             ' Normal or animated - same difference
-            Case AutotileNormal, AutotileAnim
+            Case GameState.AutotileNormal, GameState.AutotileAnim
                 ' North West Quarter
                 CalculateNW_Normal(layerNum, x, y)
                 ' North East Quarter
@@ -344,7 +311,7 @@ Friend Module Autotile
                 ' South East Quarter
                 CalculateSE_Normal(layerNum, x, y)
             ' Cliff
-            Case AutotileCliff
+            Case GameState.AutotileCliff
                 ' North West Quarter
                 CalculateNW_Cliff(layerNum, x, y)
                 ' North East Quarter
@@ -354,7 +321,7 @@ Friend Module Autotile
                 ' South East Quarter
                 CalculateSE_Cliff(layerNum, x, y)
             ' Waterfalls
-            Case AutotileWaterfall
+            Case GameState.AutotileWaterfall
                 ' North West Quarter
                 CalculateNW_Waterfall(layerNum, x, y)
                 ' North East Quarter
@@ -383,31 +350,31 @@ Friend Module Autotile
         If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = True
 
         ' Calculate Situation - Inner
-        If Not tmpTile(2) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(2) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Horizontal
-        If Not tmpTile(2) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(2) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(2) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(2) And Not tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Outer
-        If Not tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoOuter
+        If Not tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoOuter
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 1, "e")
-            Case AutoOuter
+            Case GameState.AutoOuter
                 PlaceAutotile(layerNum, x, y, 1, "a")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 1, "i")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 1, "m")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 1, "q")
         End Select
 
@@ -427,28 +394,28 @@ Friend Module Autotile
         If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
 
         ' Calculate Situation - Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Horizontal
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoVertical
         ' Outer
-        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = AutoOuter
+        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = GameState.AutoOuter
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 2, "j")
-            Case AutoOuter
+            Case GameState.AutoOuter
                 PlaceAutotile(layerNum, x, y, 2, "b")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 2, "f")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 2, "r")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 2, "n")
         End Select
 
@@ -468,31 +435,31 @@ Friend Module Autotile
         If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = True
 
         ' Calculate Situation - Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Horizontal
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoHorizontal
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoVertical
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Outer
-        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = AutoOuter
+        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = GameState.AutoOuter
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 3, "o")
-            Case AutoOuter
+            Case GameState.AutoOuter
                 PlaceAutotile(layerNum, x, y, 3, "c")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 3, "s")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 3, "g")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 3, "k")
         End Select
 
@@ -512,31 +479,31 @@ Friend Module Autotile
         If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
 
         ' Calculate Situation - Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Horizontal
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Outer
-        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = AutoOuter
+        If tmpTile(1) And Not tmpTile(2) And tmpTile(3) Then situation = GameState.AutoOuter
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 4, "t")
-            Case AutoOuter
+            Case GameState.AutoOuter
                 PlaceAutotile(layerNum, x, y, 4, "d")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 4, "p")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 4, "l")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 4, "h")
         End Select
 
@@ -620,29 +587,29 @@ Friend Module Autotile
 
         ' West
         If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = True
-        situation = AutoFill
+        situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
-        If Not tmpTile(2) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(2) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(2) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(2) And Not tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Inner
-        If Not tmpTile(2) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(2) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 1, "e")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 1, "i")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 1, "m")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 1, "q")
         End Select
 
@@ -660,29 +627,29 @@ Friend Module Autotile
 
         ' East
         If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
-        situation = AutoFill
+        situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 2, "j")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 2, "f")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 2, "r")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 2, "n")
         End Select
 
@@ -700,28 +667,28 @@ Friend Module Autotile
 
         ' South
         If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = True
-        situation = AutoFill
+        situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoHorizontal
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoVertical
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 3, "o")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 3, "s")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 3, "g")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 3, "k")
         End Select
 
@@ -740,28 +707,28 @@ Friend Module Autotile
         ' East
         If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
 
-        situation = AutoFill
+        situation = GameState.AutoFill
         ' Calculate Situation -  Horizontal
-        If Not tmpTile(1) And tmpTile(3) Then situation = AutoHorizontal
+        If Not tmpTile(1) And tmpTile(3) Then situation = GameState.AutoHorizontal
 
         ' Vertical
-        If tmpTile(1) And Not tmpTile(3) Then situation = AutoVertical
+        If tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoVertical
 
         ' Fill
-        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = AutoFill
+        If tmpTile(1) And tmpTile(2) And tmpTile(3) Then situation = GameState.AutoFill
 
         ' Inner
-        If Not tmpTile(1) And Not tmpTile(3) Then situation = AutoInner
+        If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
 
         ' Actually place the subtile
         Select Case situation
-            Case AutoInner
+            Case GameState.AutoInner
                 PlaceAutotile(layerNum, x, y, 4, "t")
-            Case AutoHorizontal
+            Case GameState.AutoHorizontal
                 PlaceAutotile(layerNum, x, y, 4, "p")
-            Case AutoVertical
+            Case GameState.AutoVertical
                 PlaceAutotile(layerNum, x, y, 4, "l")
-            Case AutoFill
+            Case GameState.AutoFill
                 PlaceAutotile(layerNum, x, y, 4, "h")
         End Select
 
@@ -777,7 +744,7 @@ Friend Module Autotile
         End If
 
         ' fakes ALWAYS return true
-        If MyMap.Tile(x2, y2).Layer(layerNum).AutoTile = AutotileFake Then
+        If MyMap.Tile(x2, y2).Layer(layerNum).AutoTile = GameState.AutotileFake Then
             CheckTileMatch = True
             Exit Function
         End If

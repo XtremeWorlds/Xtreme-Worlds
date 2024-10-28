@@ -1,11 +1,8 @@
 ﻿
 Imports Core
 Imports Core.Enum
-Imports Type
 Imports Microsoft.Xna.Framework.Graphics
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports Microsoft.Xna.Framework
-Imports SharpDX.Direct2D1
 
 Module [Interface]
     ' GUI
@@ -446,8 +443,8 @@ Module [Interface]
 
     Public Sub CentralizeWindow(curWindow As Long)
         With Windows(curWindow).Window
-            .Left = (ResolutionWidth / 2) - (.Width / 2)
-            .Top = (ResolutionHeight / 2) - (.Height / 2)
+            .Left = (GameState.ResolutionWidth / 2) - (.Width / 2)
+            .Top = (GameState.ResolutionHeight / 2) - (.Height / 2)
             .OrigLeft = .Left
             .OrigTop = .Top
         End With
@@ -873,8 +870,8 @@ Module [Interface]
             With Windows(i).Window
                 If .Enabled And .Visible Then
                     If .State <> EntState.MouseDown Then .State = EntState.Normal
-                    If CurMouseX >= .Left And CurMouseX <= .Width + .Left Then
-                        If CurMouseY >= .Top And CurMouseY <= .Height + .Top Then
+                    If GameState.CurMouseX >= .Left And GameState.CurMouseX <= .Width + .Left Then
+                        If GameState.CurMouseY >= .Top And GameState.CurMouseY <= .Height + .Top Then
                             ' set the combomenu
                             If .Design(0) = DesignType.ComboMenuNorm Then
                                 ' set the hover menu
@@ -893,9 +890,9 @@ Module [Interface]
 
                     If entState = EntState.MouseMove Then
                         If .CanDrag Then
-                            If Client.IsMouseButtonDown(MouseButton.Left) Then
-                                .Left = Clamp(.Left + ((CurMouseX - .Left) - .movedX), 0, ResolutionWidth - .Width)
-                                .Top = Clamp(.Top + ((CurMouseY - .Top) - .movedY), 0, ResolutionHeight - .Height)
+                            If GameClient.IsMouseButtonDown(MouseButton.Left) Then
+                                .Left = Clamp(.Left + ((GameState.CurMouseX - .Left) - .movedX), 0, GameState.ResolutionWidth - .Width)
+                                .Top = Clamp(.Top + ((GameState.CurMouseY - .Top) - .movedY), 0, GameState.ResolutionHeight - .Height)
                             End If
                         End If
                     End If
@@ -918,8 +915,8 @@ Module [Interface]
                 With Windows(curWindow).Controls(i)
                     If .Enabled And .Visible Then
                         If .State <> EntState.MouseDown Then .State = EntState.Normal
-                        If CurMouseX >= .Left + Windows(curWindow).Window.Left And CurMouseX <= .Left + .Width + Windows(curWindow).Window.Left Then
-                            If CurMouseY >= .Top + Windows(curWindow).Window.Top And CurMouseY <= .Top + .Height + Windows(curWindow).Window.Top Then
+                        If GameState.CurMouseX >= .Left + Windows(curWindow).Window.Left And GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Window.Left Then
+                            If GameState.CurMouseY >= .Top + Windows(curWindow).Window.Top And GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Window.Top Then
                                 If curControl = 0 Then curControl = i
                                 If .zOrder > Windows(curWindow).Controls(curControl).zOrder Then curControl = i
                             End If
@@ -927,10 +924,10 @@ Module [Interface]
 
                         If entState = EntState.MouseMove Then
                             If .CanDrag Then
-                                If Client.IsMouseButtonDown(MouseButton.Left) Then
+                                If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                                     .State = entState.Normal
-                                    .Left = Clamp(.Left + ((CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
-                                    .Top = Clamp(.Top + ((CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
+                                    .Left = Clamp(.Left + ((GameState.CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
+                                    .Top = Clamp(.Top + ((GameState.CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
                                 End If
                             End If
                         End If
@@ -949,10 +946,10 @@ Module [Interface]
                         End If
                     End If
 
-                    If Client.IsMouseButtonDown(MouseButton.Left) Then
+                    If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                         If .CanDrag Then
-                            .movedX = CurMouseX - .Left
-                            .movedY = CurMouseY - .Top
+                            .movedX = GameState.CurMouseX - .Left
+                            .movedY = GameState.CurMouseY - .Top
                         End If
 
                         ' toggle boxes
@@ -998,10 +995,10 @@ Module [Interface]
                         End If
                     End If
 
-                    If Client.IsMouseButtonDown(MouseButton.Left) Then
+                    If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                         If .CanDrag Then
-                            .movedX = CurMouseX - .Left
-                            .movedY = CurMouseY - .Top
+                            .movedX = GameState.CurMouseX - .Left
+                            .movedY = GameState.CurMouseY - .Top
                         End If
                     End If
                     callBack = .CallBack(entState)
@@ -1113,8 +1110,8 @@ Module [Interface]
                     End If
 
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha, , , , winNum)
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
                Case EntityType.TextBox
@@ -1125,13 +1122,13 @@ Module [Interface]
 
                     ' Render the image if present
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha, , , , winNum)
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
                     ' Handle active window text input
                     If activeWindow = winNum And Windows(winNum).ActiveControl = entNum Then
-                        taddText = chatShowLine
+                        taddText = GameState.chatShowLine
                     End If
 
                     ' Final text with potential censoring and additional input
@@ -1147,30 +1144,30 @@ Module [Interface]
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
                    
                     ' Render the final text
-                    RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                    RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
 
                 Case EntityType.Button
                     ' Render the button design if defined
                     If .Design(.State) > 0 Then
-                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, , winNum)
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
                     End If
 
                     ' Enqueue the button image if present
                     If Not .Image(.State) = 0 Then
-                        Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
-                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
+                                              .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, )
                     End If
 
                     ' Render the icon if available
                     If .Icon > 0 Then
-                        Dim gfxInfo = Client.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
+                        Dim gfxInfo = GameClient.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
                         If gfxInfo IsNot Nothing Then
                             Dim iconWidth = gfxInfo.Width
                             Dim iconHeight = gfxInfo.Height
 
-                            Client.EnqueueTexture(IO.Path.Combine(.Texture(.State), .Icon),
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Icon),
                                                   .Left + xO + .xOffset, .Top + yO + .yOffset,
-                                                  0, 0, iconWidth, iconHeight, iconWidth, iconHeight, , , , , winNum)
+                                                  0, 0, iconWidth, iconHeight, iconWidth, iconHeight, )
                         End If
                     End If
 
@@ -1186,7 +1183,7 @@ Module [Interface]
                     Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0) + padding
 
                     ' Render the button's text
-                    RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                    RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                     
                 Case EntityType.Label
                     If Len(.Text) > 0 Then
@@ -1202,7 +1199,7 @@ Module [Interface]
                                         Dim left = .Left + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1211,7 +1208,7 @@ Module [Interface]
                                     Dim left = .Left + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                 End If
 
                             Case AlignmentType.Right
@@ -1225,7 +1222,7 @@ Module [Interface]
                                         Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1234,7 +1231,7 @@ Module [Interface]
                                     Dim left = .Left + .Width - actualSize.X + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                 End If
 
                             Case AlignmentType.Center
@@ -1251,7 +1248,7 @@ Module [Interface]
                                         Dim top = .Top + yO + .yOffset + yOffset + ((.Height - actualHeight) / 2.0)
 
                                         RenderText(textArray(i), left, top,
-                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                                   .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                         yOffset += 14
                                     Next
                                 Else
@@ -1263,7 +1260,7 @@ Module [Interface]
                                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
                                     RenderText(.Text, left, top,
-                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font, winNum)
+                                               .Color, Microsoft.Xna.Framework.Color.Black, .Font)
                                 End If
                         End Select
                     End If
@@ -1290,7 +1287,7 @@ Module [Interface]
 
             Select Case .Design(0)
                 Case DesignType.ComboMenuNorm
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0, , , winNum)
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0)
 
                     ' text
                     If UBound(.List) > 0 Then
@@ -1300,16 +1297,16 @@ Module [Interface]
                         For i = 1 To UBound(.List)
                             ' render select
                             If i = .Value Or i = .Group Then
-                                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0, , , winNum)
+                                GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0)
                             End If
 
                             ' render text
                             left = x + (.Width \ 2) - (TextWidth(.List(i), .Font) \ 2)
 
                             If i = .Value Or i = .Group Then
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
+                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
                             Else
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
+                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
                             End If
                             y = y + 16
                         Next
@@ -1320,42 +1317,42 @@ Module [Interface]
             Select Case .Design(.State)
 
                 Case DesignType.Win_Black
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255, , , winNum)
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255)
 
                 Case DesignType.Win_Norm
                     ' render window
-                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height, , winNum)
-                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23, , winNum)
+                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
 
                     ' render icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, )
 
                     ' render the caption
-                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
+                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
                 Case DesignType.Win_NoBar
                     ' render window
-                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
 
                 Case DesignType.Win_Empty
                     ' render window
-                    RenderDesign(DesignType.Wood_Empty, .Left, .Top, .Width, .Height, , winNum)
-                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23, , winNum)
+                    RenderDesign(DesignType.Wood_Empty, .Left, .Top, .Width, .Height)
+                    RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
 
                     ' render the icon
-                    Client.EnqueueTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, , , , , winNum)
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, )
 
                     ' render the caption
-                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black, , winNum)
+                    RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
                 Case DesignType.Win_Desc
-                    RenderDesign(DesignType.Win_Desc, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Win_Desc, .Left, .Top, .Width, .Height)
 
                 Case DesignType.Win_Shadow
-                    RenderDesign(DesignType.Win_Shadow, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Win_Shadow, .Left, .Top, .Width, .Height)
 
                 Case DesignType.Win_Party
-                    RenderDesign(DesignType.Win_Party, .Left, .Top, .Width, .Height, , winNum)
+                    RenderDesign(DesignType.Win_Party, .Left, .Top, .Width, .Height)
             End Select
 
             If Not .OnDraw Is Nothing Then .OnDraw()
@@ -1369,189 +1366,189 @@ Module [Interface]
         Select Case design
             Case DesignType.MenuHeader
                 ' render the header
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29, windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 47, 77, 29)
 
             Case DesignType.MenuOption
                 ' render the option
-                Client.EnqueueTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98, windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Designs, "61"), left, top, 0, 0, width, height, width, height, 200, 98, 98, 98)
 
             Case DesignType.Wood
                 bs = 4
                 ' render the wood box
-                RenderEntity_Square(1, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(1, left, top, width, height, bs, alpha)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha)
 
             Case DesignType.Wood_Small
                 bs = 2
                 ' render the wood box
-                RenderEntity_Square(8, left + bs, top + bs, width, height, bs, alpha, windowID)
+                RenderEntity_Square(8, left + bs, top + bs, width, height, bs, alpha)
 
                 ' render wood texture
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), left + bs, top + bs, 100, 100, width - (bs * 2), height - (bs * 2), width - (bs * 2), height - (bs * 2), alpha)
 
             Case DesignType.Wood_Empty
                 bs = 4
                 ' render the wood box
-                RenderEntity_Square(9, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(9, left, top, width, height, bs, alpha)
 
             Case DesignType.Green
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "1"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "1"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Green_Hover
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "2"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "2"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Green_Click
                 bs = 2
                 ' render the green box
-                RenderEntity_Square(2, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(2, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "3"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "3"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "4"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "4"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red_Hover
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "5"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "5"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Red_Click
                 bs = 2
                 ' render the red box
-                RenderEntity_Square(3, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(3, left, top, width, height, bs, alpha)
 
                 ' render red gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "6"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "6"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "8"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "8"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue_Hover
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "9"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "9"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Blue_Click
                 bs = 2
                 ' render the Blue box
-                RenderEntity_Square(14, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(14, left, top, width, height, bs, alpha)
 
                 ' render Blue gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "10"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "10"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "11"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "11"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange_Hover
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "12"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "12"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Orange_Click
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(15, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(15, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "13"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "13"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Grey
                 bs = 2
                 ' render the Orange box
-                RenderEntity_Square(17, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(17, left, top, width, height, bs, alpha)
 
                 ' render Orange gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "14"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "14"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Parchment
                 bs = 20
                 ' render the parchment box
-                RenderEntity_Square(4, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(4, left, top, width, height, bs, alpha)
 
             Case DesignType.BlackOval
                 bs = 4
                 ' render the black oval
-                RenderEntity_Square(5, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(5, left, top, width, height, bs, alpha)
 
             Case DesignType.TextBlack
                 bs = 5
                 ' render the black oval
-                RenderEntity_Square(6, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(6, left, top, width, height, bs, alpha)
 
             Case DesignType.TextWhite
                 bs = 5
                 ' render the black oval
-                RenderEntity_Square(7, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(7, left, top, width, height, bs, alpha)
 
             Case DesignType.TextBlack_Sq
                 bs = 4
                 ' render the black oval
-                RenderEntity_Square(10, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(10, left, top, width, height, bs, alpha)
 
             Case DesignType.Win_Desc
                 bs = 8
                 ' render black square
-                RenderEntity_Square(11, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(11, left, top, width, height, bs, alpha)
 
             Case DesignType.DescPic
                 bs = 3
                 ' render the green box
-                RenderEntity_Square(12, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(12, left, top, width, height, bs, alpha)
 
                 ' render green gradient overlay
-                Client.EnqueueTexture(IO.Path.Combine(Path.Gradients, "7"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha, , , , windowID)
+                GameClient.RenderTexture(IO.Path.Combine(Path.Gradients, "7"), left + bs, top + bs, 0, 0, width - (bs * 2), height - (bs * 2), 128, 128, alpha)
 
             Case DesignType.Win_Shadow
                 bs = 35
                 ' render the green box
-                RenderEntity_Square(13, left - bs, top - bs, width + (bs * 2), height + (bs * 2), bs, alpha, windowID)
+                RenderEntity_Square(13, left - bs, top - bs, width + (bs * 2), height + (bs * 2), bs, alpha)
 
             Case DesignType.Win_Party
                 bs = 12
                 ' render black square
-                RenderEntity_Square(16, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(16, left, top, width, height, bs, alpha)
 
             Case DesignType.TileBox
                 bs = 4
                 ' render box
-                RenderEntity_Square(18, left, top, width, height, bs, alpha, windowID)
+                RenderEntity_Square(18, left, top, width, height, bs, alpha)
         End Select
 
     End Sub
@@ -1563,31 +1560,31 @@ Module [Interface]
         bs = borderSize
 
         ' Draw center
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + bs, bs + 1, bs + 1, width - (bs * 2), height - (bs * 2), , , alpha)
 
         ' Draw top side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha, ,  , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha, ,  , )
 
         ' Draw left side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha , , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha )
 
         ' Draw right side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha)
 
         ' Draw bottom side
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y + height - bs, bs, bs + 3, width - (bs * 2), bs, 1, bs, alpha)
 
         ' Draw top left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y, 0, 0, bs, bs, bs, bs, alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x, y, 0, 0, bs, bs, bs, bs, alpha)
 
         ' Draw top right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y, bs + 3, 0, bs, bs, bs, bs, alpha)
 
         ' Draw bottom left corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x, y + height - bs, 0, bs + 3, bs, bs, bs, bs, alpha)
 
         ' Draw bottom right corner
-        Client.EnqueueTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha, , , , windowID)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + height - bs, bs + 3, bs + 3, bs, bs, bs, bs, alpha)
     End Sub
 
     ' Trade
@@ -1610,7 +1607,7 @@ Module [Interface]
         ' make sure it exists
         If ItemNum > 0 Then
             If TradeYourOffer(ItemNum).Num = 0 Then Exit Sub
-            If GetPlayerInv(MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then Exit Sub
+            If GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then Exit Sub
 
             ' unoffer the item
             UntradeItem(ItemNum)
@@ -1634,7 +1631,7 @@ Module [Interface]
                 Exit Sub
             End If
 
-            If GetPlayerInv(MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then
+            If GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then
                 Windows(GetWindowIndex("winDescription")).Window.Visible = False
                 Exit Sub
             End If
@@ -1649,7 +1646,7 @@ Module [Interface]
             End If
 
             ' go go go
-            ShowItemDesc(X, Y, GetPlayerInv(MyIndex, TradeYourOffer(ItemNum).Num))
+            ShowItemDesc(X, Y, GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num))
         Else
             Windows(GetWindowIndex("winDescription")).Window.Visible = False
         End If
@@ -1704,7 +1701,7 @@ Module [Interface]
             Windows(GetWindowIndex("winComboMenu")).Window.Height = 2 + (UBound(.List) * 16)
             Windows(GetWindowIndex("winComboMenu")).Window.Left = Windows(curWindow).Window.Left + .Left + 2
             Top = Windows(curWindow).Window.Top + .Top + .Height
-            If Top + Windows(GetWindowIndex("winComboMenu")).Window.Height > ResolutionHeight Then Top = ResolutionHeight - Windows(GetWindowIndex("winComboMenu")).Window.Height
+            If Top + Windows(GetWindowIndex("winComboMenu")).Window.Height > GameState.ResolutionHeight Then Top = GameState.ResolutionHeight - Windows(GetWindowIndex("winComboMenu")).Window.Height
             Windows(GetWindowIndex("winComboMenu")).Window.Top = Top
             Windows(GetWindowIndex("winComboMenu")).Window.Width = .Width - 4
 
@@ -1724,7 +1721,7 @@ Module [Interface]
     Sub ComboMenu_MouseMove(curWindow As Long)
         Dim y As Long, i As Long
         With Windows(curWindow).Window
-            y = CurMouseY - .Top
+            y = GameState.CurMouseY - .Top
 
             ' find the option we're hovering over
             If UBound(.List) > 0 Then
@@ -1741,7 +1738,7 @@ Module [Interface]
         Dim y As Long, i As Long
 
         With Windows(curWindow).Window
-            y = CurMouseY - .Top
+            y = GameState.CurMouseY - .Top
 
             ' find the option we're hovering over
             If UBound(.List) > 0 Then
@@ -1922,17 +1919,17 @@ Module [Interface]
     End Sub
 
     Public Sub btnCreateChar_1()
-        CharNum = 1
+        GameState.CharNum = 1
         ShowJobs()
     End Sub
 
     Public Sub btnCreateChar_2()
-        CharNum = 2
+        GameState.CharNum = 2
         ShowJobs()
     End Sub
 
     Public Sub btnCreateChar_3()
-        CharNum = 3
+        GameState.CharNum = 3
         ShowJobs()
     End Sub
 
@@ -1952,9 +1949,9 @@ Module [Interface]
         yO = Windows(GetWindowIndex("winBars")).Window.Top
 
         ' Bars
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, BarWidth_GuiHP, 13, BarWidth_GuiHP, 13, , , , , GetWindowIndex("winBars"))
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 28), xO + 15, yO + 32, 0, 0, BarWidth_GuiSP, 13, BarWidth_GuiSP, 13, , , , , GetWindowIndex("winBars"))
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 29), xO + 15, yO + 49, 0, 0, BarWidth_GuiEXP, 13, BarWidth_GuiEXP, 13, , , , GetWindowIndex("winBars"))
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, GameState.BarWidth_GuiHP, 13, GameState.BarWidth_GuiHP, 13)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 28), xO + 15, yO + 32, 0, 0, GameState.BarWidth_GuiSP, 13, GameState.BarWidth_GuiSP, 13)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 29), xO + 15, yO + 49, 0, 0, GameState.BarWidth_GuiEXP, 13, GameState.BarWidth_GuiEXP, 13)
     End Sub
 
     ' #######################
@@ -1973,26 +1970,25 @@ Module [Interface]
 
         ' Loop through all characters and render them if they exist
         For I = 1 To MAX_CHARS
-            If CharName(I) <> "" Then ' Ensure character name exists
-                If CharSprite(I) > 0 Then ' Ensure character sprite is valid
+            If GameState.CharName(I) <> "" Then ' Ensure character name exists
+                If GameState.CharSprite(I) > 0 Then ' Ensure character sprite is valid
                     ' Define the rectangle for the character sprite
                     Dim rect As New Rectangle(
-                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
-                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4,
-                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Width / 4,
-                         Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, CharSprite(I))).Height / 4
+                        GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GameState.CharSprite(I))).Width / 4,
+                        GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GameState.CharSprite(I))).Height / 4,
+                        GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GameState.CharSprite(I))).Width / 4,
+                        GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GameState.CharSprite(I))).Height / 4
                     )
 
                     ' Ensure the sprite index is within bounds
-                    If CharSprite(I) <= NumCharacters Then
+                    If GameState.CharSprite(I) <= GameState.NumCharacters Then
                         ' Render the character sprite
-                        Client.EnqueueTexture(
-                            IO.Path.Combine(Core.Path.Characters, CharSprite(I)),
+                        GameClient.RenderTexture(
+                            IO.Path.Combine(Core.Path.Characters, GameState.CharSprite(I)),
                             x + 30, yO + 100,
                             0, 0,
                             rect.Width, rect.Height,
-                            rect.Width, rect.Height,
-                            , , , , GetWindowIndex("WinChars")
+                            rect.Width, rect.Height
                         )
                     End If
                 End If
@@ -2015,10 +2011,10 @@ Module [Interface]
         yO = Windows(GetWindowIndex("winJob")).Window.Top
 
         ' Ensure a valid job is selected
-        If newCharJob = 0 Then newCharJob = 1
+        If GameState.newCharJob = 0 Then GameState.newCharJob = 1
 
         ' Determine character image based on job
-        Select Case newCharJob
+        Select Case GameState.newCharJob
             Case 1 ' Warrior
                 imageChar = 1
             Case 2 ' Wizard
@@ -2028,12 +2024,12 @@ Module [Interface]
         End Select
 
         ' Render the character's face
-        Dim gfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
+        Dim gfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
         If gfxInfo Is Nothing Then
             Return ' Or skip this frame to avoid the crash
         End If
 
-        Client.EnqueueTexture(
+        GameClient.RenderTexture(
             IO.Path.Combine(Core.Path.Characters, imageChar),
             xO + 50, yO + 90,
             0, 0,
@@ -2053,8 +2049,8 @@ Module [Interface]
         yO = Windows(GetWindowIndex("winJob")).Window.Top
 
         ' Get job description or use default
-        If Type.Job(newCharJob).Desc = "" Then
-            Select Case newCharJob
+        If Type.Job(GameState.newCharJob).Desc = "" Then
+            Select Case GameState.newCharJob
                 Case 1 ' Warrior
                     text = "The way of a warrior has never been an easy one. ..."
                 Case 2 ' Wizard
@@ -2063,7 +2059,7 @@ Module [Interface]
                     text = "The art of healing comes with pressure and guilt, ..."
             End Select
         Else
-            text = Type.Job(newCharJob).Desc
+            text = Type.Job(GameState.newCharJob).Desc
         End If
 
         ' Wrap text to fit within 330 pixels
@@ -2086,28 +2082,27 @@ Module [Interface]
 
     Public Sub btnJobs_Left()
         ' Move to the previous job
-        newCharJob -= 1
-        If newCharJob <= 0 Then newCharJob = 1
+        GameState.newCharJob -= 1
+        If GameState.newCharJob <= 0 Then GameState.newCharJob = 1
 
         ' Update class name display
         Windows(GetWindowIndex("winJob")).Controls(
             GetControlIndex("winJob", "lblClassName")
-        ).Text = Type.Job(newCharJob).Name
+        ).Text = Type.Job(GameState.newCharJob).Name
     End Sub
 
     Public Sub btnJobs_Right()
         ' Exit if the job is invalid or exceeds limits
-        If newCharJob > MAX_JOBS OrElse (Type.Job(newCharJob).Desc = "" And newCharJob >= 3) Then Exit Sub
+        If GameState.newCharJob > MAX_JOBS OrElse (Type.Job(GameState.newCharJob).Desc = "" And GameState.newCharJob >= 3) Then Exit Sub
 
         ' Move to the next job
-        newCharJob += 1
+        GameState.newCharJob += 1
 
         ' Update class name display
         Windows(GetWindowIndex("winJob")).Controls(
             GetControlIndex("winJob", "lblClassName")
-        ).Text = Type.Job(newCharJob).Name
+        ).Text = Type.Job(GameState.newCharJob).Name
     End Sub
-
 
     Public Sub btnJobs_Accept()
         HideWindow(GetWindowIndex("winJob"))
@@ -2134,8 +2129,8 @@ Module [Interface]
         RenderDesign(DesignType.Win_Desc, xO, yO, 352, 152)
 
         ' draw the input box
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22, , , , , winIndex)
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22, , , , , winIndex)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22)
 
         ' call the chat render
         DrawChat()
@@ -2146,11 +2141,11 @@ Module [Interface]
 
         winIndex = GetWindowIndex("winChatSmall")
 
-        If actChatWidth < 160 Then actChatWidth = 160
-        If actChatHeight < 10 Then actChatHeight = 10
+        If GameState.actChatWidth < 160 Then GameState.actChatWidth = 160
+        If GameState.actChatHeight < 10 Then GameState.actChatHeight = 10
 
         xO = Windows(winIndex).Window.Left + 10
-        yO = ResolutionHeight - 10
+        yO = GameState.ResolutionHeight - 10
 
         ' draw the background
         RenderDesign(DesignType.Win_Shadow, xO, yO, 160, 10, , winIndex)
@@ -2187,19 +2182,19 @@ Module [Interface]
     End Sub
 
     Public Sub btnChat_Up()
-        ChatButtonUp = True
+        GameState.ChatButtonUp = True
     End Sub
 
     Public Sub btnChat_Down()
-        ChatButtonDown = True
+        GameState.ChatButtonDown = True
     End Sub
 
     Public Sub btnChat_Up_MouseUp()
-        ChatButtonUp = False
+        GameState.ChatButtonUp = False
     End Sub
 
     Public Sub btnChat_Down_MouseUp()
-        ChatButtonDown = False
+        GameState.ChatButtonDown = False
     End Sub
 
     ' ###################
@@ -2211,15 +2206,15 @@ Module [Interface]
         xO = Windows(GetWindowIndex("winNewChar")).Window.Left
         yO = Windows(GetWindowIndex("winNewChar")).Window.Top
 
-        If newCharGender = SexType.Male Then
-            imageFace = Type.Job(newCharJob).MaleSprite
-            imageChar = Type.Job(newCharJob).MaleSprite
+        If GameState.newCharGender = SexType.Male Then
+            imageFace = Type.Job(GameState.newCharJob).MaleSprite
+            imageChar = Type.Job(GameState.newCharJob).MaleSprite
         Else
-            imageFace = Type.Job(newCharJob).FemaleSprite
-            imageChar = Type.Job(newCharJob).FemaleSprite
+            imageFace = Type.Job(GameState.newCharJob).FemaleSprite
+            imageChar = Type.Job(GameState.newCharJob).FemaleSprite
         End If
 
-        Dim gfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
+        Dim gfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
         If gfxInfo Is Nothing Then
             Return ' Or handle this case gracefully
         End If
@@ -2232,52 +2227,52 @@ Module [Interface]
             )
 
         ' render char
-        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Characters, imageChar), xO + 190, yO + 100, 0, 0, rect.Width, rect.Height, rect.Width, rect.Height, , , , , GetWindowIndex("winNewChar"))
+        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Characters, imageChar), xO + 190, yO + 100, 0, 0, rect.Width, rect.Height, rect.Width, rect.Height)
     End Sub
 
     Public Sub btnNewChar_Left()
         Dim spriteCount As Long
 
-        If newCharGender = SexType.Male Then
-            spriteCount = Type.Job(newCharJob).MaleSprite
+        If GameState.newCharGender = SexType.Male Then
+            spriteCount = Type.Job(GameState.newCharJob).MaleSprite
         Else
-            spriteCount = Type.Job(newCharJob).FemaleSprite
+            spriteCount = Type.Job(GameState.newCharJob).FemaleSprite
         End If
 
-        If newCharSprite <= 0 Then
-            newCharSprite = spriteCount
+        If GameState.newCharSprite <= 0 Then
+            GameState.newCharSprite = spriteCount
         Else
-            newCharSprite = newCharSprite - 1
+            GameState.newCharSprite = GameState.newCharSprite - 1
         End If
     End Sub
 
     Public Sub btnNewChar_Right()
         Dim spriteCount As Long
 
-        If newCharGender = SexType.Male Then
-            spriteCount = Type.Job(newCharJob).MaleSprite
+        If GameState.newCharGender = SexType.Male Then
+            spriteCount = Type.Job(GameState.newCharJob).MaleSprite
         Else
-            spriteCount = Type.Job(newCharJob).FemaleSprite
+            spriteCount = Type.Job(GameState.newCharJob).FemaleSprite
         End If
 
-        If newCharSprite >= spriteCount Then
-            newCharSprite = 0
+        If GameState.newCharSprite >= spriteCount Then
+            GameState.newCharSprite = 0
         Else
-            newCharSprite = newCharSprite + 1
+            GameState.newCharSprite = GameState.newCharSprite + 1
         End If
     End Sub
 
     Public Sub chkNewChar_Male()
-        newCharSprite = 1
-        newCharGender = SexType.Male
+        GameState.newCharSprite = 1
+        GameState.newCharGender = SexType.Male
         If Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkMale")).Value = 1 Then
             Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkFemale")).Value = 0
         End If
     End Sub
 
     Public Sub chkNewChar_Female()
-        newCharSprite = 1
-        newCharGender = SexType.Female
+        GameState.newCharSprite = 1
+        GameState.newCharGender = SexType.Female
         If Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkFemale")).Value = 1 Then
             Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkMale")).Value = 0
         End If
@@ -2287,8 +2282,8 @@ Module [Interface]
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "txtName")).Text = ""
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkMale")).Value = 1
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkFemale")).Value = 0
-        newCharSprite = 1
-        newCharGender = SexType.Male
+        GameState.newCharSprite = 1
+        GameState.newCharGender = SexType.Male
         HideWindows()
         ShowWindow(GetWindowIndex("winJob"))
     End Sub
@@ -2297,16 +2292,16 @@ Module [Interface]
         Dim name As String
         name = Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "txtName")).Text
         HideWindows()
-        AddChar(name, newCharGender, newCharJob, newCharSprite)
+        AddChar(name, GameState.newCharGender, GameState.newCharJob, GameState.newCharSprite)
     End Sub
 
     ' #####################
     ' ## Dialogue Window ##
     ' #####################
     Public Sub btnDialogue_Close()
-        If diaStyle = DialogueStyle.Okay Then
+        If GameState.diaStyle = DialogueStyle.Okay Then
             DialogueHandler(1)
-        ElseIf diaStyle = DialogueStyle.YesNo Then
+        ElseIf GameState.diaStyle = DialogueStyle.YesNo Then
             DialogueHandler(3)
         End If
     End Sub
@@ -2324,7 +2319,7 @@ Module [Interface]
             ' drag it
             With DragBox
                 .Type = PartType.Item
-                .Value = GetPlayerInv(MyIndex, invNum)
+                .Value = GetPlayerInv(GameState.MyIndex, invNum)
                 .Origin = PartOriginType.Inventory
                 .Slot = invNum
             End With
@@ -2332,10 +2327,10 @@ Module [Interface]
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex).Window
                 .State = EntState.MouseDown
-                .Left = CurMouseX - 16
-                .Top = CurMouseY - 16
-                .movedX = CurMouseX - .Left
-                .movedY = CurMouseY - .Top
+                .Left = GameState.CurMouseX - 16
+                .Top = GameState.CurMouseY - 16
+                .movedX = GameState.CurMouseX - .Left
+                .movedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2353,12 +2348,12 @@ Module [Interface]
         invNum = IsInv(Windows(GetWindowIndex("winInventory")).Window.Left, Windows(GetWindowIndex("winInventory")).Window.Top)
 
         If invNum > 0 Then
-            If InBank Then
-                DepositItem(invNum, GetPlayerInvValue(MyIndex, invNum))
+            If GameState.InBank Then
+                DepositItem(invNum, GetPlayerInvValue(GameState.MyIndex, invNum))
                 Exit Sub
             End If
 
-            If InShop > 0 Then
+            If GameState.InShop > 0 Then
                 SellItem(invNum)
                 Exit Sub
             End If
@@ -2368,9 +2363,9 @@ Module [Interface]
                 For I = 1 To MAX_INV
                     If TradeYourOffer(I).Num = invNum Then
                         ' is currency?
-                        If Type.Item(GetPlayerInv(MyIndex, TradeYourOffer(I).Num)).Type = ItemType.Currency Then
+                        If Type.Item(GetPlayerInv(GameState.MyIndex, TradeYourOffer(I).Num)).Type = ItemType.Currency Then
                             ' only exit out if we're offering all of it
-                            If TradeYourOffer(I).Value = GetPlayerInvValue(MyIndex, TradeYourOffer(I).Num) Then
+                            If TradeYourOffer(I).Value = GetPlayerInvValue(GameState.MyIndex, TradeYourOffer(I).Num) Then
                                 Exit Sub
                             End If
                         Else
@@ -2380,7 +2375,7 @@ Module [Interface]
                 Next
 
                 ' currency handler
-                If Type.Item(GetPlayerInv(MyIndex, invNum)).Type = ItemType.Currency Then
+                If Type.Item(GetPlayerInv(GameState.MyIndex, invNum)).Type = ItemType.Currency Then
                     Dialogue("Select Amount", "Please choose how many to offer.", "", DialogueType.TradeAmount, DialogueStyle.Input, invNum)
                     Exit Sub
                 End If
@@ -2409,9 +2404,9 @@ Module [Interface]
                 For i = 1 To MAX_INV
                     If TradeYourOffer(i).Num = itemNum Then
                         ' is currency?
-                        If Type.Item(GetPlayerInv(MyIndex, TradeYourOffer(i).Num)).Type = ItemType.Currency Then
+                        If Type.Item(GetPlayerInv(GameState.MyIndex, TradeYourOffer(i).Num)).Type = ItemType.Currency Then
                             ' only exit out if we're offering all of it
-                            If TradeYourOffer(i).Value = GetPlayerInvValue(MyIndex, TradeYourOffer(i).Num) Then
+                            If TradeYourOffer(i).Value = GetPlayerInvValue(GameState.MyIndex, TradeYourOffer(i).Num) Then
                                 Exit Sub
                             End If
                         Else
@@ -2472,7 +2467,7 @@ Module [Interface]
                 X = Windows(GetWindowIndex("winBank")).Window.Left + Windows(GetWindowIndex("winBank")).Window.Width
             End If
 
-            ShowItemDesc(X, Y, GetBank(MyIndex, ItemNum))
+            ShowItemDesc(X, Y, GetBank(GameState.MyIndex, ItemNum))
         Else
             Windows(GetWindowIndex("winDescription")).Window.Visible = False
         End If
@@ -2490,7 +2485,7 @@ Module [Interface]
             ' drag it
             With DragBox
                 .Type = PartType.Item
-                .Value = GetBank(MyIndex, BankSlot)
+                .Value = GetBank(GameState.MyIndex, BankSlot)
                 .Origin = PartOriginType.Bank
 
                 .Slot = BankSlot
@@ -2499,10 +2494,10 @@ Module [Interface]
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex).Window
                 .State = EntState.MouseDown
-                .Left = CurMouseX - 16
-                .Top = CurMouseY - 16
-                .movedX = CurMouseX - .Left
-                .movedY = CurMouseY - .Top
+                .Left = GameState.CurMouseX - 16
+                .Top = GameState.CurMouseY - 16
+                .movedX = GameState.CurMouseX - .Left
+                .movedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2521,7 +2516,7 @@ Module [Interface]
         BankSlot = IsBank(Windows(GetWindowIndex("winBank")).Window.Left, Windows(GetWindowIndex("winBank")).Window.Top)
 
         If BankSlot > 0 Then
-            WithdrawItem(BankSlot, GetBankValue(MyIndex, BankSlot))
+            WithdrawItem(BankSlot, GetBankValue(GameState.MyIndex, BankSlot))
             Exit Sub
         End If
 
@@ -2546,13 +2541,13 @@ Module [Interface]
                 Case PartType.Item
                     If .Value Then
                         texNum = Type.Item(.Value).Icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO, yO, 0, 0, 32, 32, 32, 32, , , , , winIndex)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, texNum), xO, yO, 0, 0, 32, 32, 32, 32)
                     End If
 
                 Case PartType.Skill
                     If .Value Then
                         texNum = Type.Skill(.Value).Icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO, yO, 0, 0, 32, 32, 32, 32, , , , , winIndex)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO, yO, 0, 0, 32, 32, 32, 32)
                     End If
             End Select
         End With
@@ -2571,8 +2566,8 @@ Module [Interface]
                 If .Visible Then
                     ' can't drag to self
                     If .Name <> "winDragBox" Then
-                        If CurMouseX >= .Left And CurMouseX <= .Left + .Width Then
-                            If CurMouseY >= .Top And CurMouseY <= .Top + .Height Then
+                        If GameState.CurMouseX >= .Left And GameState.CurMouseX <= .Left + .Width Then
+                            If GameState.CurMouseY >= .Top And GameState.CurMouseY <= .Top + .Height Then
                                 If curWindow = 0 Then curWindow = I
                                 If .zOrder > Windows(curWindow).Window.zOrder Then curWindow = I
                             End If
@@ -2591,14 +2586,14 @@ Module [Interface]
                             ' find the slot to switch with
                             For I = 1 To MAX_BANK
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + BankTop + ((BankOffsetY + 32) * ((I - 1) \ BankColumns))
+                                    .Top = Windows(curWindow).Window.Top + GameState.BankTop + ((GameState.BankOffsetY + 32) * ((I - 1) \ GameState.BankColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + BankLeft + ((BankOffsetX + 32) * (((I - 1) Mod BankColumns)))
+                                    .Left = Windows(curWindow).Window.Left + GameState.BankLeft + ((GameState.BankOffsetX + 32) * (((I - 1) Mod GameState.BankColumns)))
                                     .Right = .Left + 32
                                 End With
 
-                                If CurMouseX >= tmpRec.Left And CurMouseX <= tmpRec.Right Then
-                                    If CurMouseY >= tmpRec.Top And CurMouseY <= tmpRec.Bottom Then
+                                If GameState.CurMouseX >= tmpRec.Left And GameState.CurMouseX <= tmpRec.Right Then
+                                    If GameState.CurMouseY >= tmpRec.Top And GameState.CurMouseY <= tmpRec.Bottom Then
                                         ' switch the slots
                                         If DragBox.Slot <> I Then
                                             ChangeBankSlots(DragBox.Slot, I)
@@ -2613,7 +2608,7 @@ Module [Interface]
                     If DragBox.Origin = PartOriginType.Inventory Then
                         If DragBox.Type = PartType.Item Then
 
-                            If Type.Item(GetPlayerInv(MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
+                            If Type.Item(GetPlayerInv(GameState.MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
                                 DepositItem(DragBox.Slot, 1)
                             Else
                                 Dialogue("Deposit Item", "Enter the deposit quantity.", "", DialogueType.DepositItem, DialogueStyle.Input, DragBox.Slot)
@@ -2629,14 +2624,14 @@ Module [Interface]
                             ' find the slot to switch with
                             For I = 1 To MAX_INV
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + InvTop + ((InvOffsetY + 32) * ((I - 1) \ InvColumns))
+                                    .Top = Windows(curWindow).Window.Top + GameState.InvTop + ((GameState.InvOffsetY + 32) * ((I - 1) \ GameState.InvColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + InvLeft + ((InvOffsetX + 32) * (((I - 1) Mod InvColumns)))
+                                    .Left = Windows(curWindow).Window.Left + GameState.InvLeft + ((GameState.InvOffsetX + 32) * (((I - 1) Mod GameState.InvColumns)))
                                     .Right = .Left + 32
                                 End With
 
-                                If CurMouseX >= tmpRec.Left And CurMouseX <= tmpRec.Right Then
-                                    If CurMouseY >= tmpRec.Top And CurMouseY <= tmpRec.Bottom Then
+                                If GameState.CurMouseX >= tmpRec.Left And GameState.CurMouseX <= tmpRec.Right Then
+                                    If GameState.CurMouseY >= tmpRec.Top And GameState.CurMouseY <= tmpRec.Bottom Then
                                         ' switch the slots
                                         If DragBox.Slot <> I Then SendChangeInvSlots(DragBox.Slot, I)
                                         Exit For
@@ -2649,7 +2644,7 @@ Module [Interface]
                     If DragBox.Origin = PartOriginType.Bank Then
                         If DragBox.Type = PartType.Item Then
 
-                            If Type.Item(GetBank(MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
+                            If Type.Item(GetBank(GameState.MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
                                 WithdrawItem(DragBox.Slot, 0)
                             Else
                                 Dialogue("Withdraw Item", "Enter the amount you wish to withdraw.", "", DialogueType.WithdrawItem, DialogueStyle.Input, DragBox.Slot)
@@ -2664,14 +2659,14 @@ Module [Interface]
                             ' find the slot to switch with
                             For I = 1 To MAX_PLAYER_SKILLS
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + SkillTop + ((SkillOffsetY + 32) * ((I - 1) \ SkillColumns))
+                                    .Top = Windows(curWindow).Window.Top + GameState.SkillTop + ((GameState.SkillOffsetY + 32) * ((I - 1) \ GameState.SkillColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + SkillLeft + ((SkillOffsetX + 32) * (((I - 1) Mod SkillColumns)))
+                                    .Left = Windows(curWindow).Window.Left + GameState.SkillLeft + ((GameState.SkillOffsetX + 32) * (((I - 1) Mod GameState.SkillColumns)))
                                     .Right = .Left + 32
                                 End With
 
-                                If CurMouseX >= tmpRec.Left And CurMouseX <= tmpRec.Right Then
-                                    If CurMouseY >= tmpRec.Top And CurMouseY <= tmpRec.Bottom Then
+                                If GameState.CurMouseX >= tmpRec.Left And GameState.CurMouseX <= tmpRec.Right Then
+                                    If GameState.CurMouseY >= tmpRec.Top And GameState.CurMouseY <= tmpRec.Bottom Then
                                         ' switch the slots
                                         If DragBox.Slot <> I Then SendChangeSkillSlots(DragBox.Slot, I)
                                         Exit For
@@ -2687,14 +2682,14 @@ Module [Interface]
                             ' find the slot
                             For I = 1 To MAX_Hotbar
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + HotbarTop
+                                    .Top = Windows(curWindow).Window.Top + GameState.HotbarTop
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + HotbarLeft + ((I - 1) * HotbarOffsetX)
+                                    .Left = Windows(curWindow).Window.Left + GameState.HotbarLeft + ((I - 1) * GameState.HotbarOffsetX)
                                     .Right = .Left + 32
                                 End With
 
-                                If CurMouseX >= tmpRec.Left And CurMouseX <= tmpRec.Right Then
-                                    If CurMouseY >= tmpRec.Top And CurMouseY <= tmpRec.Bottom Then
+                                If GameState.CurMouseX >= tmpRec.Left And GameState.CurMouseX <= tmpRec.Right Then
+                                    If GameState.CurMouseY >= tmpRec.Top And GameState.CurMouseY <= tmpRec.Bottom Then
                                         ' set the Hotbar slot
                                         If DragBox.Origin <> PartOriginType.Hotbar Then
                                             If DragBox.Type = PartType.Item Then
@@ -2716,8 +2711,8 @@ Module [Interface]
             ' no windows found - dropping on bare map
             Select Case DragBox.Origin
                 Case PartOriginType.Inventory
-                    If Type.Item(GetPlayerInv(MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
-                        SendDropItem(DragBox.Slot, GetPlayerInv(MyIndex, DragBox.Slot))
+                    If Type.Item(GetPlayerInv(GameState.MyIndex, DragBox.Slot)).Type <> ItemType.Currency Then
+                        SendDropItem(DragBox.Slot, GetPlayerInv(GameState.MyIndex, DragBox.Slot))
                     Else
                         Dialogue("Drop Item", "Please choose how many to drop.", "", DialogueType.DropItem, DialogueStyle.Input, DragBox.Slot)
                     End If
@@ -2753,7 +2748,7 @@ Module [Interface]
         If slotNum Then
             With DragBox
                 .Type = PartType.Skill
-                .Value = Type.Player(MyIndex).Skill(slotNum).Num
+                .Value = Type.Player(GameState.MyIndex).Skill(slotNum).Num
                 .Origin = PartOriginType.Skill
                 .Slot = slotNum
             End With
@@ -2761,10 +2756,10 @@ Module [Interface]
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex).Window
                 .State = EntState.MouseDown
-                .Left = CurMouseX - 16
-                .Top = CurMouseY - 16
-                .movedX = CurMouseX - .Left
-                .movedY = CurMouseY - .Top
+                .Left = GameState.CurMouseX - 16
+                .Top = GameState.CurMouseY - 16
+                .movedX = GameState.CurMouseX - .Left
+                .movedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2811,7 +2806,7 @@ Module [Interface]
             End If
 
             ' go go go
-            ShowSkillDesc(x, y, GetPlayerSkill(MyIndex, slotNum), slotNum)
+            ShowSkillDesc(x, y, GetPlayerSkill(GameState.MyIndex, slotNum), slotNum)
         Else
             Windows(GetWindowIndex("winDescription")).Window.Visible = False
         End If
@@ -2828,12 +2823,12 @@ Module [Interface]
 
         If slotNum > 0 Then
             With DragBox
-                If Type.Player(MyIndex).Hotbar(slotNum).SlotType = 1 Then ' inventory
+                If Type.Player(GameState.MyIndex).Hotbar(slotNum).SlotType = 1 Then ' inventory
                     .Type = PartOriginsType.Inventory
-                ElseIf Type.Player(MyIndex).Hotbar(slotNum).SlotType = 2 Then ' Skill
+                ElseIf Type.Player(GameState.MyIndex).Hotbar(slotNum).SlotType = 2 Then ' Skill
                     .Type = PartOriginsType.Skill
                 End If
-                .Value = Type.Player(MyIndex).Hotbar(slotNum).Slot
+                .Value = Type.Player(GameState.MyIndex).Hotbar(slotNum).Slot
                 .Origin = PartOriginType.Hotbar
                 .Slot = slotNum
             End With
@@ -2841,10 +2836,10 @@ Module [Interface]
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex).Window
                 .State = EntState.MouseDown
-                .Left = CurMouseX - 16
-                .Top = CurMouseY - 16
-                .movedX = CurMouseX - .Left
-                .movedY = CurMouseY - .Top
+                .Left = GameState.CurMouseX - 16
+                .Top = GameState.CurMouseY - 16
+                .movedX = GameState.CurMouseX - .Left
+                .movedY = GameState.CurMouseY - .Top
             End With
             ShowWindow(winIndex, , False)
 
@@ -2890,11 +2885,11 @@ Module [Interface]
             End If
 
             ' go go go
-            Select Case Type.Player(MyIndex).Hotbar(slotNum).SlotType
+            Select Case Type.Player(GameState.MyIndex).Hotbar(slotNum).SlotType
                 Case 1 ' inventory
-                    ShowItemDesc(x, y, Type.Player(MyIndex).Hotbar(slotNum).Slot)
+                    ShowItemDesc(x, y, Type.Player(GameState.MyIndex).Hotbar(slotNum).Slot)
                 Case 2 ' skill
-                    ShowSkillDesc(x, y, Type.Player(MyIndex).Hotbar(slotNum).Slot, 0)
+                    ShowSkillDesc(x, y, Type.Player(GameState.MyIndex).Hotbar(slotNum).Slot, 0)
             End Select
         Else
             Windows(GetWindowIndex("winDescription")).Window.Visible = False
@@ -2916,9 +2911,9 @@ Module [Interface]
     Sub UpdateStats_UI()
         ' set the bar labels
         With Windows(GetWindowIndex("winBars"))
-            .Controls(GetControlIndex("winBars", "lblHP")).Text = GetPlayerVital(MyIndex, VitalType.HP) & "/" & GetPlayerMaxVital(MyIndex, VitalType.HP)
-            .Controls(GetControlIndex("winBars", "lblMP")).Text = GetPlayerVital(MyIndex, VitalType.SP) & "/" & GetPlayerMaxVital(MyIndex, VitalType.SP)
-            .Controls(GetControlIndex("winBars", "lblEXP")).Text = GetPlayerExp(MyIndex) & "/" & NextlevelExp
+            .Controls(GetControlIndex("winBars", "lblHP")).Text = GetPlayerVital(GameState.MyIndex, VitalType.HP) & "/" & GetPlayerMaxVital(GameState.MyIndex, VitalType.HP)
+            .Controls(GetControlIndex("winBars", "lblMP")).Text = GetPlayerVital(GameState.MyIndex, VitalType.SP) & "/" & GetPlayerMaxVital(GameState.MyIndex, VitalType.SP)
+            .Controls(GetControlIndex("winBars", "lblEXP")).Text = GetPlayerExp(GameState.MyIndex) & "/" & GameState.NextlevelExp
         End With
 
         ' update character screen
@@ -2926,9 +2921,9 @@ Module [Interface]
             .Controls(GetControlIndex("winCharacter", "lblHealth")).Text = "Health"
             .Controls(GetControlIndex("winCharacter", "lblSpirit")).Text = "Spirit"
             .Controls(GetControlIndex("winCharacter", "lblExperience")).Text = "Exp"
-            .Controls(GetControlIndex("winCharacter", "lblHealth2")).Text = GetPlayerVital(MyIndex, VitalType.HP) & "/" & GetPlayerMaxVital(MyIndex, VitalType.HP)
-            .Controls(GetControlIndex("winCharacter", "lblSpirit2")).Text = GetPlayerVital(MyIndex, VitalType.SP) & "/" & GetPlayerMaxVital(MyIndex, VitalType.SP)
-            .Controls(GetControlIndex("winCharacter", "lblExperience2")).Text = Type.Player(MyIndex).Exp & "/" & NextlevelExp
+            .Controls(GetControlIndex("winCharacter", "lblHealth2")).Text = GetPlayerVital(GameState.MyIndex, VitalType.HP) & "/" & GetPlayerMaxVital(GameState.MyIndex, VitalType.HP)
+            .Controls(GetControlIndex("winCharacter", "lblSpirit2")).Text = GetPlayerVital(GameState.MyIndex, VitalType.SP) & "/" & GetPlayerMaxVital(GameState.MyIndex, VitalType.SP)
+            .Controls(GetControlIndex("winCharacter", "lblExperience2")).Text = Type.Player(GameState.MyIndex).Exp & "/" & GameState.NextlevelExp
 
         End With
     End Sub
@@ -2984,7 +2979,7 @@ Module [Interface]
 
     Public Sub CreateWindow_Chat()
         ' Create window
-        CreateWindow("winChat", "", FontType.Georgia, zOrder_Win, 8, ResolutionHeight - 178, 352, 152, 0, False, , , , , , , , , , , , , , , False)
+        CreateWindow("winChat", "", FontType.Georgia, zOrder_Win, 8, GameState.ResolutionHeight - 178, 352, 152, 0, False, , , , , , , , , , , , , , , False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
@@ -3046,7 +3041,7 @@ Module [Interface]
 
     Public Sub CreateWindow_Menu()
         ' Create window
-        CreateWindow("winMenu", "", FontType.Georgia, zOrder_Win, ResolutionWidth - 229, ResolutionHeight - 31, 229, 31, 0, False, , , , , , , , , , , , , , , , , False, False)
+        CreateWindow("winMenu", "", FontType.Georgia, zOrder_Win, GameState.ResolutionWidth - 229, GameState.ResolutionHeight - 31, 229, 31, 0, False, , , , , , , , , , , , , , , , , False, False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
@@ -3177,23 +3172,23 @@ Module [Interface]
     Public Sub DrawCharacter()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, sprite As Long, itemNum As Long, ItemIcon As Long
 
-        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
         
         xO = Windows(GetWindowIndex("winCharacter")).Window.Left
         yO = Windows(GetWindowIndex("winCharacter")).Window.Top
 
         ' Render bottom
-        Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "37"), xO + 4, yO + 314, 0, 0, 40, 38, 40, 38)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "37"), xO + 44, yO + 314, 0, 0, 40, 38, 40, 38)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "37"), xO + 84, yO + 314, 0, 0, 40, 38, 40, 38)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "37"), xO + 124, yO + 314, 0, 0, 46, 38, 46, 38)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "37"), xO + 4, yO + 314, 0, 0, 40, 38, 40, 38)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "37"), xO + 44, yO + 314, 0, 0, 40, 38, 40, 38)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "37"), xO + 84, yO + 314, 0, 0, 40, 38, 40, 38)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "37"), xO + 124, yO + 314, 0, 0, 46, 38, 46, 38)
 
         ' render top wood
-        Client.EnqueueTexture(IO.Path.Combine(Path.Gui, "1"), xO + 4, yO + 23, 100, 100, 166, 291, 166, 291)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), xO + 4, yO + 23, 100, 100, 166, 291, 166, 291)
 
         ' loop through equipment
         For i = 1 To EquipmentType.Count - 1
-            itemNum = GetPlayerEquipment(MyIndex, i)
+            itemNum = GetPlayerEquipment(GameState.MyIndex, i)
 
             If itemNum > 0 Then
                 ' get the item sprite
@@ -3201,9 +3196,9 @@ Module [Interface]
                     ItemIcon = Type.Item(itemNum).Icon
                 End If
 
-                yO = Windows(GetWindowIndex("winCharacter")).Window.Top + EqTop
-                xO = Windows(GetWindowIndex("winCharacter")).Window.Left + EqLeft + ((EqOffsetX + 32) * (((i - 1) Mod EqColumns)))
-                Client.EnqueueTexture(IO.Path.Combine(Path.Items, ItemIcon), xO, yO, 0, 0, 32, 32, 32, 32)
+                yO = Windows(GetWindowIndex("winCharacter")).Window.Top + GameState.EqTop
+                xO = Windows(GetWindowIndex("winCharacter")).Window.Left + GameState.EqLeft + ((GameState.EqOffsetX + 32) * (((i - 1) Mod GameState.EqColumns)))
+                GameClient.RenderTexture(IO.Path.Combine(Path.Items, ItemIcon), xO, yO, 0, 0, 32, 32, 32, 32)
             End If
         Next
     End Sub
@@ -3282,7 +3277,7 @@ Module [Interface]
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, itemNum As Long, ItemIcon As Long, x As Long, Top As Long, Left As Long, Amount As String
         Dim Color As Microsoft.Xna.Framework.Color, skipItem As Boolean, amountModifier As Long, tmpItem As Long
 
-        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
         
         xO = Windows(GetWindowIndex("winInventory")).Window.Left
         yO = Windows(GetWindowIndex("winInventory")).Window.Top
@@ -3290,7 +3285,7 @@ Module [Interface]
         Height = Windows(GetWindowIndex("winInventory")).Window.Height
 
         ' render green
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -3299,18 +3294,18 @@ Module [Interface]
         ' render grid - row
         For i = 1 To 4
             If i = 4 Then Height = 38
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
             y = y + 76
         Next
 
         ' render bottom wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), xO + 4, yO + 289, 100, 100, 194, 26, 194, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), xO + 4, yO + 289, 100, 100, 194, 26, 194, 26)
 
         ' actually draw the icons
         For i = 1 To MAX_INV
-            itemNum = GetPlayerInv(MyIndex, i)
+            itemNum = GetPlayerInv(GameState.MyIndex, i)
             StreamItem(itemNum)
 
             If itemNum > 0 And itemNum <= MAX_ITEMS Then
@@ -3322,7 +3317,7 @@ Module [Interface]
                     amountModifier = 0
                     If InTrade > 0 Then
                         For x = 1 To MAX_INV
-                            tmpItem = GetPlayerInv(MyIndex, TradeYourOffer(x).Num)
+                            tmpItem = GetPlayerInv(GameState.MyIndex, TradeYourOffer(x).Num)
                             If TradeYourOffer(x).Num = i Then
                                 ' check if currency
                                 If Not Type.Item(tmpItem).Type = ItemType.Currency Then
@@ -3330,7 +3325,7 @@ Module [Interface]
                                     skipItem = True
                                 Else
                                     ' if amount = all currency, remove from inventory
-                                    If TradeYourOffer(x).Value = GetPlayerInvValue(MyIndex, i) Then
+                                    If TradeYourOffer(x).Value = GetPlayerInvValue(GameState.MyIndex, i) Then
                                         skipItem = True
                                     Else
                                         ' not all, change modifier to show change in currency count
@@ -3342,29 +3337,29 @@ Module [Interface]
                     End If
 
                     If Not skipItem Then
-                        If ItemIcon > 0 And ItemIcon <= NumItems Then
-                            Top = yO + InvTop + ((InvOffsetY + 32) * ((i - 1) \ InvColumns))
-                            Left = xO + InvLeft + ((InvOffsetX + 32) * (((i - 1) Mod InvColumns)))
+                        If ItemIcon > 0 And ItemIcon <= GameState.NumItems Then
+                            Top = yO + GameState.InvTop + ((GameState.InvOffsetY + 32) * ((i - 1) \ GameState.InvColumns))
+                            Left = xO + GameState.InvLeft + ((GameState.InvOffsetX + 32) * (((i - 1) Mod GameState.InvColumns)))
 
                             ' draw icon
-                            Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
+                            GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
 
                             ' If item is a stack - draw the amount you have
-                            If GetPlayerInvValue(MyIndex, i) > 1 Then
+                            If GetPlayerInvValue(GameState.MyIndex, i) > 1 Then
                                 y = Top + 21
                                 x = Left + 1
-                                Amount = GetPlayerInvValue(MyIndex, i) - amountModifier
+                                Amount = GetPlayerInvValue(GameState.MyIndex, i) - amountModifier
 
                                 ' Draw currency but with k, m, b etc. using a convertion function
                                 If CLng(Amount) < 1000000 Then
-                                    Color = Client.QbColorToXnaColor(ColorType.White)
+                                    Color = GameClient.QbColorToXnaColor(ColorType.White)
                                 ElseIf CLng(Amount) > 1000000 And CLng(Amount) < 10000000 Then
-                                    Color = Client.QbColorToXnaColor(ColorType.Yellow)
+                                    Color = GameClient.QbColorToXnaColor(ColorType.Yellow)
                                 ElseIf CLng(Amount) > 10000000 Then
-                                    Color = Client.QbColorToXnaColor(ColorType.BrightGreen)
+                                    Color = GameClient.QbColorToXnaColor(ColorType.BrightGreen)
                                 End If
 
-                                RenderText(ConvertCurrency(Amount), x, y, Color, Color, , FontType.Georgia)
+                                RenderText(ConvertCurrency(Amount), x, y, Color, Color, FontType.Georgia)
                             End If
                         End If
                     End If
@@ -3407,37 +3402,37 @@ Module [Interface]
         Dim xO As Long, yO As Long, texNum As Long, y As Long, I As Long, count As Long
 
         ' exit out if we don't have a num
-        If descItem = 0 Or descType = 0 Then Exit Sub
+        If GameState.descItem = 0 Or GameState.descType = 0 Then Exit Sub
 
         xO = Windows(GetWindowIndex("winDescription")).Window.Left
         yO = Windows(GetWindowIndex("winDescription")).Window.Top
 
-        Select Case descType
+        Select Case GameState.descType
             Case 1 ' Inventory Item
-                texNum = Type.Item(descItem).Icon
+                texNum = Type.Item(GameState.descItem).Icon
 
                 ' render sprite
-                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32, , , , , GetWindowIndex("winDescription"))
+                GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32)
 
             Case 2 ' Skill Icon
-                texNum = Type.Skill(descItem).Icon
+                texNum = Type.Skill(GameState.descItem).Icon
 
                 ' render bar
                 With Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "picBar"))
                     If .Visible Then
-                        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12, , , , , GetWindowIndex("winDescription"))
+                        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12)
                     End If
                 End With
 
                 ' render sprite
-                Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32, , , , , GetWindowIndex("winDescription"))
+                GameClient.RenderTexture(IO.Path.Combine(Core.Path.Skills, texNum), xO + 20, yO + 34, 0, 0, 64, 64, 32, 32)
         End Select
 
         ' render text array
         y = 18
-        count = UBound(descText)
+        count = UBound(GameState.descText)
         For I = 1 To count
-            RenderText(descText(I).Text, xO + 141 - (TextWidth(descText(I).Text) \ 2), yO + y, descText(I).Color, Microsoft.Xna.Framework.Color.Black)
+            RenderText(GameState.descText(I).Text, xO + 141 - (TextWidth(GameState.descText(I).Text) \ 2), yO + y, GameState.descText(I).Color, Microsoft.Xna.Framework.Color.Black)
             y = y + 12
         Next
     End Sub
@@ -3578,8 +3573,8 @@ Module [Interface]
         End With
 
         ' update the shop
-        shopIsSelling = False
-        shopSelectedSlot = 1
+        GameState.shopIsSelling = False
+        GameState.shopSelectedSlot = 1
         UpdateShop()
     End Sub
 
@@ -3601,17 +3596,17 @@ Module [Interface]
         End With
 
         ' update the shop
-        shopIsSelling = True
-        shopSelectedSlot = 1
+        GameState.shopIsSelling = True
+        GameState.shopSelectedSlot = 1
         UpdateShop()
     End Sub
 
     Public Sub btnShopBuy()
-        BuyItem(shopSelectedSlot)
+        BuyItem(GameState.shopSelectedSlot)
     End Sub
 
     Public Sub btnShopSell()
-        SellItem(shopSelectedSlot)
+        SellItem(GameState.shopSelectedSlot)
     End Sub
 
     Public Sub Shop_MouseDown()
@@ -3620,9 +3615,9 @@ Module [Interface]
         ' is there an item?
         shopNum = IsShop(Windows(GetWindowIndex("winShop")).Window.Left, Windows(GetWindowIndex("winShop")).Window.Top)
         If shopNum > 0 Then
-            If Type.Shop(InShop).TradeItem(shopSelectedSlot).Item > 0 Then
+            If Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).Item > 0 Then
                 ' set the active slot
-                shopSelectedSlot = shopNum
+                GameState.shopSelectedSlot = shopNum
                 UpdateShop()
             End If
         End If
@@ -3632,7 +3627,7 @@ Module [Interface]
     Public Sub Shop_MouseMove()
         Dim shopSlot As Long, ItemNum As Long, X As Long, Y As Long
 
-        If InShop = 0 Then Exit Sub
+        If GameState.InShop < 1 Or GameState.InShop > MAX_SHOPS Then Exit Sub
 
         shopSlot = IsShop(Windows(GetWindowIndex("winShop")).Window.Left, Windows(GetWindowIndex("winShop")).Window.Top)
 
@@ -3648,14 +3643,14 @@ Module [Interface]
             End If
 
             ' selling/buying
-            If Not shopIsSelling Then
+            If Not GameState.shopIsSelling Then
                 ' get the itemnum
-                ItemNum = Type.Shop(InShop).TradeItem(shopSlot).Item
+                ItemNum = Type.Shop(GameState.InShop).TradeItem(shopSlot).Item
                 If ItemNum = 0 Then Exit Sub
                 ShowShopDesc(X, Y, ItemNum)
             Else
                 ' get the itemnum
-                ItemNum = GetPlayerInv(MyIndex, shopSlot)
+                ItemNum = GetPlayerInv(GameState.MyIndex, shopSlot)
                 If ItemNum = 0 Then Exit Sub
                 ShowShopDesc(X, Y, ItemNum)
             End If
@@ -3668,18 +3663,18 @@ Module [Interface]
         Dim Top As Long
 
         ' move Hotbar
-        Windows(GetWindowIndex("winHotbar")).Window.Left = ResolutionWidth - 432
+        Windows(GetWindowIndex("winHotbar")).Window.Left = GameState.ResolutionWidth - 432
 
         ' move chat
-        Windows(GetWindowIndex("winChat")).Window.Top = ResolutionHeight - 178
-        Windows(GetWindowIndex("winChatSmall")).Window.Top = ResolutionHeight - 162
+        Windows(GetWindowIndex("winChat")).Window.Top = GameState.ResolutionHeight - 178
+        Windows(GetWindowIndex("winChatSmall")).Window.Top = GameState.ResolutionHeight - 162
 
         ' move menu
-        Windows(GetWindowIndex("winMenu")).Window.Left = ResolutionWidth - 242
+        Windows(GetWindowIndex("winMenu")).Window.Left = GameState.ResolutionWidth - 242
         Windows(GetWindowIndex("winMenu")).Window.Top = -42
 
         ' move invitations
-        Windows(GetWindowIndex("winInvite_Party")).Window.Left = ResolutionWidth - 234
+        Windows(GetWindowIndex("winInvite_Party")).Window.Left = GameState.ResolutionWidth - 234
         Windows(GetWindowIndex("winInvite_Party")).Window.Top = -80
 
         ' loop through
@@ -3689,22 +3684,22 @@ Module [Interface]
             Top = Top - 37
         End If
 
-        Windows(GetWindowIndex("winInvite_Trade")).Window.Left = ResolutionWidth - 234
+        Windows(GetWindowIndex("winInvite_Trade")).Window.Left = GameState.ResolutionWidth - 234
         Windows(GetWindowIndex("winInvite_Trade")).Window.Top = Top
 
         ' re-size right-click background
-        Windows(GetWindowIndex("winRightClickBG")).Window.Width = ResolutionWidth
-        Windows(GetWindowIndex("winRightClickBG")).Window.Height = ResolutionHeight
+        Windows(GetWindowIndex("winRightClickBG")).Window.Width = GameState.ResolutionWidth
+        Windows(GetWindowIndex("winRightClickBG")).Window.Height = GameState.ResolutionHeight
 
         ' re-size combo background
-        Windows(GetWindowIndex("winComboMenuBG")).Window.Width = ResolutionWidth
-        Windows(GetWindowIndex("winComboMenuBG")).Window.Height = ResolutionHeight
+        Windows(GetWindowIndex("winComboMenuBG")).Window.Width = GameState.ResolutionWidth
+        Windows(GetWindowIndex("winComboMenuBG")).Window.Height = GameState.ResolutionHeight
     End Sub
 
     Public Sub DrawSkills()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, Skillnum As Long, SkillPic As Long, x As Long, Top As Long, Left As Long
 
-        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
         
         xO = Windows(GetWindowIndex("winSkills")).Window.Left
         yO = Windows(GetWindowIndex("winSkills")).Window.Top
@@ -3713,7 +3708,7 @@ Module [Interface]
         Height = Windows(GetWindowIndex("winSkills")).Window.Height
 
         ' render green
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -3722,26 +3717,26 @@ Module [Interface]
         ' render grid - row
         For i = 1 To 4
             If i = 4 Then Height = 42
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
             y = y + 76
         Next
 
         ' actually draw the icons
         For i = 1 To MAX_PLAYER_SKILLS
             StreamSkill(Skillnum)
-            Skillnum = Type.Player(MyIndex).Skill(i).Num
+            Skillnum = Type.Player(GameState.MyIndex).Skill(i).Num
             If Skillnum > 0 And Skillnum <= MAX_SKILLS Then
                 ' not dragging?
                 If Not (DragBox.Origin = PartOriginType.Skill And DragBox.Slot = i) Then
                     SkillPic = Type.Skill(Skillnum).Icon
 
-                    If SkillPic > 0 And SkillPic <= NumSkills Then
-                        Top = yO + SkillTop + ((SkillOffsetY + 32) * ((i - 1) \ SkillColumns))
-                        Left = xO + SkillLeft + ((SkillOffsetX + 32) * (((i - 1) Mod SkillColumns)))
+                    If SkillPic > 0 And SkillPic <= GameState.NumSkills Then
+                        Top = yO + GameState.SkillTop + ((GameState.SkillOffsetY + 32) * ((i - 1) \ GameState.SkillColumns))
+                        Left = xO + GameState.SkillLeft + ((GameState.SkillOffsetX + 32) * (((i - 1) Mod GameState.SkillColumns)))
 
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, SkillPic), Left, Top, 0, 0, 32, 32, 32, 32)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Skills, SkillPic), Left, Top, 0, 0, 32, 32, 32, 32)
                     End If
                 End If
             End If
@@ -3769,7 +3764,7 @@ Module [Interface]
             Else
                 AddText("Music tured on.", ColorType.BrightGreen)
                 ' play music
-                If InGame Then musicFile = MyMap.Music Else musicFile = Type.Setting.Music
+                If GameState.InGame Then musicFile = MyMap.Music Else musicFile = Type.Setting.Music
                 If Not musicFile = "None." Then
                     PlayMusic(musicFile)
                 Else
@@ -3796,12 +3791,12 @@ Module [Interface]
             Type.Setting.Autotile = Value
             ' let them know
             If Value = 0 Then
-                If InGame Then
+                If GameState.InGame Then
                     AddText("Autotiles turned off.", ColorType.BrightGreen)
                     InitAutotiles()
                 End If
             Else
-                If InGame Then
+                If GameState.InGame Then
                     AddText("Autotiles turned on.", ColorType.BrightGreen)
                     InitAutotiles()
                 End If
@@ -3826,7 +3821,7 @@ Module [Interface]
         Type.Setting.Save()
 
         ' let them know
-        If InGame Then
+        If GameState.InGame Then
             If message Then AddText("Some changes will take effect next time you load the game.", ColorType.BrightGreen)
         End If
 
@@ -3869,12 +3864,12 @@ Module [Interface]
     ' Player Menu
     Sub PlayerMenu_Party()
         RightClick_Close()
-        SendPartyRequest(GetPlayerName(PlayerMenuIndex))
+        SendPartyRequest(GetPlayerName(GameState.PlayerMenuIndex))
     End Sub
 
     Sub PlayerMenu_Trade()
         RightClick_Close()
-        SendTradeRequest(GetPlayerName(PlayerMenuIndex))
+        SendTradeRequest(GetPlayerName(GameState.PlayerMenuIndex))
     End Sub
 
     Sub PlayerMenu_Guild()
@@ -3890,34 +3885,34 @@ Module [Interface]
     Sub UpdateShop()
         Dim i As Long, CostValue As Long
 
-        If InShop = 0 Then Exit Sub
+        If GameState.InShop = 0 Then Exit Sub
 
         ' make sure we have an item selected
-        If shopSelectedSlot = 0 Then shopSelectedSlot = 1
+        If GameState.shopSelectedSlot = 0 Then GameState.shopSelectedSlot = 1
 
         With Windows(GetWindowIndex("winShop"))
             ' buying items
-            If Not shopIsSelling Then
-                shopSelectedItem = Type.Shop(InShop).TradeItem(shopSelectedSlot).Item
+            If Not GameState.shopIsSelling Then
+                GameState.shopSelectedItem = Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).Item
                 ' labels
-                If shopSelectedItem > 0 Then
-                    .Controls(GetControlIndex("winShop", "lblName")).Text = Type.Item(shopSelectedItem).Name
+                If GameState.shopSelectedItem > 0 Then
+                    .Controls(GetControlIndex("winShop", "lblName")).Text = Type.Item(GameState.shopSelectedItem).Name
                     ' check if it's gold
-                    If Type.Shop(InShop).TradeItem(shopSelectedSlot).CostItem = 1 Then
+                    If Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostItem = 1 Then
                         ' it's gold
-                        .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Shop(InShop).TradeItem(shopSelectedSlot).CostValue & "g"
+                        .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostValue & "g"
                     Else
                         ' if it's one then just print the name
-                        If Type.Shop(InShop).TradeItem(shopSelectedSlot).CostValue = 1 Then
-                            .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Item(Type.Shop(InShop).TradeItem(shopSelectedSlot).CostItem).Name
+                        If Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostValue = 1 Then
+                            .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Item(Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostItem).Name
                         Else
-                            .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Shop(InShop).TradeItem(shopSelectedSlot).CostValue & " " & Type.Item(Type.Shop(InShop).TradeItem(shopSelectedSlot).CostItem).Name
+                            .Controls(GetControlIndex("winShop", "lblCost")).Text = Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostValue & " " & Type.Item(Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).CostItem).Name
                         End If
                     End If
 
                     ' draw the item
                     For i = 0 To 5
-                        .Controls(GetControlIndex("winShop", "picItem")).Image(i) = Type.Item(shopSelectedItem).Icon
+                        .Controls(GetControlIndex("winShop", "picItem")).Image(i) = Type.Item(GameState.shopSelectedItem).Icon
                         .Controls(GetControlIndex("winShop", "picItem")).Texture(i) = Path.Items
                     Next
                 Else
@@ -3931,17 +3926,17 @@ Module [Interface]
                     Next
                 End If
             Else
-                shopSelectedItem = GetPlayerInv(MyIndex, shopSelectedSlot)
+                GameState.shopSelectedItem = GetPlayerInv(GameState.MyIndex, GameState.shopSelectedSlot)
                 ' labels
-                If shopSelectedItem > 0 Then
-                    .Controls(GetControlIndex("winShop", "lblName")).Text = Type.Item(shopSelectedItem).Name
+                If GameState.shopSelectedItem > 0 Then
+                    .Controls(GetControlIndex("winShop", "lblName")).Text = Type.Item(GameState.shopSelectedItem).Name
                     ' calc cost
-                    CostValue = (Type.Item(shopSelectedItem).Price / 100) * Type.Shop(InShop).BuyRate
+                    CostValue = (Type.Item(GameState.shopSelectedItem).Price / 100) * Type.Shop(GameState.InShop).BuyRate
                     .Controls(GetControlIndex("winShop", "lblCost")).Text = CostValue & "g"
 
                     ' draw the item
                     For i = 0 To 5
-                        .Controls(GetControlIndex("winShop", "picItem")).Image(i) = Type.Item(shopSelectedItem).Icon
+                        .Controls(GetControlIndex("winShop", "picItem")).Image(i) = Type.Item(GameState.shopSelectedItem).Icon
                         .Controls(GetControlIndex("winShop", "picItem")).Texture(i) = Path.Items
                     Next
                 Else
@@ -3991,7 +3986,7 @@ Module [Interface]
                 ' cache the index
                 pIndex = Type.Party.Member(i)
                 If pIndex > 0 Then
-                    If pIndex <> MyIndex Then
+                    If pIndex <> GameState.MyIndex Then
                         If IsPlaying(pIndex) Then
                             ' name and level
                             .Controls(GetControlIndex("winParty", "lblName" & cIn)).Visible = True
@@ -4032,67 +4027,67 @@ Module [Interface]
 
     Sub DrawMenuBG()
         ' row 1
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "1"), ResolutionWidth - 512, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "2"), ResolutionWidth - 1024, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "3"), ResolutionWidth - 1536, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "4"), ResolutionWidth - 2048, ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "1"), GameState.ResolutionWidth - 512, GameState.ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "2"), GameState.ResolutionWidth - 1024, GameState.ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "3"), GameState.ResolutionWidth - 1536, GameState.ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "4"), GameState.ResolutionWidth - 2048, GameState.ResolutionHeight - 512, 0, 0, 512, 512, 512, 512)
 
         ' row 2
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "5"), ResolutionWidth - 512, ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "6"), ResolutionWidth - 1024, ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "7"), ResolutionWidth - 1536, ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "8"), ResolutionWidth - 2048, ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "5"), GameState.ResolutionWidth - 512, GameState.ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "6"), GameState.ResolutionWidth - 1024, GameState.ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "7"), GameState.ResolutionWidth - 1536, GameState.ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "8"), GameState.ResolutionWidth - 2048, GameState.ResolutionHeight - 1024, 0, 0, 512, 512, 512, 512)
 
         ' row 3
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "9"), ResolutionWidth - 512, ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "10"), ResolutionWidth - 1024, ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "11"), ResolutionWidth - 1536, ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
-        Client.EnqueueTexture(IO.Path.Combine(Path.Pictures, "12"), ResolutionWidth - 2048, ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "9"), GameState.ResolutionWidth - 512, GameState.ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "10"), GameState.ResolutionWidth - 1024, GameState.ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "11"), GameState.ResolutionWidth - 1536, GameState.ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
+        GameClient.RenderTexture(IO.Path.Combine(Path.Pictures, "12"), GameState.ResolutionWidth - 2048, GameState.ResolutionHeight - 1088, 0, 0, 512, 64, 512, 64)
     End Sub
 
     Public Sub DrawHotbar()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, t As Long, sS As String
         
-        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
         
         xO = Windows(GetWindowIndex("winHotbar")).Window.Left
         yO = Windows(GetWindowIndex("winHotbar")).Window.Top
 
         ' Render start + end wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
         For i = 1 To MAX_Hotbar
-            xO = Windows(GetWindowIndex("winHotbar")).Window.Left + HotbarLeft + ((i - 1) * HotbarOffsetX)
-            yO = Windows(GetWindowIndex("winHotbar")).Window.Top + HotbarTop
+            xO = Windows(GetWindowIndex("winHotbar")).Window.Left + GameState.HotbarLeft + ((i - 1) * GameState.HotbarOffsetX)
+            yO = Windows(GetWindowIndex("winHotbar")).Window.Top + GameState.HotbarTop
             Width = 36
             Height = 36
 
             ' Don't render last one
             If i <> MAX_Hotbar Then
                 ' Render wood
-                Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 32), xO + 30, yO + 3, 0, 0, 13, 26, 13, 26)
+                GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 32), xO + 30, yO + 3, 0, 0, 13, 26, 13, 26)
             End If
 
             ' Render box
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 30), xO - 2, yO - 2, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 30), xO - 2, yO - 2, 0, 0, Width, Height, Width, Height)
 
             ' Render icon
             If Not (DragBox.Origin = PartOriginType.Hotbar And DragBox.Slot = i) Then
-                Select Case Type.Player(MyIndex).Hotbar(i).SlotType
+                Select Case Type.Player(GameState.MyIndex).Hotbar(i).SlotType
                     Case PartOriginType.Inventory
-                        StreamItem(Type.Player(MyIndex).Hotbar(i).Slot)
-                        If Len(Type.Item(Type.Player(MyIndex).Hotbar(i).Slot).Name) > 0 And Type.Item(Type.Player(MyIndex).Hotbar(i).Slot).Icon > 0 Then
-                            Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, Type.Item(Type.Player(MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32)
+                        StreamItem(Type.Player(GameState.MyIndex).Hotbar(i).Slot)
+                        If Len(Type.Item(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Name) > 0 And Type.Item(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Icon > 0 Then
+                            GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, Type.Item(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32)
                         End If
 
                     Case PartOriginType.Skill
-                        StreamSkill(Type.Player(MyIndex).Hotbar(i).Slot)
-                        If Len(Type.Skill(Type.Player(MyIndex).Hotbar(i).Slot).Name) > 0 And Type.Skill(Type.Player(MyIndex).Hotbar(i).Slot).Icon > 0 Then
-                            Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, Type.Skill(Type.Player(MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32)
+                        StreamSkill(Type.Player(GameState.MyIndex).Hotbar(i).Slot)
+                        If Len(Type.Skill(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Name) > 0 And Type.Skill(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Icon > 0 Then
+                            GameClient.RenderTexture(IO.Path.Combine(Core.Path.Skills, Type.Skill(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32)
                             For t = 1 To MAX_PLAYER_SKILLS
-                                If GetPlayerSkill(MyIndex, t) > 0 Then
-                                    If GetPlayerSkill(MyIndex, t) = Type.Player(MyIndex).Hotbar(i).Slot And GetPlayerSkillCD(MyIndex, t) > 0 Then
-                                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Skills, Type.Skill(Type.Player(MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32, 255, 100, 100, 100)
+                                If GetPlayerSkill(GameState.MyIndex, t) > 0 Then
+                                    If GetPlayerSkill(GameState.MyIndex, t) = Type.Player(GameState.MyIndex).Hotbar(i).Slot And GetPlayerSkillCD(GameState.MyIndex, t) > 0 Then
+                                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Skills, Type.Skill(Type.Player(GameState.MyIndex).Hotbar(i).Slot).Icon), xO, yO, 0, 0, 32, 32, 32, 32, 255, 100, 100, 100)
                                     End If
                                 End If
                             Next
@@ -4110,60 +4105,60 @@ Module [Interface]
     Public Sub DrawShop()
         Dim Xo As Long, Yo As Long, ItemIcon As Long, ItemNum As Long, Amount As Long, i As Long, Top As Long, Left As Long, Y As Long, X As Long, Color As Long
 
-        If InShop = 0 Then Exit Sub
+        If GameState.InShop < 1 or GameState.InShop > MAX_SHOPS Then Exit Sub
 
-        StreamShop(InShop)
+        StreamShop(GameState.InShop)
 
         Xo = Windows(GetWindowIndex("winShop")).Window.Left
         Yo = Windows(GetWindowIndex("winShop")).Window.Top
 
-        If Not shopIsSelling Then
+        If Not GameState.shopIsSelling Then
             ' render the shop items
             For i = 1 To MAX_TRADES
-                ItemNum = Type.Shop(InShop).TradeItem(i).Item
+                ItemNum = Type.Shop(GameState.InShop).TradeItem(i).Item
 
                 ' draw early
-                Top = Yo + ShopTop + ((ShopOffsetY + 32) * ((i - 1) \ ShopColumns))
-                Left = Xo + ShopLeft + ((ShopOffsetX + 32) * (((i - 1) Mod ShopColumns)))
+                Top = Yo + GameState.ShopTop + ((GameState.ShopOffsetY + 32) * ((i - 1) \ GameState.ShopColumns))
+                Left = Xo + GameState.ShopLeft + ((GameState.ShopOffsetX + 32) * (((i - 1) Mod GameState.ShopColumns)))
 
                 ' draw selected square
-                If shopSelectedSlot = i Then
-                    Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
+                If GameState.shopSelectedSlot = i Then
+                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
                 End If
 
                 If ItemNum > 0 And ItemNum <= MAX_ITEMS Then
                     ItemIcon = Type.Item(ItemNum).Icon
-                    If ItemIcon > 0 And ItemIcon <= NumItems Then
+                    If ItemIcon > 0 And ItemIcon <= GameState.NumItems Then
                         ' draw item
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
                     End If
                 End If
             Next
         Else
             ' render the shop items
             For i = 1 To MAX_TRADES
-                ItemNum = GetPlayerInv(MyIndex, i)
+                ItemNum = GetPlayerInv(GameState.MyIndex, i)
 
                 ' draw early
-                Top = Yo + ShopTop + ((ShopOffsetY + 32) * ((i - 1) \ ShopColumns))
-                Left = Xo + ShopLeft + ((ShopOffsetX + 32) * (((i - 1) Mod ShopColumns)))
+                Top = Yo + GameState.ShopTop + ((GameState.ShopOffsetY + 32) * ((i - 1) \ GameState.ShopColumns))
+                Left = Xo + GameState.ShopLeft + ((GameState.ShopOffsetX + 32) * (((i - 1) Mod GameState.ShopColumns)))
 
                 ' draw selected square
-                If shopSelectedSlot = i Then
-                    Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
+                If GameState.shopSelectedSlot = i Then
+                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
                 End If
 
                 If ItemNum > 0 And ItemNum <= MAX_ITEMS Then
                     ItemIcon = Type.Item(ItemNum).Icon
-                    If ItemIcon > 0 And ItemIcon <= NumItems Then
+                    If ItemIcon > 0 And ItemIcon <= GameState.NumItems Then
                         ' draw item
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, ItemIcon), Left, Top, 0, 0, 32, 32, 32, 32)
 
                         ' If item is a stack - draw the amount you have
-                        If GetPlayerInvValue(MyIndex, i) > 1 Then
+                        If GetPlayerInvValue(GameState.MyIndex, i) > 1 Then
                             Y = Top + 21
                             X = Left + 1
-                            Amount = CStr(GetPlayerInvValue(MyIndex, i))
+                            Amount = CStr(GetPlayerInvValue(GameState.MyIndex, i))
 
                             ' Draw currency but with k, m, b etc. using a conversion function
                             If CLng(Amount) < 1000000 Then
@@ -4174,7 +4169,7 @@ Module [Interface]
                                 Color = ColorType.BrightGreen
                             End If
 
-                            RenderText(ConvertCurrency(Amount), X, Y, Client.QbColorToXnaColor(Color), Client.QbColorToXnaColor(Color))
+                            RenderText(ConvertCurrency(Amount), X, Y, GameClient.QbColorToXnaColor(Color), GameClient.QbColorToXnaColor(Color))
                         End If
                     End If
                 End If
@@ -4191,7 +4186,7 @@ Module [Interface]
         Height = Windows(GetWindowIndex("winShop")).Window.Height
 
         ' render green
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -4200,15 +4195,15 @@ Module [Interface]
         ' render grid - row
         For i = 1 To 3
             If i = 3 Then Height = 42
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, 42, Height, 42, Height)
             Y = Y + 76
         Next
 
         ' render bottom wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Y - 34, 0, 0, 270, 72, 270, 72)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Y - 34, 0, 0, 270, 72, 270, 72)
     End Sub
 
     Public Sub DrawBank()
@@ -4218,7 +4213,7 @@ Module [Interface]
         Dim Left As Long, top As Long
         Dim color As Long, skipItem As Boolean, amount As Long, tmpItem As Long
 
-        if MyIndex < 1 or MyIndex > MAX_PLAYERS then Exit Sub
+        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
         
         Xo = Windows(GetWindowIndex("winBank")).Window.Left
         Yo = Windows(GetWindowIndex("winBank")).Window.Top
@@ -4226,7 +4221,7 @@ Module [Interface]
         height = Windows(GetWindowIndex("winBank")).Window.Height
 
         ' render green
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, width - 8, height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, width - 8, height - 27, 4, 4)
 
         width = 76
         height = 76
@@ -4235,17 +4230,17 @@ Module [Interface]
         ' render grid - row
         For i = 1 To 5
             If i = 5 Then height = 42
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, width, height, width, height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, width, height, width, height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, width, height, width, height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, width, height, width, height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 308, Y, 0, 0, 79, height, 79, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 308, Y, 0, 0, 79, height, 79, height)
             Y = Y + 76
         Next
 
         ' actually draw the icons
         For i = 1 To MAX_BANK
-            itemNum = GetBank(MyIndex, i)
+            itemNum = GetBank(GameState.MyIndex, i)
 
             If itemNum > 0 And itemNum <= MAX_ITEMS Then
                 StreamItem(itemNum)
@@ -4253,18 +4248,18 @@ Module [Interface]
                 If Not (DragBox.Origin = PartOriginType.Bank And DragBox.Slot = i) Then
                     itemIcon = Type.Item(itemNum).Icon
 
-                    If itemIcon > 0 And itemIcon <= NumItems Then
-                        top = Yo + BankTop + ((BankOffsetY + 32) * ((i - 1) \ BankColumns))
-                        Left = Xo + BankLeft + ((BankOffsetX + 32) * (((i - 1) Mod BankColumns)))
+                    If itemIcon > 0 And itemIcon <= GameState.NumItems Then
+                        top = Yo + GameState.BankTop + ((GameState.BankOffsetY + 32) * ((i - 1) \ GameState.BankColumns))
+                        Left = Xo + GameState.BankLeft + ((GameState.BankOffsetX + 32) * (((i - 1) Mod GameState.BankColumns)))
 
                         ' draw icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, itemIcon), Left, top, 0, 0, 32, 32, 32, 32)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, itemIcon), Left, top, 0, 0, 32, 32, 32, 32)
 
                         ' If item is a stack - draw the amount you have
-                        If GetBankValue(MyIndex, i) > 1 Then
+                        If GetBankValue(GameState.MyIndex, i) > 1 Then
                             Y = top + 21
                             X = Left + 1
-                            amount = GetBankValue(MyIndex, i)
+                            amount = GetBankValue(GameState.MyIndex, i)
 
                             ' Draw currency but with k, m, b etc. using a convertion function
                             If CLng(amount) < 1000000 Then
@@ -4275,7 +4270,7 @@ Module [Interface]
                                 color = ColorType.BrightGreen
                             End If
 
-                            RenderText(ConvertCurrency(amount), X, Y, Client.QbColorToXnaColor(color), Client.QbColorToXnaColor(color))
+                            RenderText(ConvertCurrency(amount), X, Y, GameClient.QbColorToXnaColor(color), GameClient.QbColorToXnaColor(color))
                         End If
                     End If
                 End If
@@ -4293,22 +4288,22 @@ Module [Interface]
         Height = Windows(GetWindowIndex("winTrade")).Window.Height
 
         ' render green
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         ' top wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 23, 100, 100, Width - 8, 18, Width - 8, 18)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 23, 100, 100, Width - 8, 18, Width - 8, 18)
 
         ' left wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
 
         ' right wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + Width - 9, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + Width - 9, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
 
         ' centre wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 203, Yo + 41, 350, 0, 6, Height - 45, 6, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 203, Yo + 41, 350, 0, 6, Height - 45, 6, Height - 45)
 
         ' bottom wood
-        Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 307, 100, 100, Width - 8, 75, Width - 8, 75)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 307, 100, 100, Width - 8, 75, Width - 8, 75)
 
         ' left
         Width = 76
@@ -4316,9 +4311,9 @@ Module [Interface]
         Y = Yo + 41
         For i = 1 To 4
             If i = 4 Then Height = 38
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 5, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 5, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 5, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 5, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 5, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 5, Y, 0, 0, 42, Height, 42, Height)
             Y = Y + 76
         Next
 
@@ -4328,9 +4323,9 @@ Module [Interface]
         Y = Yo + 41
         For i = 1 To 4
             If i = 4 Then Height = 38
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 205, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 205, Y, 0, 0, Width, Height, Width, Height)
-            Client.EnqueueTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 205, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 205, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 205, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 205, Y, 0, 0, 42, Height, 42, Height)
 
             Y = Y + 76
         Next
@@ -4346,17 +4341,17 @@ Module [Interface]
         ' your items
         For i = 1 To MAX_INV
             If TradeYourOffer(i).Num > 0 Then
-                ItemNum = GetPlayerInv(MyIndex, TradeYourOffer(i).Num)
+                ItemNum = GetPlayerInv(GameState.MyIndex, TradeYourOffer(i).Num)
                 If ItemNum > 0 And ItemNum <= MAX_ITEMS Then
                     StreamItem(ItemNum)
                     ItemPic = Type.Item(ItemNum).Icon
 
-                    If ItemPic > 0 And ItemPic <= NumItems Then
-                        Top = Yo + TradeTop + ((TradeOffsetY + 32) * ((i - 1) \ TradeColumns))
-                        Left = Xo + TradeLeft + ((TradeOffsetX + 32) * (((i - 1) Mod TradeColumns)))
+                    If ItemPic > 0 And ItemPic <= GameState.NumItems Then
+                        Top = Yo + GameState.TradeTop + ((GameState.TradeOffsetY + 32) * ((i - 1) \ GameState.TradeColumns))
+                        Left = Xo + GameState.TradeLeft + ((GameState.TradeOffsetX + 32) * (((i - 1) Mod GameState.TradeColumns)))
 
                         ' draw icon
-                        Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, ItemPic), Left, Top, 0, 0, 32, 32, 32, 32)
+                        GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, ItemPic), Left, Top, 0, 0, 32, 32, 32, 32)
 
                         ' If item is a stack - draw the amount you have
                         If TradeYourOffer(i).Value > 1 Then
@@ -4373,7 +4368,7 @@ Module [Interface]
                                 Color = ColorType.BrightGreen
                             End If
 
-                            RenderText(ConvertCurrency(Amount), X, Y, Client.QbColorToXnaColor(Color), Client.QbColorToXnaColor(Color))
+                            RenderText(ConvertCurrency(Amount), X, Y, GameClient.QbColorToXnaColor(Color), GameClient.QbColorToXnaColor(Color))
                         End If
                     End If
                 End If
@@ -4395,12 +4390,12 @@ Module [Interface]
                 StreamItem(ItemNum)
                 ItemPic = Type.Item(ItemNum).Icon
 
-                If ItemPic > 0 And ItemPic <= NumItems Then
-                    Top = Yo + TradeTop + ((TradeOffsetY + 32) * ((i - 1) \ TradeColumns))
-                    Left = Xo + TradeLeft + ((TradeOffsetX + 32) * (((i - 1) Mod TradeColumns)))
+                If ItemPic > 0 And ItemPic <= GameState.NumItems Then
+                    Top = Yo + GameState.TradeTop + ((GameState.TradeOffsetY + 32) * ((i - 1) \ GameState.TradeColumns))
+                    Left = Xo + GameState.TradeLeft + ((GameState.TradeOffsetX + 32) * (((i - 1) Mod GameState.TradeColumns)))
 
                     ' draw icon
-                    Client.EnqueueTexture(IO.Path.Combine(Core.Path.Items, ItemPic), Left, Top, 0, 0, 32, 32, 32, 32)
+                    GameClient.RenderTexture(IO.Path.Combine(Core.Path.Items, ItemPic), Left, Top, 0, 0, 32, 32, 32, 32)
 
                     ' If item is a stack - draw the amount you have
                     If TradeTheirOffer(i).Value > 1 Then
@@ -4417,7 +4412,7 @@ Module [Interface]
                           Color = ColorType.BrightGreen
                       End If
                   
-                      RenderText(ConvertCurrency(Amount), X, Y, Client.QbColorToXnaColor(Color), Client.QbColorToXnaColor(Color))
+                      RenderText(ConvertCurrency(Amount), X, Y, GameClient.QbColorToXnaColor(Color), GameClient.QbColorToXnaColor(Color))
                   End If
               End If
           End If

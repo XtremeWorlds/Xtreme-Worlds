@@ -1,8 +1,8 @@
-﻿Imports System.Collections.Concurrent
-Imports Client.GameClient
+﻿Imports System.Collections.Concurrentt
 Imports Core
 Imports System.IO
 Imports Microsoft.Extensions.DependencyInjection
+Imports Microsoft.Xna.Framework
 Imports Microsoft.Xna.Framework.Input
 
 Module General
@@ -16,6 +16,7 @@ Module General
     Private Const KeyRepeatInterval As Integer = 100
     
     Public Client As New GameClient()
+    Public State As New GameState()
     Public Random As New Random()
 
     Friend Function GetTickCount() As Integer
@@ -23,15 +24,14 @@ Module General
     End Function
 
     Sub Startup()
-        InMenu = True
+        GameState.InMenu = True
         ClearGameData()
         LoadGame()
-        Client.LoadingCompleted.WaitOne()
+        GameClient.LoadingCompleted.WaitOne()
         GameLoop()
     End Sub
 
     Friend Sub LoadGame()
-        Started = True
         Settings.Load()
         Languages.Load()
         Input.Load()
@@ -54,71 +54,71 @@ Module General
         InitializeBASS()
         InitNetwork()
         InitInterface()
-        Ping = -1
+        State.Ping = -1
     End Sub
 
     Friend Sub CheckAnimations()
-        NumAnimations = GetFileCount(Core.Path.Animations)
+         State.NumAnimations = GetFileCount(Core.Path.Animations)
     End Sub
 
     Friend Sub CheckCharacters()
-        NumCharacters = GetFileCount(Core.Path.Characters)
+         State.NumCharacters = GetFileCount(Core.Path.Characters)
     End Sub
 
     Friend Sub CheckEmotes()
-        NumEmotes = GetFileCount(Core.Path.Emotes)
+         State.NumEmotes = GetFileCount(Core.Path.Emotes)
     End Sub
 
     Friend Sub CheckTilesets()
-        NumTileSets = GetFileCount(Core.Path.Tilesets)
+         State.NumTileSets = GetFileCount(Core.Path.Tilesets)
     End Sub
 
     Friend Sub CheckFogs()
-        NumFogs = GetFileCount(Core.Path.Fogs)
+         State.NumFogs = GetFileCount(Core.Path.Fogs)
     End Sub
 
     Friend Sub CheckItems()
-        NumItems = GetFileCount(Core.Path.Items)
+         State.NumItems = GetFileCount(Core.Path.Items)
     End Sub
 
     Friend Sub CheckPanoramas()
-        NumPanoramas = GetFileCount(Core.Path.Panoramas)
+         State.NumPanoramas = GetFileCount(Core.Path.Panoramas)
     End Sub
 
     Friend Sub CheckPaperdolls()
-        NumPaperdolls = GetFileCount(Core.Path.Paperdolls)
+         State.NumPaperdolls = GetFileCount(Core.Path.Paperdolls)
     End Sub
 
     Friend Sub CheckParallax()
-        NumParallax = GetFileCount(Core.Path.Parallax)
+         State.NumParallax = GetFileCount(Core.Path.Parallax)
     End Sub
 
     Friend Sub CheckPictures()
-        NumPictures = GetFileCount(Core.Path.Pictures)
+         State.NumPictures = GetFileCount(Core.Path.Pictures)
     End Sub
 
     Friend Sub CheckProjectile()
-        NumProjectiles = GetFileCount(Core.Path.Projectiles)
+         State.NumProjectiles = GetFileCount(Core.Path.Projectiles)
     End Sub
 
     Friend Sub CheckResources()
-        NumResources = GetFileCount(Core.Path.Resources)
+         State.NumResources = GetFileCount(Core.Path.Resources)
     End Sub
 
     Friend Sub CheckSkills()
-        NumSkills = GetFileCount(Core.Path.Skills)
+         State.NumSkills = GetFileCount(Core.Path.Skills)
     End Sub
 
     Friend Sub CheckInterface()
-        NumInterface = GetFileCount(Core.Path.Gui)
+         State.NumInterface = GetFileCount(Core.Path.Gui)
     End Sub
 
     Friend Sub CheckGradients()
-        NumGradients = GetFileCount(Core.Path.Gradients)
+         State.NumGradients = GetFileCount(Core.Path.Gradients)
     End Sub
 
     Friend Sub CheckDesigns()
-        NumDesigns = GetFileCount(Core.Path.Designs)
+         State.NumDesigns = GetFileCount(Core.Path.Designs)
     End Sub
 
     Function GetResolutionSize(Resolution As Byte, ByRef Width As Integer, ByRef Height As Integer)
@@ -239,7 +239,7 @@ Module General
     Sub GameInit()
         ' Send a request to the server to open the admin menu if the user wants it.
         If Type.Setting.OpenAdminPanelOnLogin = 1 Then
-            If GetPlayerAccess(MyIndex) > 0 Then
+            If GetPlayerAccess( State.MyIndex) > 0 Then
                 SendRequestAdmin()
             End If
         End If
@@ -278,39 +278,39 @@ Module General
 
     Friend Sub DestroyGame()
         ' break out of GameLoop
-        InGame = False
+         State.InGame = False
         FreeBASS
         End
     End Sub
     
     Public Sub ProcessInputs()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             ' Get the mouse position from the cache
-            Dim mousePos As Tuple(Of Integer, Integer) = GetMousePosition()
+            Dim mousePos As Tuple(Of Integer, Integer) = GameClient.GetMousePosition()
             Dim mouseX As Integer = mousePos.Item1
             Dim mouseY As Integer = mousePos.Item2
 
             ' Convert adjusted coordinates to game world coordinates
-            CurX = TileView.Left + Math.Floor((mouseX + Camera.Left) / PicX)
-            CurY = TileView.Top + Math.Floor((mouseY + Camera.Top) / PicY)
+             State.CurX =  State.TileView.Left + Math.Floor((mouseX +  State.Camera.Left) /  State.PicX)
+             State.CurY =  State.TileView.Top + Math.Floor((mouseY +  State.Camera.Top) /  State.PicY)
 
             ' Store raw mouse coordinates for interface interactions
-            CurMouseX = mouseX
-            CurMouseY = mouseY
+             State.CurMouseX = mouseX
+             State.CurMouseY = mouseY
 
             ' Check for movement keys
-            DirUp = IsKeyStateActive(Keys.W) Or IsKeyStateActive(Keys.Up)
-            DirDown = IsKeyStateActive(Keys.S) Or IsKeyStateActive(Keys.Down)
-            DirLeft = IsKeyStateActive(Keys.A) Or IsKeyStateActive(Keys.Left)
-            DirRight = IsKeyStateActive(Keys.D) Or IsKeyStateActive(Keys.Right)
+             State.DirUp = GameClient.IsKeyStateActive(Keys.W) Or GameClient.IsKeyStateActive(Keys.Up)
+             State.DirDown = GameClient.IsKeyStateActive(Keys.S) Or GameClient.IsKeyStateActive(Keys.Down)
+             State.DirLeft = GameClient.IsKeyStateActive(Keys.A) Or GameClient.IsKeyStateActive(Keys.Left)
+             State.DirRight = GameClient.IsKeyStateActive(Keys.D) Or GameClient.IsKeyStateActive(Keys.Right)
 
             ' Check for action keys
-            VbKeyControl = IsKeyStateActive(Keys.LeftControl)
-            VbKeyShift = IsKeyStateActive(Keys.LeftShift)
+             State.VbKeyControl = GameClient.IsKeyStateActive(Keys.LeftControl)
+             State.VbKeyShift = GameClient.IsKeyStateActive(Keys.LeftShift)
 
             ' Handle Escape key to toggle menus
-            If IsKeyStateActive(Keys.Escape) Then
-                If InMenu Then Exit Sub
+            If GameClient.IsKeyStateActive(Keys.Escape) Then
+                If  State.InMenu Then Exit Sub
 
                 ' Hide options screen
                 If Windows(GetWindowIndex("winOptions")).Window.visible Then
@@ -338,11 +338,11 @@ Module General
                 End If
             End If
             
-            If IsKeyStateActive(Keys.Space) Then
+            If GameClient.IsKeyStateActive(Keys.Space) Then
                 CheckMapGetItem()
             End If
             
-            If IsKeyStateActive(Keys.Insert) Then
+            If GameClient.IsKeyStateActive(Keys.Insert) Then
                 SendRequestAdmin()
             End If
             
@@ -353,25 +353,25 @@ Module General
             
             If Windows(GetWindowIndex("winEscMenu")).Window.visible Then Exit Sub
             
-            If IsKeyStateActive(Keys.I) Then
+            If GameClient.IsKeyStateActive(Keys.I) Then
                 ' hide/show inventory
                 If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Inv
             End If
                 
-            If IsKeyStateActive(Keys.C) Then
+            If GameClient.IsKeyStateActive(Keys.C) Then
                 ' hide/show char
                 If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Char
             End If
             
-            If IsKeyStateActive(Keys.K) Then
+            If GameClient.IsKeyStateActive(Keys.K) Then
                 ' hide/show skills
                 If Not Windows(GetWindowIndex("winChat")).Window.visible Then btnMenu_Skills
             End If
             
-            If IsKeyStateActive(Keys.Enter)
+            If GameClient.IsKeyStateActive(Keys.Enter)
                 If Windows(GetWindowIndex("winChatSmall")).Window.Visible Then
                     ShowChat()
-                    inSmallChat = False
+                     State.inSmallChat = False
                     Exit Sub
                 End If
 
@@ -381,7 +381,7 @@ Module General
     End Sub
     
     Private Sub HandleActiveWindowInput()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             ' Check for active window
             If activeWindow > 0 AndAlso Windows(activeWindow).Window.Visible Then
                 ' Check if an active control exists
@@ -389,7 +389,7 @@ Module General
                     ' Get the active control
                     Dim activeControl = Windows(activeWindow).Controls(Windows(activeWindow).ActiveControl)
 
-                    If IsKeyStateActive(Keys.Enter) Then
+                    If GameClient.IsKeyStateActive(Keys.Enter) Then
                         ' Handle Enter: Call the control’s callback or activate a new control
                         If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
                             activeControl.CallBack(EntState.Enter) = Nothing
@@ -401,7 +401,7 @@ Module General
                             End If
                         End If
 
-                    ElseIf IsKeyStateActive(Keys.Tab) Then
+                    ElseIf GameClient.IsKeyStateActive(Keys.Tab) Then
                         ' Handle Tab: Switch to the next control
                         Dim n As Integer = ActivateControl()
                         
@@ -416,11 +416,11 @@ Module General
     
     ' Handles the hotbar key presses using KeyboardState
     Private Sub HandleHotbarInput()
-        If inSmallChat Then
+        If  State.inSmallChat Then
             ' Iterate through hotbar slots and check for corresponding keys
             For i = 1 To MAX_HOTBAR
                 ' Check if the corresponding hotbar key is pressed
-                If  IsKeyStateActive(Keys.D0 + i) Then
+                If  GameClient.IsKeyStateActive(Keys.D0 + i) Then
                     SendUseHotbarSlot(i)
                     Exit Sub ' Exit once the matching slot is used
                 End If
@@ -429,10 +429,10 @@ Module General
     End Sub
 
     Private Sub HandleTextInput()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             ' Loop through all keys in the keyboard state
             For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-                Dim isKeyDown =  IsKeyStateActive(key)
+                Dim isKeyDown =  GameClient.IsKeyStateActive(key)
 
                 If isKeyDown Then
                     ' Check if enough time has passed since the last key press processing
@@ -450,7 +450,7 @@ Module General
                         End If
 
                         ' Convert key to character
-                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, IsKeyStateActive(Keys.LeftShift))
+                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, GameClient.IsKeyStateActive(Keys.LeftShift))
 
                         ' If valid character and active control is available, add text
                         If character.HasValue AndAlso activeWindow > 0 AndAlso
@@ -529,9 +529,9 @@ Module General
     End Sub
     
     Private Sub HandleScrollWheel()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             ' Handle scroll wheel (assuming delta calculation happens elsewhere)
-            Dim scrollValue = GetMouseScrollDelta()
+            Dim scrollValue = GameClient.GetMouseScrollDelta()
             If scrollValue > 0 Then
                 ScrollChatBox(0) ' Scroll up
             ElseIf scrollValue < 0 Then
@@ -545,58 +545,58 @@ Module General
     End Sub
     
     Private Sub HandleLeftClick()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             Dim currentTime As Integer = Environment.TickCount
             
             ' Detect MouseMove event (when the mouse position changes)
-            If PreviousMouseState.LeftButton = ButtonState.Released And CurrentMouseState.X <> PreviousMouseState.X OrElse
-               CurrentMouseState.Y <> PreviousMouseState.Y Then
+            If GameClient.PreviousMouseState.LeftButton = ButtonState.Released And GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
+               GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
                 HandleInterfaceEvents(EntState.MouseMove)
             End If
             
             ' Check if the left button has just been released after being pressed
-            If CurrentMouseState.LeftButton = ButtonState.Pressed Then
+            If GameClient.CurrentMouseState.LeftButton = ButtonState.Pressed Then
                 ' Detect MouseDown event (when a button is pressed)
-                If CurrentMouseState.LeftButton = ButtonState.Pressed Then
+                If GameClient.CurrentMouseState.LeftButton = ButtonState.Pressed Then
                     HandleInterfaceEvents(EntState.MouseDown)
                 End If
 
                 ' Detect MouseUp event (when a button is released)
-                If CurrentMouseState.LeftButton = ButtonState.Released Then
+                If GameClient.CurrentMouseState.LeftButton = ButtonState.Released Then
                     HandleInterfaceEvents(EntState.MouseUp)
                 End If
                 
-                If PreviousMouseState.LeftButton = ButtonState.Released Then
+                If GameClient.PreviousMouseState.LeftButton = ButtonState.Released Then
                     ' Handle double-click logic
-                    If currentTime - LastLeftClickTime <= DoubleClickTImer Then
+                    If currentTime -  State.LastLeftClickTime <=  State.DoubleClickTImer Then
                         HandleInterfaceEvents(EntState.DblClick)
-                        LastLeftClickTime = 0 ' Reset to avoid consecutive double-clicks
+                         State.LastLeftClickTime = 0 ' Reset to avoid consecutive double-clicks
                     Else
                         HandleInterfaceEvents(EntState.MouseDown)
-                        LastLeftClickTime = currentTime ' Track time for future double-clicks
+                         State.LastLeftClickTime = currentTime ' Track time for future double-clicks
                     End If
                 End If
 
                 ' In-game interactions after a successful left-click
-                If inGame Then
-                    If PetAlive(MyIndex) AndAlso IsInBounds() Then
-                        PetMove(CurX, CurY)
+                If  State.inGame Then
+                    If PetAlive( State.MyIndex) AndAlso IsInBounds() Then
+                        PetMove( State.CurX,  State.CurY)
                     End If
                     CheckAttack(True)
-                    PlayerSearch(CurX, CurY, 0)
+                    PlayerSearch( State.CurX,  State.CurY, 0)
                 End If
             End If
         End SyncLock
     End Sub
 
     Private Sub HandleRightClick()
-        SyncLock InputLock
+        SyncLock GameClient.InputLock
             ' Check if the right button is pressed
-            If CurrentMouseState.RightButton = ButtonState.Pressed Then
-                If VbKeyShift Then
+            If GameClient.CurrentMouseState.RightButton = ButtonState.Pressed Then
+                If  State.VbKeyShift Then
                     ' Admin warp if Shift is held and the player has moderator access
-                    If GetPlayerAccess(MyIndex) >= AccessType.Moderator Then
-                        AdminWarp(CurrentMouseState.X, CurrentMouseState.Y)
+                    If GetPlayerAccess( State.MyIndex) >= AccessType.Moderator Then
+                        AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
                     End If
                 Else
                     ' Handle the right-click menu
@@ -609,16 +609,16 @@ Module General
     Private Sub HandleRightClickMenu()
         ' Loop through all players and display the right-click menu for the matching one
         For i = 1 To MAX_PLAYERS
-            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
-                If GetPlayerX(i) = CurX AndAlso GetPlayerY(i) = CurY Then
+            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap( State.MyIndex) Then
+                If GetPlayerX(i) =  State.CurX AndAlso GetPlayerY(i) = State. CurY Then
                     ' Use current mouse state for the X and Y positions
-                    ShowPlayerMenu(i, CurrentMouseState.X, CurrentMouseState.Y)
+                    ShowPlayerMenu(i, GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
                 End If
             End If
         Next
 
         ' Perform player search at the current cursor position
-        PlayerSearch(CurX, CurY, 1)
+        PlayerSearch( State.CurX,  State.CurY, 1)
     End Sub
     
     Sub GameLoop()
@@ -631,17 +631,20 @@ Module General
         Dim animationtmr(1) As Integer
 
         ' Main game loop
-        While InGame Or InMenu
-            If GameDestroyed Then End
+        While  State.InGame Or  State.InMenu
+            If  State.GameDestroyed Then End
 
             tick = GetTickCount()
-            ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
+             State.ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
             
             frameTime = tick
             
-            SyncLock loadLock
-                TextureCounter = 0
-            End SyncLock
+            'SyncLock loadLock
+            '    TextureCounter = 0
+            'End SyncLock
+            
+            ProcessInputs()
+            State.InGame = true
 
             If GameStarted() Then
                 'Calculate FPS
@@ -655,9 +658,9 @@ Module General
                     tmr25 = tick + 25
                 End If
 
-                If ShowAnimTimer < tick Then
-                    ShowAnimLayers = Not ShowAnimLayers
-                    ShowAnimTimer = tick + 500
+                If  State.ShowAnimTimer < tick Then
+                     State.ShowAnimLayers = Not  State.ShowAnimLayers
+                     State.ShowAnimTimer = tick + 500
                 End If
 
                 For layer = 0 To 1
@@ -670,7 +673,7 @@ Module General
                                         Dim sprite As Integer = Type.Animation(MyMap.Tile(x, y).Data1).Sprite(layer)
 
                                         If sprite > 0 Then
-                                            Dim GfxInfo As GameClient.GfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
+                                            Dim GfxInfo As GameClient.GfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
 
                                             ' Get dimensions and column count from controls and graphic info
                                             Dim totalWidth As Integer = GfxInfo.Width
@@ -719,32 +722,32 @@ mapsync:
                 End If
 
                 ' screenshake
-                If ShakeTimerEnabled Then
-                    If ShakeTimer < tick Then
-                        If ShakeCount < 10 Then
-                            If LastDir = 0 Then
-                                LastDir = 1
+                If  State.ShakeTimerEnabled Then
+                    If  State.ShakeTimer < tick Then
+                        If  State.ShakeCount < 10 Then
+                            If  State.LastDir = 0 Then
+                                 State.LastDir = 1
                             Else
-                                LastDir = 0
+                                 State.LastDir = 0
                             End If
                         Else
-                            ShakeCount = 0
-                            ShakeTimerEnabled = False
+                             State.ShakeCount = 0
+                             State.ShakeTimerEnabled = False
                         End If
 
-                        ShakeCount += 1
+                         State.ShakeCount += 1
 
-                        ShakeTimer = tick + 50
+                         State.ShakeTimer = tick + 50
                     End If
                 End If
 
                 ' check if we need to end the CD icon
-                If NumSkills > 0 Then
+                If  State.NumSkills > 0 Then
                     For i = 1 To MAX_PLAYER_SKILLS
-                        If Type.Player(MyIndex).Skill(i).Num > 0 Then
-                            If Type.Player(MyIndex).Skill(i).CD > 0 Then
-                                If Type.Player(MyIndex).Skill(i).CD + (Type.Skill(Type.Player(MyIndex).Skill(i).Num).CdTime * 1000) < tick Then
-                                    Type.Player(MyIndex).Skill(i).CD = 0
+                        If Type.Player( State.MyIndex).Skill(i).Num > 0 Then
+                            If Type.Player( State.MyIndex).Skill(i).CD > 0 Then
+                                If Type.Player( State.MyIndex).Skill(i).CD + (Type.Skill(Type.Player( State.MyIndex).Skill(i).Num).CdTime * 1000) < tick Then
+                                    Type.Player( State.MyIndex).Skill(i).CD = 0
                                 End If
                             End If
                         End If
@@ -752,22 +755,22 @@ mapsync:
                 End If
 
                 ' check if we need to unlock the player's skill casting restriction
-                If SkillBuffer > 0 Then
-                    If SkillBufferTimer + (Type.Skill(Type.Player(MyIndex).Skill(SkillBuffer).Num).CastTime * 1000) < tick Then
-                        SkillBuffer = 0
-                        SkillBufferTimer = 0
+                If  State.SkillBuffer > 0 Then
+                    If  State.SkillBufferTimer + (Type.Skill(Type.Player( State.MyIndex).Skill( State.SkillBuffer).Num).CastTime * 1000) < tick Then
+                         State.SkillBuffer = 0
+                         State.SkillBufferTimer = 0
                     End If
                 End If
 
                 ' check if we need to unlock the pets's Skill casting restriction
                 If PetSkillBuffer > 0 Then
-                    If PetSkillBufferTimer + (Type.Skill(Type.Pet(Type.Player(MyIndex).Pet.Num).Skill(PetSkillBuffer)).CastTime * 1000) < tick Then
+                    If PetSkillBufferTimer + (Type.Skill(Type.Pet(Type.Player( State.MyIndex).Pet.Num).Skill(PetSkillBuffer)).CastTime * 1000) < tick Then
                         PetSkillBuffer = 0
                         PetSkillBufferTimer = 0
                     End If
                 End If
 
-                If CanMoveNow Then
+                If  State.CanMoveNow Then
                     CheckMovement() ' Check if player is trying to move
                     CheckAttack()   ' Check to see if player is trying to attack
                 End If
@@ -790,7 +793,7 @@ mapsync:
                         End If
                     Next
 
-                    For i = 1 To CurrentEvents
+                    For i = 1 To  State.CurrentEvents
                         ProcessEventMovement(i)
                     Next
 
@@ -800,11 +803,11 @@ mapsync:
                 ' chat timer
                 If chattmr < tick Then
                     ' scrolling
-                    If ChatButtonUp Then
+                    If  State.ChatButtonUp Then
                         ScrollChatBox(0)
                     End If
 
-                    If ChatButtonDown Then
+                    If  State.ChatButtonDown Then
                         ScrollChatBox(1)
                     End If
 
@@ -813,44 +816,44 @@ mapsync:
 
                 ' fog scrolling
                 If fogtmr < tick Then
-                    If CurrentFogSpeed > 0 Then
+                    If  State.CurrentFogSpeed > 0 Then
                         ' move
-                        FogOffsetX = FogOffsetX - 1
-                        FogOffsetY = FogOffsetY - 1
+                         State.FogOffsetX =  State.FogOffsetX - 1
+                         State.FogOffsetY =  State.FogOffsetY - 1
 
                         ' reset
-                        If FogOffsetX < -255 Then FogOffsetX = 1
-                        If FogOffsetY < -255 Then FogOffsetY = 1
-                        fogtmr = tick + 255 - CurrentFogSpeed
+                        If  State.FogOffsetX < -255 Then  State.FogOffsetX = 1
+                        If  State.FogOffsetY < -255 Then  State.FogOffsetY = 1
+                        fogtmr = tick + 255 -  State.CurrentFogSpeed
                     End If
                 End If
 
                 If tmr500 < tick Then
                     ' animate waterfalls
-                    Select Case WaterfallFrame
+                    Select Case  State.WaterfallFrame
                         Case 0
-                            WaterfallFrame = 1
+                             State.WaterfallFrame = 1
                         Case 1
-                            WaterfallFrame = 2
+                             State.WaterfallFrame = 2
                         Case 2
-                            WaterfallFrame = 0
+                             State.WaterfallFrame = 0
                     End Select
 
                     ' animate autotiles
-                    Select Case AutoTileFrame
+                    Select Case  State.AutoTileFrame
                         Case 0
-                            AutoTileFrame = 1
+                             State.AutoTileFrame = 1
                         Case 1
-                            AutoTileFrame = 2
+                             State.AutoTileFrame = 2
                         Case 2
-                            AutoTileFrame = 0
+                             State.AutoTileFrame = 0
                     End Select
 
                     ' animate textbox
-                    If chatShowLine = "|" Then
-                        chatShowLine = ""
+                    If  State.chatShowLine = "|" Then
+                         State.chatShowLine = ""
                     Else
-                        chatShowLine = "|"
+                         State.chatShowLine = "|"
                     End If
 
                     tmr500 = tick + 500
@@ -858,19 +861,19 @@ mapsync:
 
                 ' elastic bars
                 If barTmr < tick Then
-                    SetBarWidth(BarWidth_GuiHP_Max, BarWidth_GuiHP)
-                    SetBarWidth(BarWidth_GuiSP_Max, BarWidth_GuiSP)
-                    SetBarWidth(BarWidth_GuiEXP_Max, BarWidth_GuiEXP)
+                    SetBarWidth( State.BarWidth_GuiHP_Max,  State.BarWidth_GuiHP)
+                    SetBarWidth( State.BarWidth_GuiSP_Max,  State.BarWidth_GuiSP)
+                    SetBarWidth( State.BarWidth_GuiEXP_Max,  State.BarWidth_GuiEXP)
                     For i = 1 To MAX_MAP_NPCS
                         If Type.MyMapNPC(i).Num > 0 Then
-                            SetBarWidth(BarWidth_NpcHP_Max(i), BarWidth_NpcHP(i))
+                            SetBarWidth( State.BarWidth_NpcHP_Max(i),  State.BarWidth_NpcHP(i))
                         End If
                     Next
 
                     For i = 1 To MAX_PLAYERS
-                        If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
-                            SetBarWidth(BarWidth_PlayerHP_Max(i), BarWidth_PlayerHP(i))
-                            SetBarWidth(BarWidth_PlayerSP_Max(i), BarWidth_PlayerSP(i))
+                        If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap( State.MyIndex) Then
+                            SetBarWidth( State.BarWidth_PlayerHP_Max(i),  State.BarWidth_PlayerHP(i))
+                            SetBarWidth( State.BarWidth_PlayerSP_Max(i),  State.BarWidth_PlayerSP(i))
                         End If
                     Next
 
@@ -880,10 +883,10 @@ mapsync:
 
                 ' Change map animation
                 If tmr250 < tick Then
-                    If MapAnim = 0 Then
-                        MapAnim = 1
+                    If  State.MapAnim = 0 Then
+                         State.MapAnim = 1
                     Else
-                        MapAnim = 0
+                         State.MapAnim = 0
                     End If
                     tmr250 = tick + 250
                 End If
@@ -898,10 +901,10 @@ mapsync:
             Else
                 If tmr500 < tick Then
                     ' animate textbox
-                    If chatShowLine = "|" Then
-                        chatShowLine = ""
+                    If  State.chatShowLine = "|" Then
+                         State.chatShowLine = ""
                     Else
-                        chatShowLine = "|"
+                         State.chatShowLine = "|"
                     End If
 
                     tmr500 = tick + 500
@@ -919,36 +922,29 @@ mapsync:
             End If
 
             If fadetmr < tick Then
-                If FadeType <> 2 Then
-                    If FadeType = 1 Then
-                        If FadeAmount = 255 Then
+                If  State.FadeType <> 2 Then
+                    If  State.FadeType = 1 Then
+                        If  State.FadeAmount = 255 Then
                         Else
-                            FadeAmount = FadeAmount + 5
+                             State.FadeAmount =  State.FadeAmount + 5
                         End If
-                    ElseIf FadeType = 0 Then
-                        If FadeAmount = 0 Then
-                            UseFade = False
+                    ElseIf  State.FadeType = 0 Then
+                        If  State.FadeAmount = 0 Then
+                             State.UseFade = False
                         Else
-                            FadeAmount = FadeAmount - 5
+                             State.FadeAmount =  State.FadeAmount - 5
                         End If
                     End If
                 End If
                 fadetmr = tick + 30
             End If
-
-            ' Render game or menu based on state
-            If InGame Then
-                Client.Render_Game()
-            Else
-                Client.Render_Menu()
-            End If
             
             ResizeGUI()
             
             ' Signal that loading is complete
-            SyncLock loadLock
-                if IsLoading Then
-                    isLoading = False
+            SyncLock GameClient.loadLock
+                if GameClient.IsLoading Then
+                    GameClient.isLoading = False
                 End If
             End SyncLock
         End While

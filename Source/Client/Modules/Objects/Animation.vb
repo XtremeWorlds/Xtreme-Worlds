@@ -1,5 +1,4 @@
-﻿Imports Client.GameClient
-Imports Core
+﻿Imports Core
 Imports Microsoft.Xna.Framework
 Imports Mirage.Sharp.Asfw
 
@@ -10,9 +9,9 @@ Module Animation
         If AnimInstance(index).Animation = 0 Then Exit Sub
 
         Dim sprite As Integer = Type.Animation(AnimInstance(index).Animation).Sprite(layer)
-        If sprite < 1 Or sprite > NumAnimations Then Return
+        If sprite < 1 Or sprite > State.NumAnimations Then Return
 
-        Dim gfxInfo As GfxInfo = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
+        Dim gfxInfo As GameClient.GfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
 
         ' Get dimensions and column count from controls and graphic info
         Dim totalWidth As Integer = gfxInfo.Width
@@ -66,7 +65,7 @@ Module Animation
         y = ConvertMapY(y)
 
         ' Render the frame using the calculated source rectangle and position
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Animations, sprite & GfxExt), x, y, sRect.X, sRect.Y, frameWidth, frameHeight, frameWidth, frameHeight)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Animations, sprite), x, y, sRect.X, sRect.Y, frameWidth, frameHeight, frameWidth, frameHeight)
     End Sub
 
     Private Function GetLockedPosition(index As Integer, lockindex As Integer, width As Integer, height As Integer) As Point
@@ -75,19 +74,19 @@ Module Animation
 
         Select Case AnimInstance(index).LockType
             Case TargetType.Player
-                If IsPlaying(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap(MyIndex) Then
-                    x = (GetPlayerX(lockindex) * PicX) + 16 - (width / 2) + Type.Player(lockindex).XOffset
-                    y = (GetPlayerY(lockindex) * PicY) + 16 - (height / 2) + Type.Player(lockindex).YOffset
+                If IsPlaying(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( State.MyIndex) Then
+                    x = (GetPlayerX(lockindex) *  State.PicX) + 16 - (width / 2) + Type.Player(lockindex).XOffset
+                    y = (GetPlayerY(lockindex) *  State.PicY) + 16 - (height / 2) + Type.Player(lockindex).YOffset
                 End If
             Case TargetType.NPC
                 If MyMapNPC(lockindex).Num > 0 AndAlso MyMapNPC(lockindex).Vital(VitalType.HP) > 0 Then
-                    x = (MyMapNPC(lockindex).X * PicX) + 16 - (width / 2) + MyMapNPC(lockindex).XOffset
-                    y = (MyMapNPC(lockindex).Y * PicY) + 16 - (height / 2) + MyMapNPC(lockindex).YOffset
+                    x = (MyMapNPC(lockindex).X *  State.PicX) + 16 - (width / 2) + MyMapNPC(lockindex).XOffset
+                    y = (MyMapNPC(lockindex).Y * State. PicY) + 16 - (height / 2) + MyMapNPC(lockindex).YOffset
                 End If
             Case TargetType.Pet
-                If IsPlaying(lockindex) AndAlso PetAlive(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap(MyIndex) Then
-                    x = (Type.Player(lockindex).Pet.X * PicX) + 16 - (width / 2) + Type.Player(lockindex).Pet.XOffset
-                    y = (Type.Player(lockindex).Pet.Y * PicY) + 16 - (height / 2) + Type.Player(lockindex).Pet.YOffset
+                If IsPlaying(lockindex) AndAlso PetAlive(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( State.MyIndex) Then
+                    x = (Type.Player(lockindex).Pet.X *  State.PicX) + 16 - (width / 2) + Type.Player(lockindex).Pet.XOffset
+                    y = (Type.Player(lockindex).Pet.Y *  State.PicY) + 16 - (height / 2) + Type.Player(lockindex).Pet.YOffset
                 End If
         End Select
 
@@ -106,8 +105,8 @@ Module Animation
         StreamAnimation(AnimInstance(index).Animation)
 
         ' Get dimensions and column count from controls and graphic info
-        Dim totalWidth As Integer = Client.GetgfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Width
-        Dim totalHeight As Integer = Client.GetgfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Height
+        Dim totalWidth As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Width
+        Dim totalHeight As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, AnimInstance(index).Animation)).Height
         Dim columns As Integer = Type.Animation(AnimInstance(index).Animation).Frames(layer)
 
         ' Calculate frame dimensions
@@ -223,7 +222,7 @@ Module Animation
         Type.Animation(index).LoopCount(1) = 1
         Type.Animation(index).LoopTime(0) = 1
         Type.Animation(index).LoopTime(1) = 1
-        Animation_Loaded(index) = False
+         State.Animation_Loaded(index) = False
     End Sub
 
     Sub ClearAnimations()
@@ -285,8 +284,8 @@ Module Animation
     End Sub
 
     Sub StreamAnimation(animationNum As Integer)
-        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or Animation_Loaded(animationNum) = False Then
-            Animation_Loaded(animationNum) = True
+        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or  State.Animation_Loaded(animationNum) = False Then
+             State.Animation_Loaded(animationNum) = True
             SendRequestAnimation(animationNum)
         End If
     End Sub

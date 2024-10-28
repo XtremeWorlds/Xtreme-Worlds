@@ -34,7 +34,7 @@ Module Pet
 
         ReDim Type.Pet(index).Stat(StatType.Count - 1)
         ReDim Type.Pet(index).Skill(4)
-        Pet_Loaded(index) = False
+        GameState.Pet_Loaded(index) = False
     End Sub
 
     Sub ClearPets()
@@ -50,8 +50,8 @@ Module Pet
     End Sub
 
     Sub StreamPet(petNum As Integer)
-        If petNum > 0 And Type.Pet(petNum).Name = "" Or Pet_Loaded(petNum) = False Then
-            Pet_Loaded(petNum) = True
+        If petNum > 0 And Type.Pet(petNum).Name = "" Or GameState.Pet_Loaded(petNum) = False Then
+            GameState.Pet_Loaded(petNum) = True
             SendRequestPet(petNum)
         End If
     End Sub
@@ -280,13 +280,13 @@ Module Pet
 
             Select Case .Dir
                 Case DirectionType.Up
-                    .YOffset = PicY
+                    .YOffset = GameState.PicY
                 Case DirectionType.Down
-                    .YOffset = PicY * -1
+                    .YOffset = GameState.PicY * -1
                 Case DirectionType.Left
-                    .XOffset = PicX
+                    .XOffset = GameState.PicX
                 Case DirectionType.Right
-                    .XOffset = PicX * -1
+                    .XOffset = GameState.PicX * -1
             End Select
         End With
 
@@ -352,8 +352,8 @@ Module Pet
     Friend Sub Packet_PetExperience(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        Type.Player(MyIndex).Pet.Exp = buffer.ReadInt32
-        Type.Player(MyIndex).Pet.Tnl = buffer.ReadInt32
+        Type.Player(GameState.MyIndex).Pet.Exp = buffer.ReadInt32
+        Type.Player(GameState.MyIndex).Pet.Tnl = buffer.ReadInt32
 
         buffer.Dispose()
     End Sub
@@ -370,19 +370,19 @@ Module Pet
 
             Select Case Type.Player(index).Pet.Dir
                 Case DirectionType.Up
-                    Type.Player(index).Pet.YOffset = Type.Player(index).Pet.YOffset - ((ElapsedTime / 1000) * (WalkSpeed * SizeY))
+                    Type.Player(index).Pet.YOffset = Type.Player(index).Pet.YOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
                     If Type.Player(index).Pet.YOffset < 0 Then Type.Player(index).Pet.YOffset = 0
 
                 Case DirectionType.Down
-                    Type.Player(index).Pet.YOffset = Type.Player(index).Pet.YOffset + ((ElapsedTime / 1000) * (WalkSpeed * SizeY))
+                    Type.Player(index).Pet.YOffset = Type.Player(index).Pet.YOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
                     If Type.Player(index).Pet.YOffset > 0 Then Type.Player(index).Pet.YOffset = 0
 
                 Case DirectionType.Left
-                    Type.Player(index).Pet.XOffset = Type.Player(index).Pet.XOffset - ((ElapsedTime / 1000) * (WalkSpeed * SizeX))
+                    Type.Player(index).Pet.XOffset = Type.Player(index).Pet.XOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
                     If Type.Player(index).Pet.XOffset < 0 Then Type.Player(index).Pet.XOffset = 0
 
                 Case DirectionType.Right
-                    Type.Player(index).Pet.XOffset = Type.Player(index).Pet.XOffset + ((ElapsedTime / 1000) * (WalkSpeed * SizeX))
+                    Type.Player(index).Pet.XOffset = Type.Player(index).Pet.XOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
                     If Type.Player(index).Pet.XOffset > 0 Then Type.Player(index).Pet.XOffset = 0
 
             End Select
@@ -440,7 +440,7 @@ Module Pet
 
         spriteNum = Type.Pet(Type.Player(index).Pet.Num).Sprite
 
-        If spriteNum < 1 Or spriteNum > NumCharacters Then Exit Sub
+        If spriteNum < 1 Or spriteNum > GameState.NumCharacters Then Exit Sub
 
         attackspeed = 1000
 
@@ -493,26 +493,26 @@ Module Pet
         End Select
 
         rect = New Microsoft.Xna.Framework.Rectangle(
-            anim * (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4),
-            spriteleft * (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4),
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4,
-             Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4
+            anim * (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4),
+            spriteleft * (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4),
+             GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width \ 4,
+             GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height \ 4
         )
 
         ' Calculate the X
-        x = Type.Player(index).Pet.X * PicX + Type.Player(index).Pet.XOffset - ((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4 - 32) / 2)
+        x = Type.Player(index).Pet.X * GameState.PicX + Type.Player(index).Pet.XOffset - ((GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4 - 32) / 2)
 
         ' Is the player's height more than 32..?
-        If (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height / 4) > 32 Then
+        If (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Height / 4) > 32 Then
             ' Create a 32 pixel offset for larger sprites
-            y = Type.Player(index).Pet.Y * PicY + Type.Player(index).Pet.YOffset - ((Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4) - 32)
+            y = Type.Player(index).Pet.Y * GameState.PicY + Type.Player(index).Pet.YOffset - ((GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, spriteNum)).Width / 4) - 32)
         Else
             ' Proceed as normal
-            y = Type.Player(index).Pet.Y * PicY + Type.Player(index).Pet.YOffset
+            y = Type.Player(index).Pet.Y * GameState.PicY + Type.Player(index).Pet.YOffset
         End If
 
         ' render the actual sprite
-        Client.DrawCharacterSprite(spriteNum, x, y, rect)
+        GameClient.DrawCharacterSprite(spriteNum, x, y, rect)
 
     End Sub
 
@@ -549,12 +549,12 @@ Module Pet
         name = GetPlayerName(index) & "'s " & Type.Pet(Type.Player(index).Pet.Num).Name
 
         ' calc pos
-        textX = ConvertMapX(Type.Player(index).Pet.X * PicX) + Type.Player(index).Pet.XOffset + (PicX \ 2) - TextWidth(name) / 2
-        If Type.Pet(Type.Player(index).Pet.Num).Sprite < 1 Or Type.Pet(Type.Player(index).Pet.Num).Sprite > NumCharacters Then
-            textY = ConvertMapY(Type.Player(index).Pet.Y * PicY) + Type.Player(index).Pet.YOffset - 16
+        textX = ConvertMapX(Type.Player(index).Pet.X * GameState.PicX) + Type.Player(index).Pet.XOffset + (GameState.PicX \ 2) - TextWidth(name) / 2
+        If Type.Pet(Type.Player(index).Pet.Num).Sprite < 1 Or Type.Pet(Type.Player(index).Pet.Num).Sprite > GameState.NumCharacters Then
+            textY = ConvertMapY(Type.Player(index).Pet.Y * GameState.PicY) + Type.Player(index).Pet.YOffset - 16
         Else
             ' Determine location for text
-            textY = ConvertMapY(Type.Player(index).Pet.Y * PicY) + Type.Player(index).Pet.YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.Pet(Type.Player(index).Pet.Num).Sprite)).Height / 4) + 16
+            textY = ConvertMapY(Type.Player(index).Pet.Y * GameState.PicY) + Type.Player(index).Pet.YOffset - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.Pet(Type.Player(index).Pet.Num).Sprite)).Height / 4) + 16
         End If
 
         ' Draw name

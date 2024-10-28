@@ -1,19 +1,9 @@
 ﻿Imports System.IO
 Imports Mirage.Sharp.Asfw
 Imports Core
-Imports SFML.Graphics
-Imports SFML.System
 
 Friend Module Projectile
-
-#Region "Defines"
-    Friend NumProjectiles As Integer
-    Friend InitProjectileEditor As Boolean
-    Friend Const EditorProjectile As Byte = 10
-    Friend ProjectileChanged(MAX_PROJECTILES) As Boolean
-
-#End Region
-
+    
 #Region "Sending"
     Sub SendRequestEditProjectile()
         Dim buffer As ByteStream
@@ -92,7 +82,7 @@ Friend Module Projectile
         Dim buffer As New ByteStream(data)
         i = buffer.ReadInt32
 
-        With MapProjectile(Type.Player(MyIndex).Map, i)
+        With MapProjectile(Type.Player(GameState.MyIndex).Map, i)
             .ProjectileNum = buffer.ReadInt32
             .Owner = buffer.ReadInt32
             .OwnerType = buffer.ReadInt32
@@ -132,13 +122,13 @@ Friend Module Projectile
 
     Sub ClearMapProjectile(projectileNum As Integer)
 
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).Owner = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).OwnerType = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).X = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).Dir = 0
-        MapProjectile(Type.Player(MyIndex).Map, projectileNum).Timer = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).OwnerType = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Dir = 0
+        MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Timer = 0
 
     End Sub
 
@@ -157,26 +147,26 @@ Friend Module Projectile
         Dim sprite As Integer
 
         ' check to see if it's time to move the Projectile
-        If GetTickCount() > MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime Then
-            Select Case MapProjectile(Type.Player(MyIndex).Map, projectileNum).Dir
+        If GetTickCount() > MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime Then
+            Select Case MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Dir
                 Case DirectionType.Up
-                    MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y - 1
+                    MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y - 1
                 Case DirectionType.Down
-                    MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y + 1
+                    MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y + 1
                 Case DirectionType.Left
-                    MapProjectile(Type.Player(MyIndex).Map, projectileNum).X = MapProjectile(Type.Player(MyIndex).Map, projectileNum).X - 1
+                    MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X - 1
                 Case DirectionType.Right
-                    MapProjectile(Type.Player(MyIndex).Map, projectileNum).X = MapProjectile(Type.Player(MyIndex).Map, projectileNum).X + 1
+                    MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X + 1
             End Select
-            MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime = GetTickCount() + Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Speed
-            MapProjectile(Type.Player(MyIndex).Map, projectileNum).Range = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Range + 1
+            MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime = GetTickCount() + Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Speed
+            MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Range = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Range + 1
         End If
 
-        x = MapProjectile(Type.Player(MyIndex).Map, projectileNum).X
-        y = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Y
+        x = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).X
+        y = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y
 
         'Check if its been going for over 1 minute, if so clear.
-       If Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).Timer < GetTickCount() Then canClearProjectile = True
+       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Timer < GetTickCount() Then canClearProjectile = True
 
         If x > MyMap.MaxX Or x < 0 Then canClearProjectile = True
         If y > MyMap.MaxY Or y < 0 Then canClearProjectile = True
@@ -201,14 +191,14 @@ Friend Module Projectile
 
         'Check for player collision
        For i = 1 To MAX_PLAYERS
-            If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(MyIndex) Then
+            If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
                 If GetPlayerX(i) = x And GetPlayerY(i) = y Then
                     canClearProjectile = True
                     collisionindex = i
                     collisionType = TargetType.Player
                     collisionZone = -1
-                   If Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).OwnerType = TargetType.Player Then
-                       If Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).Owner = i Then canClearProjectile = False ' Reset if its the owner of projectile
+                   If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).OwnerType = TargetType.Player Then
+                       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = i Then canClearProjectile = False ' Reset if its the owner of projectile
                     End If
                     Exit For
                 End If
@@ -217,12 +207,12 @@ Friend Module Projectile
         Next
 
         'Check if it has hit its maximum range
-       If Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).Range >= Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Range + 1 Then canClearProjectile = True
+       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Range >= Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Range + 1 Then canClearProjectile = True
 
         'Clear the projectile if possible
         If canClearProjectile = True Then
             'Only send the clear to the server if you're the projectile caster or the one hit (only if owner is not a player)
-            If (Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).OwnerType = TargetType.Player And MapProjectile(Type.Player(MyIndex).Map, projectileNum).Owner = MyIndex) Then
+            If (Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).OwnerType = TargetType.Player And MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = GameState.MyIndex) Then
                 SendClearProjectile(projectileNum, collisionindex, collisionType, collisionZone)
             End If
 
@@ -230,35 +220,35 @@ Friend Module Projectile
             Exit Sub
         End If
 
-        sprite = Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Sprite
-        If sprite < 1 Or sprite > NumProjectiles Then Exit Sub
+        sprite = Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Sprite
+        If sprite < 1 Or sprite > GameState.NumProjectiles Then Exit Sub
 
         ' src rect
         With rec
             .Top = 0
-            .Bottom = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Projectiles, sprite)).Height
-            .Left = MapProjectile(Type.Player(MyIndex).Map, projectileNum).Dir * PicX
-            .Right = .Left + PicX
+            .Bottom = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Projectiles, sprite)).Height
+            .Left = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Dir * GameState.PicX
+            .Right = .Left + GameState.PicX
         End With
 
         'Find the offset
-        Select Case MapProjectile(Type.Player(MyIndex).Map, projectileNum).Dir
+        Select Case MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Dir
             Case DirectionType.Up
-                yOffset = ((Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Speed) * PicY
+                yOffset = ((Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Speed) * GameState.PicY
             Case DirectionType.Down
-                yOffset = -((Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Speed) * PicY
+                yOffset = -((Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Speed) * GameState.PicY
             Case DirectionType.Left
-                xOffset = ((Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Speed) * PicX
+                xOffset = ((Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Speed) * GameState.PicX
             Case DirectionType.Right
-                xOffset = -((Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(MyIndex).Map, projectileNum).ProjectileNum).Speed) * PicX
+                xOffset = -((Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).TravelTime - GetTickCount()) / Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Speed) * GameState.PicX
         End Select
 
         ' Convert coordinates
-        x = ConvertMapX(x * PicX)
-        y = ConvertMapY(y * PicY)
+        x = ConvertMapX(x * GameState.PicX)
+        y = ConvertMapY(y * GameState.PicY)
 
         ' Render texture
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Projectiles & sprite), x, y, rec.Left, rec.Top, 32, 32)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Projectiles & sprite), x, y, rec.Left, rec.Top, 32, 32)
 
     End Sub
     

@@ -8,19 +8,19 @@ Module GameLogic
 
             Select Case MyMapNPC(MapNPCNum).Dir
                 Case DirectionType.Up
-                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset - ((ElapsedTime / 1000) * (WalkSpeed * SizeY))
+                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
                     If MyMapNPC(MapNPCNum).YOffset < 0 Then MyMapNPC(MapNPCNum).YOffset = 0
 
                 Case DirectionType.Down
-                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset + ((ElapsedTime / 1000) * (WalkSpeed * SizeY))
+                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
                     If MyMapNPC(MapNPCNum).YOffset > 0 Then MyMapNPC(MapNPCNum).YOffset = 0
 
                 Case DirectionType.Left
-                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset - ((ElapsedTime / 1000) * (WalkSpeed * SizeX))
+                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
                     If MyMapNPC(MapNPCNum).XOffset < 0 Then MyMapNPC(MapNPCNum).XOffset = 0
 
                 Case DirectionType.Right
-                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset + ((ElapsedTime / 1000) * (WalkSpeed * SizeX))
+                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
                     If MyMapNPC(MapNPCNum).XOffset > 0 Then MyMapNPC(MapNPCNum).XOffset = 0
 
             End Select
@@ -53,8 +53,8 @@ Module GameLogic
     Friend Function IsInBounds()
         IsInBounds = False
 
-        If (CurX >= 0) And (CurX <= MyMap.MaxX) Then
-            If (CurY >= 0) And (CurY <= MyMap.MaxY) Then
+        If (GameState.CurX >= 0) And (GameState.CurX <= MyMap.MaxX) Then
+            If (GameState.CurY >= 0) And (GameState.CurY <= MyMap.MaxY) Then
                 IsInBounds = True
             End If
         End If
@@ -63,18 +63,18 @@ Module GameLogic
 
     Function GameStarted() As Boolean
         GameStarted = False
-        If InGame = False Then Exit Function
-        If MapData = False Then Exit Function
-        If PlayerData = False Then Exit Function
+        If GameState.InGame = False Then Exit Function
+        If GameState.MapData = False Then Exit Function
+        If GameState.PlayerData = False Then Exit Function
         GameStarted = True
     End Function
 
     Friend Sub CreateActionMsg(message As String, color As Integer, msgType As Byte, x As Integer, y As Integer)
 
-        ActionMsgIndex = ActionMsgIndex + 1
-        If ActionMsgIndex >= Byte.MaxValue Then ActionMsgIndex = 1
+        GameState.ActionMsgIndex = GameState.ActionMsgIndex + 1
+        If GameState.ActionMsgIndex >= Byte.MaxValue Then GameState.ActionMsgIndex = 1
 
-        With ActionMsg(ActionMsgIndex)
+        With ActionMsg(GameState.ActionMsgIndex)
             .Message = message
             .Color = color
             .Type = msgType
@@ -84,9 +84,9 @@ Module GameLogic
             .Y = y
         End With
 
-        If ActionMsg(ActionMsgIndex).Type = ActionMsgType.Scroll Then
-            ActionMsg(ActionMsgIndex).Y = ActionMsg(ActionMsgIndex).Y + Rand(-2, 6)
-            ActionMsg(ActionMsgIndex).X = ActionMsg(ActionMsgIndex).X + Rand(-8, 8)
+        If ActionMsg(GameState.ActionMsgIndex).Type = ActionMsgType.Scroll Then
+            ActionMsg(GameState.ActionMsgIndex).Y = ActionMsg(GameState.ActionMsgIndex).Y + Rand(-2, 6)
+            ActionMsg(GameState.ActionMsgIndex).X = ActionMsg(GameState.ActionMsgIndex).X + Rand(-8, 8)
         End If
 
     End Sub
@@ -136,7 +136,7 @@ Module GameLogic
         Dim command() As String
         Dim buffer As ByteStream
 
-        If InGame Then
+        If GameState.InGame Then
             chatText = Windows(GetWindowIndex("winChat")).Controls(GetControlIndex("winChat", "txtChat")).Text
         End If
 
@@ -236,9 +236,9 @@ Module GameLogic
                     AddText(Language.Chat.Help6, ColorType.Yellow)
 
                 Case "/info"
-                    If MyTarget > 0 Then
-                        If MyTargetType = TargetType.Player Then
-                            SendPlayerInfo(GetPlayerName(MyTarget))
+                    If GameState.MyTarget > 0 Then
+                        If GameState.MyTargetType = TargetType.Player Then
+                            SendPlayerInfo(GetPlayerName(GameState.MyTarget))
                             GoTo Continue1
                         End If
                     End If
@@ -261,10 +261,10 @@ Module GameLogic
 
                 ' Checking fps
                 Case "/fps"
-                    Bfps = Not Bfps
+                    GameState.Bfps = Not GameState.Bfps
 
                 Case "/lps"
-                    Blps = Not Blps
+                    GameState.Blps = Not GameState.Blps
 
                 ' Request stats
                 Case "/stats"
@@ -274,9 +274,9 @@ Module GameLogic
                     buffer.Dispose()
 
                 Case "/party"
-                    If MyTarget > 0 Then
-                        If MyTargetType = TargetType.Player Then
-                            SendPartyRequest(GetPlayerName(MyTarget))
+                    If GameState.MyTarget > 0 Then
+                        If GameState.MyTargetType = TargetType.Player Then
+                            SendPartyRequest(GetPlayerName(GameState.MyTarget))
                             GoTo Continue1
                         End If
                     End If
@@ -299,9 +299,9 @@ Module GameLogic
 
                 ' Trade
                 Case "/trade"
-                    If MyTarget > 0 Then
-                        If MyTargetType = TargetType.Player Then
-                            SendTradeRequest(GetPlayerName(MyTarget))
+                    If GameState.MyTarget > 0 Then
+                        If GameState.MyTargetType = TargetType.Player Then
+                            SendTradeRequest(GetPlayerName(GameState.MyTarget))
                             GoTo Continue1
                         End If
                     End If
@@ -317,7 +317,7 @@ Module GameLogic
                 ' // Moderator Admin Commands //
                 ' Admin Help
                 Case "/admin"
-                    If GetPlayerAccess(MyIndex) < AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Moderator Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -330,7 +330,7 @@ Module GameLogic
                 ' Kicking a player
                 Case "/kick"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Moderator Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -346,17 +346,17 @@ Module GameLogic
                 ' Location
                 Case "/loc"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
 
-                    BLoc = Not BLoc
+                    GameState.BLoc = Not GameState.BLoc
 
                 ' Warping to a player
                 Case "/warpmeto"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -371,7 +371,7 @@ Module GameLogic
                 ' Warping a player to you
                 Case "/warptome"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -386,7 +386,7 @@ Module GameLogic
                 ' Warping to a map
                 Case "/warpto"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -408,7 +408,7 @@ Module GameLogic
                 ' Setting sprite
                 Case "/sprite"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -423,7 +423,7 @@ Module GameLogic
                 ' Map report
                 Case "/mapreport"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -433,7 +433,7 @@ Module GameLogic
                 ' Respawn request
                 Case "/respawn"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -442,7 +442,7 @@ Module GameLogic
 
                 Case "/editmap"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Mapper Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Mapper Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -453,7 +453,7 @@ Module GameLogic
                 ' Welcome change
                 Case "/welcome"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Moderator Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -468,7 +468,7 @@ Module GameLogic
                 ' Check the ban list
                 Case "/banlist"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Moderator Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -478,7 +478,7 @@ Module GameLogic
                 ' Banning a player
                 Case "/ban"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Moderator Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -494,7 +494,7 @@ Module GameLogic
                 ' Giving another player access
                 Case "/bandestroy"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Owner Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Owner Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -503,7 +503,7 @@ Module GameLogic
 
                 Case "/access"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Owner Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Owner Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -520,7 +520,7 @@ Module GameLogic
                 ' // Developer Admin Commands //
                 Case "/editresource"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -529,7 +529,7 @@ Module GameLogic
 
                 Case "/editanimation"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -538,7 +538,7 @@ Module GameLogic
 
                 Case "/editpet"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -547,7 +547,7 @@ Module GameLogic
 
                 Case "/edititem"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -556,7 +556,7 @@ Module GameLogic
 
                 Case "/editprojectile"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -565,7 +565,7 @@ Module GameLogic
 
                 Case "/editnpc"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -574,7 +574,7 @@ Module GameLogic
 
                 Case "/editjob"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -583,7 +583,7 @@ Module GameLogic
 
                 Case "/editskill"
 
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -591,7 +591,7 @@ Module GameLogic
                     SendRequestEditSkill()
 
                 Case "/editshop"
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -600,7 +600,7 @@ Module GameLogic
 
                     
                 Case "/editmoral"
-                    If GetPlayerAccess(MyIndex) < AccessType.Developer Then
+                    If GetPlayerAccess(GameState.MyIndex) < AccessType.Developer Then
                         AddText(Language.Chat.AccessAlert, ColorType.BrightRed)
                         GoTo Continue1
                     End If
@@ -624,8 +624,8 @@ Continue1:
         Dim buffer As New ByteStream(4)
         buffer = New ByteStream(4)
 
-        If GetTickCount() > Type.Player(MyIndex).MapGetTimer + 250 Then
-            Type.Player(MyIndex).MapGetTimer = GetTickCount()
+        If GetTickCount() > Type.Player(GameState.MyIndex).MapGetTimer + 250 Then
+            Type.Player(GameState.MyIndex).MapGetTimer = GetTickCount()
             buffer.WriteInt32(ClientPackets.CMapGetItem)
             Socket.SendData(buffer.Data, buffer.Head)
         End If
@@ -645,7 +645,7 @@ Continue1:
 
     Friend Sub UpdateDrawMapName()
         If MyMap.Moral > 0 Then
-            DrawMapNameColor = Client.QbColorToXnaColor(Type.Moral(MyMap.Moral).Color)
+            GameState.DrawMapNameColor = GameClient.QbColorToXnaColor(Type.Moral(MyMap.Moral).Color)
         End If
     End Sub
 
@@ -653,18 +653,18 @@ Continue1:
         Dim i As Integer, index As Integer
 
         ' Set the global index
-        ChatBubbleindex = ChatBubbleindex + 1
-        If ChatBubbleindex < 1 Or ChatBubbleindex > Byte.MaxValue Then ChatBubbleindex = 1
+        GameState.ChatBubbleindex = GameState.ChatBubbleindex + 1
+        If GameState.ChatBubbleindex < 1 Or GameState.ChatBubbleindex > Byte.MaxValue Then GameState.ChatBubbleindex = 1
 
         ' Default to new bubble
-        index = ChatBubbleindex
+        index = GameState.ChatBubbleindex
 
         ' Loop through and see if that player/npc already has a chat bubble
         For i = 1 To Byte.MaxValue
             If ChatBubble(i).TargetType = targetType Then
                 If ChatBubble(i).Target = target Then
                     ' Reset master index
-                    If ChatBubbleindex > 1 Then ChatBubbleindex = ChatBubbleindex - 1
+                    If GameState.ChatBubbleindex > 1 Then GameState.ChatBubbleindex = GameState.ChatBubbleindex - 1
 
                     ' We use this one now, yes?
                     index = i
@@ -824,13 +824,13 @@ Continue1:
         End With
 
         ' set it all up
-        diaIndex = Index
-        diaData1 = Data1
-        diaData2 = Data2
-        diaData3 = Data3
-        diaData4 = Data4
-        diaData5 = Data5
-        diaStyle = style
+        GameState.diaIndex = Index
+        GameState.diaData1 = Data1
+        GameState.diaData2 = Data2
+        GameState.diaData3 = Data3
+        GameState.diaData4 = Data4
+        GameState.diaData5 = Data5
+        GameState.diaStyle = style
 
         ' make the windows visible
         ShowWindow(GetWindowIndex("winDialogue"), True)
@@ -846,32 +846,32 @@ Continue1:
         ' Find out which button
         If Index = 1 Then ' Okay button
             ' Dialogue index
-            Select Case diaIndex
+            Select Case GameState.diaIndex
                 Case DialogueType.TradeAmount
                     value = Val(diaInput)
-                    TradeItem(diaData1, value)
+                    TradeItem(GameState.diaData1, value)
 
                 Case DialogueType.DepositItem
                     value = Val(diaInput)
-                    DepositItem(diaData1, value)
+                    DepositItem(GameState.diaData1, value)
 
                 Case DialogueType.WithdrawItem
                     value = Val(diaInput)
-                    WithdrawItem(diaData1, value)
+                    WithdrawItem(GameState.diaData1, value)
 
                 Case DialogueType.DropItem
                     value = Val(diaInput)
-                    SendDropItem(diaData1, value)
+                    SendDropItem(GameState.diaData1, value)
             End Select
 
         ElseIf Index = 2 Then ' Yes button
             ' Dialogue index
-            Select Case diaIndex
+            Select Case GameState.diaIndex
                 Case DialogueType.Trade
                     SendHandleTradeInvite(1)
 
                 Case DialogueType.Forget
-                    ForgetSkill(diaData1)
+                    ForgetSkill(GameState.diaData1)
 
                 Case DialogueType.Party
                     SendAcceptParty()
@@ -880,17 +880,17 @@ Continue1:
                     CheckMapGetItem()
 
                 Case DialogueType.DelChar
-                    SendDelChar(diaData1)
+                    SendDelChar(GameState.diaData1)
 
                 Case DialogueType.FillLayer
-                    If diaData2 > 1 Then
+                    If GameState.diaData2 > 1 Then
                         For X = 0 To MyMap.MaxX
                             For Y = 0 To MyMap.MaxY
-                                MyMap.Tile(X, Y).Layer(diaData1).X = diaData3
-                                MyMap.Tile(X, Y).Layer(diaData1).Y = diaData4
-                                MyMap.Tile(X, Y).Layer(diaData1).Tileset = diaData5
-                                MyMap.Tile(X, Y).Layer(diaData1).AutoTile = diaData2
-                                CacheRenderState(X, Y, diaData1)
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).X = GameState.diaData3
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).Y = GameState.diaData4
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).Tileset = GameState.diaData5
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).AutoTile = GameState.diaData2
+                                CacheRenderState(X, Y, GameState.diaData1)
                             Next
                         Next
 
@@ -899,11 +899,11 @@ Continue1:
                     Else
                         For X = 0 To MyMap.MaxX
                             For Y = 0 To MyMap.MaxY
-                                MyMap.Tile(X, Y).Layer(diaData1).X = diaData3
-                                MyMap.Tile(X, Y).Layer(diaData1).Y = diaData4
-                                MyMap.Tile(X, Y).Layer(diaData1).Tileset = diaData5
-                                MyMap.Tile(X, Y).Layer(diaData1).AutoTile = 0
-                                CacheRenderState(X, Y, diaData1)
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).X = GameState.diaData3
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).Y = GameState.diaData4
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).Tileset = GameState.diaData5
+                                MyMap.Tile(X, Y).Layer(GameState.diaData1).AutoTile = 0
+                                CacheRenderState(X, Y, GameState.diaData1)
                             Next
                         Next
                     End If
@@ -912,11 +912,11 @@ Continue1:
                     For X = 0 To MyMap.MaxX
                         For Y = 0 To MyMap.MaxY
                             With MyMap.Tile(X, Y)
-                                .Layer(diaData1).X = 0
-                                .Layer(diaData1).Y = 0
-                                .Layer(diaData1).Tileset = 0
-                                .Layer(diaData1).AutoTile = 0
-                                CacheRenderState(X, Y, diaData1)
+                                .Layer(GameState.diaData1).X = 0
+                                .Layer(GameState.diaData1).Y = 0
+                                .Layer(GameState.diaData1).Tileset = 0
+                                .Layer(GameState.diaData1).AutoTile = 0
+                                CacheRenderState(X, Y, GameState.diaData1)
                             End With
                         Next
                     Next
@@ -932,7 +932,7 @@ Continue1:
 
         ElseIf Index = 3 Then ' No button
             ' Dialogue index
-            Select Case diaIndex
+            Select Case GameState.diaIndex
                 Case DialogueType.Trade
                     SendHandleTradeInvite(0)
 
@@ -942,16 +942,16 @@ Continue1:
         End If
 
         CloseDialogue()
-        diaIndex = 0
+        GameState.diaIndex = 0
         diaInput = ""
     End Sub
 
     Public Sub ShowJobs()
         HideWindows()
-        newCharJob = 1
-        newCharSprite = 1
-        newCharGender = SexType.Male
-        Windows(GetWindowIndex("winJob")).Controls(GetControlIndex("winJob", "lblClassName")).Text = Type.Job(newCharJob).Name
+        GameState.newCharJob = 1
+        GameState.newCharSprite = 1
+        GameState.newCharGender = SexType.Male
+        Windows(GetWindowIndex("winJob")).Controls(GetControlIndex("winJob", "lblClassName")).Text = Type.Job(GameState.newCharJob).Name
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "txtName")).Text = ""
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkMale")).Value = 1
         Windows(GetWindowIndex("winNewChar")).Controls(GetControlIndex("winNewChar", "chkFemale")).Value = 0
@@ -973,8 +973,8 @@ Continue1:
         ' Set the active control
         activeWindow = GetWindowIndex("winChat")
         SetActiveControl(GetWindowIndex("winChat"), GetControlIndex("winChat", "txtChat"))
-        inSmallChat = False
-        ChatScroll = 0
+        GameState.inSmallChat = False
+        GameState.ChatScroll = 0
     End Sub
 
     Public Sub HideChat()
@@ -985,16 +985,16 @@ Continue1:
         activeWindow = GetWindowIndex("winChat")
         SetActiveControl(GetWindowIndex("winChat"), GetControlIndex("winChat", "txtChat"))
 
-        inSmallChat = True
-        ChatScroll = 0
+        GameState.inSmallChat = True
+        GameState.ChatScroll = 0
     End Sub
 
     Public Sub SetChatHeight(Height As Long)
-        actChatHeight = Height
+        GameState.actChatHeight = Height
     End Sub
 
     Public Sub SetChatWidth(Width As Long)
-        actChatWidth = Width
+        GameState.actChatWidth = Width
     End Sub
 
     Public Sub UpdateChat()
@@ -1003,14 +1003,14 @@ Continue1:
 
     Public Sub ScrollChatBox(ByVal direction As Byte)
         If direction = 0 Then ' up
-            If Len(Chat(ChatScroll + 7).Text) > 0 Then
-                If ChatScroll < CHAT_LINES Then
-                    ChatScroll = ChatScroll + 1
+            If Len(Chat(GameState.ChatScroll + 7).Text) > 0 Then
+                If GameState.ChatScroll < CHAT_LINES Then
+                    GameState.ChatScroll = GameState.ChatScroll + 1
                 End If
             End If
         Else
-            If ChatScroll > 0 Then
-                ChatScroll = ChatScroll - 1
+            If GameState.ChatScroll > 0 Then
+                GameState.ChatScroll = GameState.ChatScroll - 1
             End If
         End If
     End Sub
@@ -1021,15 +1021,15 @@ Continue1:
 
         For i = 1 To MAX_Hotbar
             With tempRec
-                .Top = StartY + HotbarTop
-                .Left = StartX + ((i - 1) * HotbarOffsetX)
-                .Right = .Left + PicX
-                .Bottom = .Top + PicY
+                .Top = StartY + GameState.HotbarTop
+                .Left = StartX + ((i - 1) * GameState.HotbarOffsetX)
+                .Right = .Left + GameState.PicX
+                .Bottom = .Top + GameState.PicY
             End With
 
-            If Type.Player(MyIndex).Hotbar(i).Slot > 0 Then
-                If CurMouseX >= tempRec.Left And CurMouseX <= tempRec.Right Then
-                    If CurMouseY >= tempRec.Top And CurMouseY <= tempRec.Bottom Then
+            If Type.Player(GameState.MyIndex).Hotbar(i).Slot > 0 Then
+                If GameState.CurMouseX >= tempRec.Left And GameState.CurMouseX <= tempRec.Right Then
+                    If GameState.CurMouseY >= tempRec.Top And GameState.CurMouseY <= tempRec.Bottom Then
                         IsHotbar = i
                         Exit Function
                     End If
@@ -1044,9 +1044,9 @@ Continue1:
         If invNum <= 0 Or invNum > MAX_INV Then Exit Sub
 
         ' show
-        If GetPlayerInv(MyIndex, invNum) > 0 Then
-            If Type.Item(GetPlayerInv(MyIndex, invNum)).BindType > 0 And Type.Player(MyIndex).Inv(invNum).Bound > 0 Then soulBound = True
-            ShowItemDesc(x, y, GetPlayerInv(MyIndex, invNum))
+        If GetPlayerInv(GameState.MyIndex, invNum) > 0 Then
+            If Type.Item(GetPlayerInv(GameState.MyIndex, invNum)).BindType > 0 And Type.Player(GameState.MyIndex).Inv(invNum).Bound > 0 Then soulBound = True
+            ShowItemDesc(x, y, GetPlayerInv(GameState.MyIndex, invNum))
         End If
     End Sub
 
@@ -1054,8 +1054,8 @@ Continue1:
         Dim Color As Microsoft.Xna.Framework.Color, theName As String, jobName As String, levelTxt As String, i As Long
 
         ' set globals
-        descType = PartType.Item ' inventory
-        descItem = itemNum
+        GameState.descType = PartType.Item ' inventory
+        GameState.descItem = itemNum
 
         ' set position
         Windows(GetWindowIndex("winDescription")).Window.Left = x
@@ -1065,11 +1065,11 @@ Continue1:
         ShowWindow(GetWindowIndex("winDescription"), , False)
 
         ' exit out early if last is same
-        If (descLastType = descType) And (descLastItem = descItem) Then Exit Sub
+        If (GameState.descLastType = GameState.descType) And (GameState.descLastItem = GameState.descItem) Then Exit Sub
 
         ' set last to this
-        descLastType = descType
-        descLastItem = descItem
+        GameState.descLastType = GameState.descType
+        GameState.descLastItem = GameState.descItem
 
         ' show req. labels
         Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "lblClass")).Visible = True
@@ -1105,7 +1105,7 @@ Continue1:
             If Type.Item(itemNum).JobReq > 0 Then
                 jobName = Type.Job(Type.Item(itemNum).JobReq).Name
                 ' do we match it?
-                If GetPlayerJob(MyIndex) = Type.Item(itemNum).JobReq Then
+                If GetPlayerJob(GameState.MyIndex) = Type.Item(itemNum).JobReq Then
                     Color = Color.Green
                 Else
                     Color = Color.Red
@@ -1122,7 +1122,7 @@ Continue1:
             If Type.Item(itemNum).LevelReq > 0 Then
                 levelTxt = "Level " & Type.Item(itemNum).LevelReq
                 ' do we match it?
-                If GetPlayerLevel(MyIndex) >= Type.Item(itemNum).LevelReq Then
+                If GetPlayerLevel(GameState.MyIndex) >= Type.Item(itemNum).LevelReq Then
                     Color = Color.Green
                 Else
                     Color = Color.Red
@@ -1136,7 +1136,7 @@ Continue1:
         End With
 
         ' clear
-        ReDim descText(1)
+        ReDim GameState.descText(1)
 
         ' go through the rest of the text
         Select Case Type.Item(itemNum).Type
@@ -1265,8 +1265,8 @@ Continue1:
         Dim Color As Long, theName As String, sUse As String, i As Long, barWidth As Long, tmpWidth As Long
 
         ' set globals
-        descType = 2 ' Skill
-        descItem = Skillnum
+        GameState.descType = 2 ' Skill
+        GameState.descItem = Skillnum
     
         ' set position
         Windows(GetWindowIndex("winDescription")).Window.Left = x
@@ -1276,10 +1276,10 @@ Continue1:
         ShowWindow(GetWindowIndex("winDescription"), , False)
     
         ' exit out early if last is same
-        If (descLastType = descType) And (descLastItem = descItem) Then Exit Sub
+        If (GameState.descLastType = GameState.descType) And (GameState.descLastItem = GameState.descItem) Then Exit Sub
     
         ' clear
-        ReDim descText(1)
+        ReDim GameState.descText(1)
     
         ' hide req. labels
         Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "lblLevel")).Visible = False
@@ -1306,7 +1306,7 @@ Continue1:
                     Color = ColorType.White
                     'sUse = "Uses: " & PlayerSkills(SkillSlot).Uses & "/" & Type.Skill(skillNum).NextUses
                     'If PlayerSkills(SkillSlot).Uses = Type.Skill(skillNum).NextUses Then
-                        'If Not GetPlayerLevel(MyIndex) >= Skill(Type.Skill(skillNum).NextRank).LevelReq Then
+                        'If Not GetPlayerLevel(GameState.MyIndex) >= Skill(Type.Skill(skillNum).NextRank).LevelReq Then
                             'Color = BrightRed
                             'sUse = "Lvl " & Skill(Type.Skill(skillNum).NextRank).LevelReq & " req."
                         'End If
@@ -1386,24 +1386,24 @@ Continue1:
         If eqNum <= 0 Or eqNum > EquipmentType.Count - 1 Then Exit Sub
 
         ' show
-        If Type.Player(MyIndex).Equipment(eqNum) Then
-            If Type.Item(Type.Player(MyIndex).Equipment(eqNum)).BindType > 0 Then soulBound = True
-            ShowItemDesc(x, y, Type.Player(MyIndex).Equipment(eqNum))
+        If Type.Player(GameState.MyIndex).Equipment(eqNum) Then
+            If Type.Item(Type.Player(GameState.MyIndex).Equipment(eqNum)).BindType > 0 Then soulBound = True
+            ShowItemDesc(x, y, Type.Player(GameState.MyIndex).Equipment(eqNum))
         End If
     End Sub
 
     Public Sub AddDescInfo(text As String, color As Microsoft.Xna.Framework.Color)
         Dim count As Long
-        count = UBound(descText)
-        ReDim Preserve descText(count + 1)
-        descText(count + 1).Text = text
-        descText(count + 1).Color = color
+        count = UBound(GameState.descText)
+        ReDim Preserve GameState.descText(count + 1)
+        GameState.descText(count + 1).Text = text
+        GameState.descText(count + 1).Color = color
     End Sub
 
     Public Sub LogoutGame()
-        isLogging = True
-        InGame = False
-        InMenu = True
+        GameState.isLogging = True
+        GameState.InMenu = True
+        GameState.InGame = False
 
         DestroyNetwork()
         InitNetwork()
@@ -1442,14 +1442,14 @@ Continue1:
 
     Public Sub OpenShop(shopNum As Long)
         ' set globals
-        InShop = shopNum
-        shopSelectedSlot = 1
-        shopSelectedItem = Type.Shop(InShop).TradeItem(1).Item
+        GameState.InShop = shopNum
+        GameState.shopSelectedSlot = 1
+        GameState.shopSelectedItem = Type.Shop(GameState.InShop).TradeItem(1).Item
         Windows(GetWindowIndex("winShop")).Controls(GetControlIndex("winShop", "chkSelling")).Value = 0
         Windows(GetWindowIndex("winShop")).Controls(GetControlIndex("winShop", "chkBuying")).Value = 1
         Windows(GetWindowIndex("winShop")).Controls(GetControlIndex("winShop", "btnSell")).visible = False
         Windows(GetWindowIndex("winShop")).Controls(GetControlIndex("winShop", "btnBuy")).visible = True
-        shopIsSelling = False
+        GameState.shopIsSelling = False
     
         ' set the current item
         UpdateShop
@@ -1461,10 +1461,10 @@ Continue1:
     Public Sub CloseShop()
         SendCloseShop
         HideWindow(GetWindowIndex("winShop"))
-        shopSelectedSlot = 0
-        shopSelectedItem = 0
-        shopIsSelling = False
-        InShop = 0
+        GameState.shopSelectedSlot = 0
+        GameState.shopSelectedItem = 0
+        GameState.shopIsSelling = False
+        GameState.InShop = 0
     End Sub
 
     Sub UpdatePartyBars()
@@ -1515,7 +1515,7 @@ Continue1:
         ' set the controls up
         With Windows(GetWindowIndex("winTrade"))
             .Window.text = "Trading with " & GetPlayerName(InTrade)
-            .Controls(GetControlIndex("winTrade", "lblYourTrade")).text = GetPlayerName(MyIndex) & "'s Offer"
+            .Controls(GetControlIndex("winTrade", "lblYourTrade")).text = GetPlayerName(GameState.MyIndex) & "'s Offer"
             .Controls(GetControlIndex("winTrade", "lblTheirTrade")).text = GetPlayerName(InTrade) & "'s Offer"
             .Controls(GetControlIndex("winTrade", "lblYourValue")).text = "0g"
             .Controls(GetControlIndex("winTrade", "lblTheirValue")).text = "0g"
@@ -1524,11 +1524,11 @@ Continue1:
     End Sub
 
     Sub ShowPlayerMenu(Index As Long, X As Long, Y As Long)
-        PlayerMenuIndex = Index
-        If PlayerMenuIndex = 0 Or PlayerMenuIndex = MyIndex Then Exit Sub
+        GameState.PlayerMenuIndex = Index
+        If GameState.PlayerMenuIndex = 0 Or GameState.PlayerMenuIndex = GameState.MyIndex Then Exit Sub
         Windows(GetWindowIndex("winPlayerMenu")).Window.Left = X - 5
         Windows(GetWindowIndex("winPlayerMenu")).Window.Top = Y - 5
-        Windows(GetWindowIndex("winPlayerMenu")).Controls(GetControlIndex("winPlayerMenu", "btnName")).text = GetPlayerName(PlayerMenuIndex)
+        Windows(GetWindowIndex("winPlayerMenu")).Controls(GetControlIndex("winPlayerMenu", "btnName")).text = GetPlayerName(GameState.PlayerMenuIndex)
         ShowWindow(GetWindowIndex("winRightClickBG"))
         ShowWindow(GetWindowIndex("winPlayerMenu"))
     End Sub
@@ -1559,8 +1559,8 @@ Continue1:
         Dim i As Long, Amount As Long
 
         For i = 1 To MAX_INV
-            If GetPlayerInv(MyIndex, i) = 1 Then
-                Amount = GetPlayerInvValue(MyIndex, i)
+            If GetPlayerInv(GameState.MyIndex, i) = 1 Then
+                Amount = GetPlayerInvValue(GameState.MyIndex, i)
             End If
         Next
         Windows(GetWindowIndex("winShop")).Controls(GetControlIndex("winShop", "lblGold")).text = Format$(Amount, "#,###,###,###") & "g"
@@ -1572,18 +1572,18 @@ Continue1:
     End Function
 
     Public Function ConvertMapX(x As Integer) As Integer
-        ConvertMapX = x - (TileView.Left * PicX) - Camera.Left
+        ConvertMapX = x - (GameState.TileView.Left * GameState.PicX) - GameState.Camera.Left
     End Function
 
     Public Function ConvertMapY(y As Integer) As Integer
-        ConvertMapY = y - (TileView.Top * PicY) - Camera.Top
+        ConvertMapY = y - (GameState.TileView.Top * GameState.PicY) - GameState.Camera.Top
     End Function
 
      Public Function IsValidMapPoint(x As Integer, y As Integer) As Boolean
         If x < 0 Then Exit Function
         If y < 0 Then Exit Function
-        If x > Type.Map(GetPlayerMap(MyIndex)).MaxX Then Exit Function
-        If y > Type.Map(GetPlayerMap(MyIndex)).MaxY Then Exit Function
+        If x > Type.Map(GetPlayerMap(GameState.MyIndex)).MaxX Then Exit Function
+        If y > Type.Map(GetPlayerMap(GameState.MyIndex)).MaxY Then Exit Function
 
         Return True
     End Function
@@ -1748,48 +1748,48 @@ Continue1:
 
     Friend Sub UpdateCamera()
         Dim lerpSpeed As Double = 0.05 ' Lerp speed for smooth camera movement
-        Dim mapMaxWidth As Double = MyMap.MaxX * TileSize
-        Dim mapMaxHeight As Double = MyMap.MaxY * TileSize
+        Dim mapMaxWidth As Double = MyMap.MaxX * GameState.TileSize
+        Dim mapMaxHeight As Double = MyMap.MaxY * GameState.TileSize
 
         ' Get player's position in pixels
-        Dim playerPosX As Double = GetPlayerX(MyIndex)
-        Dim playerPosY As Double = GetPlayerY(MyIndex)
+        Dim playerPosX As Double = GetPlayerX(GameState.MyIndex)
+        Dim playerPosY As Double = GetPlayerY(GameState.MyIndex)
 
         ' Calculate the target camera position to center on the player
-        Dim targetX As Double = playerPosX - (ResolutionWidth / 2)
-        Dim targetY As Double = playerPosY - (ResolutionHeight / 2)
+        Dim targetX As Double = playerPosX - (GameState.ResolutionWidth / 2)
+        Dim targetY As Double = playerPosY - (GameState.ResolutionHeight / 2)
 
         ' Smoothly interpolate the camera position using Lerp
-        CurrentCameraX = Lerp(CurrentCameraX, targetX, lerpSpeed)
-        CurrentCameraY = Lerp(CurrentCameraY, targetY, lerpSpeed)
+        GameState.CurrentCameraX = Lerp(GameState.CurrentCameraX, targetX, lerpSpeed)
+        GameState.CurrentCameraY = Lerp(GameState.CurrentCameraY, targetY, lerpSpeed)
 
         ' Clamp the camera position within the map bounds after interpolation
-        If CurrentCameraX < 0 Then
-            CurrentCameraX = 0
-        ElseIf CurrentCameraX + Type.Setting.CameraWidth > mapMaxWidth Then
-            CurrentCameraX = mapMaxWidth - Type.Setting.CameraWidth
+        If GameState.CurrentCameraX < 0 Then
+            GameState.CurrentCameraX = 0
+        ElseIf GameState.CurrentCameraX + Type.Setting.CameraWidth > mapMaxWidth Then
+            GameState.CurrentCameraX = mapMaxWidth - Type.Setting.CameraWidth
         End If
 
-        If CurrentCameraY < 0 Then
-            CurrentCameraY = 0
-        ElseIf CurrentCameraY + Type.Setting.CameraHeight > mapMaxHeight Then
-            CurrentCameraY = mapMaxHeight - Type.Setting.CameraHeight
+        If GameState.CurrentCameraY < 0 Then
+            GameState.CurrentCameraY = 0
+        ElseIf GameState.CurrentCameraY + Type.Setting.CameraHeight > mapMaxHeight Then
+            GameState.CurrentCameraY = mapMaxHeight - Type.Setting.CameraHeight
         End If
 
         ' Set the TileView properties based on the clamped camera position
-        With TileView
-            .Top = CurrentCameraY
-            .Bottom = CurrentCameraY + Type.Setting.CameraHeight + 3
-            .Left = CurrentCameraX
-            .Right = CurrentCameraX + Type.Setting.CameraWidth + 3
+        With GameState.TileView
+            .Top = GameState.CurrentCameraY
+            .Bottom = GameState.CurrentCameraY + Type.Setting.CameraHeight + 3
+            .Left = GameState.CurrentCameraX
+            .Right = GameState.CurrentCameraX + Type.Setting.CameraWidth + 3
         End With
 
         ' Update the Camera properties
-        With Camera
-            .Y = CurrentCameraY
-            .X = CurrentCameraX
-            .Height = ResolutionHeight
-            .Width = ResolutionWidth
+        With GameState.Camera
+            .Y = GameState.CurrentCameraY
+            .X = GameState.CurrentCameraX
+            .Height = GameState.ResolutionHeight
+            .Width = GameState.ResolutionWidth
         End With
 
         ' Optional: Update the map name display

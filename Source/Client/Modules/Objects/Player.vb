@@ -107,58 +107,58 @@ Module Player
     Sub CheckMovement()
         If IsTryingToMove() AndAlso CanMove() Then
             ' Check if player has the shift key down for running
-            If VbKeyShift Then
-                Type.Player(MyIndex).Moving = MovementType.Walking
+            If GameState.VbKeyShift Then
+                Type.Player(GameState.MyIndex).Moving = MovementType.Walking
             Else
-                Type.Player(MyIndex).Moving = MovementType.Running               
+                Type.Player(GameState.MyIndex).Moving = MovementType.Running               
             End If
 
-            Select Case GetPlayerDir(MyIndex)
+            Select Case GetPlayerDir(GameState.MyIndex)
                 Case DirectionType.Up
                     SendPlayerMove()
-                    Type.Player(MyIndex).YOffset = PicY
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) - 1)
                 Case DirectionType.Down
                     SendPlayerMove()
-                    Type.Player(MyIndex).YOffset = PicY * -1
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY * -1
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) + 1)
                 Case DirectionType.Left
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) - 1)
                 Case DirectionType.Right
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX * -1
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX * -1
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) + 1)
                 Case DirectionType.UpLeft
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) - 1)
-                    Type.Player(MyIndex).YOffset = PicY
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) - 1)
                 Case DirectionType.UpRight
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX * -1
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) + 1)
-                    Type.Player(MyIndex).YOffset = PicY
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX * -1
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) - 1)
                 Case DirectionType.DownLeft
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) - 1)
-                    Type.Player(MyIndex).YOffset = PicY * -1
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) - 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY * -1
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) + 1)
                 Case DirectionType.DownRight
                     SendPlayerMove()
-                    Type.Player(MyIndex).XOffset = PicX * -1
-                    SetPlayerX(MyIndex, GetPlayerX(MyIndex) + 1)
-                    Type.Player(MyIndex).YOffset = PicY * -1
-                    SetPlayerY(MyIndex, GetPlayerY(MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).XOffset = GameState.PicX * -1
+                    SetPlayerX(GameState.MyIndex, GetPlayerX(GameState.MyIndex) + 1)
+                    Type.Player(GameState.MyIndex).YOffset = GameState.PicY * -1
+                    SetPlayerY(GameState.MyIndex, GetPlayerY(GameState.MyIndex) + 1)
             End Select
 
-            If Type.Player(MyIndex).XOffset = 0 And Type.Player(MyIndex).YOffset = 0 Then
-                If MyMap.Tile(GetPlayerX(MyIndex), GetPlayerY(MyIndex)).Type = TileType.Warp Or MyMap.Tile(Global.Core.Commands.GetPlayerX(MyIndex), GetPlayerY(MyIndex)).Type2 = Global.Core.Enum.TileType.Warp Then
-                    GettingMap = True
+            If Type.Player(GameState.MyIndex).XOffset = 0 And Type.Player(GameState.MyIndex).YOffset = 0 Then
+                If MyMap.Tile(GetPlayerX(GameState.MyIndex), GetPlayerY(GameState.MyIndex)).Type = TileType.Warp Or MyMap.Tile(Global.Core.Commands.GetPlayerX(GameState.MyIndex), GetPlayerY(GameState.MyIndex)).Type2 = Global.Core.Enum.TileType.Warp Then
+                    GameState.GettingMap = True
                 End If
             End If
 
@@ -167,7 +167,7 @@ Module Player
 
     Function IsTryingToMove() As Boolean
 
-        If DirUp Or DirDown Or DirLeft Or DirRight Then
+        If GameState.DirUp Or GameState.DirDown Or GameState.DirLeft Or GameState.DirRight Then
             IsTryingToMove = True
         End If
 
@@ -178,7 +178,7 @@ Module Player
 
         CanMove = True
 
-        If Type.Player(MyIndex).XOffset <> 0 Or Type.Player(MyIndex).YOffset <> 0 Then
+        If Type.Player(GameState.MyIndex).XOffset <> 0 Or Type.Player(GameState.MyIndex).YOffset <> 0 Then
             CanMove = False
             Exit Function
         End If
@@ -188,25 +188,25 @@ Module Player
             Exit Function
         End If
 
-        If GettingMap = True Then
+        If GameState.GettingMap = True Then
             CanMove = False
             Exit Function
         End If
 
         ' Make sure they aren't trying to move when they are already moving
-        If Type.Player(MyIndex).Moving <> 0 Then
+        If Type.Player(GameState.MyIndex).Moving <> 0 Then
             CanMove = False
             Exit Function
         End If
 
         ' Make sure they haven't just casted a skill
-        If SkillBuffer > 0 Then
+        If GameState.SkillBuffer > 0 Then
             CanMove = False
             Exit Function
         End If
 
         ' make sure they're not stunned
-        If StunDuration > 0 Then
+        If GameState.StunDuration > 0 Then
             CanMove = False
             Exit Function
         End If
@@ -221,156 +221,156 @@ Module Player
             Exit Function
         End If
 
-        If Not inSmallChat Then
+        If Not GameState.inSmallChat Then
             CanMove = False
             Exit Function
         End If
 
-        If InShop > 0 Then
+        If GameState.InShop > 0 Then
             CloseShop
         End If
 
-        If InBank Then
+        If GameState.InBank Then
             CloseBank()
         End If
 
-        d = GetPlayerDir(MyIndex)
+        d = GetPlayerDir(GameState.MyIndex)
 
         Select Case d
             Case DirectionType.Up
 
-                If GetPlayerY(MyIndex) <= 0 Then
-                    DirUp = False
-                    SetPlayerDir(MyIndex, DirectionType.Down)
+                If GetPlayerY(GameState.MyIndex) <= 0 Then
+                    GameState.DirUp = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Down)
                     Exit Function
                 End If
 
             Case DirectionType.Down
 
-                If GetPlayerY(MyIndex) >= MyMap.MaxY Then
-                    DirDown = False
-                    SetPlayerDir(MyIndex, DirectionType.Up)
+                If GetPlayerY(GameState.MyIndex) >= MyMap.MaxY Then
+                    GameState.DirDown = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Up)
                     Exit Function
                 End If
 
             Case DirectionType.Left
 
-                If GetPlayerX(MyIndex) <= 0 Then
-                    DirLeft = False
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                If GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirLeft = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
             Case DirectionType.Right
 
-                If GetPlayerX(MyIndex) >= MyMap.MaxX Then
-                    DirRight = False
-                    SetPlayerDir(MyIndex, DirectionType.Left)
+                If GetPlayerX(GameState.MyIndex) >= MyMap.MaxX Then
+                    GameState.DirRight = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Left)
                     Exit Function
                 End If
 
             Case DirectionType.UpLeft
 
-                 If GetPlayerY(MyIndex) <= 0 And GetPlayerX(MyIndex) <= 0 Then
-                    DirUp = False
-                    DirDown = True
-                    SetPlayerDir(MyIndex, DirectionType.Down)
-                    DirLeft = False
-                    DirRight = True
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                 If GetPlayerY(GameState.MyIndex) <= 0 And GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirUp = False
+                    GameState.DirDown = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Down)
+                    GameState.DirLeft = False
+                    GameState.DirRight = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
-                If GetPlayerY(MyIndex) <= 0 Then
-                    DirUp = False
-                    SetPlayerDir(MyIndex, DirectionType.Down)
+                If GetPlayerY(GameState.MyIndex) <= 0 Then
+                    GameState.DirUp = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Down)
                     Exit Function
                 End If
 
-                If GetPlayerX(MyIndex) <= 0 Then
-                    DirLeft = False
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                If GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirLeft = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
             Case DirectionType.UpRight
 
-                If GetPlayerY(MyIndex) >= MyMap.MaxY And GetPlayerX(MyIndex) >= MyMap.MaxX Then
-                    DirUp = False
-                    DirDown = True
-                    SetPlayerDir(MyIndex, DirectionType.Down)
-                    DirRight = False
-                    DirLeft = True
-                    SetPlayerDir(MyIndex, DirectionType.Left)
+                If GetPlayerY(GameState.MyIndex) >= MyMap.MaxY And GetPlayerX(GameState.MyIndex) >= MyMap.MaxX Then
+                    GameState.DirUp = False
+                    GameState.DirDown = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Down)
+                    GameState.DirRight = False
+                    GameState.DirLeft = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Left)
                     Exit Function
                 End If
 
-                If GetPlayerY(MyIndex) <= 0 Then
-                    DirUp = False
-                    SetPlayerDir(MyIndex, DirectionType.Down)
+                If GetPlayerY(GameState.MyIndex) <= 0 Then
+                    GameState.DirUp = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Down)
                     Exit Function
                 End If
 
-                If GetPlayerX(MyIndex) <= 0 Then
-                    DirLeft = False
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                If GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirLeft = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
             Case DirectionType.DownLeft
 
-                If GetPlayerY(MyIndex) >= MyMap.MaxY And GetPlayerX(MyIndex) <= 0 Then
-                    DirDown = False
-                    DirUp = True
-                    SetPlayerDir(MyIndex, DirectionType.Up)
-                    DirLeft = False
-                    DirRight = True
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                If GetPlayerY(GameState.MyIndex) >= MyMap.MaxY And GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirDown = False
+                    GameState.DirUp = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Up)
+                    GameState.DirLeft = False
+                    GameState.DirRight = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
-                If GetPlayerY(MyIndex) <= 0 Then
-                    DirDown = False
-                    SetPlayerDir(MyIndex, DirectionType.Up)
+                If GetPlayerY(GameState.MyIndex) <= 0 Then
+                    GameState.DirDown = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Up)
                     Exit Function
                 End If
 
-                If GetPlayerX(MyIndex) <= 0 Then
-                    DirLeft = False
-                    SetPlayerDir(MyIndex, DirectionType.Right)
+                If GetPlayerX(GameState.MyIndex) <= 0 Then
+                    GameState.DirLeft = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Right)
                     Exit Function
                 End If
 
             Case DirectionType.DownRight
 
-                If GetPlayerY(MyIndex) >= MyMap.MaxY And GetPlayerX(MyIndex) >= MyMap.MaxX Then
-                    DirDown = False
-                    DirUp = True
-                    SetPlayerDir(MyIndex, DirectionType.Up)
-                    DirRight = False
-                    DirLeft = True
-                    SetPlayerDir(MyIndex, DirectionType.Left)
+                If GetPlayerY(GameState.MyIndex) >= MyMap.MaxY And GetPlayerX(GameState.MyIndex) >= MyMap.MaxX Then
+                    GameState.DirDown = False
+                    GameState.DirUp = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Up)
+                    GameState.DirRight = False
+                    GameState.DirLeft = True
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Left)
                     Exit Function
                 End If
 
-                If GetPlayerY(MyIndex) >= MyMap.MaxY Then
-                    DirDown = False
-                    SetPlayerDir(MyIndex, DirectionType.Up)
+                If GetPlayerY(GameState.MyIndex) >= MyMap.MaxY Then
+                    GameState.DirDown = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Up)
                     Exit Function
                 End If
 
-                If GetPlayerX(MyIndex) >= MyMap.MaxX Then
-                    DirRight = False
-                    SetPlayerDir(MyIndex, DirectionType.Left)
+                If GetPlayerX(GameState.MyIndex) >= MyMap.MaxX Then
+                    GameState.DirRight = False
+                    SetPlayerDir(GameState.MyIndex, DirectionType.Left)
                     Exit Function
                 End If
 
         End Select
 
         ' Check for cardinal movements if no diagonal movements
-        If DirUp Then
-            SetPlayerDir(MyIndex, DirectionType.Up)
-            If GetPlayerY(MyIndex) > 0 Then
+        If GameState.DirUp Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.Up)
+            If GetPlayerY(GameState.MyIndex) > 0 Then
                 If CheckDirection(DirectionType.Up) Then
                     CanMove = False
                     If d <> DirectionType.Up Then
@@ -385,9 +385,9 @@ Module Player
             End If
         End If
 
-        If DirDown Then
-            SetPlayerDir(MyIndex, DirectionType.Down)
-            If GetPlayerY(MyIndex) < MyMap.MaxY Then
+        If GameState.DirDown Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.Down)
+            If GetPlayerY(GameState.MyIndex) < MyMap.MaxY Then
                 If CheckDirection(DirectionType.Down) Then
                     CanMove = False
                     If d <> DirectionType.Down Then
@@ -402,9 +402,9 @@ Module Player
             End If
         End If
 
-        If DirLeft Then
-            SetPlayerDir(MyIndex, DirectionType.Left)
-            If GetPlayerX(MyIndex) > 0 Then
+        If GameState.DirLeft Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.Left)
+            If GetPlayerX(GameState.MyIndex) > 0 Then
                 If CheckDirection(DirectionType.Left) Then
                     CanMove = False
                     If d <> DirectionType.Left Then
@@ -419,9 +419,9 @@ Module Player
             End If
         End If
 
-        If DirRight Then
-            SetPlayerDir(MyIndex, DirectionType.Right)
-            If GetPlayerX(MyIndex) < MyMap.MaxX Then
+        If GameState.DirRight Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.Right)
+            If GetPlayerX(GameState.MyIndex) < MyMap.MaxX Then
                 If CheckDirection(DirectionType.Right) Then
                     CanMove = False
                     If d <> DirectionType.Right Then
@@ -437,9 +437,9 @@ Module Player
         End If
 
         ' Check for diagonal movements first
-        If DirUp And DirRight Then
-            SetPlayerDir(MyIndex, DirectionType.UpRight)
-            If GetPlayerY(MyIndex) > 0 And GetPlayerX(MyIndex) < MyMap.MaxX Then
+        If GameState.DirUp And GameState.DirRight Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.UpRight)
+            If GetPlayerY(GameState.MyIndex) > 0 And GetPlayerX(GameState.MyIndex) < MyMap.MaxX Then
                 If CheckDirection(DirectionType.UpRight) Then
                     CanMove = False
                     If d <> DirectionType.UpRight Then
@@ -452,9 +452,9 @@ Module Player
                 CanMove = False
                 Exit Function
             End If
-        ElseIf DirUp And DirLeft Then
-            SetPlayerDir(MyIndex, DirectionType.UpLeft)
-            If GetPlayerY(MyIndex) > 0 And GetPlayerX(MyIndex) > 0 Then
+        ElseIf GameState.DirUp And GameState.DirLeft Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.UpLeft)
+            If GetPlayerY(GameState.MyIndex) > 0 And GetPlayerX(GameState.MyIndex) > 0 Then
                 If CheckDirection(DirectionType.UpLeft) Then
                     CanMove = False
                     If d <> DirectionType.UpLeft Then
@@ -467,9 +467,9 @@ Module Player
                 CanMove = False
                 Exit Function
             End If
-        ElseIf DirDown And DirRight Then
-            SetPlayerDir(MyIndex, DirectionType.DownRight)
-            If GetPlayerY(MyIndex) < MyMap.MaxY And GetPlayerX(MyIndex) < MyMap.MaxX Then
+        ElseIf GameState.DirDown And GameState.DirRight Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.DownRight)
+            If GetPlayerY(GameState.MyIndex) < MyMap.MaxY And GetPlayerX(GameState.MyIndex) < MyMap.MaxX Then
                 If CheckDirection(DirectionType.DownRight) Then
                     CanMove = False
                     If d <> DirectionType.DownRight Then
@@ -482,9 +482,9 @@ Module Player
                 CanMove = False
                 Exit Function
             End If
-        ElseIf DirDown And DirLeft Then
-            SetPlayerDir(MyIndex, DirectionType.DownLeft)
-            If GetPlayerY(MyIndex) < MyMap.MaxY And GetPlayerX(MyIndex) > 0 Then
+        ElseIf GameState.DirDown And GameState.DirLeft Then
+            SetPlayerDir(GameState.MyIndex, DirectionType.DownLeft)
+            If GetPlayerY(GameState.MyIndex) < MyMap.MaxY And GetPlayerX(GameState.MyIndex) > 0 Then
                 If CheckDirection(DirectionType.DownLeft) Then
                     CanMove = False
                     If d <> DirectionType.DownLeft Then
@@ -506,36 +506,36 @@ Module Player
         Dim i As Integer
 
         ' check directional blocking
-        If IsDirBlocked(MyMap.Tile(GetPlayerX(MyIndex), GetPlayerY(MyIndex)).DirBlock, direction) Then
+        If IsDirBlocked(MyMap.Tile(GetPlayerX(GameState.MyIndex), GetPlayerY(GameState.MyIndex)).DirBlock, direction) Then
             CheckDirection = True
             Exit Function
         End If
 
         Select Case direction
             Case DirectionType.Up
-                x = GetPlayerX(MyIndex)
-                y = GetPlayerY(MyIndex) - 1
+                x = GetPlayerX(GameState.MyIndex)
+                y = GetPlayerY(GameState.MyIndex) - 1
             Case DirectionType.Down
-                x = GetPlayerX(MyIndex)
-                y = GetPlayerY(MyIndex) + 1
+                x = GetPlayerX(GameState.MyIndex)
+                y = GetPlayerY(GameState.MyIndex) + 1
             Case DirectionType.Left
-                x = GetPlayerX(MyIndex) - 1
-                y = GetPlayerY(MyIndex)
+                x = GetPlayerX(GameState.MyIndex) - 1
+                y = GetPlayerY(GameState.MyIndex)
             Case DirectionType.Right
-                x = GetPlayerX(MyIndex) + 1
-                y = GetPlayerY(MyIndex)
+                x = GetPlayerX(GameState.MyIndex) + 1
+                y = GetPlayerY(GameState.MyIndex)
             Case DirectionType.UpLeft
-                x = GetPlayerX(MyIndex) - 1
-                y = GetPlayerY(MyIndex) - 1
+                x = GetPlayerX(GameState.MyIndex) - 1
+                y = GetPlayerY(GameState.MyIndex) - 1
             Case DirectionType.UpRight
-                x = GetPlayerX(MyIndex) + 1
-                y = GetPlayerY(MyIndex) - 1
+                x = GetPlayerX(GameState.MyIndex) + 1
+                y = GetPlayerY(GameState.MyIndex) - 1
             Case DirectionType.DownLeft
-                x = GetPlayerX(MyIndex) - 1
-                y = GetPlayerY(MyIndex) + 1
+                x = GetPlayerX(GameState.MyIndex) - 1
+                y = GetPlayerY(GameState.MyIndex) + 1
             Case DirectionType.DownRight
-                x = GetPlayerX(MyIndex) + 1
-                y = GetPlayerY(MyIndex) + 1
+                x = GetPlayerX(GameState.MyIndex) + 1
+                y = GetPlayerY(GameState.MyIndex) + 1
         End Select
 
         ' Check to see if the map tile is blocked or not
@@ -574,7 +574,7 @@ Module Player
             End If
         End If
 
-        For i = 1 To CurrentEvents
+        For i = 1 To GameState.CurrentEvents
            If MapEvents(i).Visible = 1 Then
                If MapEvents(i).X = x And MapEvents(i).Y = y Then
                    If MapEvents(i).WalkThrough = 0 Then
@@ -591,30 +591,30 @@ Module Player
         ' Check if player is walking or running, and if so process moving them over
         Select Case Type.Player(index).Moving
             Case MovementType.Walking
-                MovementSpeed = (ElapsedTime / 1000.0) * WalkSpeed * SizeX ' Adjust speed by elapsed time
+                GameState.MovementSpeed = (GameState.ElapsedTime / 1000.0) * GameState.WalkSpeed * GameState.SizeX ' Adjust speed by elapsed time
             Case MovementType.Running
-                MovementSpeed = (ElapsedTime / 1000.0) * RunSpeed * SizeX ' Adjust speed by elapsed time
+                GameState.MovementSpeed = (GameState.ElapsedTime / 1000.0) * GameState.RunSpeed * GameState.SizeX ' Adjust speed by elapsed time
             Case Else
                 Exit Sub
         End Select
 
         ' Adjust speed for diagonal movement
         If GetPlayerDir(index) = DirectionType.UpRight OrElse GetPlayerDir(index) = DirectionType.UpLeft OrElse GetPlayerDir(index) = DirectionType.DownRight OrElse GetPlayerDir(index) = DirectionType.DownLeft Then
-            MovementSpeed = Math.Sqrt(MovementSpeed)
+            GameState.MovementSpeed = Math.Sqrt(GameState.MovementSpeed)
         End If
 
-        MovementSpeed = Math.Round(MovementSpeed)
+        GameState.MovementSpeed = Math.Round(GameState.MovementSpeed)
 
         ' Update player offsets based on direction
         Select Case GetPlayerDir(index)
             Case DirectionType.Up
-                Type.Player(index).YOffset -= MovementSpeed
+                Type.Player(index).YOffset -= GameState.MovementSpeed
                 If Type.Player(index).YOffset < 0 Then Type.Player(index).YOffset = 0
             Case DirectionType.Down
-                Type.Player(index).YOffset += MovementSpeed
+                Type.Player(index).YOffset += GameState.MovementSpeed
                 If Type.Player(index).YOffset > 0 Then Type.Player(index).YOffset = 0
             Case DirectionType.Left
-                Type.Player(index).XOffset -= MovementSpeed
+                Type.Player(index).XOffset -= GameState.MovementSpeed
                 If Type.Player(index).XOffset < 0 Then Type.Player(index).XOffset = 0
             Case DirectionType.Right
                 If GetPlayerX(index) >= MyMap.MaxX Then
@@ -622,26 +622,26 @@ Module Player
                     Exit Sub
                 End If
 
-                Type.Player(index).XOffset += MovementSpeed
+                Type.Player(index).XOffset += GameState.MovementSpeed
                 If Type.Player(index).XOffset > 0 Then Type.Player(index).XOffset = 0
             Case DirectionType.UpRight
-                Type.Player(index).XOffset += MovementSpeed
-                Type.Player(index).YOffset -= MovementSpeed
+                Type.Player(index).XOffset += GameState.MovementSpeed
+                Type.Player(index).YOffset -= GameState.MovementSpeed
                 If Type.Player(index).XOffset > 0 Then Type.Player(index).XOffset = 0
                 If Type.Player(index).YOffset < 0 Then Type.Player(index).YOffset = 0
             Case DirectionType.UpLeft
-                Type.Player(index).XOffset -= MovementSpeed
-                Type.Player(index).YOffset -= MovementSpeed
+                Type.Player(index).XOffset -= GameState.MovementSpeed
+                Type.Player(index).YOffset -= GameState.MovementSpeed
                 If Type.Player(index).XOffset < 0 Then Type.Player(index).XOffset = 0
                 If Type.Player(index).YOffset < 0 Then Type.Player(index).YOffset = 0
             Case DirectionType.DownRight
-                Type.Player(index).XOffset += MovementSpeed
-                Type.Player(index).YOffset += MovementSpeed
+                Type.Player(index).XOffset += GameState.MovementSpeed
+                Type.Player(index).YOffset += GameState.MovementSpeed
                 If Type.Player(index).XOffset > 0 Then Type.Player(index).XOffset = 0
                 If Type.Player(index).YOffset > 0 Then Type.Player(index).YOffset = 0
             Case DirectionType.DownLeft
-                Type.Player(index).XOffset -= MovementSpeed
-                Type.Player(index).YOffset += MovementSpeed
+                Type.Player(index).XOffset -= GameState.MovementSpeed
+                Type.Player(index).YOffset += GameState.MovementSpeed
                 If Type.Player(index).XOffset < 0 Then Type.Player(index).XOffset = 0
                 If Type.Player(index).YOffset > 0 Then Type.Player(index).YOffset = 0
         End Select
@@ -668,23 +668,23 @@ Module Player
         Dim attackspeed As Integer, x As Integer, y As Integer
         Dim buffer As New ByteStream(4)
 
-        If VbKeyControl Or mouse Then
-            If MyIndex < 1 Or MyIndex > MAX_PLAYERS Then Exit Sub
+        If GameState.VbKeyControl Or mouse Then
+            If GameState.MyIndex < 1 Or GameState.MyIndex > MAX_PLAYERS Then Exit Sub
             If InEvent = True Then Exit Sub
-            If SkillBuffer > 0 Then Exit Sub ' currently casting a skill, can't attack
-            If StunDuration > 0 Then Exit Sub ' stunned, can't attack
+            If GameState.SkillBuffer > 0 Then Exit Sub ' currently casting a skill, can't attack
+            If GameState.StunDuration > 0 Then Exit Sub ' stunned, can't attack
 
             ' speed from weapon
-            If GetPlayerEquipment(MyIndex, EquipmentType.Weapon) > 0 Then
-                attackspeed = Type.Item(GetPlayerEquipment(MyIndex, EquipmentType.Weapon)).Speed * 1000
+            If GetPlayerEquipment(GameState.MyIndex, EquipmentType.Weapon) > 0 Then
+                attackspeed = Type.Item(GetPlayerEquipment(GameState.MyIndex, EquipmentType.Weapon)).Speed * 1000
             Else
                 attackspeed = 1000
             End If
 
-            If Type.Player(MyIndex).AttackTimer + attackspeed < GetTickCount() Then
-                If Type.Player(MyIndex).Attacking = 0 Then
+            If Type.Player(GameState.MyIndex).AttackTimer + attackspeed < GetTickCount() Then
+                If Type.Player(GameState.MyIndex).Attacking = 0 Then
 
-                    With Type.Player(MyIndex)
+                    With Type.Player(GameState.MyIndex)
                         .Attacking = 1
                         .AttackTimer = GetTickCount()
                     End With
@@ -693,41 +693,41 @@ Module Player
                 End If
             End If
 
-            Select Case Type.Player(MyIndex).Dir
+            Select Case Type.Player(GameState.MyIndex).Dir
                 Case DirectionType.Up
-                    x = GetPlayerX(MyIndex)
-                    y = GetPlayerY(MyIndex) - 1
+                    x = GetPlayerX(GameState.MyIndex)
+                    y = GetPlayerY(GameState.MyIndex) - 1
 
                 Case DirectionType.Down
-                    x = GetPlayerX(MyIndex)
-                    y = GetPlayerY(MyIndex) + 1
+                    x = GetPlayerX(GameState.MyIndex)
+                    y = GetPlayerY(GameState.MyIndex) + 1
 
                 Case DirectionType.Left
-                    x = GetPlayerX(MyIndex) - 1
-                    y = GetPlayerY(MyIndex)
+                    x = GetPlayerX(GameState.MyIndex) - 1
+                    y = GetPlayerY(GameState.MyIndex)
                 Case DirectionType.Right
-                    x = GetPlayerX(MyIndex) + 1
-                    y = GetPlayerY(MyIndex)
+                    x = GetPlayerX(GameState.MyIndex) + 1
+                    y = GetPlayerY(GameState.MyIndex)
 
                 Case DirectionType.UpRight
-                    x = GetPlayerX(MyIndex) + 1
-                    y = GetPlayerY(MyIndex) - 1
+                    x = GetPlayerX(GameState.MyIndex) + 1
+                    y = GetPlayerY(GameState.MyIndex) - 1
 
                 Case DirectionType.UpLeft
-                    x = GetPlayerX(MyIndex) - 1
-                    y = GetPlayerY(MyIndex) - 1
+                    x = GetPlayerX(GameState.MyIndex) - 1
+                    y = GetPlayerY(GameState.MyIndex) - 1
 
                 Case DirectionType.DownRight
-                    x = GetPlayerX(MyIndex) + 1
-                    y = GetPlayerY(MyIndex) + 1
+                    x = GetPlayerX(GameState.MyIndex) + 1
+                    y = GetPlayerY(GameState.MyIndex) + 1
 
                 Case DirectionType.DownLeft
-                    x = GetPlayerX(MyIndex) - 1
-                    y = GetPlayerY(MyIndex) + 1
+                    x = GetPlayerX(GameState.MyIndex) - 1
+                    y = GetPlayerY(GameState.MyIndex) + 1
             End Select
 
-            If GetTickCount() > Type.Player(MyIndex).EventTimer Then
-                For i = 1 To CurrentEvents
+            If GetTickCount() > Type.Player(GameState.MyIndex).EventTimer Then
+                For i = 1 To GameState.CurrentEvents
                    If MapEvents(i).Visible = 1 Then
                        If MapEvents(i).X = x And MapEvents(i).Y = y Then
                             buffer = New ByteStream(4)
@@ -735,7 +735,7 @@ Module Player
                             buffer.WriteInt32(i)
                             Socket.SendData(buffer.Data, buffer.Head)
                             buffer.Dispose()
-                            Type.Player(MyIndex).EventTimer = GetTickCount() + 200
+                            Type.Player(GameState.MyIndex).EventTimer = GetTickCount() + 200
                         End If
                     End If
                 Next
@@ -750,20 +750,20 @@ Module Player
         ' Check for subscript out of range
         If skillslot <= 0 Or skillslot > MAX_PLAYER_SKILLS Then Exit Sub
 
-        If Type.Player(MyIndex).Skill(skillslot).CD > 0 Then
+        If Type.Player(GameState.MyIndex).Skill(skillslot).CD > 0 Then
             AddText("Skill has not cooled down yet!", ColorType.BrightRed)
             Exit Sub
         End If
 
         ' Check if player has enough MP
-        If GetPlayerVital(MyIndex, VitalType.SP) < Type.Skill(Type.Player(MyIndex).Skill(skillslot).Num).MpCost Then
-            AddText("Not enough MP to cast " & Type.Skill(Type.Player(MyIndex).Skill(skillslot).Num).Name & ".", ColorType.BrightRed)
+        If GetPlayerVital(GameState.MyIndex, VitalType.SP) < Type.Skill(Type.Player(GameState.MyIndex).Skill(skillslot).Num).MpCost Then
+            AddText("Not enough MP to cast " & Type.Skill(Type.Player(GameState.MyIndex).Skill(skillslot).Num).Name & ".", ColorType.BrightRed)
             Exit Sub
         End If
 
-        If Type.Player(MyIndex).Skill(skillslot).Num > 0 Then
-            If GetTickCount() > Type.Player(MyIndex).AttackTimer + 1000 Then
-                If Type.Player(MyIndex).Moving = 0 Then
+        If Type.Player(GameState.MyIndex).Skill(skillslot).Num > 0 Then
+            If GetTickCount() > Type.Player(GameState.MyIndex).AttackTimer + 1000 Then
+                If Type.Player(GameState.MyIndex).Moving = 0 Then
                     If MyMap.Moral > 0 Then
                         If Type.Moral(MyMap.Moral).CanCast Then
                             SendCast(skillSlot)
@@ -793,7 +793,7 @@ Module Player
 
         For i = 1 To MAX_PLAYER_SKILLS
             ' Check to see if the player has the skill
-            If GetPlayerSkill(MyIndex, i) = skillNum Then
+            If GetPlayerSkill(GameState.MyIndex, i) = skillNum Then
                 FindSkill = i
                 Exit Function
             End If
@@ -811,13 +811,13 @@ Module Player
     Sub Packet_PlayerHP(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        SetPlayerVital(MyIndex, VitalType.HP, buffer.ReadInt32)
+        SetPlayerVital(GameState.MyIndex, VitalType.HP, buffer.ReadInt32)
 
         ' set max width
-        If GetPlayerVital(MyIndex, VitalType.HP) > 0 Then
-            BarWidth_GuiHP_Max = ((GetPlayerVital(MyIndex, VitalType.HP) / 209) / (GetPlayerMaxVital(MyIndex, VitalType.HP) / 209)) * 209
+        If GetPlayerVital(GameState.MyIndex, VitalType.HP) > 0 Then
+            GameState.BarWidth_GuiHP_Max = ((GetPlayerVital(GameState.MyIndex, VitalType.HP) / 209) / (GetPlayerMaxVital(GameState.MyIndex, VitalType.HP) / 209)) * 209
         Else
-            BarWidth_GuiHP_Max = 0
+            GameState.BarWidth_GuiHP_Max = 0
         End If
 
         UpdateStats_UI()
@@ -828,13 +828,13 @@ Module Player
     Sub Packet_PlayerSP(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        SetPlayerVital(MyIndex, VitalType.SP, buffer.ReadInt32)
+        SetPlayerVital(GameState.MyIndex, VitalType.SP, buffer.ReadInt32)
 
         ' set max width
-        If GetPlayerVital(MyIndex, VitalType.SP) > 0 Then
-            BarWidth_GuiSP_Max = ((GetPlayerVital(MyIndex, VitalType.SP) / 209) / (GetPlayerMaxVital(MyIndex, VitalType.SP) / 209)) * 209
+        If GetPlayerVital(GameState.MyIndex, VitalType.SP) > 0 Then
+            GameState.BarWidth_GuiSP_Max = ((GetPlayerVital(GameState.MyIndex, VitalType.SP) / 209) / (GetPlayerMaxVital(GameState.MyIndex, VitalType.SP) / 209)) * 209
         Else
-            BarWidth_GuiSP_Max = 0
+            GameState.BarWidth_GuiSP_Max = 0
         End If
 
         UpdateStats_UI()
@@ -880,12 +880,12 @@ Module Player
         Next
 
         ' Check if the player is the client player
-        If i = MyIndex Then
+        If i = GameState.MyIndex Then
             ' Reset directions
-            DirUp = False
-            DirDown = False
-            DirLeft = False
-            DirRight = False
+            GameState.DirUp = False
+            GameState.DirDown = False
+            GameState.DirLeft = False
+            GameState.DirRight = False
 
             ' set form
             With Windows(GetWindowIndex("winCharacter"))
@@ -893,22 +893,22 @@ Module Player
                 .Controls(GetControlIndex("winCharacter", "lblClass")).Text = "Class"
                 .Controls(GetControlIndex("winCharacter", "lblLevel")).Text = "Level"
                 .Controls(GetControlIndex("winCharacter", "lblGuild")).Text = "Guild"
-                .Controls(GetControlIndex("winCharacter", "lblName2")).Text = GetPlayerName(MyIndex)
-                .Controls(GetControlIndex("winCharacter", "lblClass2")).Text =Type.Job(GetPlayerJob(MyIndex)).Name
-                .Controls(GetControlIndex("winCharacter", "lblLevel2")).Text = GetPlayerLevel(MyIndex)
+                .Controls(GetControlIndex("winCharacter", "lblName2")).Text = GetPlayerName(GameState.MyIndex)
+                .Controls(GetControlIndex("winCharacter", "lblClass2")).Text =Type.Job(GetPlayerJob(GameState.MyIndex)).Name
+                .Controls(GetControlIndex("winCharacter", "lblLevel2")).Text = GetPlayerLevel(GameState.MyIndex)
                 .Controls(GetControlIndex("winCharacter", "lblGuild2")).Text = "None"
                 UpdateStats_UI()
 
                 ' stats
                 For x = 1 To StatType.Count - 1
-                    .Controls(GetControlIndex("winCharacter", "lblStat_" & x)).Text = GetPlayerStat(MyIndex, x)
+                    .Controls(GetControlIndex("winCharacter", "lblStat_" & x)).Text = GetPlayerStat(GameState.MyIndex, x)
                 Next
 
                 ' points
-                .Controls(GetControlIndex("winCharacter", "lblPoints")).Text = GetPlayerPoints(MyIndex)
+                .Controls(GetControlIndex("winCharacter", "lblPoints")).Text = GetPlayerPoints(GameState.MyIndex)
 
                 ' grey out buttons
-                If GetPlayerPoints(MyIndex) = 0 Then
+                If GetPlayerPoints(GameState.MyIndex) = 0 Then
                     For x = 1 To StatType.Count - 1
                         .Controls(GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = True
                     Next
@@ -918,7 +918,7 @@ Module Player
                     Next
                 End If
             End With
-            PlayerData = True
+            GameState.PlayerData = True
         End If
 
         buffer.Dispose()
@@ -944,13 +944,13 @@ Module Player
 
         Select Case GetPlayerDir(i)
             Case DirectionType.Up
-                Type.Player(i).YOffset = PicY
+                Type.Player(i).YOffset = GameState.PicY
             Case DirectionType.Down
-                Type.Player(i).YOffset = PicY * -1
+                Type.Player(i).YOffset = GameState.PicY * -1
             Case DirectionType.Left
-                Type.Player(i).XOffset = PicX
+                Type.Player(i).XOffset = GameState.PicX
             Case DirectionType.Right
-                Type.Player(i).XOffset = PicX * -1
+                Type.Player(i).XOffset = GameState.PicX * -1
         End Select
 
         buffer.Dispose()
@@ -981,17 +981,17 @@ Module Player
         SetPlayerExp(index, buffer.ReadInt32)
 
         tnl = buffer.ReadInt32
-        NextlevelExp = tnl
+        GameState.NextlevelExp = tnl
 
         ' set max width
-        If GetPlayerLevel(MyIndex) <= MAX_LEVEL Then
-            If GetPlayerExp(MyIndex) > 0 Then
-                BarWidth_GuiEXP_Max = ((GetPlayerExp(MyIndex) / 209) / (tnl / 209)) * 209
+        If GetPlayerLevel(GameState.MyIndex) <= MAX_LEVEL Then
+            If GetPlayerExp(GameState.MyIndex) > 0 Then
+                GameState.BarWidth_GuiEXP_Max = ((GetPlayerExp(GameState.MyIndex) / 209) / (tnl / 209)) * 209
             Else
-                BarWidth_GuiEXP_Max = 0
+                GameState.BarWidth_GuiEXP_Max = 0
             End If
         Else
-            BarWidth_GuiEXP_Max = 209
+            GameState.BarWidth_GuiEXP_Max = 209
         End If
 
         ' Update GUI

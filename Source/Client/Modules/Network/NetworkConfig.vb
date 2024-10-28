@@ -32,7 +32,7 @@ Friend Module NetworkConfig
     End Sub
 
     Private Sub Socket_ConnectionLost() Handles Socket.ConnectionLost
-
+        
     End Sub
 
     Private Sub Socket_CrashReport(err As String) Handles Socket.CrashReport

@@ -9,7 +9,7 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(Packets.ClientPackets.CAddChar)
-        buffer.WriteInt32(CharNum)
+        buffer.WriteInt32(State.CharNum)
         buffer.WriteString((name))
         buffer.WriteInt32(sexNum)
         buffer.WriteInt32(jobNum)
@@ -42,15 +42,15 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CLogin)
-        buffer.WriteString((EKeyPair.EncryptString(name)))
-        buffer.WriteString((EKeyPair.EncryptString(pass)))
+        buffer.WriteString((State.EKeyPair.EncryptString(name)))
+        buffer.WriteString((State.EKeyPair.EncryptString(pass)))
         
         ' Get the current executing assembly
         Dim assembly As Assembly = Assembly.GetExecutingAssembly()
 
         ' Retrieve the version information
         Dim version As Version = assembly.GetName().Version
-        buffer.WriteString(EKeyPair.EncryptString(version.ToString()))
+        buffer.WriteString(State.EKeyPair.EncryptString(version.ToString()))
         Socket.SendData(buffer.Data, buffer.Head)
 
         buffer.Dispose()
@@ -60,15 +60,15 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CRegister)
-        buffer.WriteString((EKeyPair.EncryptString(name)))
-        buffer.WriteString((EKeyPair.EncryptString(pass)))
+        buffer.WriteString((State.EKeyPair.EncryptString(name)))
+        buffer.WriteString((State.EKeyPair.EncryptString(pass)))
         
         ' Get the current executing assembly
         Dim assembly As Assembly = Assembly.GetExecutingAssembly()
 
         ' Retrieve the version information
         Dim version As Version = assembly.GetName().Version
-        buffer.WriteString(EKeyPair.EncryptString(version.ToString()))
+        buffer.WriteString(State.EKeyPair.EncryptString(version.ToString()))
         Socket.SendData(buffer.Data, buffer.Head)
 
         buffer.Dispose()
@@ -92,7 +92,7 @@ Module NetworkSend
 
     Sub GetPing()
         Dim buffer As New ByteStream(4)
-        PingStart = GetTickCount()
+        State.PingStart = GetTickCount()
 
         buffer.WriteInt32(ClientPackets.CCheckPing)
         Socket.SendData(buffer.Data, buffer.Head)
@@ -104,10 +104,10 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CPlayerMove)
-        buffer.WriteInt32(GetPlayerDir(MyIndex))
-        buffer.WriteInt32(Type.Player(MyIndex).Moving)
-        buffer.WriteInt32(Type.Player(MyIndex).X)
-        buffer.WriteInt32(Type.Player(MyIndex).Y)
+        buffer.WriteInt32(GetPlayerDir(State.MyIndex))
+        buffer.WriteInt32(Type.Player(State.MyIndex).Moving)
+        buffer.WriteInt32(Type.Player(State.MyIndex).X)
+        buffer.WriteInt32(Type.Player(State.MyIndex).Y)
 
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
@@ -227,7 +227,7 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CPlayerDir)
-        buffer.WriteInt32(GetPlayerDir(MyIndex))
+        buffer.WriteInt32(GetPlayerDir(State.MyIndex))
 
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
@@ -384,13 +384,13 @@ Module NetworkSend
     Friend Sub SendDropItem(invNum As Integer, amount As Integer)
         Dim buffer As New ByteStream(4)
 
-        If InBank Or InShop > 0 Then Exit Sub
+        If State.InBank Or State.InShop > 0 Then Exit Sub
 
         ' do basic checks
         If invNum <= 0 Or invNum > MAX_INV Then Exit Sub
-        If Type.Player(MyIndex).Inv(invNum).Num <= 0 Or Type.Player(MyIndex).Inv(invNum).Num > MAX_ITEMS Then Exit Sub
-        If Type.Item(GetPlayerInv(MyIndex, invNum)).Type = ItemType.Currency Or Type.Item(GetPlayerInv(MyIndex, invNum)).Stackable = 1 Then
-            If amount <= 0 Or amount > Type.Player(MyIndex).Inv(invNum).Value Then Exit Sub
+        If Type.Player(State.MyIndex).Inv(invNum).Num <= 0 Or Type.Player(State.MyIndex).Inv(invNum).Num > MAX_ITEMS Then Exit Sub
+        If Type.Item(GetPlayerInv(State.MyIndex, invNum)).Type = ItemType.Currency Or Type.Item(GetPlayerInv(State.MyIndex, invNum)).Stackable = 1 Then
+            If amount <= 0 Or amount > Type.Player(State.MyIndex).Inv(invNum).Value Then Exit Sub
         End If
 
         buffer.WriteInt32(ClientPackets.CMapDropItem)
@@ -452,18 +452,18 @@ Module NetworkSend
         If skillslot < 0 Or skillslot > MAX_PLAYER_SKILLS Then Exit Sub
 
         ' dont let them forget a skill which is in CD
-        If Type.Player(MyIndex).Skill(skillslot).CD > 0 Then
+        If Type.Player(State.MyIndex).Skill(skillslot).CD > 0 Then
             AddText("Cannot forget a skill which is cooling down!", ColorType.Red)
             Exit Sub
         End If
 
         ' dont let them forget a skill which is buffered
-        If SkillBuffer = skillslot Then
+        If State.SkillBuffer = skillslot Then
             AddText("Cannot forget a skill which you are casting!", ColorType.Red)
             Exit Sub
         End If
 
-        If Type.Player(MyIndex).Skill(skillslot).Num > 0 Then
+        If Type.Player(State.MyIndex).Skill(skillslot).Num > 0 Then
             buffer.WriteInt32(ClientPackets.CForgetSkill)
             buffer.WriteInt32(skillslot)
             Socket.SendData(buffer.Data, buffer.Head)
@@ -484,7 +484,7 @@ Module NetworkSend
     End Sub
 
     Friend Sub SendRequestAdmin()
-        If GetPlayerAccess(MyIndex) < AccessType.Moderator Then Exit Sub
+        If GetPlayerAccess(State.MyIndex) < AccessType.Moderator Then Exit Sub
 
         Dim buffer As New ByteStream(4)
 
@@ -797,7 +797,7 @@ Module NetworkSend
     End Sub
 
     Friend Sub SendCloseEditor()
-        If InGame = False Then Exit Sub
+        If State.InGame = False Then Exit Sub
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CCloseEditor)
@@ -831,9 +831,9 @@ Module NetworkSend
     End Sub
 
     Friend Sub SendUseHotbarSlot(slot As Integer)
-        Select Case Type.Player(MyIndex).Hotbar(slot).SlotType
+        Select Case Type.Player(State.MyIndex).Hotbar(slot).SlotType
             Case PartType.Skill
-                PlayerCastSkill(FindSkill(Type.Player(MyIndex).Hotbar(slot).Slot))
+                PlayerCastSkill(FindSkill(Type.Player(State.MyIndex).Hotbar(slot).Slot))
                 Exit Sub
         End Select
 
@@ -866,8 +866,8 @@ Module NetworkSend
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        SkillBuffer = skillslot
-        SkillBufferTimer = GetTickCount()
+        State.SkillBuffer = skillslot
+        State.SkillBufferTimer = GetTickCount()
     End Sub
 
     Sub SendRequestMoral(moralNum As Integer)

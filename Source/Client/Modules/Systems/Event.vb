@@ -70,9 +70,9 @@ Module Events
 
         id = buffer.ReadInt32
 
-        If id > CurrentEvents Then
-            CurrentEvents = id
-            ReDim Preserve MapEvents(CurrentEvents)
+        If id > GameState.CurrentEvents Then
+            GameState.CurrentEvents = id
+            ReDim Preserve MapEvents(GameState.CurrentEvents)
         End If
 
         With MapEvents(id)
@@ -119,7 +119,7 @@ Module Events
         showDir = buffer.ReadInt32
         movementSpeed = buffer.ReadInt32
 
-        If id > CurrentEvents Then Exit Sub
+        If id > GameState.CurrentEvents Then Exit Sub
 
         With MapEvents(id)
             .X = x
@@ -133,13 +133,13 @@ Module Events
 
             Select Case dir
                 Case DirectionType.Up
-                    .YOffset = PicY
+                    .YOffset = GameState.PicY
                 Case DirectionType.Down
-                    .YOffset = PicY * -1
+                    .YOffset = GameState.PicY * -1
                 Case DirectionType.Left
-                    .XOffset = PicX
+                    .XOffset = GameState.PicX
                 Case DirectionType.Right
-                    .XOffset = PicX * -1
+                    .XOffset = GameState.PicX * -1
             End Select
 
         End With
@@ -153,7 +153,7 @@ Module Events
         i = buffer.ReadInt32
         dir = buffer.ReadInt32
 
-        If i > CurrentEvents Then Exit Sub
+        If i > GameState.CurrentEvents Then Exit Sub
 
         With MapEvents(i)
             .Dir = dir
@@ -433,29 +433,29 @@ Module Events
         effectType = buffer.ReadInt32
 
         Select Case effectType
-            Case EffectTypeFadein
-                UseFade = True
-                FadeType = 1
-                FadeAmount = 0
-            Case EffectTypeFadeout
-                UseFade = True
-                FadeType = 0
-                FadeAmount = 255
-            Case EffectTypeFlash
-                FlashTimer = GetTickCount() + 150
-            Case EffectTypeFog
-                CurrentFog = buffer.ReadInt32
-                CurrentFogSpeed = buffer.ReadInt32
-                CurrentFogOpacity = buffer.ReadInt32
-            Case EffectTypeWeather
-                CurrentWeather = buffer.ReadInt32
-                CurrentWeatherIntensity = buffer.ReadInt32
-            Case EffectTypeTint
+            Case GameState.EffectTypeFadein
+                GameState.UseFade = True
+                GameState.FadeType = 1
+                GameState.FadeAmount = 0
+            Case GameState.EffectTypeFadeout
+                GameState.UseFade = True
+                GameState.FadeType = 0
+                GameState.FadeAmount = 255
+            Case GameState.EffectTypeFlash
+                GameState.FlashTimer = GetTickCount() + 150
+            Case GameState.EffectTypeFog
+                GameState.CurrentFog = buffer.ReadInt32
+                GameState.CurrentFogSpeed = buffer.ReadInt32
+                GameState.CurrentFogOpacity = buffer.ReadInt32
+            Case GameState.EffectTypeWeather
+                GameState.CurrentWeather = buffer.ReadInt32
+                GameState.CurrentWeatherIntensity = buffer.ReadInt32
+            Case GameState.EffectTypeTint
                 MyMap.MapTint = 1
-                CurrentTintR = buffer.ReadInt32
-                CurrentTintG = buffer.ReadInt32
-                CurrentTintB = buffer.ReadInt32
-                CurrentTintA = buffer.ReadInt32
+                GameState.CurrentTintR = buffer.ReadInt32
+                GameState.CurrentTintG = buffer.ReadInt32
+                GameState.CurrentTintB = buffer.ReadInt32
+                GameState.CurrentTintA = buffer.ReadInt32
         End Select
 
         buffer.Dispose()
@@ -497,23 +497,23 @@ Module Events
 #Region "Misc"
 
     Sub ProcessEventMovement(id As Integer)
-        If MyEditorType = EditorType.Map Then Exit Sub
+        If GameState.MyEditorType = EditorType.Map Then Exit Sub
         If id > MyMap.EventCount Then Exit Sub
         If id > MapEvents.Length Then Exit Sub
 
        If MapEvents(id).Moving = 1 Then
             Select Case MapEvents(id).Dir
                 Case DirectionType.Up
-                    MapEvents(id).YOffset = MapEvents(id).YOffset - ((ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * SizeY))
+                    MapEvents(id).YOffset = MapEvents(id).YOffset - ((GameState.ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * GameState.SizeY))
                    If MapEvents(id).YOffset < 0 Then MapEvents(id).YOffset = 0
                 Case DirectionType.Down
-                    MapEvents(id).YOffset = MapEvents(id).YOffset + ((ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * SizeY))
+                    MapEvents(id).YOffset = MapEvents(id).YOffset + ((GameState.ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * GameState.SizeY))
                    If MapEvents(id).YOffset > 0 Then MapEvents(id).YOffset = 0
                 Case DirectionType.Left
-                    MapEvents(id).XOffset = MapEvents(id).XOffset - ((ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * SizeX))
+                    MapEvents(id).XOffset = MapEvents(id).XOffset - ((GameState.ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * GameState.SizeX))
                    If MapEvents(id).XOffset < 0 Then MapEvents(id).XOffset = 0
                 Case DirectionType.Right
-                    MapEvents(id).XOffset = MapEvents(id).XOffset + ((ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * SizeX))
+                    MapEvents(id).XOffset = MapEvents(id).XOffset + ((GameState.ElapsedTime / 1000) * (MapEvents(id).MovementSpeed * GameState.SizeX))
                    If MapEvents(id).XOffset > 0 Then MapEvents(id).XOffset = 0
             End Select
 

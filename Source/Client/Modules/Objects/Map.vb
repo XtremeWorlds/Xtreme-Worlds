@@ -9,11 +9,11 @@ Imports Mirage.Sharp.Asfw.IO
 Module Map
 #Region "Drawing"
     Friend Sub DrawThunderEffect()
-        If DrawThunder > 0 Then
+        If GameState.DrawThunder > 0 Then
             ' Create a temporary texture matching the camera size
-            Using thunderTexture As New Texture2D(Client.GraphicsDevice, ResolutionWidth, ResolutionHeight)
+            Using thunderTexture As New Texture2D(GameClient.Graphics.GraphicsDevice, GameState.ResolutionWidth, GameState.ResolutionHeight)
                 ' Create an array to store pixel data
-                Dim whitePixels(ResolutionWidth * ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
+                Dim whitePixels(GameState.ResolutionWidth * GameState.ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
 
                 ' Fill the pixel array with semi-transparent white pixels
                 For i = 0 To whitePixels.Length - 1
@@ -24,49 +24,49 @@ Module Map
                 thunderTexture.SetData(whitePixels)
 
                 ' Begin SpriteBatch to render the thunder effect
-                Client.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive)
-                Client.SpriteBatch.Draw(thunderTexture, New Microsoft.Xna.Framework.Rectangle(0, 0, ResolutionWidth, ResolutionHeight), Microsoft.Xna.Framework.Color.White)
-                Client.SpriteBatch.End()
+                GameClient.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive)
+                GameClient.SpriteBatch.Draw(thunderTexture, New Microsoft.Xna.Framework.Rectangle(0, 0, GameState.ResolutionWidth, GameState.ResolutionHeight), Microsoft.Xna.Framework.Color.White)
+                GameClient.SpriteBatch.End()
             End Using
 
             ' Decrease the thunder counter
-            DrawThunder -= 1
+            GameState.DrawThunder -= 1
         End If
     End Sub
 
     Friend Sub DrawWeather()
         Dim i As Integer, spriteLeft As Integer
 
-        For i = 1 To MaxWeatherParticles
-            If WeatherParticle(i).InUse Then
-                If WeatherParticle(i).Type = [Enum].Weather.Storm Then
+        For i = 1 To GameState.MaxWeatherParticles
+            If GameState.WeatherParticle(i).InUse Then
+                If GameState.WeatherParticle(i).Type = [Enum].Weather.Storm Then
                     spriteLeft = 0
                 Else
-                    spriteLeft = WeatherParticle(i).Type - 1
+                    spriteLeft = GameState.WeatherParticle(i).Type - 1
                 End If
 
-                Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Misc, "Weather"), ConvertMapX(WeatherParticle(i).X), ConvertMapY(WeatherParticle(i).Y), spriteLeft * 32, 0, 32, 32, 32, 32)
+                GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Misc, "Weather"), ConvertMapX(GameState.WeatherParticle(i).X), ConvertMapY(GameState.WeatherParticle(i).Y), spriteLeft * 32, 0, 32, 32, 32, 32)
             End If
         Next
     End Sub
 
     Friend Sub DrawFog()
-        Dim fogNum As Integer = CurrentFog
+        Dim fogNum As Integer = GameState.CurrentFog
 
-        If fogNum <= 0 Or fogNum > NumFogs Then Exit Sub
+        If fogNum <= 0 Or fogNum >GameState. NumFogs Then Exit Sub
 
         Dim sX As Integer = 0
         Dim sY As Integer = 0
-        Dim sW As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width  ' Using the full width of the fog texture
-        Dim sH As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height ' Using the full height of the fog texture
+        Dim sW As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width  ' Using the full width of the fog texture
+        Dim sH As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height ' Using the full height of the fog texture
 
         ' These should match the scale calculations for full coverage plus extra area
-        Dim dX As Integer = (FogOffsetX * 2.5) - 50
-        Dim dY As Integer = (FogOffsetY * 3.5) - 50
-        Dim dW As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width + 200
-        Dim dH As Integer = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height + 200
+        Dim dX As Integer = (GameState.FogOffsetX * 2.5) - 50
+        Dim dY As Integer = (GameState.FogOffsetY * 3.5) - 50
+        Dim dW As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Width + 200
+        Dim dH As Integer = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Fogs, fogNum)).Height + 200
 
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Fogs, fogNum), dX, dY, sX, sY, dW, dH, sW, sH, CurrentFogOpacity)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Fogs, fogNum), dX, dY, sX, sY, dW, dH, sW, sH, GameState.CurrentFogOpacity)
     End Sub
 
     Friend Sub DrawMapLowerTile(x As Integer, y As Integer)
@@ -74,7 +74,7 @@ Module Map
         Dim rect As New Rectangle(0, 0, 0, 0)
 
         ' Check if the map or its tile data is not ready
-        If GettingMap OrElse MyMap.Tile Is Nothing OrElse MapData = False Then Exit Sub
+        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = False Then Exit Sub
 
         ' Ensure x and y are within the bounds of the map
         If x < 0 OrElse y < 0 OrElse x > MyMap.MaxX OrElse y > MyMap.MaxY Then Exit Sub
@@ -86,28 +86,28 @@ Module Map
             If MyMap.Tile(x, y).Layer Is Nothing Then Exit Sub
 
             ' Check if this layer has a valid tileset
-            If MyMap.Tile(x, y).Layer(i).Tileset > 0 AndAlso MyMap.Tile(x, y).Layer(i).Tileset <= NumTileSets Then
+            If MyMap.Tile(x, y).Layer(i).Tileset > 0 AndAlso MyMap.Tile(x, y).Layer(i).Tileset <= GameState.NumTileSets Then
                 ' Normal rendering state
-                If Type.Autotile(x, y).Layer(i).RenderState = RenderStateNormal Then
+                If Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateNormal Then
                     With rect
-                        .X = MyMap.Tile(x, y).Layer(i).X * PicX
-                        .Y = MyMap.Tile(x, y).Layer(i).Y * PicY
-                        .Width = PicX
-                        .Height = PicY
+                        .X = MyMap.Tile(x, y).Layer(i).X * GameState.PicX
+                        .Y = MyMap.Tile(x, y).Layer(i).Y * GameState.PicY
+                        .Width = GameState.PicX
+                        .Height = GameState.PicY
                     End With
                     
                     alpha = 255
                     
                     ' Render the tile
-                    Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * PicX), ConvertMapY(y * PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
+                    GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
 
                     ' Autotile rendering state
-                ElseIf Type.Autotile(x, y).Layer(i).RenderState = RenderStateAutotile Then
+                ElseIf Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateAutotile Then
                     If Type.Setting.Autotile Then
-                        DrawAutoTile(i, ConvertMapX(x * PicX), ConvertMapY(y * PicY), 1, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX) + 16, ConvertMapY(y * PicY), 2, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX), ConvertMapY(y * PicY) + 16, 3, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX) + 16, ConvertMapY(y * PicY) + 16, 4, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), 1, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY), 2, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY) + 16, 3, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY) + 16, 4, x, y, 0, False)
                     End If
                 End If
             End If
@@ -121,7 +121,7 @@ mapsync:
         Dim rect As Rectangle
 
         ' Exit earlyIf Type.Map is still loading or tile data is not available
-        If GettingMap OrElse MyMap.Tile Is Nothing OrElse MapData = False Then Exit Sub
+        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = False Then Exit Sub
 
         ' Ensure x and y are within valid map bounds
         If x < 0 OrElse y < 0 OrElse x > MyMap.MaxX OrElse y > MyMap.MaxY Then Exit Sub
@@ -134,7 +134,7 @@ mapsync:
             If MyMap.Tile(x, y).Layer Is Nothing Then Exit Sub
 
             ' Handle animated layers
-            If MapAnim = 1 Then
+            If GameState.MapAnim = 1 Then
                 Select Case i
                     Case LayerType.Fringe
                         i = LayerType.Fringe
@@ -144,29 +144,29 @@ mapsync:
             End If
 
             ' Ensure the tileset is valid before proceeding
-            If MyMap.Tile(x, y).Layer(i).Tileset > 0 AndAlso MyMap.Tile(x, y).Layer(i).Tileset <= NumTileSets Then
+            If MyMap.Tile(x, y).Layer(i).Tileset > 0 AndAlso MyMap.Tile(x, y).Layer(i).Tileset <= GameState.NumTileSets Then
                 ' Check if the render state is normal and render the tile
-                If Type.Autotile(x, y).Layer(i).RenderState = RenderStateNormal Then
+                If Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateNormal Then
                     With rect
-                        .X = MyMap.Tile(x, y).Layer(i).X * PicX
-                        .Y = MyMap.Tile(x, y).Layer(i).Y * PicY
-                        .Width = PicX
-                        .Height = PicY
+                        .X = MyMap.Tile(x, y).Layer(i).X * GameState.PicX
+                        .Y = MyMap.Tile(x, y).Layer(i).Y * GameState.PicY
+                        .Width = GameState.PicX
+                        .Height = GameState.PicY
                     End With
 
                     alpha = 255
 
                     ' Render the tile with the calculated rectangle and transparency
-                    Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * PicX), ConvertMapY(y * PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
+                    GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(i).Tileset), ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), rect.X, rect.Y, rect.Width, rect.Height, rect.Width, rect.Height, alpha)
 
                     ' Handle autotile rendering
-                ElseIf Type.Autotile(x, y).Layer(i).RenderState = RenderStateAutotile Then
+                ElseIf Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateAutotile Then
                     If Type.Setting.Autotile Then
                         ' Render autotiles
-                        DrawAutoTile(i, ConvertMapX(x * PicX), ConvertMapY(y * PicY), 1, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX) + 16, ConvertMapY(y * PicY), 2, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX), ConvertMapY(y * PicY) + 16, 3, x, y, 0, False)
-                        DrawAutoTile(i, ConvertMapX(x * PicX) + 16, ConvertMapY(y * PicY) + 16, 4, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), 1, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY), 2, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY) + 16, 3, x, y, 0, False)
+                        DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY) + 16, 4, x, y, 0, False)
                     End If
                 End If
             End If
@@ -182,46 +182,46 @@ mapsync:
         If forceFrame > 0 Then
             Select Case forceFrame - 1
                 Case 0
-                    WaterfallFrame = 1
+                    GameState.WaterfallFrame = 1
                 Case 1
-                    WaterfallFrame = 2
+                    GameState.WaterfallFrame = 2
                 Case 2
-                    WaterfallFrame = 0
+                    GameState.WaterfallFrame = 0
             End Select
 
             ' animate autotiles
             Select Case forceFrame - 1
                 Case 0
-                    AutoTileFrame = 1
+                    GameState.AutoTileFrame = 1
                 Case 1
-                    AutoTileFrame = 2
+                    GameState.AutoTileFrame = 2
                 Case 2
-                    AutoTileFrame = 0
+                    GameState.AutoTileFrame = 0
             End Select
         End If
 
         Select Case MyMap.Tile(x, y).Layer(layerNum).AutoTile
-            Case AutotileWaterfall
-                yOffset = (WaterfallFrame - 1) * 32
-            Case AutotileAnim
-                xOffset = AutoTileFrame * 64
-            Case AutotileCliff
+            Case GameState.AutotileWaterfall
+                yOffset = (GameState.WaterfallFrame - 1) * 32
+            Case GameState.AutotileAnim
+                xOffset = GameState.AutoTileFrame * 64
+            Case GameState.AutotileCliff
                 yOffset = -32
         End Select
 
         If MyMap.Tile(x, y).Layer Is Nothing Then Exit Sub
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(layerNum).Tileset), dX, dY, Type.Autotile(x, y).Layer(layerNum).SrcX(quarterNum) + xOffset, Type.Autotile(x, y).Layer(layerNum).SrcY(quarterNum) + yOffset, 16, 16, 16, 16)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Tilesets, MyMap.Tile(x, y).Layer(layerNum).Tileset), dX, dY, Type.Autotile(x, y).Layer(layerNum).SrcX(quarterNum) + xOffset, Type.Autotile(x, y).Layer(layerNum).SrcY(quarterNum) + yOffset, 16, 16, 16, 16)
     End Sub
 
     Friend Sub DrawMapTint()
         If MyMap.MapTint = 0 Then Exit Sub ' Skip if no tint is applied
 
         ' Create a new texture matching the camera size
-        Dim tintTexture As New Texture2D(Client.GraphicsDevice, ResolutionWidth, ResolutionHeight)
-        Dim tintPixels(ResolutionWidth * ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
+        Dim tintTexture As New Texture2D(GameClient.Graphics.GraphicsDevice, GameState.ResolutionWidth, GameState.ResolutionHeight)
+        Dim tintPixels(GameState.ResolutionWidth * GameState.ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
 
         ' Define the tint color with the given RGBA values
-        Dim tintColor As New Microsoft.Xna.Framework.Color(CurrentTintR, CurrentTintG, CurrentTintB, CurrentTintA)
+        Dim tintColor As New Microsoft.Xna.Framework.Color(GameState.CurrentTintR, GameState.CurrentTintG, GameState.CurrentTintB, GameState.CurrentTintA)
 
         ' Fill the texture's pixel array with the tint color
         For i = 0 To tintPixels.Length - 1
@@ -232,43 +232,43 @@ mapsync:
         tintTexture.SetData(tintPixels)
 
         ' Start the sprite batch
-        Client.SpriteBatch.Begin()
+        GameClient.SpriteBatch.Begin()
 
         ' Draw the tinted texture over the entire camera view
-        Client.SpriteBatch.Draw(tintTexture,
-                         New Microsoft.Xna.Framework.Rectangle(0, 0, ResolutionWidth, ResolutionHeight),
+        GameClient.SpriteBatch.Draw(tintTexture,
+                         New Microsoft.Xna.Framework.Rectangle(0, 0, GameState.ResolutionWidth, GameState.ResolutionHeight),
                          Microsoft.Xna.Framework.Color.White)
 
-        Client.SpriteBatch.End()
+        GameClient.SpriteBatch.End()
 
         ' Dispose of the temporary texture to free resources
         tintTexture.Dispose()
     End Sub
 
     Friend Sub DrawMapFade()
-        If Not UseFade Then Exit Sub ' Exit if fading is disabled
+        If Not GameState.UseFade Then Exit Sub ' Exit if fading is disabled
 
         ' Create a new texture matching the camera view size
-        Dim fadeTexture As New Texture2D(Client.GraphicsDevice, ResolutionWidth, ResolutionHeight)
-        Dim blackPixels(ResolutionWidth * ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
+        Dim fadeTexture As New Texture2D(GameClient.Graphics.GraphicsDevice, GameState.ResolutionWidth, GameState.ResolutionHeight)
+        Dim blackPixels(GameState.ResolutionWidth * GameState.ResolutionHeight - 1) As Microsoft.Xna.Framework.Color
 
         ' Fill the pixel array with black color and specified alpha for the fade effect
         For i = 0 To blackPixels.Length - 1
-            blackPixels(i) = New Microsoft.Xna.Framework.Color(0, 0, 0, FadeAmount)
+            blackPixels(i) = New Microsoft.Xna.Framework.Color(0, 0, 0, GameState.FadeAmount)
         Next
 
         ' Set the texture's pixel data
         fadeTexture.SetData(blackPixels)
 
         ' Start the sprite batch
-        Client.SpriteBatch.Begin()
+        GameClient.SpriteBatch.Begin()
 
         ' Draw the fade texture over the entire camera view
-        Client.SpriteBatch.Draw(fadeTexture,
-                         New Microsoft.Xna.Framework.Rectangle(0, 0, ResolutionWidth, ResolutionHeight),
+        GameClient.SpriteBatch.Draw(fadeTexture,
+                         New Microsoft.Xna.Framework.Rectangle(0, 0, GameState.ResolutionWidth, GameState.ResolutionHeight),
                          Microsoft.Xna.Framework.Color.White)
 
-        Client.SpriteBatch.End()
+        GameClient.SpriteBatch.End()
 
         ' Dispose of the texture to free resources
         fadeTexture.Dispose()
@@ -277,12 +277,12 @@ mapsync:
     Friend Sub DrawPanorama(index As Integer)
         If MyMap.Indoors Then Exit Sub
 
-        If index < 1 Or index > NumPanoramas Then Exit Sub
+        If index < 1 Or index > GameState.NumPanoramas Then Exit Sub
 
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Panoramas & index),
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Panoramas & index),
                       0, 0, 0, 0,
-                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height,
-                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height)
+                       GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height,
+                       GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Panoramas, index)).Height)
     End Sub
 
     Friend Sub DrawParallax(index As Integer)
@@ -290,16 +290,16 @@ mapsync:
         Dim vert As Single = 0
 
         If MyMap.Moral = MyMap.Indoors Then Exit Sub
-        If index < 1 Or index > NumParallax Then Exit Sub
+        If index < 1 Or index > GameState.NumParallax Then Exit Sub
 
         ' Calculate horizontal and vertical offsets based on player position
-        horz = ConvertMapX(GetPlayerX(MyIndex)) * 2.5F - 50
-        vert = ConvertMapY(GetPlayerY(MyIndex)) * 2.5F - 50
+        horz = ConvertMapX(GetPlayerX(GameState.MyIndex)) * 2.5F - 50
+        vert = ConvertMapY(GetPlayerY(GameState.MyIndex)) * 2.5F - 50
 
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Parallax, index),
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Parallax, index),
                       CInt(horz), CInt(vert), 0, 0,
-                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height,
-                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height)
+                       GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height,
+                       GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Parallax, index)).Height)
     End Sub
 
     Friend Sub DrawPicture(Optional index As Integer = 0, Optional type As Integer = 0)
@@ -311,7 +311,7 @@ mapsync:
             type = Picture.SpriteType
         End If
 
-        If index < 1 Or index > NumPictures Then Exit Sub
+        If index < 1 Or index > GameState.NumPictures Then Exit Sub
         If type < 0 Or type >= PictureType.Count Then Exit Sub
 
         Dim posX As Integer = 0
@@ -324,11 +324,11 @@ mapsync:
                 posY = 0 - Picture.yOffset
 
             Case PictureType.CenterScreen
-                posX = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width / 2 - Client.GetGfxInfo((Core.Path.Pictures & index)).Width / 2 - Picture.xOffset
-                posY = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height / 2 - Client.GetGfxInfo((Core.Path.Pictures & index)).Height / 2 - Picture.yOffset
+                posX = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width / 2 - GameClient.GetGfxInfo((Core.Path.Pictures & index)).Width / 2 - Picture.xOffset
+                posY = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height / 2 - GameClient.GetGfxInfo((Core.Path.Pictures & index)).Height / 2 - Picture.yOffset
 
             Case PictureType.CenterEvent
-                If CurrentEvents < Picture.EventId Then
+                If GameState.CurrentEvents < Picture.EventId Then
                     ' Reset picture details and exit if event is invalid
                     Picture.EventId = 0
                     Picture.Index = 0
@@ -341,12 +341,12 @@ mapsync:
                 posY = ConvertMapY(MapEvents(Picture.EventId).Y * 32) / 2 - Picture.yOffset
 
             Case PictureType.CenterPlayer
-                posX = ConvertMapX(Core.Type.Player(MyIndex).X * 32) / 2 - Picture.xOffset
-                posY = ConvertMapY(Core.Type.Player(MyIndex).Y * 32) / 2 - Picture.yOffset
+                posX = ConvertMapX(Core.Type.Player(GameState.MyIndex).X * 32) / 2 - Picture.xOffset
+                posY = ConvertMapY(Core.Type.Player(GameState.MyIndex).Y * 32) / 2 - Picture.yOffset
         End Select
 
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Pictures, index), posX, posY, 0, 0,
-                       Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Pictures, index), posX, posY, 0, 0,
+                       GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Width, GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Pictures, index)).Height)
     End Sub
 
 #End Region
@@ -373,18 +373,18 @@ mapsync:
 
         ReDim MyMap.NPC(MAX_MAP_NPCS)
         ReDim MyMap.Tile(MyMap.MaxX, MyMap.MaxY)
-        ReDim TileHistory(MaxTileHistory)
-        For i = 0 To MaxTileHistory
+        ReDim TileHistory(GameState.MaxTileHistory)
+        For i = 0 To GameState.MaxTileHistory
             ReDim TileHistory(i).Tile(MAX_MAPX,MAX_MAPY)
         Next
-HistoryIndex = 0
-        TileHistoryHighIndex = 0
+        GameState.HistoryIndex = 0
+        GameState.TileHistoryHighIndex = 0
 
         For x = 0 To MAX_MAPX
             For y = 0 To MAX_MAPY
                 ReDim MyMap.Tile(x, y).Layer(LayerType.Count - 1)
 
-                For i = 0 To MaxTileHistory
+                For i = 0 To GameState.MaxTileHistory
                     ReDim TileHistory(i).Tile(x, y).Layer(LayerType.Count - 1)
                 Next
 
@@ -403,7 +403,7 @@ HistoryIndex = 0
                     MyMap.Tile(x, y).Type2 = 0
                     MyMap.Tile(x, y).DirBlock = 0
 
-                    For i = 1 To MaxTileHistory
+                    For i = 1 To GameState.MaxTileHistory
                         TileHistory(i).Tile(x, y).Layer(l).Tileset = 0
                         TileHistory(i).Tile(x, y).Layer(l).X = 0
                         TileHistory(i).Tile(x, y).Layer(l).Y = 0
@@ -485,11 +485,11 @@ HistoryIndex = 0
         Dim needMap As Byte
         Dim buffer As New ByteStream(data)
 
-        GettingMap = True
+        GameState.GettingMap = True
 
         ' Erase all players except self
         For i = 1 To MAX_PLAYERS
-            If i <> MyIndex Then
+            If i <> GameState.MyIndex Then
                 SetPlayerMap(i, 0)
             End If
         Next
@@ -522,7 +522,7 @@ HistoryIndex = 0
         Dim x As Integer, y As Integer, i As Integer, j As Integer, mapNum As Integer
         Dim buffer As New ByteStream(Compression.DecompressBytes(data))
 
-        MapData = False
+        GameState.MapData = False
 
         ClearMap()
 
@@ -560,7 +560,7 @@ HistoryIndex = 0
             MyMap.Shop = buffer.ReadInt32
 
             ReDim MyMap.Tile(MyMap.MaxX, MyMap.MaxY)
-            For i = 0 To MaxTileHistory
+            For i = 0 To GameState.MaxTileHistory
                 ReDim TileHistory(i).Tile(MyMap.MaxX, MyMap.MaxY)
             Next
 
@@ -578,7 +578,7 @@ HistoryIndex = 0
                     MyMap.Tile(x, y).Data3_2 = buffer.ReadInt32
                     MyMap.Tile(x, y).DirBlock = buffer.ReadInt32
 
-                    For j = 1 To MaxTileHistory
+                    For j = 1 To GameState.MaxTileHistory
                         TileHistory(j).Tile(x, y).Data1 = MyMap.Tile(x, y).Data1
                         TileHistory(j).Tile(x, y).Data2 = MyMap.Tile(x, y).Data2
                         TileHistory(j).Tile(x, y).Data3 = MyMap.Tile(x, y).Data3
@@ -591,7 +591,7 @@ HistoryIndex = 0
                     Next
 
                     ReDim MyMap.Tile(x, y).Layer(LayerType.Count - 1)
-                    For i = 0 To MaxTileHistory
+                    For i = 0 To GameState.MaxTileHistory
                         ReDim TileHistory(i).Tile(x, y).Layer(LayerType.Count - 1)
                     Next
 
@@ -601,7 +601,7 @@ HistoryIndex = 0
                         MyMap.Tile(x, y).Layer(i).Y = buffer.ReadInt32
                         MyMap.Tile(x, y).Layer(i).AutoTile = buffer.ReadInt32
 
-                        For j = 1 To MaxTileHistory
+                        For j = 1 To GameState.MaxTileHistory
                             TileHistory(j).Tile(x, y).Layer(i).Tileset = MyMap.Tile(x, y).Layer(i).Tileset
                             TileHistory(j).Tile(x, y).Layer(i).X = MyMap.Tile(x, y).Layer(i).X
                             TileHistory(j).Tile(x, y).Layer(i).Y = MyMap.Tile(x, y).Layer(i).Y
@@ -754,47 +754,47 @@ HistoryIndex = 0
         Next
 
         If buffer.ReadInt32 = 1 Then
-            ResourceIndex = buffer.ReadInt32
-            ResourcesInit = False
-            ReDim MapResource(ResourceIndex)
+            GameState.ResourceIndex = buffer.ReadInt32
+            GameState.ResourcesInit = False
+            ReDim MapResource(GameState.ResourceIndex)
 
-            If ResourceIndex > 0 Then
-                For i = 0 To ResourceIndex
+            If GameState.ResourceIndex > 0 Then
+                For i = 0 To GameState.ResourceIndex
                     MyMapResource(i).State = buffer.ReadByte
                     MyMapResource(i).X = buffer.ReadInt32
                     MyMapResource(i).Y = buffer.ReadInt32
                 Next
 
-                ResourcesInit = True
+                GameState.ResourcesInit = True
             End If
         End If
 
-        Type.Map(GetPlayerMap(MyIndex)) = MyMap
+        Type.Map(GetPlayerMap(GameState.MyIndex)) = MyMap
 
         buffer.Dispose()
 
         InitAutotiles()
 
-        MapData = True
+        GameState.MapData = True
 
         For i = 0 To Byte.MaxValue
             ClearActionMsg(i)
         Next
 
-        CurrentWeather = MyMap.Weather
-        CurrentWeatherIntensity = MyMap.WeatherIntensity
-        CurrentFog = MyMap.Fog
-        CurrentFogSpeed = MyMap.FogSpeed
-        CurrentFogOpacity = MyMap.FogOpacity
-        CurrentTintR = MyMap.MapTintR
-        CurrentTintG = MyMap.MapTintG
-        CurrentTintB = MyMap.MapTintB
-        CurrentTintA = MyMap.MapTintA
+        GameState.CurrentWeather = MyMap.Weather
+        GameState.CurrentWeatherIntensity = MyMap.WeatherIntensity
+        GameState.CurrentFog = MyMap.Fog
+        GameState.CurrentFogSpeed = MyMap.FogSpeed
+        GameState.CurrentFogOpacity = MyMap.FogOpacity
+        GameState.CurrentTintR = MyMap.MapTintR
+        GameState.CurrentTintG = MyMap.MapTintG
+        GameState.CurrentTintB = MyMap.MapTintB
+        GameState.CurrentTintA = MyMap.MapTintA
 
         UpdateDrawMapName()
 
-        GettingMap = False
-        CanMoveNow = True
+        GameState.GettingMap = False
+        GameState.CanMoveNow = True
 
     End Sub
 
@@ -842,20 +842,20 @@ HistoryIndex = 0
             ClearActionMsg(i)
         Next
 
-        CurrentWeather = MyMap.Weather
-        CurrentWeatherIntensity = MyMap.WeatherIntensity
-        CurrentFog = MyMap.Fog
-        CurrentFogSpeed = MyMap.FogSpeed
-        CurrentFogOpacity = MyMap.FogOpacity
-        CurrentTintR = MyMap.MapTintR
-        CurrentTintG = MyMap.MapTintG
-        CurrentTintB = MyMap.MapTintB
-        CurrentTintA = MyMap.MapTintA
+        GameState.CurrentWeather = MyMap.Weather
+        GameState.CurrentWeatherIntensity = MyMap.WeatherIntensity
+        GameState.CurrentFog = MyMap.Fog
+        GameState.CurrentFogSpeed = MyMap.FogSpeed
+        GameState.CurrentFogOpacity = MyMap.FogOpacity
+        GameState.CurrentTintR = MyMap.MapTintR
+        GameState.CurrentTintG = MyMap.MapTintG
+        GameState.CurrentTintB = MyMap.MapTintB
+        GameState.CurrentTintA = MyMap.MapTintA
 
         UpdateDrawMapName()
 
-        GettingMap = False
-        CanMoveNow = True
+        GameState.GettingMap = False
+        GameState.CanMoveNow = True
 
     End Sub
 
@@ -864,9 +864,9 @@ HistoryIndex = 0
 #Region "Outgoing Packets"
 
     Friend Sub SendPlayerRequestNewMap()
-        If GettingMap Then Exit Sub
+        If GameState.GettingMap Then Exit Sub
 
-        If MyMap.Tile(GetPlayerX(MyIndex), GetPlayerY(MyIndex)).Type = TileType.NoXing Or MyMap.Tile(GetPlayerX(MyIndex), GetPlayerY(MyIndex)).Type2 = TileType.NoXing Then
+        If MyMap.Tile(GetPlayerX(GameState.MyIndex), GetPlayerY(GameState.MyIndex)).Type = TileType.NoXing Or MyMap.Tile(GetPlayerX(GameState.MyIndex), GetPlayerY(GameState.MyIndex)).Type2 = TileType.NoXing Then
             AddText("The pathway is blocked.", ColorType.BrightRed)
             Exit Sub
         End If
@@ -874,13 +874,13 @@ HistoryIndex = 0
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CRequestNewMap)
-        buffer.WriteInt32(GetPlayerDir(MyIndex))
+        buffer.WriteInt32(GetPlayerDir(GameState.MyIndex))
 
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        GettingMap = True
-        CanMoveNow = False
+        GameState.GettingMap = True
+        GameState.CanMoveNow = False
 
     End Sub
 
@@ -898,7 +898,7 @@ HistoryIndex = 0
         Dim data() As Byte
         Dim buffer As New ByteStream(4)
 
-        CanMoveNow = False
+        GameState.CanMoveNow = False
 
         buffer.WriteString(MyMap.Name)
         buffer.WriteString(MyMap.Music)
@@ -1090,7 +1090,7 @@ HistoryIndex = 0
             MapEvents(i).Name = ""
         Next
         
-        CurrentEvents = 0
+        GameState.CurrentEvents = 0
     End Sub
 
 #End Region

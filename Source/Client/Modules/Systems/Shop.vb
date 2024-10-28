@@ -4,13 +4,6 @@ Imports Core
 
 Module Shop
 
-#Region "Globals & Type"
-
-    Friend InShop As Integer ' is the player in a shop?
-    Friend ShopAction As Byte ' stores the current shop action
-
-#End Region
-
 #Region "Database"
 
     Sub ClearShop(index As Integer)
@@ -19,7 +12,7 @@ Module Shop
         For x = 1 To MAX_TRADES
             ReDim Type.Shop(index).TradeItem(x)
         Next
-        Shop_Loaded(index) = False
+        GameState.Shop_Loaded(index) = False
     End Sub
 
     Sub ClearShops()
@@ -34,8 +27,8 @@ Module Shop
     End Sub
 
     Sub StreamShop(shopNum As Integer)
-        If shopNum > 0 And Type.Shop(shopNum).Name = "" Or Shop_Loaded(shopNum) = False Then
-            Shop_Loaded(shopNum) = True
+        If shopNum > 0 And Type.Shop(shopNum).Name = "" Or GameState.Shop_Loaded(shopNum) = False Then
+            GameState.Shop_Loaded(shopNum) = True
             SendRequestShop(shopNum)
         End If
     End Sub
@@ -56,7 +49,7 @@ Module Shop
     End Sub
 
     Friend Sub Packet_ResetShopAction(ByRef data() As Byte)
-        ShopAction = 0
+        GameState.ShopAction = 0
     End Sub
 
     Friend Sub Packet_UpdateShop(ByRef data() As Byte)

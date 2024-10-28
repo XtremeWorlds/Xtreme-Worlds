@@ -17,7 +17,7 @@ Module Item
 
         Type.Item(index).Name = ""
         Type.Item(index).Description = ""
-        Item_Loaded(index) = False
+        GameState.Item_Loaded(index) = False
     End Sub
 
     Sub ClearItems()
@@ -32,8 +32,8 @@ Module Item
     End Sub
     
     Sub StreamItem(itemNum As Integer)
-        If itemNum > 0 and Type.Item(itemNum).Name = "" Or Item_Loaded(itemNum) = False Then
-            Item_Loaded(itemNum) = True
+        If itemNum > 0 and Type.Item(itemNum).Name = "" Or GameState.Item_Loaded(itemNum) = False Then
+            GameState.Item_Loaded(itemNum) = True
             SendRequestItem(itemNum)
         End If
     End Sub
@@ -87,9 +87,9 @@ Module Item
         Type.Item(n).Projectile = buffer.ReadInt32()
         Type.Item(n).Ammo = buffer.ReadInt32()
 
-        If n = descLastItem Then
-            descLastType = 0
-            descLastItem = 0
+        If n = GameState.descLastItem Then
+            GameState.descLastType = 0
+            GameState.descLastItem = 0
         End If
 
         buffer.Dispose()

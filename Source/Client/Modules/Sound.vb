@@ -1,7 +1,6 @@
 ﻿Imports System.IO
 Imports System.Xml
 Imports Core
-Imports Core.Path
 Imports ManagedBass
 Imports ManagedBass.Midi
 
@@ -216,12 +215,12 @@ Module Sound
         Dim X1, X2, Y1, Y2 As Integer
         Dim Distance As Double
 
-        If Not InGame Then
+        If Not State.InGame Then
             CalculateSoundVolume = 1
             Return CalculateSoundVolume
         End If
 
-        If InGame AndAlso x = GetPlayerX(MyIndex) AndAlso y = GetPlayerY(MyIndex) Then
+        If State.InGame AndAlso x = GetPlayerX(State.MyIndex) AndAlso y = GetPlayerY(State.MyIndex) Then
             CalculateSoundVolume = 1
             CalculateSoundVolume *= Core.Type.Setting.SoundVolume
             Return CalculateSoundVolume
@@ -230,8 +229,8 @@ Module Sound
         If x > -1 OrElse y > -1 Then
             If x = -1 Then x = 0
             If y = -1 Then y = 0
-            X1 = CInt((Core.Type.Player(MyIndex).X * 32) + Core.Type.Player(MyIndex).XOffset)
-            Y1 = CInt((Core.Type.Player(MyIndex).Y * 32) + Core.Type.Player(MyIndex).YOffset)
+            X1 = CInt((Core.Type.Player(State.MyIndex).X * 32) + Core.Type.Player(State.MyIndex).XOffset)
+            Y1 = CInt((Core.Type.Player(State.MyIndex).Y * 32) + Core.Type.Player(State.MyIndex).YOffset)
             X2 = x * 32
             Y2 = y * 32
 

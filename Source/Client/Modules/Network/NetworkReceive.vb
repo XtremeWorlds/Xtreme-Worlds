@@ -163,7 +163,7 @@ Module NetworkReceive
                     ShowWindow(GetWindowIndex("winRegister"))
             End Select
         Else
-            If kick > 0 Or InGame = False Then
+            If kick > 0 Or GameState.InGame = False Then
                 ShowWindow(GetWindowIndex("winLogin"))
                 InitNetwork()
                 DialogueAlert(dialogueIndex)
@@ -178,7 +178,7 @@ Module NetworkReceive
     Private Sub Packet_KeyPair(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        EKeyPair.ImportKeyString(buffer.ReadString())
+        GameState.EKeyPair.ImportKeyString(buffer.ReadString())
         buffer.Dispose()
     End Sub
 
@@ -186,7 +186,7 @@ Module NetworkReceive
         Dim buffer As New ByteStream(data)
 
         ' Now we can receive game data
-        MyIndex = buffer.ReadInt32
+        GameState.MyIndex = buffer.ReadInt32
 
         buffer.Dispose()
     End Sub
@@ -198,13 +198,13 @@ Module NetworkReceive
         Type.Setting.Save()
 
         For I = 1 To MAX_CHARS
-            CharName(I) = buffer.ReadString
-            CharSprite(I) = buffer.ReadInt32
-            CharAccess(I) = buffer.ReadInt32
-            CharJob(I) = buffer.ReadInt32
+            GameState.CharName(I) = buffer.ReadString
+            GameState.CharSprite(I) = buffer.ReadInt32
+            GameState.CharAccess(I) = buffer.ReadInt32
+            GameState.CharJob(I) = buffer.ReadInt32
 
             ' set as empty or not
-            If Not Len(CharName(I)) > 0 Then isSlotEmpty(I) = True
+            If Not Len(GameState.CharName(I)) > 0 Then isSlotEmpty(I) = True
         Next
 
         buffer.Dispose()
@@ -218,7 +218,7 @@ Module NetworkReceive
             conNum = GetControlIndex("winChars", "lblCharName_" & I)
             With Windows(winNum).Controls(conNum)
                 If Not isSlotEmpty(I) Then
-                    .Text = CharName(I)
+                    .Text = GameState.CharName(I)
                 Else
                     .Text = "Blank Slot"
                 End If
@@ -314,11 +314,11 @@ Module NetworkReceive
     End Sub
 
     Private Sub Packet_InGame(ByRef data() As Byte)
-        InGame = True
-        InMenu = False
+        GameState.InMenu = False
+        GameState.InGame = True
         HideWindows()
-        CanMoveNow = True
-        MyEditorType = -1
+        GameState.CanMoveNow = True
+        GameState.MyEditorType = -1
 
         ' show gui
         ShowWindow(GetWindowIndex("winHotbar"), , False)
@@ -336,8 +336,8 @@ Module NetworkReceive
         For i = 1 To MAX_INV
             invNum = buffer.ReadInt32
             amount = buffer.ReadInt32
-            SetPlayerInv(MyIndex, i, invNum)
-            SetPlayerInvValue(MyIndex, i, amount)
+            SetPlayerInv(GameState.MyIndex, i, invNum)
+            SetPlayerInvValue(GameState.MyIndex, i, amount)
         Next
 
         SetGoldLabel
@@ -351,8 +351,8 @@ Module NetworkReceive
 
         n = buffer.ReadInt32()
 
-        SetPlayerInv(MyIndex, n, buffer.ReadInt32)
-        SetPlayerInvValue(MyIndex, n, buffer.ReadInt32)
+        SetPlayerInv(GameState.MyIndex, n, buffer.ReadInt32)
+        SetPlayerInvValue(GameState.MyIndex, n, buffer.ReadInt32)
 
         SetGoldLabel
 
@@ -365,7 +365,7 @@ Module NetworkReceive
 
         For i = 1 To EquipmentType.Count - 1
             n = buffer.ReadInt32
-            SetPlayerEquipment(MyIndex, n, i)
+            SetPlayerEquipment(GameState.MyIndex, n, i)
         Next
 
         buffer.Dispose()
@@ -392,13 +392,13 @@ Module NetworkReceive
 
             Select Case .Dir
                 Case DirectionType.Up
-                    .YOffset = PicY
+                    .YOffset = GameState.PicY
                 Case DirectionType.Down
-                    .YOffset = PicY * -1
+                    .YOffset = GameState.PicY * -1
                 Case DirectionType.Left
-                    .XOffset = PicX
+                    .XOffset = GameState.PicX
                 Case DirectionType.Right
-                    .XOffset = PicX * -1
+                    .XOffset = GameState.PicX * -1
             End Select
         End With
 
@@ -627,7 +627,7 @@ Module NetworkReceive
         Dim buffer As New ByteStream(data)
 
         For i = 1 To MAX_PLAYER_SKILLS
-            Type.Player(MyIndex).Skill(i).Num = buffer.ReadInt32
+            Type.Player(GameState.MyIndex).Skill(i).Num = buffer.ReadInt32
         Next
 
         buffer.Dispose()
@@ -642,8 +642,8 @@ Module NetworkReceive
     End Sub
 
     Private Sub Packet_Ping(ByRef data() As Byte)
-        PingEnd = GetTickCount()
-        Ping = PingEnd - PingStart
+        GameState.PingEnd = GetTickCount()
+        GameState.Ping = GameState.PingEnd - GameState.PingStart
     End Sub
 
     Private Sub Packet_ActionMessage(ByRef data() As Byte)
@@ -671,10 +671,10 @@ Module NetworkReceive
         ' randomise sprite
         sprite = Rand(1, 3)
 
-        BloodIndex = BloodIndex + 1
-        If BloodIndex >= Byte.MaxValue Then BloodIndex = 1
+        GameState.BloodIndex = GameState.BloodIndex + 1
+        If GameState.BloodIndex >= Byte.MaxValue Then GameState.BloodIndex = 1
 
-        With Blood(BloodIndex)
+        With Blood(GameState.BloodIndex)
             .X = x
             .Y = y
             .Sprite = sprite
@@ -700,7 +700,7 @@ Module NetworkReceive
         Dim buffer As New ByteStream(data)
 
         slot = buffer.ReadInt32
-        Type.Player(MyIndex).Skill(slot).CD = GetTickCount()
+        Type.Player(GameState.MyIndex).Skill(slot).CD = GetTickCount()
 
         buffer.Dispose()
     End Sub
@@ -708,8 +708,8 @@ Module NetworkReceive
     Private Sub Packet_ClearSkillBuffer(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        SkillBuffer = 0
-        SkillBufferTimer = 0
+        GameState.SkillBuffer = 0
+        GameState.SkillBufferTimer = 0
 
         buffer.Dispose()
     End Sub
@@ -761,7 +761,7 @@ Module NetworkReceive
     Private Sub Packet_Stunned(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        StunDuration = buffer.ReadInt32
+        GameState.StunDuration = buffer.ReadInt32
 
         buffer.Dispose()
     End Sub
@@ -1033,8 +1033,8 @@ Module NetworkReceive
     Private Sub Packet_Target(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
 
-        MyTarget = buffer.ReadInt32
-        MyTargetType = buffer.ReadInt32
+        GameState.MyTarget = buffer.ReadInt32
+        GameState.MyTargetType = buffer.ReadInt32
 
         buffer.Dispose()
     End Sub
@@ -1063,13 +1063,14 @@ Module NetworkReceive
 
         buffer.Dispose()
     End Sub
+    
     Private Sub Packet_Critical(ByRef data() As Byte)
-        ShakeTimerEnabled = True
-        ShakeTimer = GetTickCount()
+        GameState.ShakeTimerEnabled = True
+        GameState.ShakeTimer = GetTickCount()
     End Sub
 
     Private Sub Packet_RClick(ByRef data() As Byte)
-        ShowRClick = True
+ 
     End Sub
 
     Private Sub Packet_Emote(ByRef data() As Byte)
@@ -1133,7 +1134,7 @@ Module NetworkReceive
     End Sub
 
     Friend Sub HandleProjectileEditor(ByRef data() As Byte)
-        InitProjectileEditor = True
+        GameState.InitProjectileEditor = True
     End Sub
 
     Private Sub Packet_EditShop(ByRef data() As Byte)
@@ -1183,8 +1184,8 @@ Module NetworkReceive
         Dim buffer As New ByteStream(data)
 
         For i = 1 To MAX_Hotbar
-            Type.Player(MyIndex).Hotbar(i).Slot = buffer.ReadInt32
-            Type.Player(MyIndex).Hotbar(i).SlotType = buffer.ReadInt32
+            Type.Player(GameState.MyIndex).Hotbar(i).Slot = buffer.ReadInt32
+            Type.Player(GameState.MyIndex).Hotbar(i).SlotType = buffer.ReadInt32
         Next
 
         buffer.Dispose()

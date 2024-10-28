@@ -1,61 +1,35 @@
 ﻿Imports System.IO
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports Core
 
 Module Weather
-
-    Friend Const MaxWeatherParticles As Integer = 100
-    Friend WeatherParticle(MaxWeatherParticles) As WeatherParticleRec
-
-    Public Structure WeatherParticleRec
-        Dim Type As Integer
-        Dim X As Integer
-        Dim Y As Integer
-        Dim Velocity As Integer
-        Dim InUse As Integer
-    End Structure
-
-    Friend FogOffsetX As Integer
-    Friend FogOffsetY As Integer
-
-    Friend CurrentWeather As Integer
-    Friend CurrentWeatherIntensity As Integer
-    Friend CurrentFog As Integer
-    Friend CurrentFogSpeed As Integer
-    Friend CurrentFogOpacity As Integer
-    Friend CurrentTintR As Integer
-    Friend CurrentTintG As Integer
-    Friend CurrentTintB As Integer
-    Friend CurrentTintA As Integer
-    Friend DrawThunder As Integer
-
+    
 #Region "Functions"
 
     Sub ProcessWeather()
         Dim i As Integer, x As Integer
 
-        If CurrentWeather > 0 And CurrentWeather < [Enum].Weather.Fog Then
-            If CurrentWeather = [Enum].Weather.Rain Or CurrentWeather = [Enum].Weather.Storm Then
+        If GameState.CurrentWeather > 0 And GameState.CurrentWeather < [Enum].Weather.Fog Then
+            If GameState.CurrentWeather = [Enum].Weather.Rain Or GameState.CurrentWeather = [Enum].Weather.Storm Then
                 PlayWeatherSound("Rain.ogg", True)
             End If
 
-            x = Rand(1, 101 - CurrentWeatherIntensity)
+            x = Rand(1, 101 - GameState.CurrentWeatherIntensity)
             If x = 1 Then
                 'Add a new particle
-                For i = 0 To MaxWeatherParticles
-                    If WeatherParticle(i).InUse = 0 Then
+                For i = 0 To GameState.MaxWeatherParticles
+                    If GameState.WeatherParticle(i).InUse = 0 Then
                         If Rand(1, 3) = 1 Then
-                            WeatherParticle(i).InUse = 1
-                            WeatherParticle(i).Type = CurrentWeather
-                            WeatherParticle(i).Velocity = Rand(8, 14)
-                            WeatherParticle(i).X = (TileView.Left * 32) - 32
-                            WeatherParticle(i).Y = ((TileView.Top * 32) + Rand(-32, ))
+                            GameState.WeatherParticle(i).InUse = 1
+                            GameState.WeatherParticle(i).Type = GameState.CurrentWeather
+                            GameState.WeatherParticle(i).Velocity = Rand(8, 14)
+                            GameState.WeatherParticle(i).X = (GameState.TileView.Left * 32) - 32
+                            GameState.WeatherParticle(i).Y = ((GameState.TileView.Top * 32) + Rand(-32, ))
                         Else
-                            WeatherParticle(i).InUse = 1
-                            WeatherParticle(i).Type = CurrentWeather
-                            WeatherParticle(i).Velocity = Rand(10, 15)
-                            WeatherParticle(i).X = ((TileView.Left * 32) + Rand(-32, ResolutionWidth))
-                            WeatherParticle(i).Y = (TileView.Top * 32) - 32
+                            GameState.WeatherParticle(i).InUse = 1
+                            GameState.WeatherParticle(i).Type = GameState.CurrentWeather
+                            GameState.WeatherParticle(i).Velocity = Rand(10, 15)
+                            GameState.WeatherParticle(i).X = ((GameState.TileView.Left * 32) + Rand(-32, GameState.ResolutionWidth))
+                            GameState.WeatherParticle(i).Y = (GameState.TileView.Top * 32) - 32
                         End If
                     End If
                 Next
@@ -63,21 +37,22 @@ Module Weather
         Else
             StopWeatherSound()
         End If
-        If CurrentWeather = [Enum].Weather.Storm Then
-            x = Rand(1, 400 - CurrentWeatherIntensity)
+        
+        If GameState.CurrentWeather = [Enum].Weather.Storm Then
+            x = Rand(1, 400 - GameState.CurrentWeatherIntensity)
             If x = 1 Then
-                'Draw Thunder
-                DrawThunder = Rand(15, 22)
+                GameState.DrawThunder = Rand(15, 22)
                 PlayExtraSound("Thunder.ogg")
             End If
         End If
-        For i = 0 To MaxWeatherParticles
-            If WeatherParticle(i).InUse = 1 Then
-                If WeatherParticle(i).X > TileView.Right * 32 Or WeatherParticle(i).Y > TileView.Bottom * 32 Then
-                    WeatherParticle(i).InUse = 0
+        
+        For i = 0 To GameState.MaxWeatherParticles
+            If GameState.WeatherParticle(i).InUse = 1 Then
+                If GameState.WeatherParticle(i).X > GameState.TileView.Right * 32 Or GameState.WeatherParticle(i).Y > GameState.TileView.Bottom * 32 Then
+                    GameState.WeatherParticle(i).InUse = 0
                 Else
-                    WeatherParticle(i).X = WeatherParticle(i).X + WeatherParticle(i).Velocity
-                    WeatherParticle(i).Y = WeatherParticle(i).Y + WeatherParticle(i).Velocity
+                    GameState.WeatherParticle(i).X = GameState.WeatherParticle(i).X + GameState.WeatherParticle(i).Velocity
+                    GameState.WeatherParticle(i).Y = GameState.WeatherParticle(i).Y + GameState.WeatherParticle(i).Velocity
                 End If
             End If
         Next

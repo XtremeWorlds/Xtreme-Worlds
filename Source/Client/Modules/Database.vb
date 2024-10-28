@@ -1,25 +1,8 @@
 ﻿Imports System.IO
 Imports System.Linq
-Imports System.Windows.Forms
 Imports Core
 
 Module Database
-    Friend Function GetFileContents(fullPath As String, Optional ByRef errInfo As String = "") As String
-        Dim strContents As String
-        Dim objReader As StreamReader
-
-        strContents = ""
-
-        Try
-            objReader = New StreamReader(fullPath)
-            strContents = objReader.ReadToEnd()
-            objReader.Close()
-        Catch ex As Exception
-            errInfo = ex.Message
-        End Try
-        Return strContents
-    End Function
-
 #Region "Blood"
 
     Sub ClearBlood()
@@ -50,12 +33,12 @@ Module Database
         ReDim Type.NPC(index).DropItem(5)    
         ReDim Type.NPC(index).DropItemValue(5)
         ReDim Type.NPC(index).Skill(6)
-        NPC_Loaded(index) = False
+        GameState.NPC_Loaded(index) = False
     End Sub
 
     Sub StreamNpc(npcNum As Integer)
-        If npcNum > 0 and Type.NPC(npcNum).Name = "" Or NPC_Loaded(npcNum) = False Then
-            NPC_Loaded(npcNum) = True
+        If npcNum > 0 and Type.NPC(npcNum).Name = "" Or GameState.NPC_Loaded(npcNum) = False Then
+            GameState.NPC_Loaded(npcNum) = True
             SendRequestNPC(NPCNum)
         End If
     End Sub
@@ -95,12 +78,12 @@ Module Database
     Sub ClearSkill(index As Integer)
         Type.Skill(index) = Nothing
         Type.Skill(index).Name = ""
-        Skill_Loaded(index) = False
+        GameState.Skill_Loaded(index) = False
     End Sub
 
     Sub StreamSkill(skillNum As Integer)
-        If skillNum > 0 And Type.Skill(skillNum).Name = "" Or Skill_Loaded(skillNum) = False Then
-            Skill_Loaded(skillNum) = True
+        If skillNum > 0 And Type.Skill(skillNum).Name = "" Or GameState.Skill_Loaded(skillNum) = False Then
+            GameState.Skill_Loaded(skillNum) = True
             SendRequestSkill(skillNum)
         End If
     End Sub

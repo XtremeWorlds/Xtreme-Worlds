@@ -3,7 +3,7 @@ Namespace Modules
         Sub Main()
             ' Start the asynchronous tasks
             Dim startupTask = Task.Run(Sub() Startup())
-            Dim clientTask = Task.Run(Sub() Client.Run())
+            Dim clientTask = Task.Run(Sub() client.Run())
 
             ' Wait for both tasks to complete
             Task.WaitAll(startupTask, clientTask)

@@ -41,7 +41,7 @@ Module Text
         ' Move the rest of it up
         For i = (CHAT_LINES - 1) To 1 Step -1
             If Len(Chat(i).Text) > 0 Then
-                If i > Chat_HighIndex Then Chat_HighIndex = i + 1
+                If i > GameState.Chat_HighIndex Then GameState.Chat_HighIndex = i + 1
             End If
             Chat(i + 1) = Chat(i)
         Next
@@ -231,9 +231,12 @@ Module Text
     End Function
 
     Public Sub RenderText(text As String, x As Integer, y As Integer,
-                               frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia, Optional windowID As Integer = 0)
-
-        Client.EnqueueText(text, Path.Fonts, x, y, font, frontColor, backColor, windowID)
+                               frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia)
+        
+        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X + 1, Y + 1), frontColor,
+                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X, Y), frontColor,
+                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
     End Sub
 
     Sub DrawNPCName(MapNpcNum As Integer)
@@ -256,11 +259,11 @@ Module Text
                 backColor = Color.Black
         End Select
 
-        textX = ConvertMapX(MyMapNPC(MapNPCNum).X * PicX) + MyMapNPC(MapNPCNum).XOffset + (PicX \ 2) - (TextWidth((Type.NPC(NPCNum).Name))) / 2 - 2
-        If Type.NPC(NPCNum).Sprite < 1 Or Type.NPC(NPCNum).Sprite > NumCharacters Then
-            textY = ConvertMapY(MyMapNPC(MapNPCNum).Y * PicY) + MyMapNPC(MapNPCNum).YOffset - 16
+        textX = ConvertMapX(MyMapNPC(MapNPCNum).X * GameState.PicX) + MyMapNPC(MapNPCNum).XOffset + (GameState.PicX \ 2) - (TextWidth((Type.NPC(NPCNum).Name))) / 2 - 2
+        If Type.NPC(NPCNum).Sprite < 1 Or Type.NPC(NPCNum).Sprite > GameState.NumCharacters Then
+            textY = ConvertMapY(MyMapNPC(MapNPCNum).Y * GameState.PicY) + MyMapNPC(MapNPCNum).YOffset - 16
         Else
-            textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * PicY) + MyMapNPC(MapNpcNum).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.NPC(npcNum).Sprite)).Height / 4) + 16
+            textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * GameState.PicY) + MyMapNPC(MapNpcNum).YOffset - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.NPC(npcNum).Sprite)).Height / 4) + 16
         End If
 
         ' Draw name
@@ -279,22 +282,22 @@ Module Text
         name = MapEvents(index).Name
 
         ' calc pos
-        textX = ConvertMapX(MapEvents(index).X * PicX) + MapEvents(index).XOffset + (PicX \ 2) - (TextWidth(name)) \ 2 - 2
+        textX = ConvertMapX(MapEvents(index).X * GameState.PicX) + MapEvents(index).XOffset + (GameState.PicX \ 2) - (TextWidth(name)) \ 2 - 2
         If MapEvents(index).GraphicType = 0 Then
-            textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - 16
+            textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - 16
         ElseIf MapEvents(index).GraphicType = 1 Then
-            If MapEvents(index).Graphic < 1 Or MapEvents(index).Graphic > NumCharacters Then
-                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - 16
+            If MapEvents(index).Graphic < 1 Or MapEvents(index).Graphic > GameState.NumCharacters Then
+                textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - 16
             Else
                 ' Determine location for text
-                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, MapEvents(index).Graphic)).Height \ 4) + 16
+                textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, MapEvents(index).Graphic)).Height \ 4) + 16
             End If
         ElseIf MapEvents(index).GraphicType = 2 Then
             If MapEvents(index).GraphicY2 > 0 Then
-                textX = textX + (MapEvents(index).GraphicY2 * PicY) \ 2 - 16
-                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - (MapEvents(index).GraphicY2 * PicY) + 16
+                textX = textX + (MapEvents(index).GraphicY2 * GameState.PicY) \ 2 - 16
+                textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - (MapEvents(index).GraphicY2 * GameState.PicY) + 16
             Else
-                textY = ConvertMapY(MapEvents(index).Y * PicY) + MapEvents(index).YOffset - 32 + 16
+                textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - 32 + 16
             End If
         End If
 
@@ -311,23 +314,23 @@ Module Text
                 time = 1500
 
                 If ActionMsg(index).Y > 0 Then
-                    x = ActionMsg(index).X + Int(PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
-                    y = ActionMsg(index).Y - Int(PicY \ 2) - 2
+                    x = ActionMsg(index).X + Int(GameState.PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
+                    y = ActionMsg(index).Y - Int(GameState.PicY \ 2) - 2
                 Else
-                    x = ActionMsg(index).X + Int(PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
-                    y = ActionMsg(index).Y - Int(PicY \ 2) + 18
+                    x = ActionMsg(index).X + Int(GameState.PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
+                    y = ActionMsg(index).Y - Int(GameState.PicY \ 2) + 18
                 End If
 
             Case ActionMsgType.Scroll
                 time = 1500
 
                 If ActionMsg(index).Y > 0 Then
-                    x = ActionMsg(index).X + Int(PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
-                    y = ActionMsg(index).Y - Int(PicY \ 2) - 2 - (ActionMsg(index).Scroll * 0.6)
+                    x = ActionMsg(index).X + Int(GameState.PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
+                    y = ActionMsg(index).Y - Int(GameState.PicY \ 2) - 2 - (ActionMsg(index).Scroll * 0.6)
                     ActionMsg(index).Scroll = ActionMsg(index).Scroll + 1
                 Else
-                    x = ActionMsg(index).X + Int(PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
-                    y = ActionMsg(index).Y - Int(PicY \ 2) + 18 + (ActionMsg(index).Scroll * 0.6)
+                    x = ActionMsg(index).X + Int(GameState.PicX \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
+                    y = ActionMsg(index).Y - Int(GameState.PicY \ 2) + 18 + (ActionMsg(index).Scroll * 0.6)
                     ActionMsg(index).Scroll = ActionMsg(index).Scroll + 1
                 End If
 
@@ -343,7 +346,7 @@ Module Text
                         End If
                     End If
                 Next
-                x = (ResolutionWidth \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
+                x = (GameState.ResolutionWidth \ 2) - ((Len(ActionMsg(index).Message)) \ 2) * 8
                 y = 425
 
         End Select
@@ -352,7 +355,7 @@ Module Text
         y = ConvertMapY(y)
 
         If GetTickCount() < ActionMsg(index).Created + time Then
-            RenderText(ActionMsg(index).Message, x, y, Client.QbColorToXnaColor(ActionMsg(index).Color), (Color.Black))
+            RenderText(ActionMsg(index).Message, x, y, GameClient.QbColorToXnaColor(ActionMsg(index).Color), (Color.Black))
         Else
             ClearActionMsg(index)
         End If
@@ -366,11 +369,11 @@ Module Text
 
         ' set the position
         xO = 19
-        yO = ResolutionHeight - 40
+        yO = GameState.ResolutionHeight - 40
 
         ' loop through chat
         rLines = 1
-        i = 1 + ChatScroll
+        i = 1 + GameState.ChatScroll
 
         Do While rLines <= 8
             If i > CHAT_LINES Then Exit Do
@@ -381,7 +384,7 @@ Module Text
 
             ' get visible state
             isVisible = True
-            If inSmallChat Then
+            If GameState.inSmallChat Then
                 If Not Chat(i).Visible Then isVisible = False
             End If
 
@@ -391,19 +394,19 @@ Module Text
             If isVisible Then
                 ' render line
                 Color = Chat(i).Color
-                Color2 = Client.QbColorToXnaColor(Color)
+                Color2 = GameClient.QbColorToXnaColor(Color)
 
                 ' check if we need to word wrap
-                If TextWidth(Chat(i).Text) > ChatWidth Then
+                If TextWidth(Chat(i).Text) > GameState.ChatWidth Then
                     ' word wrap
-                    tmpText = WordWrap(Chat(i).Text, FontType.Georgia, ChatWidth)
+                    tmpText = WordWrap(Chat(i).Text, FontType.Georgia, GameState.ChatWidth)
 
                     ' can't have it going offscreen.
                     If rLines + lineCount > 9 Then Exit Do
 
                     ' continue on
                     yOffset = yOffset - (14 * lineCount)
-                    RenderText(tmpText, xO, yO + yOffset, Color2, Color2, , GetWindowIndex("winChat"))
+                    RenderText(tmpText, xO, yO + yOffset, Color2, Color2)
                     rLines = rLines + lineCount
 
                     ' set the top width
@@ -415,7 +418,7 @@ Module Text
                     ' normal
                     yOffset = yOffset - 14
 
-                    RenderText(Chat(i).Text, xO, yO + yOffset, Color2, Color2, , GetWindowIndex("winChat"))
+                    RenderText(Chat(i).Text, xO, yO + yOffset, Color2, Color2)
                     rLines = rLines + 1
 
                     ' set the top width
@@ -432,7 +435,7 @@ Module Text
     End Sub
 
     Sub DrawMapName()
-        RenderText(Language.Game.MapName & MyMap.Name, ResolutionWidth / 2 - TextWidth(MyMap.Name), 10, DrawMapNameColor, Color.Black)
+        RenderText(Language.Game.MapName & MyMap.Name, GameState.ResolutionWidth / 2 - TextWidth(MyMap.Name), 10, GameState.DrawMapNameColor, Color.Black)
     End Sub
 
     Sub DrawPlayerName(index As Integer)
@@ -467,14 +470,14 @@ Module Text
         name = Type.Player(index).Name
 
         ' calc pos
-        textX = ConvertMapX(GetPlayerX(index) * PicX) + Type.Player(index).XOffset + (PicX \ 2) - 2
+        textX = ConvertMapX(GetPlayerX(index) * GameState.PicX) + Type.Player(index).XOffset + (GameState.PicX \ 2) - 2
         textX = textX - (TextWidth((name)) / 2)
 
-        If GetPlayerSprite(index) < 0 Or GetPlayerSprite(index) > NumCharacters Then
-            textY = ConvertMapY(GetPlayerY(index) * PicY) + Type.Player(MyIndex).YOffset - 16
+        If GetPlayerSprite(index) < 0 Or GetPlayerSprite(index) > GameState.NumCharacters Then
+            textY = ConvertMapY(GetPlayerY(index) * GameState.PicY) + Type.Player(GameState.MyIndex).YOffset - 16
         Else
             ' Determine location for text
-            textY = ConvertMapY(GetPlayerY(index) * PicY) + Type.Player(index).YOffset - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GetPlayerSprite(index))).Height / 4) + 16
+            textY = ConvertMapY(GetPlayerY(index) * GameState.PicY) + Type.Player(index).YOffset - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, GetPlayerSprite(index))).Height / 4) + 16
         End If
 
         ' Draw name

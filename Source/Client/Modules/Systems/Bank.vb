@@ -27,11 +27,11 @@ Module Bank
         Dim buffer As New ByteStream(data)
 
         For i = 1 To MAX_BANK
-            SetBank(MyIndex, i, buffer.ReadInt32)
-            SetBankValue(MyIndex, i, buffer.ReadInt32)
+            SetBank(GameState.MyIndex, i, buffer.ReadInt32)
+            SetBankValue(GameState.MyIndex, i, buffer.ReadInt32)
         Next
 
-        InBank = True
+        GameState.InBank = True
 
         If Not Windows(GetWindowIndex("winBank")).Window.visible Then
             ShowWindow(GetWindowIndex("winBank"), , False)
@@ -89,7 +89,7 @@ Module Bank
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        InBank = False
+        GameState.InBank = False
     End Sub
 
 #End Region

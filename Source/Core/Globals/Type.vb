@@ -36,6 +36,7 @@ Public Module Type
     Public [Char] As CharList
     Public Setting As Settings
     Public Pet() As PetStruct
+    Public ChatBubble(Byte.MaxValue) As ChatBubbleStruct
 
     Public Structure ResourceTypetruct
         Dim SkillLevel As Integer
@@ -1057,7 +1058,7 @@ Public Module Type
         Dim TileIndex As Integer
     End Structure
 
-    Structure SDWarpPosStruct
+    Public Structure SDWarpPosStruct
         Dim X As Integer
         Dim Y As Integer
     End Structure
@@ -1183,6 +1184,14 @@ Public Module Type
     Public Structure TextStruct
         Public Text As String
         Public Color As Microsoft.Xna.Framework.Color
+    End Structure
+    
+    Public Structure WeatherParticleStruct
+        Dim Type As Integer
+        Dim X As Integer
+        Dim Y As Integer
+        Dim Velocity As Integer
+        Dim InUse As Integer
     End Structure
 
 End Module

@@ -5,19 +5,12 @@ Imports Core
 
 Module Resource
 
-#Region "Globals & Type"
-
-    Friend ResourceIndex As Integer
-    Friend ResourcesInit As Boolean
-
-#End Region
-
 #Region "Database"
 
     Sub ClearResource(index As Integer)
         Type.Resource(index) = Nothing
         Type.Resource(index).Name = ""
-        Resource_Loaded(index) = False
+        GameState.Resource_Loaded(index) = False
     End Sub
 
     Sub ClearResources()
@@ -30,8 +23,8 @@ Module Resource
     End Sub
 
     Sub StreamResource(resourceNum As Integer)
-        If resourceNum > 0 And Type.Resource(resourceNum).Name = "" Or Resource_Loaded(resourceNum) = False Then
-            Resource_Loaded(resourceNum) = True
+        If resourceNum > 0 And Type.Resource(resourceNum).Name = "" Or GameState.Resource_Loaded(resourceNum) = False Then
+            GameState.Resource_Loaded(resourceNum) = True
             SendRequestResource(resourceNum)
         End If
     End Sub
@@ -43,19 +36,19 @@ Module Resource
     Sub Packet_MapResource(ByRef data() As Byte)
         Dim i As Integer
         Dim buffer As New ByteStream(data)
-        ResourceIndex = buffer.ReadInt32
-        ResourcesInit = False
+        GameState.ResourceIndex = buffer.ReadInt32
+        GameState.ResourcesInit = False
 
-        If ResourceIndex > 0 Then
-            ReDim Preserve MapResource(ResourceIndex)
+        If GameState.ResourceIndex > 0 Then
+            ReDim Preserve MapResource(GameState.ResourceIndex)
 
-            For i = 0 To ResourceIndex
+            For i = 0 To GameState.ResourceIndex
                 MyMapResource(i).State = buffer.ReadByte
                 MyMapResource(i).X = buffer.ReadInt32
                 MyMapResource(i).Y = buffer.ReadInt32
             Next
 
-            ResourcesInit = True
+            GameState.ResourcesInit = True
         End If
 
         buffer.Dispose()
@@ -108,7 +101,7 @@ Module Resource
         Dim width As Integer
         Dim height As Integer
 
-        If resource < 1 Or resource > NumResources Then Exit Sub
+        If resource < 1 Or resource > GameState.NumResources Then Exit Sub
 
         x = ConvertMapX(dx)
         y = ConvertMapY(dy)
@@ -117,7 +110,7 @@ Module Resource
 
         If rec.Width < 0 Or rec.Height < 0 Then Exit Sub
 
-        Client.EnqueueTexture(System.IO.Path.Combine(Core.Path.Resources, resource), x, y, rec.X, rec.Y, rec.Width, rec.Height, rec.Width, rec.Height)
+        GameClient.RenderTexture(System.IO.Path.Combine(Core.Path.Resources, resource), x, y, rec.X, rec.Y, rec.Width, rec.Height, rec.Width, rec.Height)
     End Sub
 
     Friend Sub DrawMapResource(resourceNum As Integer)
@@ -128,8 +121,8 @@ Module Resource
         Dim rec As Rectangle
         Dim x As Integer, y As Integer
 
-        If GettingMap Then Exit Sub
-       If MapData = False Then Exit Sub
+        If GameState.GettingMap Then Exit Sub
+        If GameState.MapData = False Then Exit Sub
 
         If MyMapResource(resourceNum).X > MyMap.MaxX Or MyMapResource(resourceNum).Y > MyMap.MaxY Then Exit Sub
 
@@ -154,14 +147,14 @@ Module Resource
         ' src rect
         With rec
             .Y = 0
-            .Height = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Height
+            .Height = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Height
             .X = 0
-            .Width = Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Width
+            .Width = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Width
         End With
 
         ' Set base x + y, then the offset due to size
-        x = (MyMapResource(resourceNum).X * PicX) - (Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Width / 2) + 16
-        y = (MyMapResource(resourceNum).Y * PicY) - Client.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Height + 32
+        x = (MyMapResource(resourceNum).X * GameState.PicX) - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Width / 2) + 16
+        y = (MyMapResource(resourceNum).Y * GameState.PicY) - GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Resources, resourceSprite)).Height + 32
 
         DrawResource(resourceSprite, x, y, rec)
     End Sub
