@@ -293,56 +293,55 @@ Public Class GameClient
         Return uniqueID
     End Function
     
-Private Function UpdateBatchInQueue(textureCounter As Integer, newCommand As RenderCommand) As Boolean
-    Dim batchList = batches.ToList() ' Snapshot for safe iteration
-    
-    SyncLock BatchLock
-        ' Try to find and update the existing batch with the matching texture or font.
-        For Each batch In batchList
-            If batch.TextureCounter = textureCounter Then
-                ' Look for an existing command with the same TextureID.
-                Dim matchingCommand = batch.Commands.FirstOrDefault(
-                    Function(cmd) cmd.TextureID = newCommand.TextureID)
+    Private Function UpdateBatchInQueue(textureCounter As Integer, newCommand As RenderCommand) As Boolean
+        Dim batchList = batches.ToList() ' Snapshot for safe iteration
+        
+        SyncLock BatchLock
+            ' Try to find and update the existing batch with the matching texture or font.
+            For Each batch In batchList
+                If batch.TextureCounter = textureCounter Then
+                    ' Look for an existing command with the same TextureID.
+                    Dim matchingCommand = batch.Commands.FirstOrDefault(
+                        Function(cmd) cmd.TextureID = newCommand.TextureID)
 
-                If matchingCommand IsNot Nothing Then
-                    ' Update the properties of the matching command.
-                    With matchingCommand
-                        .sRect = newCommand.sRect
-                        .dRect = newCommand.dRect
-                        .X = newCommand.X
-                        .Y = newCommand.Y
-                        .Color = newCommand.Color
-                        .Color2 = newCommand.Color2
-                        .Text = newCommand.Text
-                    End With
+                    If matchingCommand IsNot Nothing Then
+                        ' Update the properties of the matching command.
+                        With matchingCommand
+                            .sRect = newCommand.sRect
+                            .dRect = newCommand.dRect
+                            .X = newCommand.X
+                            .Y = newCommand.Y
+                            .Color = newCommand.Color
+                            .Color2 = newCommand.Color2
+                            .Text = newCommand.Text
+                        End With
 
-                    ' Update the texture if necessary.
+                        ' Update the texture if necessary.
+                        If newCommand.Type = RenderType.Texture Then
+                            batch.Texture = GetTexture(newCommand.Path)
+                        End If
+                        
+                        Return True
+                    End If
+
+                    ' Remove any duplicate commands with the same TextureID.
+                    batch.Commands.RemoveAll(Function(cmd) cmd.TextureID = newCommand.TextureID)
+
+                    ' Add the new command to the batch.
+                    batch.Commands.Add(newCommand)
+
+                    ' Load the texture if required.
                     If newCommand.Type = RenderType.Texture Then
                         batch.Texture = GetTexture(newCommand.Path)
                     End If
-                    
+
                     Return True
                 End If
+            Next
+        End SyncLock
 
-                ' Remove any duplicate commands with the same TextureID.
-                batch.Commands.RemoveAll(Function(cmd) cmd.TextureID = newCommand.TextureID)
-
-                ' Add the new command to the batch.
-                batch.Commands.Add(newCommand)
-
-                ' Load the texture if required.
-                If newCommand.Type = RenderType.Texture Then
-                    batch.Texture = GetTexture(newCommand.Path)
-                End If
-
-                Return True
-            End If
-        Next
-    End SyncLock
-
-    Return False
-End Function
-
+        Return False
+    End Function
     
     Private Function IsWindowHidden(windowID As Integer) As Boolean
         SyncLock loadLock
