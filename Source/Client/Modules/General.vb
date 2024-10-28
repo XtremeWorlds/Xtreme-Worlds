@@ -636,7 +636,7 @@ Module General
 
             tick = GetTickCount()
             ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
-
+            
             frameTime = tick
             
             SyncLock loadLock
@@ -660,7 +660,7 @@ Module General
                     ShowAnimTimer = tick + 500
                 End If
 
-                For layer As Integer = 0 To 1
+                For layer = 0 To 1
                     If animationtmr(layer) < tick Then
                         For x = 0 To MyMap.MaxX
                             For y = 0 To MyMap.MaxY
