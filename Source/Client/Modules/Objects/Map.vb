@@ -355,7 +355,7 @@ mapsync:
 
     Sub ClearMap()
         Dim i As Integer, x As Integer, y As Integer
-
+        
         MyMap.Name = ""
         MyMap.Tileset = 1
         MyMap.MaxX = MAX_MAPX
@@ -379,16 +379,15 @@ mapsync:
         Next
         GameState.HistoryIndex = 0
         GameState.TileHistoryHighIndex = 0
-
+        
         For x = 0 To MAX_MAPX
             For y = 0 To MAX_MAPY
-                ReDim MyMap.Tile(x, y).Layer(LayerType.Count - 1)
-
                 For i = 0 To GameState.MaxTileHistory
                     ReDim TileHistory(i).Tile(x, y).Layer(LayerType.Count - 1)
                 Next
 
                 For l = 1 To LayerType.Count - 1
+                    ReDim MyMap.Tile(x, y).Layer(l)
                     MyMap.Tile(x, y).Layer(l).Tileset = 0
                     MyMap.Tile(x, y).Layer(l).X = 0
                     MyMap.Tile(x, y).Layer(l).Y = 0
