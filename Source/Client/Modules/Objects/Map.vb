@@ -373,19 +373,17 @@ mapsync:
 
         ReDim MyMap.NPC(MAX_MAP_NPCS)
         ReDim MyMap.Tile(MyMap.MaxX, MyMap.MaxY)
+        
         ReDim TileHistory(GameState.MaxTileHistory)
         For i = 0 To GameState.MaxTileHistory
             ReDim TileHistory(i).Tile(MAX_MAPX,MAX_MAPY)
         Next
+        
         GameState.HistoryIndex = 0
         GameState.TileHistoryHighIndex = 0
         
         For x = 0 To MAX_MAPX
             For y = 0 To MAX_MAPY
-                For i = 0 To GameState.MaxTileHistory
-                    ReDim TileHistory(i).Tile(x, y).Layer(LayerType.Count - 1)
-                Next
-
                 For l = 1 To LayerType.Count - 1
                     ReDim MyMap.Tile(x, y).Layer(l)
                     MyMap.Tile(x, y).Layer(l).Tileset = 0
@@ -403,6 +401,7 @@ mapsync:
                     MyMap.Tile(x, y).DirBlock = 0
 
                     For i = 1 To GameState.MaxTileHistory
+                        Redim TileHistory(i).Tile(x, y).Layer(l)
                         TileHistory(i).Tile(x, y).Layer(l).Tileset = 0
                         TileHistory(i).Tile(x, y).Layer(l).X = 0
                         TileHistory(i).Tile(x, y).Layer(l).Y = 0
@@ -590,7 +589,7 @@ mapsync:
                     Next
 
                     ReDim MyMap.Tile(x, y).Layer(LayerType.Count - 1)
-                    For i = 0 To GameState.MaxTileHistory
+                    For i = 1 To GameState.MaxTileHistory
                         ReDim TileHistory(i).Tile(x, y).Layer(LayerType.Count - 1)
                     Next
 
