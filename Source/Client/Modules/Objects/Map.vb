@@ -375,7 +375,7 @@ mapsync:
         ReDim MyMap.Tile(MyMap.MaxX, MyMap.MaxY)
         
         ReDim TileHistory(GameState.MaxTileHistory)
-        For i = 0 To GameState.MaxTileHistory
+        For i = 1 To GameState.MaxTileHistory
             ReDim TileHistory(i).Tile(MAX_MAPX,MAX_MAPY)
         Next
         
@@ -558,7 +558,7 @@ mapsync:
             MyMap.Shop = buffer.ReadInt32
 
             ReDim MyMap.Tile(MyMap.MaxX, MyMap.MaxY)
-            For i = 0 To GameState.MaxTileHistory
+            For i = 1 To GameState.MaxTileHistory
                 ReDim TileHistory(i).Tile(MyMap.MaxX, MyMap.MaxY)
             Next
 
