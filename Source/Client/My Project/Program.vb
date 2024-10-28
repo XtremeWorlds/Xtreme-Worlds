@@ -400,11 +400,11 @@ Public Class GameClient
 
                                 ' Draw the shadow (backString equivalent)
                                 SpriteBatch.DrawString(batch.Font, renderCommand.Text, shadowPosition, renderCommand.Color2,
-                                                       0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+                                                       0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
 
                                 ' Draw the main text (frontString equivalent)
                                 SpriteBatch.DrawString(batch.Font, renderCommand.Text, New Vector2(renderCommand.X, renderCommand.Y), renderCommand.Color,
-                                                       0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+                                                       0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
                             End If
                     End Select
                 Next
