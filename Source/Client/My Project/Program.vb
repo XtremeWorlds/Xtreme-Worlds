@@ -395,9 +395,16 @@ Public Class GameClient
 
                         Case RenderType.Font
                             If batch.Font IsNot Nothing Then
-                                Dim shadowPos As New Vector2(renderCommand.X + 1, renderCommand.Y + 1)
-                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, shadowPos, renderCommand.Color2)
-                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, New Vector2(renderCommand.X, renderCommand.Y), renderCommand.Color)
+                                ' Calculate the shadow position
+                                Dim shadowPosition As New Vector2(renderCommand.X + 1, renderCommand.Y + 1)
+
+                                ' Draw the shadow (backString equivalent)
+                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, shadowPosition, renderCommand.Color2,
+                                                       0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+
+                                ' Draw the main text (frontString equivalent)
+                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, New Vector2(renderCommand.X, renderCommand.Y), renderCommand.Color,
+                                                       0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
                             End If
                     End Select
                 Next
