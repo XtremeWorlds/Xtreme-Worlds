@@ -1407,7 +1407,6 @@ Continue1:
 
         DestroyNetwork()
         InitNetwork()
-        ClearGameData()
     End Sub
 
     Sub SetOptionsScreen()

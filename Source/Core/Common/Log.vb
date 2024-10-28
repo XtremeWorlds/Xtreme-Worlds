@@ -5,8 +5,8 @@ Public Module Log
         Dim strContents = ""
         Dim objReader As StreamReader
 
-        If Not File.Exists(fullPath) Then File.Create(fullPath).Dispose()
         Try
+            If Not File.Exists(fullPath) Then File.Create(fullPath)
             objReader = New StreamReader(fullPath)
             strContents = objReader.ReadToEnd()
             objReader.Close()
