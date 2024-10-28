@@ -233,10 +233,10 @@ Module Text
     Public Sub RenderText(text As String, x As Integer, y As Integer,
                                frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia)
         
-        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X + 1, Y + 1), frontColor,
-                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X + 1, Y + 1), backColor,
+                               0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
         GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X, Y), frontColor,
-                               0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+                               0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
     End Sub
 
     Sub DrawNPCName(MapNpcNum As Integer)

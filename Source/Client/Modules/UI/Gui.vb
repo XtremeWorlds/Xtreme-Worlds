@@ -247,7 +247,7 @@ Public Class Gui
         callback(EntState.Enter) = callback_enter
 
         ' create the textbox
-        CreateEntity(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.Black, EntityType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset,  , censor, icon, , isActive, , , , length)
+        CreateEntity(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, EntityType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset,  , censor, icon, , isActive, , , , length)
     End Sub
 
     Public Sub CreatePictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
@@ -563,8 +563,7 @@ Public Class Gui
         CreatePictureBox(WindowCount, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         'CreatePictureBox(WindowCount, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         'CreatePictureBox(WindowCount, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-
-
+        
         ' Buttons
         CreateButton(WindowCount, "btnAccept", 68, 152, 67, 22, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
         CreateButton(WindowCount, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
