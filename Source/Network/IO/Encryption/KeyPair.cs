@@ -152,7 +152,10 @@ namespace Mirage.Sharp.Asfw.IO.Encryption
     public string EncryptString(string value)
     {
       if (this._rsa == null)
-        throw new CryptographicException("Key not set.");
+      {
+        return "";
+      }
+      
       return Convert.ToBase64String(this.EncryptBytes(Encoding.UTF8.GetBytes(value)));
     }
 
