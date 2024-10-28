@@ -300,6 +300,11 @@ Public Class GameClient
             For i = 1 to TextureCounter
                 ' Try to dequeue a batch that matches the command's texture ID or add back if not updated
                 If batches.TryGetValue(i, batchToUpdate) Then
+                    If newCommand.EntityID > 0 And Not Windows(newCommand.EntityID).Window.Visible
+                        Batches.TryRemove(i, batchToUpdate)
+                        Continue For
+                    End If
+                    
                     If GenerateUniqueTextureID(newCommand.Path, i) = newCommand.TextureID Then
                         ' Search for an existing command in the dequeued batch.
                         Dim matchingCommand = batchToUpdate.Commands.FirstOrDefault(
