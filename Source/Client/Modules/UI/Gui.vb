@@ -100,7 +100,7 @@ Public Class Gui
             If .zOrder = WindowCount Then Exit Sub
             oldZOrder = .zOrder
 
-            For i = 1 To WindowCount
+            For i = 1 To WindowCount - 1
 
                 If Windows(i).Window.zOrder > oldZOrder Then
                     Windows(i).Window.zOrder = Windows(i).Window.zOrder - 1
