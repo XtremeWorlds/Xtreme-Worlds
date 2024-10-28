@@ -78,38 +78,45 @@ namespace Mirage.Sharp.Asfw.Network
     {
       if (this._socket == null)
         return;
+
       try
       {
-        this._socket?.EndConnect(ar);
+        this._socket.EndConnect(ar);
       }
-      catch
+      catch (Exception ex)
       {
-        NetworkClient.ConnectionArgs connectionFailed = this.ConnectionFailed;
-        if (connectionFailed != null)
-          connectionFailed();
+        Console.WriteLine($"Connection failed: {ex.Message}");
+        this.ConnectionFailed?.Invoke();
         this._connecting = false;
         return;
       }
+
       if (!this._socket.Connected)
       {
-        NetworkClient.ConnectionArgs connectionFailed = this.ConnectionFailed;
-        if (connectionFailed != null)
-          connectionFailed();
+        this.ConnectionFailed?.Invoke();
         this._connecting = false;
+        return;
       }
-      else
+
+      this._connecting = false;
+      this.ConnectionSuccess?.Invoke();
+
+      this._socket.ReceiveBufferSize = this._packetSize;
+      this._socket.SendBufferSize = this._packetSize;
+
+      if (!this.ThreadControl)
       {
-        this._connecting = false;
-        NetworkClient.ConnectionArgs connectionSuccess = this.ConnectionSuccess;
-        if (connectionSuccess != null)
-          connectionSuccess();
-        this._socket.ReceiveBufferSize = this._packetSize;
-        this._socket.SendBufferSize = this._packetSize;
-        if (this.ThreadControl)
-          return;
-        this.BeginReceiveData();
+        try
+        {
+          this.BeginReceiveData();
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Error starting data reception: {ex.Message}");
+        }
       }
     }
+
 
     public bool IsConnected => this._socket != null && this._socket.Connected;
 
