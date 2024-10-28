@@ -342,13 +342,6 @@ Public Class GameClient
 
         Return False
     End Function
-    
-    Private Function IsWindowHidden(windowID As Integer) As Boolean
-        SyncLock loadLock
-            ' Check if the window is hidden based on its ID (you need a visibility tracking system)
-            Return Not Windows(windowID).Window.Visible
-        End SyncLock
-    End Function
 
     Public Function GetTexture(path As String) As Texture2D
         If Not TextureCache.ContainsKey(path) Then
@@ -382,7 +375,7 @@ Public Class GameClient
     End Function
     
     Protected Overrides Sub Draw(gameTime As GameTime)
-        Dim i As Long, foundWindow As Boolean = False
+        Dim i As Long
         
         GraphicsDevice.Clear(Color.Black)
         GraphicsDevice.Viewport = New Viewport(0, 0, ResolutionWidth, ResolutionHeight)
@@ -399,73 +392,32 @@ Public Class GameClient
         SyncLock batchLock
             For Each batch In batches
                 For Each command In batch.Commands.ToArray()
-                    If command.EntityID > 0 AndAlso Not IsWindowHidden(command.EntityID) Or command.EntityID = 0 Then
-                        For i = 1 To WindowCount
-                            If Windows(i).Window.Visible AndAlso command.EntityID = i Then
-                                ' Check if the new position matches the command coordinates
-                                If command.dRect.X = Windows(i).Window.Left AndAlso command.dRect.Y = Windows(i).Window.Top Then
-                                    foundWindow = True
-                                    Exit For
-                                End If
-                                
-                                ' Calculate the new potential left and top positions
-                                Dim deltaX = CurMouseX - Windows(i).Window.Left - Windows(i).Window.movedX
-                                Dim deltaY = CurMouseY - Windows(i).Window.Top - Windows(i).Window.movedY
-
-                                Dim newLeft = Math.Clamp(
-                                    Windows(i).Window.Left + deltaX,
-                                    0, ResolutionWidth - Windows(i).Window.Width
-                                    )
-
-                                Dim newTop = Math.Clamp(
-                                    Windows(i).Window.Top + deltaY,
-                                    0, ResolutionHeight - Windows(i).Window.Height
-                                    )
-          
-                                ' Ensure the mouse movement is within a valid range for the window
-                                If Math.Abs(deltaX) <= Windows(i).Window.Width AndAlso 
-                                   Math.Abs(deltaY) <= Windows(i).Window.Height Then
-                                    ' Check if the new position matches the command coordinates
-                                    If command.dRect.X = newLeft AndAlso command.dRect.Y = newTop Then
-                                        foundWindow = True
-                                        Exit For
-                                    End If
-                                End If
+                    Select Case command.Type
+                        Case RenderType.Texture
+                            If batch.Texture Is Nothing Then
+                                batch.Commands.Remove(command)
+                                Continue For
                             End If
-                        Next
-                        
-                        If Not foundWindow And command.EntityID > 0 And Not IsWindowHidden(command.EntityID) Then
-                            batch.Commands.RemoveAll(Function(cmd) cmd.EntityID = command.EntityID)
-                            Continue For
-                        End If
-                        
-                        Select Case command.Type
-                            Case RenderType.Texture
-                                If batch.Texture Is Nothing Then
-                                    batch.Commands.Remove(command)
-                                    Continue For
-                                End If
-                                
-                                SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
-                                
-                            Case RenderType.Font
-                                If batch.Font Is Nothing Then
-                                    batch.Commands.Remove(command)
-                                    Continue For
-                                End If
-                                
-                                ' Calculate the shadow position
-                                Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
+                            
+                            SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
+                            
+                        Case RenderType.Font
+                            If batch.Font Is Nothing Then
+                                batch.Commands.Remove(command)
+                                Continue For
+                            End If
+                            
+                            ' Calculate the shadow position
+                            Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
 
-                                ' Draw the shadow (backString equivalent)
-                                SpriteBatch.DrawString(batch.Font, command.Text, shadowPosition, command.Color2,
-                                                              0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+                            ' Draw the shadow (backString equivalent)
+                            SpriteBatch.DrawString(batch.Font, command.Text, shadowPosition, command.Color2,
+                                                          0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
 
-                                ' Draw the main text (frontString equivalent)
-                                SpriteBatch.DrawString(batch.Font, command.Text, New Vector2(command.X, command.Y), command.Color,
-                                                              0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
-                        End Select
-                    End If
+                            ' Draw the main text (frontString equivalent)
+                            SpriteBatch.DrawString(batch.Font, command.Text, New Vector2(command.X, command.Y), command.Color,
+                                                          0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
+                    End Select
                 Next
             Next
         End SyncLock
