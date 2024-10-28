@@ -486,15 +486,6 @@ Module [Interface]
         Dim i As Long
 
         Windows(curWindow).Window.Visible = False
-        
-        Dim batchList = Client.Batches.ToList() ' Snapshot for safe iteration
-        
-        SyncLock Client.BatchLock
-            ' Try to find and update the existing batch with the matching texture or font.
-            For Each batch In batchList
-                batch.Commands.RemoveAll(Function(cmd) cmd.EntityID = curWindow)
-            Next
-        End SyncLock
 
         ' find next window to set as active
         For i = WindowCount To 1 Step -1

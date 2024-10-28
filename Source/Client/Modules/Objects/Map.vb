@@ -434,20 +434,6 @@ HistoryIndex = 0
     End Sub
 
     Sub ClearMapItem(index As Integer)
-        Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
-
-        SyncLock Client.BatchLock
-            For Each batch In batchList
-                ' Search for an existing command and update its properties
-                Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.Item(MyMapItem(index).Num).Icon))
-                
-                if existingCommand?.dRect.X = MyMapItem(index).X And existingCommand?.dRect.Y = MyMapItem(index).Y Then
-                    batch.Commands.Remove(existingCommand)
-                    Exit For
-                End If
-            Next
-        End SyncLock
-        
         MyMapItem(index).Num = 0
         MyMapItem(index).Value = 0
         MyMapItem(index).X = 0
@@ -456,20 +442,6 @@ HistoryIndex = 0
 
     Sub ClearMapNPC(index As Integer)
         With MyMapNPC(index)
-            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
-
-            SyncLock Client.BatchLock
-                For Each batch In batchList
-                    ' Search for an existing command and update its properties
-                    Dim existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, Type.NPC(.Num).Sprite))
-                
-                    if existingCommand?.dRect.X = .X And existingCommand?.dRect.Y = .Y Then
-                        batch.Commands.Remove(existingCommand)
-                        Exit For
-                    End If
-                Next
-            End SyncLock
-            
             .Attacking = 0
             .AttackTimer = 0
             .Dir = 0
@@ -1112,33 +1084,13 @@ HistoryIndex = 0
     End Sub
 
     Friend Sub ClearMapEvents()
-        For i = 0 To MyMap.EventCount
-            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
-
-            SyncLock Client.BatchLock
-                For Each batch In batchList
-                    Dim existingCommand As GameClient.RenderCommand
-                    ' Search for an existing command and update its properties
-                    Select Case MapEvents(i).GraphicType
-                        Case 0
-                            Exit Sub
-                        Case 1
-                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, MapEvents(i).Graphic))
-                        Case 2
-                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(i).Graphic))
-                    End Select
-                    
-                    if existingCommand?.dRect.X = MapEvents(i).X And existingCommand?.dRect.Y = Type.MapEvents(i).Y Then
-                        batch.Commands.Remove(existingCommand)
-                        Exit For
-                    End If
-                Next
-            End SyncLock
-        Next
-
         ReDim MapEvents(MyMap.EventCount)
+        
+        For i = 0 To MyMap.EventCount
+            MapEvents(i).Name = ""
+        Next
+        
         CurrentEvents = 0
-
     End Sub
 
 #End Region

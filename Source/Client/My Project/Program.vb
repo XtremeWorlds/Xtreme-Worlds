@@ -23,7 +23,7 @@ Public Class GameClient
     Public ReadOnly MultiplyBlendState As New BlendState()
 
     ' Queue to maintain FIFO order of batches
-    Public Shared Batches As New ConcurrentQueue(Of RenderBatch)()
+    Public Shared Batches As New ConcurrentDictionary(Of Integer, RenderBatch)()
     Public Shared ReadOnly BatchLock As New Object()
     
     Private Shared gameFps As Integer
@@ -206,24 +206,24 @@ Public Class GameClient
                            font As FontType, frontColor As Color, backColor As Color,
                            Optional entityID As Integer = 0)
         
-        ' Create the new render command
-        Dim newCommand = New RenderCommand With {
-                .Type = RenderType.Font,
-                .Path = path,
-                .Text = text,
-                .X = x,
-                .Y = y,
-                .Color = frontColor,
-                .Color2 = backColor,
-                .EntityID = entityID,
-                .TextureID = GenerateUniqueTextureID(.Path, TextureCounter)
-                }
-        
         SyncLock batchLock
             TextureCounter += 1
             
+            ' Create the new render command
+            Dim newCommand = New RenderCommand With {
+                    .Type = RenderType.Font,
+                    .Path = path,
+                    .Text = text,
+                    .X = x,
+                    .Y = y,
+                    .Color = frontColor,
+                    .Color2 = backColor,
+                    .EntityID = entityID,
+                    .TextureID = GenerateUniqueTextureID(.Path, TextureCounter)
+                    }
+            
             ' Try to update an existing batch with the same TextCounter
-            If Not UpdateBatchInQueue(TextureCounter, newCommand) Then
+            If Not UpdateBatches(newCommand) Then
                 ' Create a new batch if no matching batch was found
                 Dim batch = New RenderBatch() With {
                         .Font = Fonts(font),
@@ -232,7 +232,7 @@ Public Class GameClient
                 batch.Commands.Add(newCommand)
 
                 ' Enqueue the new batch
-                batches.Enqueue(batch)
+                batches.TryAdd(TextureCounter, batch)
             End If
         End SyncLock
     End Sub
@@ -274,75 +274,66 @@ Public Class GameClient
                     }
             
             ' Try to update an existing batch with the same TextureID
-            If Not UpdateBatchInQueue(TextureCounter, newCommand) Then
+            If Not UpdateBatches(newCommand) Then
                 ' Create a new batch if no matching batch was found
                 Dim batch = New RenderBatch() With {
                         .Texture = texture,
                         .TextureCounter = TextureCounter
                         }
                 batch.Commands.Add(newCommand)
-                batches.Enqueue(batch)
+                batches.TryAdd(TextureCounter, batch)
             End If
         End SyncLock
     End Sub
     
     Private Function GenerateUniqueTextureID(path As String, index As Integer) As Integer
         Dim pathHash = path.GetHashCode() ' Generate a hash from the path
-        Dim uniqueID = Math.Abs(pathHash + TextureCounter) ' Ensure the ID is non-negative
+        Dim uniqueID = Math.Abs(pathHash + index) ' Ensure the ID is non-negative
 
         Return uniqueID
     End Function
     
-    Private Function UpdateBatchInQueue(textureCounter As Integer, newCommand As RenderCommand) As Boolean
-        Dim batchList = batches.ToList() ' Snapshot for safe iteration
-        
+    Private Function UpdateBatches(newCommand As RenderCommand) As Boolean
+        Dim batchToUpdate As RenderBatch = Nothing
+
         SyncLock BatchLock
-            ' Try to find and update the existing batch with the matching texture or font.
-            For Each batch In batchList
-                If batch.TextureCounter = textureCounter Then
-                    ' Look for an existing command with the same TextureID.
-                    Dim matchingCommand = batch.Commands.FirstOrDefault(
-                        Function(cmd) cmd.TextureID = newCommand.TextureID)
+            For i = 1 to TextureCounter
+                ' Try to dequeue a batch that matches the command's texture ID or add back if not updated
+                If batches.TryGetValue(i, batchToUpdate) Then
+                    If GenerateUniqueTextureID(newCommand.Path, i) = newCommand.TextureID Then
+                        ' Search for an existing command in the dequeued batch.
+                        Dim matchingCommand = batchToUpdate.Commands.FirstOrDefault(
+                            Function(cmd) cmd.TextureID = newCommand.TextureID)
 
-                    If matchingCommand IsNot Nothing Then
-                        ' Update the properties of the matching command.
-                        With matchingCommand
-                            .sRect = newCommand.sRect
-                            .dRect = newCommand.dRect
-                            .X = newCommand.X
-                            .Y = newCommand.Y
-                            .Color = newCommand.Color
-                            .Color2 = newCommand.Color2
-                            .Text = newCommand.Text
-                        End With
+                        If matchingCommand IsNot Nothing Then
+                            ' Update the matching command's properties.
+                            With matchingCommand
+                                .sRect = newCommand.sRect
+                                .dRect = newCommand.dRect
+                                .X = newCommand.X
+                                .Y = newCommand.Y
+                                .Color = newCommand.Color
+                                .Color2 = newCommand.Color2
+                                .Text = newCommand.Text
+                            End With
 
-                        ' Update the texture if necessary.
-                        If newCommand.Type = RenderType.Texture Then
-                            batch.Texture = GetTexture(newCommand.Path)
+                            ' Update texture if necessary.
+                            If newCommand.Type = RenderType.Texture Then
+                                batchToUpdate.Texture = GetTexture(newCommand.Path)
+                            End If
+                            
+                            Return True
                         End If
                         
-                        Return True
+                        Batches.TryRemove(i, batchToUpdate)
                     End If
-
-                    ' Remove any duplicate commands with the same TextureID.
-                    batch.Commands.RemoveAll(Function(cmd) cmd.TextureID = newCommand.TextureID)
-
-                    ' Add the new command to the batch.
-                    batch.Commands.Add(newCommand)
-
-                    ' Load the texture if required.
-                    If newCommand.Type = RenderType.Texture Then
-                        batch.Texture = GetTexture(newCommand.Path)
-                    End If
-
-                    Return True
                 End If
             Next
         End SyncLock
 
         Return False
     End Function
-
+    
     Public Function GetTexture(path As String) As Texture2D
         If Not TextureCache.ContainsKey(path) Then
             Dim texture = LoadTexture(path)
@@ -384,46 +375,34 @@ Public Class GameClient
             If IsLoading then Exit Sub
         End SyncLock
         
-        Dim command As RenderCommand
-    
         SpriteBatch.Begin()
+        RenderBatches()
+        SpriteBatch.End()
 
-        ' Directly iterate over the ConcurrentBag
-        SyncLock batchLock
-            For Each batch In batches
-                For Each command In batch.Commands.ToArray()
-                    Select Case command.Type
+        MyBase.Draw(gameTime)
+    End Sub
+    
+    ' Render method to iterate over the batches and draw them.
+    Private Sub RenderBatches()
+        SyncLock BatchLock
+            For Each batch In Batches.Values
+                For Each renderCommand In batch.Commands.ToArray()
+                    Select Case renderCommand.Type
                         Case RenderType.Texture
-                            If batch.Texture Is Nothing Then
-                                batch.Commands.Remove(command)
-                                Continue For
+                            If batch.Texture IsNot Nothing Then
+                                SpriteBatch.Draw(batch.Texture, renderCommand.dRect, renderCommand.sRect, renderCommand.Color)
                             End If
-                            
-                            SpriteBatch.Draw(batch.Texture, command.dRect, command.sRect, command.Color)
-                            
+
                         Case RenderType.Font
-                            If batch.Font Is Nothing Then
-                                batch.Commands.Remove(command)
-                                Continue For
+                            If batch.Font IsNot Nothing Then
+                                Dim shadowPos As New Vector2(renderCommand.X + 1, renderCommand.Y + 1)
+                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, shadowPos, renderCommand.Color2)
+                                SpriteBatch.DrawString(batch.Font, renderCommand.Text, New Vector2(renderCommand.X, renderCommand.Y), renderCommand.Color)
                             End If
-                            
-                            ' Calculate the shadow position
-                            Dim shadowPosition As New Vector2(command.X + 1, command.Y + 1)
-
-                            ' Draw the shadow (backString equivalent)
-                            SpriteBatch.DrawString(batch.Font, command.Text, shadowPosition, command.Color2,
-                                                          0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
-
-                            ' Draw the main text (frontString equivalent)
-                            SpriteBatch.DrawString(batch.Font, command.Text, New Vector2(command.X, command.Y), command.Color,
-                                                          0.0F, Vector2.Zero, 10 / 16.0F, SpriteEffects.None, 0.0F)
                     End Select
                 Next
             Next
         End SyncLock
-        SpriteBatch.End()
-
-        MyBase.Draw(gameTime)
     End Sub
     
     Protected Overrides Sub Update(gameTime As GameTime)
@@ -1415,27 +1394,6 @@ Public Class GameClient
         Dim x As Integer, y As Integer, width As Integer, height As Integer, sRect As Rectangle, anim As Integer, spritetop As Integer
 
         If MapEvents(id).Visible = 0 Then
-            Dim batchList = Client.Batches.ToList() ' Snapshot of the queue
-
-            SyncLock Client.BatchLock
-                For Each batch In batchList
-                    Dim existingCommand As RenderCommand
-                    ' Search for an existing command and update its properties
-                    Select Case MapEvents(id).GraphicType
-                        Case 0
-                            Exit Sub
-                        Case 1
-                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Characters, MapEvents(id).Graphic))
-                        Case 2
-                            existingCommand = batch.Commands.FirstOrDefault(Function(cmd) cmd.Path = System.IO.Path.Combine(Core.Path.Tilesets, MapEvents(id).Graphic))
-                    End Select
-                    
-                    if existingCommand?.dRect.X = MapEvents(id).X And existingCommand?.dRect.Y = Type.MapEvents(id).Y Then
-                        batch.Commands.Remove(existingCommand)
-                        Exit For
-                    End If
-                Next
-            End SyncLock
             Exit Sub
         End If
 
