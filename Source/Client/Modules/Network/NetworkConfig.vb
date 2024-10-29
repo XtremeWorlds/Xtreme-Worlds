@@ -7,9 +7,7 @@ Friend Module NetworkConfig
     Friend Sub InitNetwork()
         Socket = New NetworkClient(ServerPackets.COUNT, 8192)
         Connect()
-        If Socket.IsConnected Then
-            PacketRouter()
-        End If
+        PacketRouter()
     End Sub
 
     Friend Sub Connect()

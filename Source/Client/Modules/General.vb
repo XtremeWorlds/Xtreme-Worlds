@@ -25,7 +25,7 @@ Module General
     End Function
 
     Sub Startup()
-       GameState.InMenu = True
+        GameState.InMenu = True
         ClearGameData()
         LoadGame()
         GameClient.LoadingCompleted.WaitOne()
@@ -55,7 +55,7 @@ Module General
         InitializeBASS()
         InitNetwork()
         Gui.InitInterface()
-       GameState.Ping = -1
+        GameState.Ping = -1
     End Sub
 
     Friend Sub CheckAnimations()

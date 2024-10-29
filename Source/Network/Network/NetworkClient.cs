@@ -116,8 +116,7 @@ namespace Mirage.Sharp.Asfw.Network
         }
       }
     }
-
-
+    
     public bool IsConnected => this._socket != null && this._socket.Connected;
 
     public void Disconnect()
