@@ -98,46 +98,79 @@ namespace Mirage.Sharp.Asfw.Network
 
     public void Disconnect(int index)
     {
-      if (this._socket == null || !this._socket.ContainsKey(index))
+      if (_socket == null || !_socket.ContainsKey(index))
         return;
-      Socket socket = this._socket[index];
+
+      // Retrieve the socket from the dictionary
+      Socket socket = _socket[index];
+
       if (socket == null)
       {
-        this._socket.Remove(index);
-        this._unsignedIndex.Add(index);
+        // Remove the entry if the socket is null
+        _socket.Remove(index);
+        _unsignedIndex.Add(index);
       }
       else
-        socket.BeginDisconnect(false, new AsyncCallback(this.DoDisconnect), (object) index);
+      {
+        try
+        {
+          // Initiate the asynchronous disconnect
+          socket.BeginDisconnect(false, DoDisconnect, index);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Error during disconnect: {ex.Message}");
+
+          // Ensure cleanup if an error occurs
+          ForceDisconnect(index);
+        }
+      }
     }
 
+    // Callback for handling the end of the disconnect
     private void DoDisconnect(IAsyncResult ar)
     {
-      if (this._socket == null)
-        return;
-      int asyncState = (int) ar.AsyncState;
+      int index = (int)ar.AsyncState;
+
       try
       {
-        this._socket[asyncState].EndDisconnect(ar);
+        // Complete the disconnection process
+        if (_socket.ContainsKey(index) && _socket[index] != null)
+        {
+          _socket[index].EndDisconnect(ar);
+          _socket[index].Close();
+        }
+
+        // Remove the socket and mark the index as available
+        _socket.Remove(index);
+        _unsignedIndex.Add(index);
       }
-      catch
+      catch (Exception ex)
       {
+        Console.WriteLine($"Error in DoDisconnect: {ex.Message}");
       }
-      if (!this._socket.ContainsKey(asyncState))
-        return;
-      this._socket[asyncState].Dispose();
-      this._socket[asyncState] = (Socket) null;
-      this._socket.Remove(asyncState);
-      this._unsignedIndex.Add(asyncState);
-      int highIndex = this.HighIndex;
-      while (!this._socket.ContainsKey(highIndex) && highIndex != this.MinimumIndex)
-        --highIndex;
-      this.HighIndex = highIndex;
-      NetworkServer.ConnectionArgs connectionLost = this.ConnectionLost;
-      if (connectionLost == null)
-        return;
-      connectionLost(asyncState);
     }
 
+    // Fallback method to forcefully remove the socket if needed
+    private void ForceDisconnect(int index)
+    {
+      if (_socket.ContainsKey(index))
+      {
+        try
+        {
+          _socket[index]?.Close();
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Error during force disconnect: {ex.Message}");
+        }
+
+        // Remove the socket and mark the index as available
+        _socket.Remove(index);
+        _unsignedIndex.Add(index);
+      }
+    }
+    
     private int FindEmptySlot(int startIndex)
     {
       using (List<int>.Enumerator enumerator = this._unsignedIndex.GetEnumerator())
@@ -236,109 +269,115 @@ namespace Mirage.Sharp.Asfw.Network
       }
     }
 
-    private void DoReceive(IAsyncResult ar)
-    {
+   private void DoReceive(IAsyncResult ar)
+  {
       if (this._socket == null)
-        return;
-      NetworkServer.ReceiveState asyncState = (NetworkServer.ReceiveState) ar.AsyncState;
-      int length1;
+          return;
+
+      var asyncState = (NetworkServer.ReceiveState)ar.AsyncState;
+      Socket clientSocket;
+
+      // Attempt to get the socket safely
+      if (!this._socket.TryGetValue(asyncState.Index, out clientSocket) || clientSocket == null)
+      {
+          asyncState.Dispose();
+          return;
+      }
+
+      int receivedLength;
       try
       {
-        length1 = this._socket[asyncState.Index].EndReceive(ar);
+          receivedLength = clientSocket.EndReceive(ar);
       }
-      catch
+      catch (Exception ex)
       {
-        NetworkServer.CrashReportArgs crashReport = this.CrashReport;
-        if (crashReport != null)
-          crashReport(asyncState.Index, "ConnectionForciblyClosedException");
-        this.Disconnect(asyncState.Index);
-        asyncState.Dispose();
-        return;
+          HandleSocketError(asyncState, "ConnectionForciblyClosedException", ex);
+          return;
       }
-      if (length1 < 1)
+
+      if (receivedLength < 1)
       {
-        if (!this._socket.ContainsKey(asyncState.Index))
-          asyncState.Dispose();
-        else if (this._socket[asyncState.Index] == null)
-        {
-          asyncState.Dispose();
-        }
-        else
-        {
-          NetworkServer.CrashReportArgs crashReport = this.CrashReport;
-          if (crashReport != null)
-            crashReport(asyncState.Index, "BufferUnderflowException");
-          this.Disconnect(asyncState.Index);
-          asyncState.Dispose();
-        }
+          HandleSocketError(asyncState, "BufferUnderflowException");
+          return;
+      }
+
+      // Report traffic received (if applicable)
+      this.TrafficReceived?.Invoke(receivedLength, ref asyncState.Buffer);
+      asyncState.PacketCount++;
+
+      // Disconnect if packet count exceeds limit (DDOS protection)
+      if (this.PacketDisconnectCount > 0 && asyncState.PacketCount >= this.PacketDisconnectCount)
+      {
+          HandleSocketError(asyncState, "Packet Spamming/DDOS");
+          return;
+      }
+
+      // Append the received data to the ring buffer
+      AppendToRingBuffer(asyncState, receivedLength);
+
+      // Check for buffer overflow
+      if (this.BufferLimit > 0 && asyncState.RingBuffer.Length > this.BufferLimit)
+      {
+          DisconnectAndDispose(asyncState.Index, asyncState);
+          return;
+      }
+
+      // Validate the socket connection
+      if (!clientSocket.Connected)
+      {
+          DisconnectAndDispose(asyncState.Index, asyncState);
+          return;
+      }
+
+      // Process the packet
+      this.PacketHandler(ref asyncState);
+
+      // Prepare for the next packet
+      asyncState.Buffer = new byte[this._packetSize];
+
+      try
+      {
+          clientSocket.BeginReceive(asyncState.Buffer, 0, this._packetSize, SocketFlags.None, 
+              new AsyncCallback(this.DoReceive), asyncState);
+      }
+      catch (Exception ex)
+      {
+          HandleSocketError(asyncState, "BeginReceiveException", ex);
+      }
+  }
+
+  // Helper to handle socket errors and cleanup
+  private void HandleSocketError(NetworkServer.ReceiveState state, string error, Exception ex = null)
+  {
+      this.CrashReport?.Invoke(state.Index, error);
+      if (ex != null) Console.WriteLine($"Exception: {ex.Message}");
+      DisconnectAndDispose(state.Index, state);
+  }
+
+  // Helper to disconnect and dispose
+  private void DisconnectAndDispose(int index, NetworkServer.ReceiveState state)
+  {
+      this.Disconnect(index);
+      state.Dispose();
+  }
+
+  // Append new data to the ring buffer safely
+  private void AppendToRingBuffer(NetworkServer.ReceiveState state, int length)
+  {
+      if (state.RingBuffer == null)
+      {
+          state.RingBuffer = new byte[length];
+          Buffer.BlockCopy(state.Buffer, 0, state.RingBuffer, 0, length);
       }
       else
       {
-        NetworkServer.TrafficInfoArgs trafficReceived = this.TrafficReceived;
-        if (trafficReceived != null)
-          trafficReceived(length1, ref asyncState.Buffer);
-        ++asyncState.PacketCount;
-        if (this.PacketDisconnectCount > 0 && asyncState.PacketCount >= this.PacketDisconnectCount)
-        {
-          NetworkServer.CrashReportArgs crashReport = this.CrashReport;
-          if (crashReport != null)
-            crashReport(asyncState.Index, "Packet Spamming/DDOS");
-          this.Disconnect(asyncState.Index);
-          asyncState.Dispose();
-        }
-        else
-        {
-          if (this.PacketAcceptLimit == 0 || this.PacketAcceptLimit > asyncState.PacketCount)
-          {
-            if (asyncState.RingBuffer == null)
-            {
-              asyncState.RingBuffer = new byte[length1];
-              Buffer.BlockCopy((Array) asyncState.Buffer, 0, (Array) asyncState.RingBuffer, 0, length1);
-            }
-            else
-            {
-              int length2 = asyncState.RingBuffer.Length;
-              byte[] dst = new byte[length2 + length1];
-              Buffer.BlockCopy((Array) asyncState.RingBuffer, 0, (Array) dst, 0, length2);
-              Buffer.BlockCopy((Array) asyncState.Buffer, 0, (Array) dst, length2, length1);
-              asyncState.RingBuffer = dst;
-            }
-            if (this.BufferLimit > 0 && asyncState.RingBuffer.Length > this.BufferLimit)
-            {
-              this.Disconnect(asyncState.Index);
-              asyncState.Dispose();
-              return;
-            }
-          }
-          if (!this._socket.ContainsKey(asyncState.Index))
-            asyncState.Dispose();
-          else if (this._socket[asyncState.Index] == null || !this._socket[asyncState.Index].Connected)
-          {
-            this.Disconnect(asyncState.Index);
-            asyncState.Dispose();
-          }
-          else
-          {
-            this.PacketHandler(ref asyncState);
-            asyncState.Buffer = new byte[this._packetSize];
-            if (!this._socket.ContainsKey(asyncState.Index))
-            {
-              asyncState.Dispose();
-            }
-            else
-            {
-              try
-              {
-                this._socket[asyncState.Index].BeginReceive(asyncState.Buffer, 0, this._packetSize, SocketFlags.None, new AsyncCallback(this.DoReceive), (object) asyncState);
-              }
-              catch
-              {
-              }
-            }
-          }
-        }
+          int oldLength = state.RingBuffer.Length;
+          byte[] newBuffer = new byte[oldLength + length];
+          Buffer.BlockCopy(state.RingBuffer, 0, newBuffer, 0, oldLength);
+          Buffer.BlockCopy(state.Buffer, 0, newBuffer, oldLength, length);
+          state.RingBuffer = newBuffer;
       }
-    }
+  }
 
     private void PacketHandler(ref NetworkServer.ReceiveState so)
     {
