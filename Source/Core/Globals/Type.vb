@@ -912,7 +912,7 @@ Public Module Type
         Dim CallBack() As Action
     End Structure
 
-    Public Structure EntityPartStruct
+    Public Structure ControlPartStruct
         Dim Type As PartType
         Dim Origin As PartOriginType
         Dim Value As Long

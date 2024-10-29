@@ -455,7 +455,7 @@
         Smart
     End Enum
 
-    Public Enum EntityType
+    Public Enum ControlType
         None = 0
         Label
         Window
