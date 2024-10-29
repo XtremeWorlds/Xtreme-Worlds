@@ -922,7 +922,6 @@ Public Class Gui
                         If entState = EntState.MouseMove Then
                             If .CanDrag Then
                                 If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                                    .State = entState.Normal
                                     .Left = Clamp(.Left + ((GameState.CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
                                     .Top = Clamp(.Top + ((GameState.CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
                                 End If
