@@ -639,8 +639,6 @@ Module General
             
             frameTime = tick
             
-            ProcessInputs()
-            
             'SyncLock loadLock
             '    TextureCounter = 0
             'End SyncLock
@@ -654,6 +652,7 @@ Module General
 
                 If tmr25 < tick Then
                     PlayMusic(MyMap.Music)
+                    ProcessInputs()
                     tmr25 = tick + 25
                 End If
 
