@@ -269,81 +269,88 @@ namespace Mirage.Sharp.Asfw.Network
       }
     }
 
-   private void DoReceive(IAsyncResult ar)
-  {
-      if (this._socket == null)
-          return;
+ private void DoReceive(IAsyncResult ar)
+{
+    if (this._socket == null)
+        return; // Exit early if the socket dictionary is not initialized
 
-      var asyncState = (NetworkServer.ReceiveState)ar.AsyncState;
-      Socket clientSocket;
+    // Ensure asyncState is not null (compare with default struct value)
+    if (!(ar.AsyncState is NetworkServer.ReceiveState asyncState))
+    {
+        Console.WriteLine("Error: AsyncState is not of type ReceiveState.");
+        return;
+    }
 
-      // Attempt to get the socket safely
-      if (!this._socket.TryGetValue(asyncState.Index, out clientSocket) || clientSocket == null)
-      {
-          asyncState.Dispose();
-          return;
-      }
+    // Try to get the socket from the dictionary safely
+    if (!this._socket.TryGetValue(asyncState.Index, out Socket clientSocket) || clientSocket == null)
+    {
+        asyncState.Dispose();
+        Console.WriteLine($"Socket not found or closed for index: {asyncState.Index}");
+        return;
+    }
 
-      int receivedLength;
-      try
-      {
-          receivedLength = clientSocket.EndReceive(ar);
-      }
-      catch (Exception ex)
-      {
-          HandleSocketError(asyncState, "ConnectionForciblyClosedException", ex);
-          return;
-      }
+    int receivedLength;
+    try
+    {
+        // Attempt to receive data from the socket
+        receivedLength = clientSocket.EndReceive(ar);
+    }
+    catch (Exception ex)
+    {
+        HandleSocketError(asyncState, "ConnectionForciblyClosedException", ex);
+        return;
+    }
 
-      if (receivedLength < 1)
-      {
-          HandleSocketError(asyncState, "BufferUnderflowException");
-          return;
-      }
+    if (receivedLength < 1)
+    {
+        HandleSocketError(asyncState, "BufferUnderflowException");
+        return;
+    }
 
-      // Report traffic received (if applicable)
-      this.TrafficReceived?.Invoke(receivedLength, ref asyncState.Buffer);
-      asyncState.PacketCount++;
+    // Invoke traffic received event, if applicable
+    this.TrafficReceived?.Invoke(receivedLength, ref asyncState.Buffer);
+    asyncState.PacketCount++;
 
-      // Disconnect if packet count exceeds limit (DDOS protection)
-      if (this.PacketDisconnectCount > 0 && asyncState.PacketCount >= this.PacketDisconnectCount)
-      {
-          HandleSocketError(asyncState, "Packet Spamming/DDOS");
-          return;
-      }
+    // Disconnect if packet count exceeds the DDOS threshold
+    if (this.PacketDisconnectCount > 0 && asyncState.PacketCount >= this.PacketDisconnectCount)
+    {
+        HandleSocketError(asyncState, "Packet Spamming/DDOS");
+        return;
+    }
 
-      // Append the received data to the ring buffer
-      AppendToRingBuffer(asyncState, receivedLength);
+    // Append received data to the ring buffer
+    AppendToRingBuffer(asyncState, receivedLength);
 
-      // Check for buffer overflow
-      if (this.BufferLimit > 0 && asyncState.RingBuffer.Length > this.BufferLimit)
-      {
-          DisconnectAndDispose(asyncState.Index, asyncState);
-          return;
-      }
+    // Check for buffer overflow
+    if (this.BufferLimit > 0 && asyncState.RingBuffer.Length > this.BufferLimit)
+    {
+        DisconnectAndDispose(asyncState.Index, asyncState);
+        return;
+    }
 
-      // Validate the socket connection
-      if (!clientSocket.Connected)
-      {
-          DisconnectAndDispose(asyncState.Index, asyncState);
-          return;
-      }
+    // Validate the socket connection
+    if (!clientSocket.Connected)
+    {
+        DisconnectAndDispose(asyncState.Index, asyncState);
+        return;
+    }
 
-      // Process the packet
-      this.PacketHandler(ref asyncState);
+    // Process the packet
+    this.PacketHandler(ref asyncState);
 
-      // Prepare for the next packet
-      asyncState.Buffer = new byte[this._packetSize];
+    // Prepare for the next packet
+    asyncState.Buffer = new byte[this._packetSize];
 
-      try
-      {
-          clientSocket.BeginReceive(asyncState.Buffer, 0, this._packetSize, SocketFlags.None, 
-              new AsyncCallback(this.DoReceive), asyncState);
-      }
-      catch (Exception ex)
-      {
-          HandleSocketError(asyncState, "BeginReceiveException", ex);
-      }
+    try
+    {
+        // Begin receiving the next packet
+        clientSocket.BeginReceive(asyncState.Buffer, 0, this._packetSize, SocketFlags.None,
+            new AsyncCallback(this.DoReceive), asyncState);
+    }
+    catch (Exception ex)
+    {
+        HandleSocketError(asyncState, "BeginReceiveException", ex);
+    }
   }
 
   // Helper to handle socket errors and cleanup

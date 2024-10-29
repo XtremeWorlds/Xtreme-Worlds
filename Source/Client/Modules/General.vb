@@ -246,37 +246,6 @@ Module General
         End If
     End Sub
 
-    Friend Function ConnectToServer(i As Integer) As Boolean
-        Dim until As Integer
-        ConnectToServer = False
-
-        ' Check to see if we are already connected, if so just exit
-        If Socket.IsConnected() Then
-            ConnectToServer = True
-            Exit Function
-        End If
-
-        If i = 4 Then Exit Function
-        until = GetTickCount() + 3500
-
-        Connect()
-
-        ' Wait until connected or a few seconds have passed and report the server being down
-        Do While (Not Socket.IsConnected()) And (GetTickCount() <= until)
-
-        Loop
-
-        ' return value
-        If Socket.IsConnected() Then
-            ConnectToServer = True
-        End If
-
-        If Not ConnectToServer Then
-            ConnectToServer(i + 1)
-        End If
-
-    End Function
-
     Friend Sub DestroyGame()
         ' break out of GameLoop
         GameState.InGame = False

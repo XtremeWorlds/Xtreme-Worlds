@@ -5,13 +5,28 @@ Friend Module NetworkConfig
     Friend WithEvents Socket As NetworkClient
 
     Friend Sub InitNetwork()
-        Socket = New NetworkClient(ServerPackets.COUNT, 8192)
-        Connect()
+        Try
+            ' Initialize the network client with packet count and buffer size.
+            Socket = New NetworkClient(ServerPackets.COUNT, 8192)
+
+            ' Start the connection attempt.
+            AddHandler Socket.ConnectionSuccess, AddressOf OnConnectionSuccess
+            AddHandler Socket.ConnectionFailed, AddressOf OnConnectionFailed
+            
+            Socket.Connect("127.0.0.1", Setting.Port) ' Adjust IP and port as needed
+        Catch ex As Exception
+            Console.WriteLine($"Network initialization failed: {ex.Message}")
+        End Try
+    End Sub
+    
+    Private Sub OnConnectionSuccess()
+        Console.WriteLine("Connection established. Starting packet router...")
         PacketRouter()
     End Sub
 
-    Friend Sub Connect()
-        Socket?.Connect(Type.Setting.Ip, Type.Setting.Port)
+    Private Sub OnConnectionFailed()
+        Console.WriteLine("Failed to connect to the server. Retrying in 5 seconds...")
+        Task.Delay(5000).ContinueWith(Sub() Socket.Connect("127.0.0.1", Setting.Port))
     End Sub
 
     Friend Sub DestroyNetwork()
@@ -27,8 +42,7 @@ Friend Module NetworkConfig
     End Sub
 
     Private Sub Socket_ConnectionFailed() Handles Socket.ConnectionFailed
-        DestroyNetwork()
-        InitNetwork()
+        
     End Sub
 
     Private Sub Socket_ConnectionLost() Handles Socket.ConnectionLost

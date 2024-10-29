@@ -61,23 +61,50 @@ namespace Mirage.Sharp.Asfw.Network
 
     public void Connect(string ip, int port)
     {
-      if (this._socket == null || this._socket.Connected || this._connecting)
-        return;
-      if (ip.ToLower() == "localhost")
+      if (this._socket == null)
       {
-        this._socket.BeginConnect((EndPoint) new IPEndPoint(IPAddress.Parse("127.0.0.1"), port), new AsyncCallback(this.DoConnect), (object) null);
+        Console.WriteLine("Error: Socket is null.");
+        return;
       }
-      else
+
+      if (this._socket.Connected)
+      {
+        Console.WriteLine("Warning: Already connected.");
+        return;
+      }
+
+      if (this._connecting)
+      {
+        Console.WriteLine("Warning: Connection already in progress.");
+        return;
+      }
+
+      try
       {
         this._connecting = true;
-        this._socket.BeginConnect((EndPoint) new IPEndPoint(IPAddress.Parse(ip), port), new AsyncCallback(this.DoConnect), (object) null);
+        Console.WriteLine($"Attempting to connect to {ip}:{port}...");
+
+        IPAddress address = ip.ToLower() == "localhost" 
+          ? IPAddress.Loopback 
+          : IPAddress.Parse(ip);
+
+        _socket.BeginConnect(new IPEndPoint(address, port), 
+          new AsyncCallback(this.DoConnect), null);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Connection error: {ex.Message}");
+        this._connecting = false;
       }
     }
 
     private void DoConnect(IAsyncResult ar)
     {
       if (this._socket == null)
+      {
+        Console.WriteLine("Socket is null.");
         return;
+      }
 
       try
       {
@@ -93,30 +120,13 @@ namespace Mirage.Sharp.Asfw.Network
 
       if (!this._socket.Connected)
       {
+        Console.WriteLine("Socket not connected.");
         this.ConnectionFailed?.Invoke();
         this._connecting = false;
         return;
       }
-
-      this._connecting = false;
-      this.ConnectionSuccess?.Invoke();
-
-      this._socket.ReceiveBufferSize = this._packetSize;
-      this._socket.SendBufferSize = this._packetSize;
-
-      if (!this.ThreadControl)
-      {
-        try
-        {
-          this.BeginReceiveData();
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine($"Error starting data reception: {ex.Message}");
-        }
-      }
     }
-    
+
     public bool IsConnected => this._socket != null && this._socket.Connected;
 
     public void Disconnect()
