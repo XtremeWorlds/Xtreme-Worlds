@@ -19,15 +19,15 @@ Friend Module Moral
     Sub ClearMoral(moralNum As Integer)
         Type.Moral(moralNum).Name = ""
         Type.Moral(moralNum).Color = 0
-        Type.Moral(moralNum).CanCast = False
-        Type.Moral(moralNum).CanDropItem = False
-        Type.Moral(moralNum).CanPK = False
-        Type.Moral(moralNum).CanPickupItem = False
-        Type.Moral(moralNum).CanUseItem = False
-        Type.Moral(moralNum).DropItems = False
-        Type.Moral(moralNum).LoseExp = False
-        Type.Moral(moralNum).NPCBlock = False
-        Type.Moral(moralNum).PlayerBlock = False
+        Type.Moral(moralNum).CanCast = 0
+        Type.Moral(moralNum).CanDropItem = 0
+        Type.Moral(moralNum).CanPK = 0
+        Type.Moral(moralNum).CanPickupItem = 0
+        Type.Moral(moralNum).CanUseItem = 0
+        Type.Moral(moralNum).DropItems = 0
+        Type.Moral(moralNum).LoseExp = 0
+        Type.Moral(moralNum).NPCBlock = 0
+        Type.Moral(moralNum).PlayerBlock = 0
     End Sub
 
     Sub LoadMoral(moralNum As Integer)

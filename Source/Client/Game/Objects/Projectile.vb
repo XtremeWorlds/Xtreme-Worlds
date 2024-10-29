@@ -166,22 +166,22 @@ Friend Module Projectile
         y = MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Y
 
         'Check if its been going for over 1 minute, if so clear.
-       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Timer < GetTickCount() Then canClearProjectile = True
+       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Timer < GetTickCount() Then canClearProjectile = 1
 
-        If x > MyMap.MaxX Or x < 0 Then canClearProjectile = True
-        If y > MyMap.MaxY Or y < 0 Then canClearProjectile = True
+        If x > MyMap.MaxX Or x < 0 Then canClearProjectile = 1
+        If y > MyMap.MaxY Or y < 0 Then canClearProjectile = 1
 
         'Check for blocked wall collision
-        If canClearProjectile = False Then 'Add a check to prevent crashing
+        If canClearProjectile = 0 Then 'Add a check to prevent crashing
             If MyMap.Tile(x, y).Type = TileType.Blocked Or MyMap.Tile(x, y).Type2 = TileType.Blocked Then
-                canClearProjectile = True
+                canClearProjectile = 1
             End If
         End If
 
         'Check for npc collision
        For i = 1 To MAX_MAP_NPCS
             If MyMapNPC(i).X = x And MyMapNPC(i).Y = y Then
-                canClearProjectile = True
+                canClearProjectile = 1
                 collisionindex = i
                 collisionType = TargetType.NPC
                 collisionZone = -1
@@ -193,12 +193,12 @@ Friend Module Projectile
        For i = 1 To MAX_PLAYERS
             If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
                 If GetPlayerX(i) = x And GetPlayerY(i) = y Then
-                    canClearProjectile = True
+                    canClearProjectile = 1
                     collisionindex = i
                     collisionType = TargetType.Player
                     collisionZone = -1
                    If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).OwnerType = TargetType.Player Then
-                       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = i Then canClearProjectile = False ' Reset if its the owner of projectile
+                       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = i Then canClearProjectile = 0 ' Reset if its the owner of projectile
                     End If
                     Exit For
                 End If
@@ -207,10 +207,10 @@ Friend Module Projectile
         Next
 
         'Check if it has hit its maximum range
-       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Range >= Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Range + 1 Then canClearProjectile = True
+       If Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Range >= Type.Projectile(Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).ProjectileNum).Range + 1 Then canClearProjectile = 1
 
         'Clear the projectile if possible
-        If canClearProjectile = True Then
+        If canClearProjectile = 1 Then
             'Only send the clear to the server if you're the projectile caster or the one hit (only if owner is not a player)
             If (Type.MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).OwnerType = TargetType.Player And MapProjectile(Type.Player(GameState.MyIndex).Map, projectileNum).Owner = GameState.MyIndex) Then
                 SendClearProjectile(projectileNum, collisionindex, collisionType, collisionZone)

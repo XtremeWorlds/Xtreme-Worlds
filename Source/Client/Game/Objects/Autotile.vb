@@ -341,13 +341,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' North West
-        If CheckTileMatch(layerNum, x, y, x - 1, y - 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y - 1) Then tmpTile(1) = 1
 
         ' North
-        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(2) = 1
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = 1
 
         ' Calculate Situation - Inner
         If Not tmpTile(2) And Not tmpTile(3) Then situation = GameState.AutoInner
@@ -385,13 +385,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' North
-        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(1) = 1
 
         ' North East
-        If CheckTileMatch(layerNum, x, y, x + 1, y - 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y - 1) Then tmpTile(2) = 1
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = 1
 
         ' Calculate Situation - Inner
         If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
@@ -426,13 +426,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(1) = 1
 
         ' South West
-        If CheckTileMatch(layerNum, x, y, x - 1, y + 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y + 1) Then tmpTile(2) = 1
 
         ' South
-        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = 1
 
         ' Calculate Situation - Inner
         If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
@@ -470,13 +470,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' South
-        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(1) = 1
 
         ' South East
-        If CheckTileMatch(layerNum, x, y, x + 1, y + 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y + 1) Then tmpTile(2) = 1
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = 1
 
         ' Calculate Situation - Inner
         If Not tmpTile(1) And Not tmpTile(3) Then situation = GameState.AutoInner
@@ -514,7 +514,7 @@ Friend Module Autotile
         Dim tmpTile As Boolean
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile = 1
         ' Actually place the subtile
         If tmpTile Then
             ' Extended
@@ -530,7 +530,7 @@ Friend Module Autotile
         Dim tmpTile As Boolean
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile = 1
         ' Actually place the subtile
         If tmpTile Then
             ' Extended
@@ -546,7 +546,7 @@ Friend Module Autotile
         Dim tmpTile As Boolean
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile = 1
         ' Actually place the subtile
         If tmpTile Then
             ' Extended
@@ -562,7 +562,7 @@ Friend Module Autotile
         Dim tmpTile As Boolean
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile = 1
         ' Actually place the subtile
         If tmpTile Then
             ' Extended
@@ -580,13 +580,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' North West
-        If CheckTileMatch(layerNum, x, y, x - 1, y - 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y - 1) Then tmpTile(1) = 1
 
         ' North
-        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(2) = 1
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(3) = 1
         situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
@@ -620,13 +620,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' North
-        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x, y - 1) Then tmpTile(1) = 1
 
         ' North East
-        If CheckTileMatch(layerNum, x, y, x + 1, y - 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y - 1) Then tmpTile(2) = 1
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = 1
         situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
@@ -660,13 +660,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' West
-        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y) Then tmpTile(1) = 1
 
         ' South West
-        If CheckTileMatch(layerNum, x, y, x - 1, y + 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x - 1, y + 1) Then tmpTile(2) = 1
 
         ' South
-        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(3) = 1
         situation = GameState.AutoFill
 
         ' Calculate Situation - Horizontal
@@ -699,13 +699,13 @@ Friend Module Autotile
         Dim situation As Byte
 
         ' South
-        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(1) = True
+        If CheckTileMatch(layerNum, x, y, x, y + 1) Then tmpTile(1) = 1
 
         ' South East
-        If CheckTileMatch(layerNum, x, y, x + 1, y + 1) Then tmpTile(2) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y + 1) Then tmpTile(2) = 1
 
         ' East
-        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = True
+        If CheckTileMatch(layerNum, x, y, x + 1, y) Then tmpTile(3) = 1
 
         situation = GameState.AutoFill
         ' Calculate Situation -  Horizontal
@@ -735,39 +735,39 @@ Friend Module Autotile
     End Sub
 
     Friend Function CheckTileMatch(layerNum As Integer, x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As Boolean
-        CheckTileMatch = True
+        CheckTileMatch = 1
 
         ' if it's off the map then set it as autotile and exit out early
         If x2 < 0 Or x2 > MyMap.MaxX Or y2 < 0 Or y2 > MyMap.MaxY Then
-            CheckTileMatch = True
+            CheckTileMatch = 1
             Exit Function
         End If
 
         ' fakes ALWAYS return true
         If MyMap.Tile(x2, y2).Layer(layerNum).AutoTile = GameState.AutotileFake Then
-            CheckTileMatch = True
+            CheckTileMatch = 1
             Exit Function
         End If
 
         ' check neighbour is an autotile
         If MyMap.Tile(x2, y2).Layer(layerNum).AutoTile = 0 Then
-            CheckTileMatch = False
+            CheckTileMatch = 0
             Exit Function
         End If
 
         ' check we're a matching
         If MyMap.Tile(x1, y1).Layer(layerNum).Tileset <> MyMap.Tile(x2, y2).Layer(layerNum).Tileset Then
-            CheckTileMatch = False
+            CheckTileMatch = 0
             Exit Function
         End If
 
         ' check tiles match
         If MyMap.Tile(x1, y1).Layer(layerNum).X <> MyMap.Tile(x2, y2).Layer(layerNum).X Then
-            CheckTileMatch = False
+            CheckTileMatch = 0
             Exit Function
         Else
             If MyMap.Tile(x1, y1).Layer(layerNum).Y <> MyMap.Tile(x2, y2).Layer(layerNum).Y Then
-                CheckTileMatch = False
+                CheckTileMatch = 0
                 Exit Function
             End If
         End If

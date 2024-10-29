@@ -33,12 +33,12 @@ Module Database
         ReDim Type.NPC(index).DropItem(5)    
         ReDim Type.NPC(index).DropItemValue(5)
         ReDim Type.NPC(index).Skill(6)
-        GameState.NPC_Loaded(index) = False
+        GameState.NPC_Loaded(index) = 0
     End Sub
 
     Sub StreamNpc(npcNum As Integer)
-        If npcNum > 0 and Type.NPC(npcNum).Name = "" Or GameState.NPC_Loaded(npcNum) = False Then
-            GameState.NPC_Loaded(npcNum) = True
+        If npcNum > 0 and Type.NPC(npcNum).Name = "" Or GameState.NPC_Loaded(npcNum) = 0 Then
+            GameState.NPC_Loaded(npcNum) = 1
             SendRequestNPC(NPCNum)
         End If
     End Sub
@@ -78,12 +78,12 @@ Module Database
     Sub ClearSkill(index As Integer)
         Type.Skill(index) = Nothing
         Type.Skill(index).Name = ""
-        GameState.Skill_Loaded(index) = False
+        GameState.Skill_Loaded(index) = 0
     End Sub
 
     Sub StreamSkill(skillNum As Integer)
-        If skillNum > 0 And Type.Skill(skillNum).Name = "" Or GameState.Skill_Loaded(skillNum) = False Then
-            GameState.Skill_Loaded(skillNum) = True
+        If skillNum > 0 And Type.Skill(skillNum).Name = "" Or GameState.Skill_Loaded(skillNum) = 0 Then
+            GameState.Skill_Loaded(skillNum) = 1
             SendRequestSkill(skillNum)
         End If
     End Sub

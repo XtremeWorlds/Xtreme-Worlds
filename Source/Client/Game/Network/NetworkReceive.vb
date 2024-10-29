@@ -163,7 +163,7 @@ Module NetworkReceive
                     Gui.ShowWindow(Gui.GetWindowIndex("winRegister"))
             End Select
         Else
-            If kick > 0 Or GameState.InGame = False Then
+            If kick > 0 Or GameState.InGame = 0 Then
                 Gui.ShowWindow(Gui.GetWindowIndex("winLogin"))
                 InitNetwork()
                 DialogueAlert(dialogueIndex)
@@ -204,7 +204,7 @@ Module NetworkReceive
             GameState.CharJob(I) = buffer.ReadInt32
 
             ' set as empty or not
-            If Not Len(GameState.CharName(I)) > 0 Then isSlotEmpty(I) = True
+            If Not Len(GameState.CharName(I)) > 0 Then isSlotEmpty(I) = 1
         Next
 
         buffer.Dispose()
@@ -228,23 +228,23 @@ Module NetworkReceive
             If isSlotEmpty(I) Then
                 ' create button
                 conNum = Gui.GetControlIndex("winChars", "btnCreateChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = True
+                Gui.Windows(winNum).Controls(conNum).Visible = 1
                 ' select button
                 conNum = Gui.GetControlIndex("winChars", "btnSelectChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = False
+                Gui.Windows(winNum).Controls(conNum).Visible = 0
                 ' delete button
                 conNum = Gui.GetControlIndex("winChars", "btnDelChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = False
+                Gui.Windows(winNum).Controls(conNum).Visible = 0
             Else
                 ' create button
                 conNum = Gui.GetControlIndex("winChars", "btnCreateChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = False
+                Gui.Windows(winNum).Controls(conNum).Visible = 0
                 ' select button
                 conNum = Gui.GetControlIndex("winChars", "btnSelectChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = True
+                Gui.Windows(winNum).Controls(conNum).Visible = 1
                 ' delete button
                 conNum = Gui.GetControlIndex("winChars", "btnDelChar_" & I)
-                Gui.Windows(winNum).Controls(conNum).Visible = True
+                Gui.Windows(winNum).Controls(conNum).Visible = 1
             End If
         Next
     End Sub
@@ -314,10 +314,10 @@ Module NetworkReceive
     End Sub
 
     Private Sub Packet_InGame(ByRef data() As Byte)
-        GameState.InMenu = False
-        GameState.InGame = True
+        GameState.InMenu = 0
+        GameState.InGame = 1
         Gui.HideWindows()
-        GameState.CanMoveNow = True
+        GameState.CanMoveNow = 1
         GameState.MyEditorType = -1
 
         ' show gui
@@ -1065,7 +1065,7 @@ Module NetworkReceive
     End Sub
     
     Private Sub Packet_Critical(ByRef data() As Byte)
-        GameState.ShakeTimerEnabled = True
+        GameState.ShakeTimerEnabled = 1
         GameState.ShakeTimer = GetTickCount()
     End Sub
 
@@ -1134,7 +1134,7 @@ Module NetworkReceive
     End Sub
 
     Friend Sub HandleProjectileEditor(ByRef data() As Byte)
-        GameState.InitProjectileEditor = True
+        GameState.InitProjectileEditor = 1
     End Sub
 
     Private Sub Packet_EditShop(ByRef data() As Byte)

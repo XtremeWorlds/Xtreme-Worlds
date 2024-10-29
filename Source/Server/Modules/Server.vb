@@ -17,7 +17,7 @@ Module Server
 
     Private Sub ProcessExitHandler(ByVal sender As Object, ByVal e As EventArgs)
         UpdateSavePlayers()
-        consoleExit = True
+        consoleExit = 1
         threadConsole.Join()
     End Sub
 

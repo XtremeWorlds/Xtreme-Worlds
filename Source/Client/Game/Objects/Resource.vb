@@ -10,7 +10,7 @@ Module Resource
     Sub ClearResource(index As Integer)
         Type.Resource(index) = Nothing
         Type.Resource(index).Name = ""
-        GameState.Resource_Loaded(index) = False
+        GameState.Resource_Loaded(index) = 0
     End Sub
 
     Sub ClearResources()
@@ -23,8 +23,8 @@ Module Resource
     End Sub
 
     Sub StreamResource(resourceNum As Integer)
-        If resourceNum > 0 And Type.Resource(resourceNum).Name = "" Or GameState.Resource_Loaded(resourceNum) = False Then
-            GameState.Resource_Loaded(resourceNum) = True
+        If resourceNum > 0 And Type.Resource(resourceNum).Name = "" Or GameState.Resource_Loaded(resourceNum) = 0 Then
+            GameState.Resource_Loaded(resourceNum) = 1
             SendRequestResource(resourceNum)
         End If
     End Sub
@@ -37,7 +37,7 @@ Module Resource
         Dim i As Integer
         Dim buffer As New ByteStream(data)
         GameState.ResourceIndex = buffer.ReadInt32
-        GameState.ResourcesInit = False
+        GameState.ResourcesInit = 0
 
         If GameState.ResourceIndex > 0 Then
             ReDim Preserve MapResource(GameState.ResourceIndex)
@@ -48,7 +48,7 @@ Module Resource
                 MyMapResource(i).Y = buffer.ReadInt32
             Next
 
-            GameState.ResourcesInit = True
+            GameState.ResourcesInit = 1
         End If
 
         buffer.Dispose()
@@ -122,7 +122,7 @@ Module Resource
         Dim x As Integer, y As Integer
 
         If GameState.GettingMap Then Exit Sub
-        If GameState.MapData = False Then Exit Sub
+        If GameState.MapData = 0 Then Exit Sub
 
         If MyMapResource(resourceNum).X > MyMap.MaxX Or MyMapResource(resourceNum).Y > MyMap.MaxY Then Exit Sub
 

@@ -48,7 +48,7 @@ Module Text
 
         Chat(1).Text = text
         Chat(1).Color = Color
-        Chat(1).Visible = True
+        Chat(1).Visible = 1
         Chat(1).Timer = GetTickCount()
         Chat(1).Channel = channel
     End Sub
@@ -383,12 +383,12 @@ Module Text
             If Len(Chat(i).Text) = 0 Then Exit Do
 
             ' get visible state
-            isVisible = True
+            isVisible = 1
             If GameState.inSmallChat Then
-                If Not Chat(i).Visible Then isVisible = False
+                If Not Chat(i).Visible Then isVisible = 0
             End If
 
-            If Type.Setting.ChannelState(Type.Chat(i).Channel) = 0 Then isVisible = False
+            If Type.Setting.ChannelState(Type.Chat(i).Channel) = 0 Then isVisible = 0
 
             ' make sure it's visible
             If isVisible Then
@@ -445,7 +445,7 @@ Module Text
         Dim name As String
 
         ' Check access level
-        If GetPlayerPK(index) = False Then
+        If GetPlayerPK(index) = 0 Then
             Select Case GetPlayerAccess(index)
                 Case AccessType.Player
                     color = Color.White

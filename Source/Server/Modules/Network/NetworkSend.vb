@@ -6,7 +6,7 @@ Imports System.Buffers
 
 Module NetworkSend
 
-    Sub AlertMsg(ByVal index As Long, ByVal menuNo As Integer, Optional ByVal menuReset As Integer = 0, Optional ByVal kick As Boolean = True)
+    Sub AlertMsg(ByVal index As Long, ByVal menuNo As Integer, Optional ByVal menuReset As Integer = 0, Optional ByVal kick As Boolean = 1)
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(Packets.ServerPackets.SAlertMsg)

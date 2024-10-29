@@ -462,7 +462,7 @@ Module Party
 
     Friend Function IsPlayerInParty(index As Integer) As Boolean
         If index <= 0 Or index > MAX_PLAYERS Or Not TempPlayer(index).InGame Then Exit Function
-        If TempPlayer(index).InParty > 0 Then IsPlayerInParty = True
+        If TempPlayer(index).InParty > 0 Then IsPlayerInParty = 1
     End Function
 
     Friend Function GetPlayerParty(index As Integer) As Integer

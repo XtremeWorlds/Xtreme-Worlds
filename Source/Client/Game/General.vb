@@ -25,7 +25,7 @@ Module General
     End Function
 
     Sub Startup()
-        GameState.InMenu = True
+        GameState.InMenu = 1
         ClearGameData()
         LoadGame()
         GameClient.LoadingCompleted.WaitOne()
@@ -248,7 +248,7 @@ Module General
 
     Friend Sub DestroyGame()
         ' break out of GameLoop
-        GameState.InGame = False
+        GameState.InGame = 0
         FreeBASS
         End
     End Sub
@@ -301,7 +301,7 @@ Module General
                     Exit Sub
                 Else
                     ' show them
-                    If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = False Then
+                    If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = 0 Then
                         Gui.ShowWindow(Gui.GetWindowIndex("winEscMenu"), True)
                         Exit Sub
                     End If
@@ -341,7 +341,7 @@ Module General
             If GameClient.IsKeyStateActive(Keys.Enter)
                 If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Window.Visible Then
                     ShowChat()
-                    GameState.inSmallChat = False
+                    GameState.inSmallChat = 0
                     Exit Sub
                 End If
 
@@ -681,8 +681,8 @@ mapsync:
 
                 If tick > EventChatTimer Then
                     If EventText = "" Then
-                        If EventChat = True Then
-                            EventChat = False
+                        If EventChat = 1 Then
+                            EventChat = 0
                         End If
                     End If
                 End If
@@ -698,7 +698,7 @@ mapsync:
                             End If
                         Else
                             GameState.ShakeCount = 0
-                            GameState.ShakeTimerEnabled = False
+                            GameState.ShakeTimerEnabled = 0
                         End If
 
                         GameState.ShakeCount += 1
@@ -857,11 +857,11 @@ mapsync:
                     tmr250 = tick + 250
                 End If
 
-                If FadeInSwitch = True Then
+                If FadeInSwitch = 1 Then
                     FadeIn()
                 End If
 
-                If FadeOutSwitch = True Then
+                If FadeOutSwitch = 1 Then
                     FadeOut()
                 End If
             Else
@@ -896,7 +896,7 @@ mapsync:
                         End If
                     ElseIf GameState.FadeType = 0 Then
                         If GameState.FadeAmount = 0 Then
-                            GameState.UseFade = False
+                            GameState.UseFade = 0
                         Else
                             GameState.FadeAmount = GameState.FadeAmount - 5
                         End If
@@ -910,7 +910,7 @@ mapsync:
             ' Signal that loading is complete
             SyncLock GameClient.loadLock
                 if GameClient.IsLoading Then
-                    GameClient.isLoading = False
+                    GameClient.isLoading = 0
                 End If
             End SyncLock
         End While

@@ -142,7 +142,7 @@ Module Animation
                     If AnimInstance(index).FrameIndex(layer) >= frameCount Then
                         AnimInstance(index).LoopIndex(layer) = AnimInstance(index).LoopIndex(layer) + 1
                         If AnimInstance(index).LoopIndex(layer) > Type.Animation(AnimInstance(index).Animation).LoopCount(layer) Then
-                            AnimInstance(index).Used(layer) = False
+                            AnimInstance(index).Used(layer) = 0
                         Else
                             AnimInstance(index).FrameIndex(layer) = 1
                             sound = Type.Animation(AnimInstance(index).Animation).Sound
@@ -157,7 +157,7 @@ Module Animation
         Next
 
         ' if neither layer is used, clear
-        If AnimInstance(index).Used(0) = False And AnimInstance(index).Used(1) = False Then
+        If AnimInstance(index).Used(0) = 0 And AnimInstance(index).Used(1) = 0 Then
             ClearAnimInstance(index)
         End If
     End Sub
@@ -174,8 +174,8 @@ Module Animation
             .Y = y
             .LockType = 0
             .lockindex = 0
-            .Used(0) = True
-            .Used(1) = True
+            .Used(0) = 1
+            .Used(1) = 1
 
              sound = Type.Animation(.Animation).Sound
             If sound <> "" Then PlaySound(sound, .X, .Y)
@@ -222,7 +222,7 @@ Module Animation
         Type.Animation(index).LoopCount(1) = 1
         Type.Animation(index).LoopTime(0) = 1
         Type.Animation(index).LoopTime(1) = 1
-         State.Animation_Loaded(index) = False
+         State.Animation_Loaded(index) = 0
     End Sub
 
     Sub ClearAnimations()
@@ -267,16 +267,16 @@ Module Animation
         AnimInstance(index).Y = 0
 
         For i = 0 To UBound(AnimInstance(index).Used)
-            AnimInstance(index).Used(i) = False
+            AnimInstance(index).Used(i) = 0
         Next
 
         For i = 0 To UBound(AnimInstance(index).Timer)
             
-            AnimInstance(index).Timer(i) = False
+            AnimInstance(index).Timer(i) = 0
         Next
 
         For i = 0 To UBound(AnimInstance(index).FrameIndex)
-            AnimInstance(index).FrameIndex(i) = False
+            AnimInstance(index).FrameIndex(i) = 0
         Next
 
         AnimInstance(index).LockType = 0
@@ -284,8 +284,8 @@ Module Animation
     End Sub
 
     Sub StreamAnimation(animationNum As Integer)
-        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or  State.Animation_Loaded(animationNum) = False Then
-             State.Animation_Loaded(animationNum) = True
+        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or  State.Animation_Loaded(animationNum) = 0 Then
+             State.Animation_Loaded(animationNum) = 1
             SendRequestAnimation(animationNum)
         End If
     End Sub
@@ -333,8 +333,8 @@ Module Animation
             .Y = buffer.ReadInt32
             .LockType = buffer.ReadInt32
             .lockindex = buffer.ReadInt32
-            .Used(0) = True
-            .Used(1) = True
+            .Used(0) = 1
+            .Used(1) = 1
         End With
         buffer.Dispose()
     End Sub

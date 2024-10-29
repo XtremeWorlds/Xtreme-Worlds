@@ -31,7 +31,7 @@ Module Bank
             SetBankValue(GameState.MyIndex, i, buffer.ReadInt32)
         Next
 
-        GameState.InBank = True
+        GameState.InBank = 1
 
         If Not Gui.Windows(Gui.GetWindowIndex("winBank")).Window.visible Then
             Gui.ShowWindow(Gui.GetWindowIndex("winBank"), , False)
@@ -89,7 +89,7 @@ Module Bank
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        GameState.InBank = False
+        GameState.InBank = 0
     End Sub
 
 #End Region

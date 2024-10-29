@@ -34,7 +34,7 @@ Module Pet
 
         ReDim Type.Pet(index).Stat(StatType.Count - 1)
         ReDim Type.Pet(index).Skill(4)
-        GameState.Pet_Loaded(index) = False
+        GameState.Pet_Loaded(index) = 0
     End Sub
 
     Sub ClearPets()
@@ -50,8 +50,8 @@ Module Pet
     End Sub
 
     Sub StreamPet(petNum As Integer)
-        If petNum > 0 And Type.Pet(petNum).Name = "" Or GameState.Pet_Loaded(petNum) = False Then
-            GameState.Pet_Loaded(petNum) = True
+        If petNum > 0 And Type.Pet(petNum).Name = "" Or GameState.Pet_Loaded(petNum) = 0 Then
+            GameState.Pet_Loaded(petNum) = 1
             SendRequestPet(petNum)
         End If
     End Sub
@@ -523,7 +523,7 @@ Module Pet
         Dim name As String
 
         ' Check access level
-        If GetPlayerPK(index) = False Then
+        If GetPlayerPK(index) = 0 Then
 
             Select Case GetPlayerAccess(index)
                 Case 0
@@ -566,10 +566,10 @@ Module Pet
 #Region "Misc"
 
     Friend Function PetAlive(index As Integer) As Boolean
-        PetAlive = False
+        PetAlive = 0
 
         If Type.Player(index).Pet.Alive = 1 Then
-            PetAlive = True
+            PetAlive = 1
         End If
 
     End Function

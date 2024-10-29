@@ -74,7 +74,7 @@ Module Map
         Dim rect As New Rectangle(0, 0, 0, 0)
 
         ' Check if the map or its tile data is not ready
-        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = False Then Exit Sub
+        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = 0 Then Exit Sub
 
         ' Ensure x and y are within the bounds of the map
         If x < 0 OrElse y < 0 OrElse x > MyMap.MaxX OrElse y > MyMap.MaxY Then Exit Sub
@@ -121,7 +121,7 @@ mapsync:
         Dim rect As Rectangle
 
         ' Exit earlyIf Type.Map is still loading or tile data is not available
-        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = False Then Exit Sub
+        If GameState.GettingMap OrElse MyMap.Tile Is Nothing OrElse GameState.MapData = 0 Then Exit Sub
 
         ' Ensure x and y are within valid map bounds
         If x < 0 OrElse y < 0 OrElse x > MyMap.MaxX OrElse y > MyMap.MaxY Then Exit Sub
@@ -175,7 +175,7 @@ mapsync:
 mapsync:
     End Sub
 
-    Friend Sub DrawAutoTile(layerNum As Integer, dX As Integer, dY As Integer, quarterNum As Integer, x As Integer, y As Integer, Optional forceFrame As Integer = 0, Optional strict As Boolean = True)
+    Friend Sub DrawAutoTile(layerNum As Integer, dX As Integer, dY As Integer, quarterNum As Integer, x As Integer, y As Integer, Optional forceFrame As Integer = 0, Optional strict As Boolean = 1)
         Dim yOffset As Integer, xOffset As Integer
 
         ' calculate the offset
@@ -483,7 +483,7 @@ mapsync:
         Dim needMap As Byte
         Dim buffer As New ByteStream(data)
 
-        GameState.GettingMap = True
+        GameState.GettingMap = 1
 
         ' Erase all players except self
         For i = 1 To MAX_PLAYERS
@@ -520,7 +520,7 @@ mapsync:
         Dim x As Integer, y As Integer, i As Integer, j As Integer, mapNum As Integer
         Dim buffer As New ByteStream(Compression.DecompressBytes(data))
 
-        GameState.MapData = False
+        GameState.MapData = 0
 
         ClearMap()
 
@@ -753,7 +753,7 @@ mapsync:
 
         If buffer.ReadInt32 = 1 Then
             GameState.ResourceIndex = buffer.ReadInt32
-            GameState.ResourcesInit = False
+            GameState.ResourcesInit = 0
             ReDim MapResource(GameState.ResourceIndex)
 
             If GameState.ResourceIndex > 0 Then
@@ -763,7 +763,7 @@ mapsync:
                     MyMapResource(i).Y = buffer.ReadInt32
                 Next
 
-                GameState.ResourcesInit = True
+                GameState.ResourcesInit = 1
             End If
         End If
 
@@ -773,7 +773,7 @@ mapsync:
 
         InitAutotiles()
 
-        GameState.MapData = True
+        GameState.MapData = 1
 
         For i = 0 To Byte.MaxValue
             ClearActionMsg(i)
@@ -791,8 +791,8 @@ mapsync:
 
         UpdateDrawMapName()
 
-        GameState.GettingMap = False
-        GameState.CanMoveNow = True
+        GameState.GettingMap = 0
+        GameState.CanMoveNow = 1
 
     End Sub
 
@@ -852,8 +852,8 @@ mapsync:
 
         UpdateDrawMapName()
 
-        GameState.GettingMap = False
-        GameState.CanMoveNow = True
+        GameState.GettingMap = 0
+        GameState.CanMoveNow = 1
 
     End Sub
 
@@ -877,8 +877,8 @@ mapsync:
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        GameState.GettingMap = True
-        GameState.CanMoveNow = False
+        GameState.GettingMap = 1
+        GameState.CanMoveNow = 0
 
     End Sub
 
@@ -896,7 +896,7 @@ mapsync:
         Dim data() As Byte
         Dim buffer As New ByteStream(4)
 
-        GameState.CanMoveNow = False
+        GameState.CanMoveNow = 0
 
         buffer.WriteString(MyMap.Name)
         buffer.WriteString(MyMap.Music)

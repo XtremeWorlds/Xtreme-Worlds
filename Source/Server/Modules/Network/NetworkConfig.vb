@@ -98,13 +98,13 @@ Friend Module S_NetworkConfig
     End Sub
 
     Private Sub Socket_TrafficReceived(size As Integer, ByRef data() As Byte) Handles Socket.TrafficReceived
-        If DebugTxt = True Then
+        If DebugTxt = 1 Then
             Call Global.System.Console.WriteLine("Traffic Received: [Size: " & size & "]")
         End If
     End Sub
 
     Private Sub Socket_PacketReceived(size As Integer, header As Integer, ByRef data() As Byte) Handles Socket.PacketReceived
-        If DebugTxt = True Then
+        If DebugTxt = 1 Then
             Call Global.System.Console.WriteLine("Packet Received: [Size: " & size & "| Packet: " & CType(header, ClientPackets).ToString() & "]")
         End If
     End Sub

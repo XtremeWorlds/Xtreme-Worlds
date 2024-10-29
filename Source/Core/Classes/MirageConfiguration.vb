@@ -56,7 +56,7 @@ Public Class MirageConfiguration
 
             End If
 
-            Me.isDisposed = True
+            Me.isDisposed = 1
         End If
     End Sub
 

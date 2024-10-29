@@ -223,7 +223,7 @@ Module General
     End Function
 
     Friend Sub AddDebug(Msg As String)
-        If DebugTxt = True Then
+        If DebugTxt = 1 Then
             Addlog(Msg, PACKET_LOG)
             Call Global.System.Console.WriteLine(Msg)
         End If

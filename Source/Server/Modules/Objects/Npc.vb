@@ -60,7 +60,7 @@ Module Npc
                             MapNPC(MapNum).NPC(MapNPCNum).X = x
                             MapNPC(MapNum).NPC(MapNPCNum).Y = y
                             MapNPC(MapNum).NPC(MapNPCNum).Dir = Type.Map(MapNum).Tile(x, y).Data2
-                            spawned = True
+                            spawned = 1
                             Exit For
                         End If
                     End If
@@ -80,7 +80,7 @@ Module Npc
                     If NpcTileIsOpen(MapNum, x, y) Then
                         MapNPC(MapNum).NPC(MapNPCNum).X = x
                         MapNPC(MapNum).NPC(MapNPCNum).Y = y
-                        spawned = True
+                        spawned = 1
                         Exit While
                     End If
                     i += 1
@@ -94,7 +94,7 @@ Module Npc
                         If NpcTileIsOpen(MapNum, x, y) Then
                             MapNPC(MapNum).NPC(MapNPCNum).X = x
                             MapNPC(MapNum).NPC(MapNPCNum).Y = y
-                            spawned = True
+                            spawned = 1
                         End If
                     Next
                 Next
@@ -128,12 +128,12 @@ Module Npc
 
     Friend Function NpcTileIsOpen(MapNum As Integer, x As Integer, y As Integer) As Boolean
         Dim i As Integer
-        NpcTileIsOpen = True
+        NpcTileIsOpen = 1
 
         If PlayersOnMap(MapNum) Then
             For i = 1 To Socket.HighIndex
                 If GetPlayerMap(i) = mapNum And GetPlayerX(i) = x And GetPlayerY(i) = y Then
-                    NpcTileIsOpen = False
+                    NpcTileIsOpen = 0
                     Exit Function
                 End If
             Next
@@ -141,13 +141,13 @@ Module Npc
 
         For LoopI = 1 To MAX_MAP_NPCS
            If MapNPC(MapNum).NPC(LoopI).Num > 0 And MapNPC(MapNum).NPC(LoopI).X = x And MapNPC(MapNum).NPC(LoopI).Y = y Then
-                NpcTileIsOpen = False
+                NpcTileIsOpen = 0
                 Exit Function
             End If
         Next
 
         If Type.Map(MapNum).Tile(x, y).Type <> TileType.NPCSpawn And Type.Map(MapNum).Tile(x, y).Type <> TileType.Item And Type.Map(MapNum).Tile(x, y).Type <> TileType.None And Type.Map(MapNum).Tile(x, y).Type2 <> TileType.NPCSpawn And Type.Map(MapNum).Tile(x, y).Type2 <> TileType.Item And Type.Map(MapNum).Tile(x, y).Type2 <> TileType.None Then
-            NpcTileIsOpen = False
+            NpcTileIsOpen = 0
         End If
 
     End Function
@@ -165,7 +165,7 @@ Module Npc
 
         x = MapNPC(MapNum).NPC(MapNPCNum).X
         y = MapNPC(MapNum).NPC(MapNPCNum).Y
-        CanNpcMove = True
+        CanNpcMove = 1
 
         Select Case Dir
             Case DirectionType.Up
@@ -176,7 +176,7 @@ Module Npc
 
                     ' Check to make sure that the tile is walkable
                     If n <> TileType.None And n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.None And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanNpcMove = False
+                        CanNpcMove = 0
                         Exit Function
                     End If
 
@@ -184,7 +184,7 @@ Module Npc
                     For i = 1 To Socket.HighIndex()
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = MapNPC(MapNum).NPC(MapNPCNum).X) And (GetPlayerY(i) = MapNPC(MapNum).NPC(MapNPCNum).Y - 1) Then
-                                CanNpcMove = False
+                                CanNpcMove = 0
                                 Exit Function
                             End If
                         End If
@@ -193,12 +193,12 @@ Module Npc
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (i <> MapNPCNum) And (MapNPC(MapNum).NPC(i).Num > 0) And (MapNPC(MapNum).NPC(i).X = MapNPC(MapNum).NPC(MapNPCNum).X) And (MapNPC(MapNum).NPC(i).Y = MapNPC(MapNum).NPC(MapNPCNum).Y - 1) Then
-                            CanNpcMove = False
+                            CanNpcMove = 0
                             Exit Function
                         End If
                     Next
                 Else
-                    CanNpcMove = False
+                    CanNpcMove = 0
                 End If
 
             Case DirectionType.Down
@@ -209,7 +209,7 @@ Module Npc
 
                     ' Check to make sure that the tile is walkable
                     If n <> TileType.None And n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.None And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanNpcMove = False
+                        CanNpcMove = 0
                         Exit Function
                     End If
 
@@ -217,7 +217,7 @@ Module Npc
                     For i = 1 To Socket.HighIndex()
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = MapNPC(MapNum).NPC(MapNPCNum).X) And (GetPlayerY(i) = MapNPC(MapNum).NPC(MapNPCNum).Y + 1) Then
-                                CanNpcMove = False
+                                CanNpcMove = 0
                                 Exit Function
                             End If
                         End If
@@ -226,12 +226,12 @@ Module Npc
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (i <> MapNPCNum) And (MapNPC(MapNum).NPC(i).Num > 0) And (MapNPC(MapNum).NPC(i).X = MapNPC(MapNum).NPC(MapNPCNum).X) And (MapNPC(MapNum).NPC(i).Y = MapNPC(MapNum).NPC(MapNPCNum).Y + 1) Then
-                            CanNpcMove = False
+                            CanNpcMove = 0
                             Exit Function
                         End If
                     Next
                 Else
-                    CanNpcMove = False
+                    CanNpcMove = 0
                 End If
 
             Case DirectionType.Left
@@ -242,7 +242,7 @@ Module Npc
 
                     ' Check to make sure that the tile is walkable
                     If n <> TileType.None And n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.None And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanNpcMove = False
+                        CanNpcMove = 0
                         Exit Function
                     End If
 
@@ -250,7 +250,7 @@ Module Npc
                     For i = 1 To Socket.HighIndex()
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = MapNPC(MapNum).NPC(MapNPCNum).X - 1) And (GetPlayerY(i) = MapNPC(MapNum).NPC(MapNPCNum).Y) Then
-                                CanNpcMove = False
+                                CanNpcMove = 0
                                 Exit Function
                             End If
                         End If
@@ -259,12 +259,12 @@ Module Npc
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (i <> MapNPCNum) And (MapNPC(MapNum).NPC(i).Num > 0) And (MapNPC(MapNum).NPC(i).X = MapNPC(MapNum).NPC(MapNPCNum).X - 1) And (MapNPC(MapNum).NPC(i).Y = MapNPC(MapNum).NPC(MapNPCNum).Y) Then
-                            CanNpcMove = False
+                            CanNpcMove = 0
                             Exit Function
                         End If
                     Next
                 Else
-                    CanNpcMove = False
+                    CanNpcMove = 0
                 End If
 
             Case DirectionType.Right
@@ -275,7 +275,7 @@ Module Npc
 
                     ' Check to make sure that the tile is walkable
                     If n <> TileType.None And n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.None And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanNpcMove = False
+                        CanNpcMove = 0
                         Exit Function
                     End If
 
@@ -283,7 +283,7 @@ Module Npc
                     For i = 1 To Socket.HighIndex()
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = MapNPC(MapNum).NPC(MapNPCNum).X + 1) And (GetPlayerY(i) = MapNPC(MapNum).NPC(MapNPCNum).Y) Then
-                                CanNpcMove = False
+                                CanNpcMove = 0
                                 Exit Function
                             End If
                         End If
@@ -292,17 +292,17 @@ Module Npc
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (i <> MapNPCNum) And (MapNPC(MapNum).NPC(i).Num > 0) And (MapNPC(MapNum).NPC(i).X = MapNPC(MapNum).NPC(MapNPCNum).X + 1) And (MapNPC(MapNum).NPC(i).Y = MapNPC(MapNum).NPC(MapNPCNum).Y) Then
-                            CanNpcMove = False
+                            CanNpcMove = 0
                             Exit Function
                         End If
                     Next
                 Else
-                    CanNpcMove = False
+                    CanNpcMove = 0
                 End If
 
         End Select
 
-       If MapNPC(MapNum).NPC(MapNPCNum).SkillBuffer > 0 Then CanNpcMove = False
+       If MapNPC(MapNum).NPC(MapNPCNum).SkillBuffer > 0 Then CanNpcMove = 0
 
     End Function
 
@@ -469,7 +469,7 @@ Module Npc
         End If
 
         ' Make sure we dont attack the player if they are switching maps
-        If TempPlayer(index).GettingMap = True Then
+        If TempPlayer(index).GettingMap = 1 Then
             Exit Function
         End If
 
@@ -481,19 +481,19 @@ Module Npc
 
                 ' Check if at same coordinates
                 If (GetPlayerY(index) + 1 = MapNPC(MapNum).NPC(MapNPCNum).Y) And (GetPlayerX(index) = MapNPC(MapNum).NPC(MapNPCNum).X) Then
-                    CanNpcAttackPlayer = True
+                    CanNpcAttackPlayer = 1
                 Else
 
                     If (GetPlayerY(index) - 1 = MapNPC(MapNum).NPC(MapNPCNum).Y) And (GetPlayerX(index) = MapNPC(MapNum).NPC(MapNPCNum).X) Then
-                        CanNpcAttackPlayer = True
+                        CanNpcAttackPlayer = 1
                     Else
 
                         If (GetPlayerY(index) = MapNPC(MapNum).NPC(MapNPCNum).Y) And (GetPlayerX(index) + 1 = MapNPC(MapNum).NPC(MapNPCNum).X) Then
-                            CanNpcAttackPlayer = True
+                            CanNpcAttackPlayer = 1
                         Else
 
                             If (GetPlayerY(index) = MapNPC(MapNum).NPC(MapNPCNum).Y) And (GetPlayerX(index) - 1 = MapNPC(MapNum).NPC(MapNPCNum).X) Then
-                                CanNpcAttackPlayer = True
+                                CanNpcAttackPlayer = 1
                             End If
                         End If
                     End If
@@ -507,7 +507,7 @@ Module Npc
         Dim aNpcNum As Integer, vNpcNum As Integer, VictimX As Integer
         Dim VictimY As Integer, AttackerX As Integer, AttackerY As Integer
 
-        CanNpcAttackNpc = False
+        CanNpcAttackNpc = 0
 
         ' Check for subscript out of range
         If Attacker <= 0 Or Attacker > MAX_MAP_NPCS Then
@@ -558,19 +558,19 @@ Module Npc
 
         ' Check if at same coordinates
         If (VictimY + 1 = AttackerY) And (VictimX = AttackerX) Then
-            CanNpcAttackNpc = True
+            CanNpcAttackNpc = 1
         Else
 
             If (VictimY - 1 = AttackerY) And (VictimX = AttackerX) Then
-                CanNpcAttackNpc = True
+                CanNpcAttackNpc = 1
             Else
 
                 If (VictimY = AttackerY) And (VictimX + 1 = AttackerX) Then
-                    CanNpcAttackNpc = True
+                    CanNpcAttackNpc = 1
                 Else
 
                     If (VictimY = AttackerY) And (VictimX - 1 = AttackerX) Then
-                        CanNpcAttackNpc = True
+                        CanNpcAttackNpc = 1
                     End If
                 End If
             End If
@@ -584,7 +584,7 @@ Module Npc
         Dim buffer As New ByteStream(4)
 
         ' Check for subscript out of range
-       If MapNpcNum <= 0 Or MapNPCNum > MAX_MAP_NPCS Or IsPlaying(Victim) = False Then Exit Sub
+       If MapNpcNum <= 0 Or MapNPCNum > MAX_MAP_NPCS Or IsPlaying(Victim) = 0 Then Exit Sub
 
         ' Check for subscript out of range
        If MapNPC(GetPlayerMap(Victim)).NPC(MapNPCNum).Num <= 0 Then Exit Sub
@@ -601,7 +601,7 @@ Module Npc
         If Damage <= 0 Then Exit Sub
 
         ' set the regen timer
-        MapNPC(MapNum).NPC(MapNPCNum).StopRegen = True
+        MapNPC(MapNum).NPC(MapNPCNum).StopRegen = 1
         MapNPC(MapNum).NPC(MapNPCNum).StopRegenTimer = GetTimeMs()
 
         If Damage >= GetPlayerVital(Victim, VitalType.HP) Then
@@ -631,7 +631,7 @@ Module Npc
             SendBlood(GetPlayerMap(Victim), GetPlayerX(Victim), GetPlayerY(Victim))
 
             ' set the regen timer
-            TempPlayer(Victim).StopRegen = True
+            TempPlayer(Victim).StopRegen = 1
             TempPlayer(Victim).StopRegenTimer = GetTimeMs()
 
         End If
@@ -793,11 +793,11 @@ Module Npc
         TargetType = MapNPC(MapNum).NPC(MapNPCNum).TargetType
         Target = MapNPC(MapNum).NPC(MapNPCNum).Target
         range = Type.Skill(skillNum).Range
-        HasBuffered = False
+        HasBuffered = 0
 
         Select Case SkillCastType
             Case 0, 1 ' self-cast & self-cast AOE
-                HasBuffered = True
+                HasBuffered = 1
             Case 2, 3 ' targeted & targeted AOE
                 ' check if have target
                 If Not Target > 0 Then
@@ -808,20 +808,20 @@ Module Npc
                     If Not IsInRange(range, MapNPC(MapNum).NPC(MapNPCNum).X, MapNPC(MapNum).NPC(MapNPCNum).Y, GetPlayerX(Target), GetPlayerY(Target)) Then
                         Exit Sub
                     Else
-                        HasBuffered = True
+                        HasBuffered = 1
                     End If
                 ElseIf TargetType = Core.TargetType.NPC Then
                     '' if have target, check in range
                     'If Not isInRange(range, GetPlayerX(Index), GetPlayerY(Index), MapNPC(MapNum).NPC(Target).x, MapNPC(MapNum).NPC(Target).y) Then
                     '    PlayerMsg(Index, "Target not in range.")
-                    '    HasBuffered = False
+                    '    HasBuffered = 0
                     'Else
                     '    ' go through skill Type
                     '    If Type.Skill(skillNum).Type <> SkillType.DAMAGEHP And Type.Skill(skillNum).Type <> SkillType.DAMAGEMP Then
-                    '        HasBuffered = True
+                    '        HasBuffered = 1
                     '    Else
                     '        If CanAttackNpc(Index, Target, True) Then
-                    '            HasBuffered = True
+                    '            HasBuffered = 1
                     '        End If
                     '    End If
                     'End If
@@ -841,13 +841,13 @@ Module Npc
         Dim stat As Integer
         Dim rndNum As Integer
 
-        CanNpcBlock = False
+        CanNpcBlock = 0
 
         stat = Type.NPC(NPCNum).Stat(StatType.Luck) / 5  'guessed shield agility
         rate = stat / 12.08
         rndNum = Random.NextDouble(1, 100)
 
-        If rndNum <= rate Then CanNpcBlock = True
+        If rndNum <= rate Then CanNpcBlock = 1
 
     End Function
 
@@ -855,12 +855,12 @@ Module Npc
         Dim rate As Integer
         Dim rndNum As Integer
 
-        CanNpcCrit = False
+        CanNpcCrit = 0
 
         rate = Type.NPC(NPCNum).Stat(StatType.Luck) / 3
         rndNum = Random.NextDouble(1, 100)
 
-        If rndNum <= rate Then CanNpcCrit = True
+        If rndNum <= rate Then CanNpcCrit = 1
 
     End Function
 
@@ -868,12 +868,12 @@ Module Npc
         Dim rate As Integer
         Dim rndNum As Integer
 
-        CanNpcDodge = False
+        CanNpcDodge = 0
 
         rate = Type.NPC(NPCNum).Stat(StatType.Luck) / 4
         rndNum = Random.NextDouble(1, 100)
 
-        If rndNum <= rate Then CanNpcDodge = True
+        If rndNum <= rate Then CanNpcDodge = 1
 
     End Function
 
@@ -881,12 +881,12 @@ Module Npc
         Dim rate As Integer
         Dim rndNum As Integer
 
-        CanNpcParry = False
+        CanNpcParry = 0
 
         rate = Type.NPC(NPCNum).Stat(StatType.Luck) / 6
         rndNum = Random.NextDouble(1, 100)
 
-        If rndNum <= rate Then CanNpcParry = True
+        If rndNum <= rate Then CanNpcParry = 1
 
     End Function
 
@@ -897,9 +897,9 @@ Module Npc
     End Function
 
     Friend Function IsNpcDead(MapNum As Integer, MapNPCNum As Integer)
-        IsNpcDead = False
+        IsNpcDead = 0
        If MapNum <= 0 Or mapNum > MAX_MAPS Or MapNPCNum <= 0 Or MapNPCNum > MAX_MAP_NPCS Then Exit Function
-       If MapNPC(MapNum).NPC(MapNPCNum).Vital(VitalType.HP) <= 0 Then IsNpcDead = True
+       If MapNPC(MapNum).NPC(MapNPCNum).Vital(VitalType.HP) <= 0 Then IsNpcDead = 1
     End Function
 
     Friend Sub DropNpcItems(MapNum As Integer, MapNPCNum As Integer)

@@ -6,7 +6,7 @@ Module Player
 
 #Region "PlayerCombat"
 
-    Function CanPlayerAttackPlayer(Attacker As Integer, Victim As Integer, Optional IsSkill As Boolean = False) As Boolean
+    Function CanPlayerAttackPlayer(Attacker As Integer, Victim As Integer, Optional IsSkill As Boolean = 0) As Boolean
 
         If Not IsSkill Then
             ' Check attack timer
@@ -24,7 +24,7 @@ Module Player
         If Not GetPlayerMap(Attacker) = GetPlayerMap(Victim) Then Exit Function
 
         ' Make sure we dont attack the player if they are switching maps
-        If TempPlayer(Victim).GettingMap = True Then Exit Function
+        If TempPlayer(Victim).GettingMap = 1 Then Exit Function
 
         If Not IsSkill Then
             ' Check if at same coordinates
@@ -49,7 +49,7 @@ Module Player
         ' CheckIf Type.Map is attackable
        If Type.Map(GetPlayerMap(attacker)).Moral > 0 Then
             If Not Type.Moral(Type.Map(GetPlayerMap(Attacker)).Moral).CanPK Then
-                If GetPlayerPK(Victim) = False Then
+                If GetPlayerPK(Victim) = 0 Then
                     PlayerMsg(Attacker, "This is a safe zone!", ColorType.BrightRed)
                     Exit Function
                 End If
@@ -83,7 +83,7 @@ Module Player
             Exit Function
         End If
 
-        CanPlayerAttackPlayer = True
+        CanPlayerAttackPlayer = 1
     End Function
 
     Function CanPlayerBlockHit(index As Integer) As Boolean
@@ -92,7 +92,7 @@ Module Player
         Dim ShieldSlot As Integer
         ShieldSlot = GetPlayerEquipment(index, EquipmentType.Shield)
 
-        CanPlayerBlockHit = False
+        CanPlayerBlockHit = 0
 
         If ShieldSlot > 0 Then
             n = Int(Rnd() * 2)
@@ -102,7 +102,7 @@ Module Player
                 n = Int(Rnd() * 100) + 1
 
                 If n <= i Then
-                    CanPlayerBlockHit = True
+                    CanPlayerBlockHit = 1
                 End If
             End If
         End If
@@ -122,7 +122,7 @@ Module Player
                 n = Int(Rnd() * 100) + 1
 
                 If n <= i Then
-                    CanPlayerCriticalHit = True
+                    CanPlayerCriticalHit = 1
                 End If
             End If
         End If
@@ -135,7 +135,7 @@ Module Player
         GetPlayerDamage = 0
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or index < 0 Or index > MAX_PLAYERS Then
+        If IsPlaying(index) = 0 Or index < 0 Or index > MAX_PLAYERS Then
             Exit Function
         End If
 
@@ -153,7 +153,7 @@ Module Player
         GetPlayerProtection = 0
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or index < 0 Or index > MAX_PLAYERS Then
+        If IsPlaying(index) = 0 Or index < 0 Or index > MAX_PLAYERS Then
             Exit Function
         End If
 
@@ -184,7 +184,7 @@ Module Player
 
         If npcnum = 0 Then
             ' Check for subscript out of range
-            If IsPlaying(attacker) = False Or IsPlaying(victim) = False Or damage < 0 Then
+            If IsPlaying(attacker) = 0 Or IsPlaying(victim) = 0 Or damage < 0 Then
                 Exit Sub
             End If
 
@@ -241,8 +241,8 @@ Module Player
                     End If
                 End If
 
-                If GetPlayerPK(victim) = False Then
-                    If GetPlayerPK(attacker) = False Then
+                If GetPlayerPK(victim) = 0 Then
+                    If GetPlayerPK(attacker) = 0 Then
                         SetPlayerPK(attacker, True)
                         SendPlayerData(attacker)
                         GlobalMsg(GetPlayerName(attacker) & " has been deemed a Player Killer!!!")
@@ -268,7 +268,7 @@ Module Player
             TempPlayer(attacker).AttackTimer = GetTimeMs()
         Else ' npc to player
             ' Check for subscript out of range
-            If IsPlaying(victim) = False Or damage < 0 Then Exit Sub
+            If IsPlaying(victim) = 0 Or damage < 0 Then Exit Sub
 
             mapNum = GetPlayerMap(victim)
 
@@ -326,7 +326,7 @@ Module Player
         End If
     End Sub
 
-    Function CanPlayerAttackNpc(Attacker As Integer, MapNPCNum As Integer, Optional IsSkill As Boolean = False) As Boolean
+    Function CanPlayerAttackNpc(Attacker As Integer, MapNPCNum As Integer, Optional IsSkill As Boolean = 0) As Boolean
         Dim mapNum As Integer
         Dim NpcNum As Integer
         Dim atkX As Integer
@@ -334,7 +334,7 @@ Module Player
         Dim attackspeed As Integer
 
         ' Check for subscript out of range
-        If IsPlaying(Attacker) = False Or MapNPCnum <= 0 Or MapNPCNum > MAX_MAP_NPCS Then
+        If IsPlaying(Attacker) = 0 Or MapNPCnum <= 0 Or MapNPCNum > MAX_MAP_NPCS Then
             Exit Function
         End If
 
@@ -364,7 +364,7 @@ Module Player
             ' exit out early
             If IsSkill Then
                 If Type.NPC(NPCNum).Behaviour <> NpcBehavior.Friendly And Type.NPC(NPCNum).Behaviour <> NpcBehavior.ShopKeeper Then
-                    CanPlayerAttackNpc = True
+                    CanPlayerAttackNpc = 1
                     Exit Function
                 End If
             End If
@@ -388,7 +388,7 @@ Module Player
             If atkX = MapNPC(MapNum).NPC(MapNPCNum).X Then
                 If atkY = MapNPC(MapNum).NPC(MapNPCNum).Y Then
                     If Type.NPC(NPCNum).Behaviour <> NpcBehavior.Friendly And Type.NPC(NPCNum).Behaviour <> NpcBehavior.ShopKeeper And Type.NPC(NPCNum).Behaviour <> NpcBehavior.Quest Then
-                        CanPlayerAttackNpc = True
+                        CanPlayerAttackNpc = 1
                     Else
                         If Len(Type.NPC(NPCNum).AttackSay) > 0 Then
                             PlayerMsg(Attacker, Type.NPC(NPCNum).Name & ": " & Type.NPC(NPCNum).AttackSay, ColorType.Yellow)
@@ -411,7 +411,7 @@ Module Player
 
     Sub PlayerAttackNpc(Attacker As Integer, MapNPCNum As Integer, Damage As Integer)
         ' Check for subscript out of range
-        If IsPlaying(Attacker) = False Or MapNPCNum <= 0 Or MapNPCNum > MAX_MAP_NPCS Or Damage <= 0 Then Exit Sub
+        If IsPlaying(Attacker) = 0 Or MapNPCNum <= 0 Or MapNPCNum > MAX_MAP_NPCS Or Damage <= 0 Then Exit Sub
 
         Dim MapNum = GetPlayerMap(Attacker)
         Dim NpcNum = MapNPC(MapNum).NPC(MapNPCNum).Num
@@ -471,21 +471,21 @@ Module Player
 
     Function IsInRange(range As Integer, x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As Boolean
         Dim nVal As Integer
-        IsInRange = False
+        IsInRange = 0
         nVal = Math.Sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
-        If nVal <= range Then IsInRange = True
+        If nVal <= range Then IsInRange = 1
     End Function
 
     Friend Function CanPlayerDodge(index As Integer) As Boolean
         Dim rate As Integer, rndNum As Integer
 
-        CanPlayerDodge = False
+        CanPlayerDodge = 0
 
         rate = GetPlayerStat(index, StatType.Luck) / 4
         rndNum = Random.NextDouble(1, 100)
 
         If rndNum <= rate Then
-            CanPlayerDodge = True
+            CanPlayerDodge = 1
         End If
 
     End Function
@@ -493,13 +493,13 @@ Module Player
     Friend Function CanPlayerParry(index As Integer) As Boolean
         Dim rate As Integer, rndNum As Integer
 
-        CanPlayerParry = False
+        CanPlayerParry = 0
 
         rate = GetPlayerStat(index, StatType.Luck) / 6
         rndNum = Random.NextDouble(1, 100)
 
         If rndNum <= rate Then
-            CanPlayerParry = True
+            CanPlayerParry = 1
         End If
 
     End Function
@@ -563,7 +563,7 @@ Module Player
 
     Sub PlayerAttackPlayer(Attacker As Integer, Victim As Integer, Damage As Integer)
         ' Check for subscript out of range
-        If IsPlaying(Attacker) = False Or IsPlaying(Victim) = False Or Damage < 0 Then
+        If IsPlaying(Attacker) = 0 Or IsPlaying(Victim) = 0 Or Damage < 0 Then
             Exit Sub
         End If
 
@@ -574,7 +574,7 @@ Module Player
         End If
 
         ' Stop our player's regeneration abilities.
-        TempPlayer(Attacker).StopRegen = True
+        TempPlayer(Attacker).StopRegen = 1
         TempPlayer(Attacker).StopRegenTimer = GetTimeMs()
 
         ' Deal damage to our player.
@@ -588,7 +588,7 @@ Module Player
         SendBlood(GetPlayerMap(Victim), GetPlayerX(Victim), GetPlayerY(Victim))
 
         ' set the regen timer
-        TempPlayer(Victim).StopRegen = True
+        TempPlayer(Victim).StopRegen = 1
         TempPlayer(Victim).StopRegenTimer = GetTimeMs()
 
         ' Reset attack timer
@@ -663,9 +663,9 @@ Module Player
     End Sub
 
     Friend Function IsPlayerDead(index As Integer)
-        IsPlayerDead = False
+        IsPlayerDead = 0
         If index <= 0 Or index > MAX_PLAYERS Or Not TempPlayer(index).InGame Then Exit Function
-        If GetPlayerVital(index, VitalType.HP) < 0 Then IsPlayerDead = True
+        If GetPlayerVital(index, VitalType.HP) < 0 Then IsPlayerDead = 1
     End Function
 
     Friend Sub HandlePlayerKillPlayer(Attacker As Integer, Victim As Integer)
@@ -859,13 +859,13 @@ Module Player
 #End Region
 
 #Region "Movement"
-    Sub PlayerWarp(index As Integer, MapNum As Integer, X As Integer, Y As Integer, Optional NoInstance As Boolean = False)
+    Sub PlayerWarp(index As Integer, MapNum As Integer, X As Integer, Y As Integer, Optional NoInstance As Boolean = 0)
         Dim OldMap As Integer
         Dim i As Integer
         Dim buffer As ByteStream
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or MapNum <= 0 Or MapNum > MAX_MAPS Then Exit Sub
+        If IsPlaying(index) = 0 Or MapNum <= 0 Or MapNum > MAX_MAPS Then Exit Sub
 
         ' Check if you are out of bounds
         If X > Type.Map(MapNum).MaxX Then X = Type.Map(MapNum).MaxX
@@ -915,7 +915,7 @@ Module Player
 
         ' Now we check if there were any players left on the map the player just left, and if not stop processing npcs
         If GetTotalMapPlayers(OldMap) = 0 Then
-            PlayersOnMap(OldMap) = False
+            PlayersOnMap(OldMap) = 0
 
             ' Regenerate all NPCs' health
             For i = 1 To MAX_MAP_NPCS
@@ -929,8 +929,8 @@ Module Player
         End If
 
         ' Sets it so we know to process npcs on the map
-        PlayersOnMap(MapNum) = True
-        TempPlayer(index).GettingMap = True
+        PlayersOnMap(MapNum) = 1
+        TempPlayer(index).GettingMap = 1
 
         SendUpdateMoralTo(index, Type.Map(MapNum).Moral)
 
@@ -961,7 +961,7 @@ Module Player
         End If
 
         SetPlayerDir(index, Dir)
-        Moved = False
+        Moved = 0
         mapNum = GetPlayerMap(index)
 
         Select Case Dir
@@ -974,7 +974,7 @@ Module Player
                             If Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index), GetPlayerY(index) - 1).Type <> TileType.Resource And Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index), GetPlayerY(index) - 1).Type2 <> TileType.Resource Then
                                 SetPlayerY(index, GetPlayerY(index) - 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -989,8 +989,8 @@ Module Player
                         If Type.Map(GetPlayerMap(index)).Up > 0 Then
                             NewMapY = Type.Map(Type.Map(GetPlayerMap(index)).Up).MaxY
                             PlayerWarp(index, Type.Map(GetPlayerMap(index)).Up, GetPlayerX(index), NewMapY)
-                            DidWarp = True
-                            Moved = True
+                            DidWarp = 1
+                            Moved = 1
                         End If
                     End If
                 End If
@@ -1004,7 +1004,7 @@ Module Player
                             If Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index), GetPlayerY(index) + 1).Type <> TileType.Resource And Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index), GetPlayerY(index) + 1).Type2 <> TileType.Resource Then
                                 SetPlayerY(index, GetPlayerY(index) + 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1018,8 +1018,8 @@ Module Player
                         ' Check to see if we can move them to another map
                         If Type.Map(GetPlayerMap(index)).Down > 0 Then
                             PlayerWarp(index, Type.Map(GetPlayerMap(index)).Down, GetPlayerX(index), 0)
-                            DidWarp = True
-                            Moved = True
+                            DidWarp = 1
+                            Moved = 1
                         End If
                     End If
                 End If
@@ -1033,7 +1033,7 @@ Module Player
                             If Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index) - 1, GetPlayerY(index)).Type <> TileType.Resource And Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index) - 1, GetPlayerY(index)).Type2 <> TileType.Resource Then
                                 SetPlayerX(index, GetPlayerX(index) - 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1048,8 +1048,8 @@ Module Player
                         If Type.Map(GetPlayerMap(index)).Left > 0 Then
                             NewMapX = Type.Map(Type.Map(GetPlayerMap(index)).Left).MaxX
                             PlayerWarp(index, Type.Map(GetPlayerMap(index)).Left, NewMapX, GetPlayerY(index))
-                            DidWarp = True
-                            Moved = True
+                            DidWarp = 1
+                            Moved = 1
                         End If
                     End If
                 End If
@@ -1063,7 +1063,7 @@ Module Player
                             If Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index) + 1, GetPlayerY(index)).Type <> TileType.Resource And Type.Map(GetPlayerMap(index)).Tile(GetPlayerX(index) + 1, GetPlayerY(index)).Type2 <> TileType.Resource Then
                                 SetPlayerX(index, GetPlayerX(index) + 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1077,8 +1077,8 @@ Module Player
                         ' Check to see if we can move them to another map
                         If Type.Map(GetPlayerMap(index)).Right > 0 Then
                             PlayerWarp(index, Type.Map(GetPlayerMap(index)).Right, 0, GetPlayerY(index))
-                            DidWarp = True
-                            Moved = True
+                            DidWarp = 1
+                            Moved = 1
                         End If
                     End If
                 End If
@@ -1093,7 +1093,7 @@ Module Player
                                 SetPlayerX(index, GetPlayerX(index) + 1)
                                 SetPlayerY(index, GetPlayerY(index) - 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1114,7 +1114,7 @@ Module Player
                                 SetPlayerX(index, GetPlayerX(index) - 1)
                                 SetPlayerY(index, GetPlayerY(index) - 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1135,7 +1135,7 @@ Module Player
                                 SetPlayerX(index, GetPlayerX(index) + 1)
                                 SetPlayerY(index, GetPlayerY(index) + 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1156,7 +1156,7 @@ Module Player
                                 SetPlayerX(index, GetPlayerX(index) - 1)
                                 SetPlayerY(index, GetPlayerY(index) + 1)
                                 SendPlayerMove(index, Movement)
-                                Moved = True
+                                Moved = 1
 
                                 ' Check for event
                                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
@@ -1189,8 +1189,8 @@ Module Player
            If MapNum > 0 Then
                 PlayerWarp(index, mapNum, x, y)
 
-                DidWarp = True
-                Moved = True
+                DidWarp = 1
+                Moved = 1
             End If
 
             mapNum = 0
@@ -1216,8 +1216,8 @@ Module Player
             ' Check to see if the tile is a bank, and if so send bank
             If .Type = TileType.Bank Or .Type2 = TileType.Bank Then
                 SendBank(index)
-                TempPlayer(index).InBank = True
-                Moved = True
+                TempPlayer(index).InBank = 1
+                Moved = 1
             End If
 
             ' Check if it's a heal tile
@@ -1244,7 +1244,7 @@ Module Player
                     PlayerMsg(index, "You feel rejuvenating forces coursing through your body.", ColorType.BrightGreen)
                     SendVital(index, VitalType)
                 End If
-                Moved = True
+                Moved = 1
             End If
 
             ' Check if it's a trap tile
@@ -1266,30 +1266,30 @@ Module Player
                     PlayerMsg(index, "You've been injured by a trap.", ColorType.BrightRed)
                     SendVital(index, Core.VitalType.HP)
                 End If
-                Moved = True
+                Moved = 1
             End If
 
         End With
 
         ' They tried to hack
-        If Moved = False Or (ExpectingWarp And Not DidWarp) Then
+        If Moved = 0 Or (ExpectingWarp And Not DidWarp) Then
             PlayerWarp(index, GetPlayerMap(index), GetPlayerX(index), GetPlayerY(index))
         End If
 
         x = GetPlayerX(index)
         y = GetPlayerY(index)
 
-        If Moved = True Then
+        If Moved = 1 Then
             If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
                     If TempPlayer(index).EventMap.EventPages(i).EventId > 0 Then
                         If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Globals = 1 Then
-                            If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).X = x And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = True
+                            If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).X = x And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = 1
                         Else
-                            If TempPlayer(index).EventMap.EventPages(i).X = x And TempPlayer(index).EventMap.EventPages(i).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = True
+                            If TempPlayer(index).EventMap.EventPages(i).X = x And TempPlayer(index).EventMap.EventPages(i).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = 1
                         End If
-                        begineventprocessing = False
-                        If begineventprocessing = True Then
+                        begineventprocessing = 0
+                        If begineventprocessing = 1 Then
                             'Process this event, it is on-touch and everything checks out.
                             If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).CommandListCount > 0 Then
                                 TempPlayer(index).EventProcessing(TempPlayer(index).EventMap.EventPages(i).EventId).Active = 1
@@ -1301,7 +1301,7 @@ Module Player
                                 TempPlayer(index).EventProcessing(TempPlayer(index).EventMap.EventPages(i).EventId).WaitingForResponse = 0
                                 ReDim TempPlayer(index).EventProcessing(TempPlayer(index).EventMap.EventPages(i).EventId).ListLeftOff(Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).CommandListCount)
                             End If
-                            begineventprocessing = False
+                            begineventprocessing = 0
                         End If
                     End If
                 Next
@@ -1420,7 +1420,7 @@ Module Player
             If Type.Moral(Type.Map(MapNum).Moral).CanPickupItem Then
                 ' no lock or locked to player?
                If Type.MapItem(MapNum, mapItemNum).PlayerName = "" Or MapItem(MapNum, mapItemNum).PlayerName = GetPlayerName(index) Then
-                    CanPlayerPickupItem = True
+                    CanPlayerPickupItem = 1
                     Exit Function
                 End If
             Else 
@@ -1428,14 +1428,14 @@ Module Player
             End If
         End If
 
-        CanPlayerPickupItem = False
+        CanPlayerPickupItem = 0
     End Function
 
     Function FindOpenInvSlot(index As Integer, ItemNum As Integer) As Integer
         Dim i As Integer
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
+        If IsPlaying(index) = 0 Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
             Exit Function
         End If
 
@@ -1463,10 +1463,10 @@ Module Player
     Function TakeInv(index As Integer, ItemNum As Integer, ItemVal As Integer) As Boolean
         Dim i As Integer
 
-        TakeInv = False
+        TakeInv = 0
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
+        If IsPlaying(index) = 0 Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
             Exit Function
         End If
 
@@ -1478,13 +1478,13 @@ Module Player
 
                     ' Is what we are trying to take away more then what they have?  If so just set it to zero
                     If ItemVal >= GetPlayerInvValue(index, i) Then
-                        TakeInv = True
+                        TakeInv = 1
                     Else
                         SetPlayerInvValue(index, i, GetPlayerInvValue(index, i) - ItemVal)
                         SendInventoryUpdate(index, i)
                     End If
                 Else
-                    TakeInv = True
+                    TakeInv = 1
                 End If
 
                 If TakeInv Then
@@ -1500,12 +1500,12 @@ Module Player
 
     End Function
 
-    Function GiveInv(index As Integer, ItemNum As Integer, ItemVal As Integer, Optional SendUpdate As Boolean = True) As Boolean
+    Function GiveInv(index As Integer, ItemNum As Integer, ItemVal As Integer, Optional SendUpdate As Boolean = 1) As Boolean
         Dim i As Integer
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
-            GiveInv = False
+        If IsPlaying(index) = 0 Or Itemnum <= 0 Or ItemNum > MAX_ITEMS Then
+            GiveInv = 0
             Exit Function
         End If
 
@@ -1516,10 +1516,10 @@ Module Player
             SetPlayerInv(index, i, ItemNum)
             SetPlayerInvValue(index, i, GetPlayerInvValue(index, i) + ItemVal)
             If SendUpdate Then SendInventoryUpdate(index, i)
-            GiveInv = True
+            GiveInv = 1
         Else
             PlayerMsg(index, "Your inventory is full.", ColorType.BrightRed)
-            GiveInv = False
+            GiveInv = 0
         End If
 
     End Function
@@ -1528,14 +1528,14 @@ Module Player
         Dim i As Integer
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or invNum <= 0 Or invNum > MAX_INV Then
+        If IsPlaying(index) = 0 Or invNum <= 0 Or invNum > MAX_INV Then
             Exit Sub
         End If
 
         ' check the player isn't doing something
         If TempPlayer(index).InBank Or TempPlayer(index).InShop Or TempPlayer(index).InTrade > 0 Then Exit Sub
 
-        If Type.Moral(GetPlayerMap(index)).CanDropItem = False Then
+        If Type.Moral(GetPlayerMap(index)).CanDropItem = 0 Then
             Call PlayerMsg(index, "You can't drop items here!", ColorType.BrightRed)
             Exit Sub
         End If
@@ -1552,7 +1552,7 @@ Module Player
                         .PlayerName = GetPlayerName(index)
                         .PlayerTimer = GetTimeMs() + ITEM_SPAWN_TIME
 
-                        .CanDespawn = True
+                        .CanDespawn = 1
                         .DespawnTimer = GetTimeMs() + ITEM_DESPAWN_TIME
 
                         If Type.Item(GetPlayerInv(index, invNum)).Type = ItemType.Currency Or Type.Item(Global.Core.Commands.GetPlayerInv(index, invNum)).Stackable = 1 Then
@@ -1593,10 +1593,10 @@ Module Player
     Function TakeInvSlot(index As Integer, InvSlot As Integer, ItemVal As Integer) As Boolean
         Dim itemNum
 
-        TakeInvSlot = False
+        TakeInvSlot = 0
 
         ' Check for subscript out of range
-        If IsPlaying(index) = False Or InvSlot < 0 Or InvSlot > MAX_ITEMS Then Exit Function
+        If IsPlaying(index) = 0 Or InvSlot < 0 Or InvSlot > MAX_ITEMS Then Exit Function
 
         itemNum = GetPlayerInv(index, InvSlot)
 
@@ -1604,12 +1604,12 @@ Module Player
 
             ' Is what we are trying to take away more then what they have?  If so just set it to zero
             If ItemVal >= GetPlayerInvValue(index, InvSlot) Then
-                TakeInvSlot = True
+                TakeInvSlot = 1
             Else
                 SetPlayerInvValue(index, InvSlot, GetPlayerInvValue(index, InvSlot) - ItemVal)
             End If
         Else
-            TakeInvSlot = True
+            TakeInvSlot = 1
         End If
 
         If TakeInvSlot Then
@@ -1624,7 +1624,7 @@ Module Player
         Dim i As Integer
 
         If Type.Map(GetPlayerMap(index)).Moral > 0 Then
-            If Type.Moral(Type.Map(GetPlayerMap(index)).Moral).CanUseItem = False Then
+            If Type.Moral(Type.Map(GetPlayerMap(index)).Moral).CanUseItem = 0 Then
                 PlayerMsg(Index, "You can't use items here!", ColorType.BrightRed)
                 Exit Function
             End If
@@ -1660,7 +1660,7 @@ Module Player
             Exit Function
         End If
 
-        CanPlayerUseItem = True
+        CanPlayerUseItem = 1
     End Function
 
     Friend Sub UseItem(index As Integer, InvNum As Integer)
@@ -1674,7 +1674,7 @@ Module Player
 
         If itemNum <= 0 Or itemNum > MAX_ITEMS Then Exit Sub
 
-        If CanPlayerUseItem(index, itemNum) = False Then Exit Sub
+        If CanPlayerUseItem(index, itemNum) = 0 Then Exit Sub
 
         ' Find out what kind of item it is
         Select Case Type.Item(itemNum).Type
@@ -2061,7 +2061,7 @@ Module Player
         Dim i As Integer
 
         ' Set the flag so we know the person is in the game
-        TempPlayer(index).InGame = True
+        TempPlayer(index).InGame = 1
 
         ' Notify everyone that a player has joined the game.
         GlobalMsg(String.Format("{0} has joined {1}!", GetPlayerName(index), Type.Setting.GameName))
@@ -2100,7 +2100,7 @@ Module Player
 
         If TempPlayer(index).InGame Then
             SendLeftMap(index)
-            TempPlayer(index).InGame = False
+            TempPlayer(index).InGame = 0
 
             ' Check if the player was in a party, and if so cancel it out so the other player doesn't continue to get half exp
             ' leave party.
@@ -2191,7 +2191,7 @@ Module Player
         Dim i As Integer
 
         ' Prevent subscript out of range
-        If IsPlaying(index) = False Or index < 0 Or index > MAX_PLAYERS Then
+        If IsPlaying(index) = 0 Or index < 0 Or index > MAX_PLAYERS Then
             GetPlayerVitalRegen = 0
             Exit Function
         End If
@@ -2337,11 +2337,11 @@ Module Player
         TargetType = TempPlayer(index).TargetType
         Target = TempPlayer(index).Target
         range = Type.Skill(skillNum).Range
-        HasBuffered = False
+        HasBuffered = 0
 
         Select Case SkillCastType
             Case 0, 1 ' self-cast & self-cast AOE
-                HasBuffered = True
+                HasBuffered = 1
             Case 2, 3 ' targeted & targeted AOE
                 ' check if have target
                 If Not Target > 0 Then
@@ -2354,10 +2354,10 @@ Module Player
                     Else
                         ' go through skill Type
                         If Type.Skill(skillNum).Type <> SkillType.DamageHp And Type.Skill(skillNum).Type <> SkillType.DamageMp Then
-                            HasBuffered = True
+                            HasBuffered = 1
                         Else
                             If CanPlayerAttackPlayer(index, Target, True) Then
-                                HasBuffered = True
+                                HasBuffered = 1
                             End If
                         End If
                     End If
@@ -2365,14 +2365,14 @@ Module Player
                     ' if have target, check in range
                     If Not IsInRange(range, GetPlayerX(index), GetPlayerY(index), MapNPC(MapNum).NPC(Target).X, MapNPC(MapNum).NPC(Target).Y) Then
                         PlayerMsg(index, "Target not in range.", ColorType.BrightRed)
-                        HasBuffered = False
+                        HasBuffered = 0
                     Else
                         ' go through skill Type
                         If Type.Skill(skillNum).Type <> SkillType.DamageHp And Type.Skill(skillNum).Type <> SkillType.DamageMp Then
-                            HasBuffered = True
+                            HasBuffered = 1
                         Else
                             If CanPlayerAttackNpc(index, Target, True) Then
-                                HasBuffered = True
+                                HasBuffered = 1
                             End If
                         End If
                     End If

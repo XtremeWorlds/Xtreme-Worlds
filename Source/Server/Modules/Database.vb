@@ -322,13 +322,13 @@ Module Database
 #Region "Var"
 
     Public Function GetVar(filePath As String, section As String, key As String) As String
-        Dim isInSection As Boolean = False
+        Dim isInSection As Boolean = 0
 
         For Each line As String In File.ReadAllLines(filePath)
             If line.Equals("[" & section & "]", StringComparison.OrdinalIgnoreCase) Then
-                isInSection = True
+                isInSection = 1
             ElseIf line.StartsWith("[") And line.EndsWith("]") Then
-                isInSection = False
+                isInSection = 0
             ElseIf isInSection And line.Contains("=") Then
                 Dim parts() As String = line.Split(New Char() {"="c}, 2)
                 If parts(0).Equals(key, StringComparison.OrdinalIgnoreCase) Then
@@ -343,20 +343,20 @@ Module Database
 
     Public Sub PutVar(filePath As String, section As String, key As String, value As String)
         Dim lines As New List(Of String)(File.ReadAllLines(filePath))
-        Dim updated As Boolean = False
-        Dim isInSection As Boolean = False
+        Dim updated As Boolean = 0
+        Dim isInSection As Boolean = 0
         Dim i As Integer = 0
 
         While i < lines.Count
             If lines(i).Equals("[" & section & "]", StringComparison.OrdinalIgnoreCase) Then
-                isInSection = True
+                isInSection = 1
                 i += 1
                 While i < lines.Count And Not lines(i).StartsWith("[")
                     If lines(i).Contains("=") Then
                         Dim parts() As String = lines(i).Split(New Char() {"="c}, 2)
                         If parts(0).Equals(key, StringComparison.OrdinalIgnoreCase) Then
                             lines(i) = key & "=" & value
-                            updated = True
+                            updated = 1
                             Exit While
                         End If
                     End If
@@ -485,7 +485,7 @@ Module Database
         ReDim Type.Map(MapNum).Event(0)
 
         ' Reset the values for if a player is on the map or not
-        PlayersOnMap(MapNum) = False
+        PlayersOnMap(MapNum) = 0
         Type.Map(MapNum).Tileset = 1
         Type.Map(MapNum).Name = ""
         Type.Map(MapNum).Music = ""
@@ -1442,7 +1442,7 @@ Module Database
 
         Next
 
-        Type.Account(BanPlayerindex).Banned = True
+        Type.Account(BanPlayerindex).Banned = 1
 
         IP = Mid$(IP, 1, i)
         AddTextToFile(IP, "banlist.txt")
@@ -1467,14 +1467,14 @@ Module Database
             ' Is banned?
             line = sr.ReadLine()
             If LCase$(line) = LCase$(Mid$(IP, 1, Len(line))) Then
-                IsBanned = True
+                IsBanned = 1
             End If
         Loop
 
         sr.Close()
 
         If Type.Account(index).Banned Then
-            IsBanned = True
+            IsBanned = 1
         End If
 
     End Function
@@ -1497,7 +1497,7 @@ Module Database
 
         Next
 
-        Type.Account(BanPlayerindex).Banned = True
+        Type.Account(BanPlayerindex).Banned = 1
 
         IP = Mid$(IP, 1, i)
         AddTextToFile(IP, "banlist.txt")

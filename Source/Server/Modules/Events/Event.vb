@@ -79,14 +79,14 @@ Friend Module [Event]
 
 #Region "Movement"
 
-    Function CanEventMove(index As Integer, mapNum As Integer, x As Integer, y As Integer, eventId As Integer, walkThrough As Integer, dir As Byte, Optional globalevent As Boolean = False) As Boolean
+    Function CanEventMove(index As Integer, mapNum As Integer, x As Integer, y As Integer, eventId As Integer, walkThrough As Integer, dir As Byte, Optional globalevent As Boolean = 0) As Boolean
         Dim i As Integer
         Dim n As Integer, n2 As Integer, z As Integer, begineventprocessing As Boolean
 
         ' Check for subscript out of range
        If MapNum <= 0 Or mapNum > MAX_MAPS Or dir <= DirectionType.None Or Dir > DirectionType.Left Then Exit Function
 
-        CanEventMove = True
+        CanEventMove = 1
 
         Select Case dir
             Case DirectionType.Up
@@ -96,18 +96,18 @@ Friend Module [Event]
                     n2 = Type.Map(MapNum).Tile(x, y - 1).Type2
 
                     If walkThrough = 1 Then
-                        CanEventMove = True
+                        CanEventMove = 1
                         Exit Function
                     End If
 
                     ' Check to make sure that the tile is walkable
                     If n = TileType.Blocked Or n2 = TileType.Blocked Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
                     If n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
@@ -115,11 +115,11 @@ Friend Module [Event]
                     For i = 1 To Socket.HighIndex
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = x) And (GetPlayerY(i) = y - 1) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 'There IS a player in the way. But now maybe we can call the event touch thingy!
                                 If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).Trigger = 1 Then
-                                    begineventprocessing = True
-                                    If begineventprocessing = True Then
+                                    begineventprocessing = 1
+                                    If begineventprocessing = 1 Then
                                         'Process this event, it is on-touch and everything checks out.
                                         If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount > 0 Then
                                             TempPlayer(index).EventProcessing(eventId).Active = 1
@@ -131,26 +131,26 @@ Friend Module [Event]
                                             TempPlayer(index).EventProcessing(eventId).WaitingForResponse = 0
                                             ReDim TempPlayer(index).EventProcessing(eventId).ListLeftOff(Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(eventId).EventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount)
                                         End If
-                                        begineventprocessing = False
+                                        begineventprocessing = 0
                                     End If
                                 End If
                             End If
                         End If
                     Next
 
-                    If CanEventMove = False Then Exit Function
+                    If CanEventMove = 0 Then Exit Function
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (MapNPC(MapNum).NPC(i).X = x) And (MapNPC(MapNum).NPC(i).Y = y - 1) Then
-                            CanEventMove = False
+                            CanEventMove = 0
                             Exit Function
                         End If
                     Next
 
-                    If globalevent = True And TempEventMap(MapNum).EventCount > 0 Then
+                    If globalevent = 1 And TempEventMap(MapNum).EventCount > 0 Then
                         For z = 0 To TempEventMap(MapNum).EventCount
                             If (z <> eventId) And (z > 0) And (TempEventMap(MapNum).Event(z).X = x) And (TempEventMap(MapNum).Event(z).Y = y - 1) And (TempEventMap(MapNum).Event(z).WalkThrough = 0) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 Exit Function
                             End If
                         Next
@@ -158,7 +158,7 @@ Friend Module [Event]
                         If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                             For z = 0 To TempPlayer(index).EventMap.CurrentEvents
                                 If (TempPlayer(index).EventMap.EventPages(z).EventId <> eventId) And (eventId > 0) And (TempPlayer(index).EventMap.EventPages(z).X = TempPlayer(index).EventMap.EventPages(eventId).X) And (TempPlayer(index).EventMap.EventPages(z).Y = TempPlayer(index).EventMap.EventPages(eventId).Y - 1) And (TempPlayer(index).EventMap.EventPages(z).WalkThrough = 0) Then
-                                    CanEventMove = False
+                                    CanEventMove = 0
                                     Exit Function
                                 End If
                             Next
@@ -167,11 +167,11 @@ Friend Module [Event]
 
                     ' Directional blocking
                     If IsDirBlocked(Type.Map(MapNum).Tile(x, y).DirBlock, DirectionType.Up) Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
                 Else
-                    CanEventMove = False
+                    CanEventMove = 0
                 End If
 
             Case DirectionType.Down
@@ -181,18 +181,18 @@ Friend Module [Event]
                     n2 = Type.Map(MapNum).Tile(x, y + 1).Type
 
                     If walkThrough = 1 Then
-                        CanEventMove = True
+                        CanEventMove = 1
                         Exit Function
                     End If
 
                     ' Check to make sure that the tile is walkable
                     If n = TileType.Blocked Or n2 = TileType.Blocked Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
                     If n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.Item And n2 <> TileType.NPCSpawn  Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
@@ -200,11 +200,11 @@ Friend Module [Event]
                     For i = 1 To Socket.HighIndex
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = x) And (GetPlayerY(i) = y + 1) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 'There IS a player in the way. But now maybe we can call the event touch thingy!
                                 If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).Trigger = 1 Then
-                                    begineventprocessing = True
-                                    If begineventprocessing = True Then
+                                    begineventprocessing = 1
+                                    If begineventprocessing = 1 Then
                                         'Process this event, it is on-touch and everything checks out.
                                         If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount > 0 Then
                                             TempPlayer(index).EventProcessing(eventId).Active = 1
@@ -216,27 +216,27 @@ Friend Module [Event]
                                             TempPlayer(index).EventProcessing(eventId).WaitingForResponse = 0
                                             ReDim TempPlayer(index).EventProcessing(eventId).ListLeftOff(Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(eventId).EventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount)
                                         End If
-                                        begineventprocessing = False
+                                        begineventprocessing = 0
                                     End If
                                 End If
                             End If
                         End If
                     Next
 
-                    If CanEventMove = False Then Exit Function
+                    If CanEventMove = 0 Then Exit Function
 
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (MapNPC(MapNum).NPC(i).X = x) And (MapNPC(MapNum).NPC(i).Y = y + 1) Then
-                            CanEventMove = False
+                            CanEventMove = 0
                             Exit Function
                         End If
                     Next
 
-                    If globalevent = True And TempEventMap(MapNum).EventCount > 0 Then
+                    If globalevent = 1 And TempEventMap(MapNum).EventCount > 0 Then
                         For z = 0 To TempEventMap(MapNum).EventCount
                             If (z <> eventId) And (z > 0) And (TempEventMap(MapNum).Event(z).X = x) And (TempEventMap(MapNum).Event(z).Y = y + 1) And (TempEventMap(MapNum).Event(z).WalkThrough = 0) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 Exit Function
                             End If
                         Next
@@ -244,7 +244,7 @@ Friend Module [Event]
                         If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                             For z = 0 To TempPlayer(index).EventMap.CurrentEvents
                                 If (TempPlayer(index).EventMap.EventPages(z).EventId <> eventId) And (eventId > 0) And (TempPlayer(index).EventMap.EventPages(z).X = TempPlayer(index).EventMap.EventPages(eventId).X) And (TempPlayer(index).EventMap.EventPages(z).Y = TempPlayer(index).EventMap.EventPages(eventId).Y + 1) And (TempPlayer(index).EventMap.EventPages(z).WalkThrough = 0) Then
-                                    CanEventMove = False
+                                    CanEventMove = 0
                                     Exit Function
                                 End If
                             Next
@@ -253,11 +253,11 @@ Friend Module [Event]
 
                     ' Directional blocking
                     If IsDirBlocked(Type.Map(MapNum).Tile(x, y).DirBlock, DirectionType.Down) Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
                 Else
-                    CanEventMove = False
+                    CanEventMove = 0
                 End If
 
             Case DirectionType.Left
@@ -267,18 +267,18 @@ Friend Module [Event]
                     n2 = Type.Map(MapNum).Tile(x - 1, y).Type2
 
                     If walkThrough = 1 Then
-                        CanEventMove = True
+                        CanEventMove = 1
                         Exit Function
                     End If
 
                     ' Check to make sure that the tile is walkable
                     If n = TileType.Blocked Or n2 = TileType.Blocked Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
                     If n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
@@ -286,11 +286,11 @@ Friend Module [Event]
                     For i = 1 To Socket.HighIndex
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = x - 1) And (GetPlayerY(i) = y) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 'There IS a player in the way. But now maybe we can call the event touch thingy!
                                 If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).Trigger = 1 Then
-                                    begineventprocessing = True
-                                    If begineventprocessing = True Then
+                                    begineventprocessing = 1
+                                    If begineventprocessing = 1 Then
                                         'Process this event, it is on-touch and everything checks out.
                                         If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount > 0 Then
                                             TempPlayer(index).EventProcessing(eventId).Active = 1
@@ -302,27 +302,27 @@ Friend Module [Event]
                                             TempPlayer(index).EventProcessing(eventId).WaitingForResponse = 0
                                             ReDim TempPlayer(index).EventProcessing(eventId).ListLeftOff(Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(eventId).EventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount)
                                         End If
-                                        begineventprocessing = False
+                                        begineventprocessing = 0
                                     End If
                                 End If
                             End If
                         End If
                     Next
 
-                    If CanEventMove = False Then Exit Function
+                    If CanEventMove = 0 Then Exit Function
 
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (MapNPC(MapNum).NPC(i).X = x - 1) And (MapNPC(MapNum).NPC(i).Y = y) Then
-                            CanEventMove = False
+                            CanEventMove = 0
                             Exit Function
                         End If
                     Next
 
-                    If globalevent = True And TempEventMap(MapNum).EventCount > 0 Then
+                    If globalevent = 1 And TempEventMap(MapNum).EventCount > 0 Then
                         For z = 0 To TempEventMap(MapNum).EventCount
                             If (z <> eventId) And (z > 0) And (TempEventMap(MapNum).Event(z).X = x - 1) And (TempEventMap(MapNum).Event(z).Y = y) And (TempEventMap(MapNum).Event(z).WalkThrough = 0) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 Exit Function
                             End If
                         Next
@@ -330,7 +330,7 @@ Friend Module [Event]
                         If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                             For z = 0 To TempPlayer(index).EventMap.CurrentEvents
                                 If (TempPlayer(index).EventMap.EventPages(z).EventId <> eventId) And (eventId > 0) And (TempPlayer(index).EventMap.EventPages(z).X = TempPlayer(index).EventMap.EventPages(eventId).X - 1) And (TempPlayer(index).EventMap.EventPages(z).Y = TempPlayer(index).EventMap.EventPages(eventId).Y) And (TempPlayer(index).EventMap.EventPages(z).WalkThrough = 0) Then
-                                    CanEventMove = False
+                                    CanEventMove = 0
                                     Exit Function
                                 End If
                             Next
@@ -339,11 +339,11 @@ Friend Module [Event]
 
                     ' Directional blocking
                     If IsDirBlocked(Type.Map(MapNum).Tile(x, y).DirBlock, DirectionType.Left) Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
                 Else
-                    CanEventMove = False
+                    CanEventMove = 0
                 End If
 
             Case DirectionType.Right
@@ -353,18 +353,18 @@ Friend Module [Event]
                     n2 = Type.Map(MapNum).Tile(x + 1, y).Type2
 
                     If walkThrough = 1 Then
-                        CanEventMove = True
+                        CanEventMove = 1
                         Exit Function
                     End If
 
                     ' Check to make sure that the tile is walkable
                     If n = TileType.Blocked Or n2 = TileType.Blocked Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
                     If n <> TileType.Item And n <> TileType.NPCSpawn And n2 <> TileType.Item And n2 <> TileType.NPCSpawn Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
 
@@ -372,11 +372,11 @@ Friend Module [Event]
                     For i = 1 To Socket.HighIndex
                         If IsPlaying(i) Then
                             If (GetPlayerMap(i) = mapNum) And (GetPlayerX(i) = x + 1) And (GetPlayerY(i) = y) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 'There IS a player in the way. But now maybe we can call the event touch thingy!
                                 If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).Trigger = 1 Then
-                                    begineventprocessing = True
-                                    If begineventprocessing = True Then
+                                    begineventprocessing = 1
+                                    If begineventprocessing = 1 Then
                                         'Process this event, it is on-touch and everything checks out.
                                         If Type.Map(MapNum).Event(eventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount > 0 Then
                                             TempPlayer(index).EventProcessing(eventId).Active = 1
@@ -388,27 +388,27 @@ Friend Module [Event]
                                             TempPlayer(index).EventProcessing(eventId).WaitingForResponse = 0
                                             ReDim TempPlayer(index).EventProcessing(eventId).ListLeftOff(Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(eventId).EventId).Pages(TempPlayer(index).EventMap.EventPages(eventId).PageId).CommandListCount)
                                         End If
-                                        begineventprocessing = False
+                                        begineventprocessing = 0
                                     End If
                                 End If
                             End If
                         End If
                     Next
 
-                    If CanEventMove = False Then Exit Function
+                    If CanEventMove = 0 Then Exit Function
 
                     ' Check to make sure that there is not another npc in the way
                     For i = 1 To MAX_MAP_NPCS
                         If (MapNPC(MapNum).NPC(i).X = x + 1) And (MapNPC(MapNum).NPC(i).Y = y) Then
-                            CanEventMove = False
+                            CanEventMove = 0
                             Exit Function
                         End If
                     Next
 
-                    If globalevent = True And TempEventMap(MapNum).EventCount > 0 Then
+                    If globalevent = 1 And TempEventMap(MapNum).EventCount > 0 Then
                         For z = 0 To TempEventMap(MapNum).EventCount
                             If (z <> eventId) And (z > 0) And (TempEventMap(MapNum).Event(z).X = x + 1) And (TempEventMap(MapNum).Event(z).Y = y) And (TempEventMap(MapNum).Event(z).WalkThrough = 0) Then
-                                CanEventMove = False
+                                CanEventMove = 0
                                 Exit Function
                             End If
                         Next
@@ -416,7 +416,7 @@ Friend Module [Event]
                         If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                             For z = 0 To TempPlayer(index).EventMap.CurrentEvents
                                 If (TempPlayer(index).EventMap.EventPages(z).EventId <> eventId) And (eventId > 0) And (TempPlayer(index).EventMap.EventPages(z).X = TempPlayer(index).EventMap.EventPages(eventId).X + 1) And (TempPlayer(index).EventMap.EventPages(z).Y = TempPlayer(index).EventMap.EventPages(eventId).Y) And (TempPlayer(index).EventMap.EventPages(z).WalkThrough = 0) Then
-                                    CanEventMove = False
+                                    CanEventMove = 0
                                     Exit Function
                                 End If
                             Next
@@ -425,18 +425,18 @@ Friend Module [Event]
 
                     ' Directional blocking
                     If IsDirBlocked(Type.Map(MapNum).Tile(x, y).DirBlock, DirectionType.Right) Then
-                        CanEventMove = False
+                        CanEventMove = 0
                         Exit Function
                     End If
                 Else
-                    CanEventMove = False
+                    CanEventMove = 0
                 End If
 
         End Select
 
     End Function
 
-    Sub EventDir(playerindex As Integer, mapNum As Integer, eventId As Integer, dir As Integer, Optional globalevent As Boolean = False)
+    Sub EventDir(playerindex As Integer, mapNum As Integer, eventId As Integer, dir As Integer, Optional globalevent As Boolean = 0)
         Dim buffer As New ByteStream(4)
         Dim eventindex As Integer, i As Integer
 
@@ -445,7 +445,7 @@ Friend Module [Event]
             Exit Sub
         End If
 
-        If globalevent = False Then
+        If globalevent = 0 Then
             If TempPlayer(playerindex).EventMap.CurrentEvents > 0 Then
                 For i = 0 To TempPlayer(playerindex).EventMap.CurrentEvents
                     If eventId = i Then
@@ -480,14 +480,14 @@ Friend Module [Event]
 
     End Sub
 
-    Sub EventMove(index As Integer, mapNum As Integer, eventId As Integer, dir As Integer, movementspeed As Integer, Optional globalevent As Boolean = False)
+    Sub EventMove(index As Integer, mapNum As Integer, eventId As Integer, dir As Integer, movementspeed As Integer, Optional globalevent As Boolean = 0)
         Dim buffer As New ByteStream(4)
         Dim eventindex As Integer, i As Integer
 
         ' Check for subscript out of range
        If MapNum <= 0 Or mapNum > MAX_MAPS Or dir <= DirectionType.None Or Dir > DirectionType.Left Then Exit Sub
 
-        If globalevent = False Then
+        If globalevent = 0 Then
             If TempPlayer(index).EventMap.CurrentEvents > 0 Then
                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
                     If TempPlayer(index).EventMap.EventPages(i).EventId > 0 Then
@@ -658,18 +658,18 @@ Friend Module [Event]
 
         If x1 = x2 Then
             If y1 = y2 - 1 Or y1 = y2 + 1 Then
-                IsOneBlockAway = True
+                IsOneBlockAway = 1
             Else
-                IsOneBlockAway = False
+                IsOneBlockAway = 0
             End If
         ElseIf y1 = y2 Then
             If x1 = x2 - 1 Or x1 = x2 + 1 Then
-                IsOneBlockAway = True
+                IsOneBlockAway = 1
             Else
-                IsOneBlockAway = False
+                IsOneBlockAway = 0
             End If
         Else
-            IsOneBlockAway = False
+            IsOneBlockAway = 0
         End If
 
     End Function
@@ -729,7 +729,7 @@ Friend Module [Event]
 
         If PathfindingType = 1 Then
             i = Int(Rnd() * 5)
-            didwalk = False
+            didwalk = 0
 
             ' Lets move the event
             Select Case i
@@ -739,7 +739,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Up
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -748,7 +748,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Down
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -757,7 +757,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Left
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -766,7 +766,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Right
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -776,7 +776,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Right
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -785,7 +785,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Left
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -794,7 +794,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Down
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -803,7 +803,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Up
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -813,7 +813,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Down
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -822,7 +822,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Up
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -831,7 +831,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Right
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -840,7 +840,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Left
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -850,7 +850,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Left
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -859,7 +859,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Right
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -868,7 +868,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Up
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
 
@@ -877,7 +877,7 @@ Friend Module [Event]
                         If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                             CanEventMoveTowardsPlayer = DirectionType.Down
                             Exit Function
-                            didwalk = True
+                            didwalk = 1
                         End If
                     End If
             End Select
@@ -904,12 +904,12 @@ Friend Module [Event]
             pos(fx, fy) = 2
 
             'reset reachable
-            reachable = False
+            reachable = 0
 
             'Do while reachable is false... if its set true in progress, we jump out
             'If the path is decided unreachable in process, we will use exit sub. Not proper,
             'but faster ;-)
-            Do While reachable = False
+            Do While reachable = 0
                 'we loop through all squares
                 For j = 0 To Type.Map(MapNum).MaxY
                     For i = 0 To Type.Map(MapNum).MaxX
@@ -926,8 +926,8 @@ Friend Module [Event]
                                     'It will exapand that square too! This is crucial part of the program
                                     pos(i + 1, j) = 100 + tim + 1
                                 ElseIf pos(i + 1, j) = 2 Then
-                                    'If the position is no 0 but its 2 (FINISH) then Reachable = true!!! We found end
-                                    reachable = True
+                                    'If the position is no 0 but its 2 (FINISH) then Reachable = 1!!! We found end
+                                    reachable = 1
                                 End If
                             End If
 
@@ -939,7 +939,7 @@ Friend Module [Event]
                                 If pos((i - 1), j) = 0 Then
                                     pos(i - 1, j) = 100 + tim + 1
                                 ElseIf pos(i - 1, j) = 2 Then
-                                    reachable = True
+                                    reachable = 1
                                 End If
                             End If
 
@@ -947,7 +947,7 @@ Friend Module [Event]
                                 If pos(i, j + 1) = 0 Then
                                     pos(i, j + 1) = 100 + tim + 1
                                 ElseIf pos(i, j + 1) = 2 Then
-                                    reachable = True
+                                    reachable = 1
                                 End If
                             End If
 
@@ -955,7 +955,7 @@ Friend Module [Event]
                                 If pos(i, j - 1) = 0 Then
                                     pos(i, j - 1) = 100 + tim + 1
                                 ElseIf pos(i, j - 1) = 2 Then
-                                    reachable = True
+                                    reachable = 1
                                 End If
                             End If
                         End If
@@ -963,7 +963,7 @@ Friend Module [Event]
                 Next j
 
                 'If the reachable is STILL false, then
-                If reachable = False Then
+                If reachable = 0 Then
                     'reset sum
                     sum = 0
                     For j = 0 To Type.Map(MapNum).MaxY
@@ -1004,7 +1004,7 @@ Friend Module [Event]
                 'that value. When we find it, we just color it yellow as for the solution
                 tim = tim - 1
                 'reset did to false
-                did = False
+                did = 0
 
                 'If we arent on edge
                 If lastX < Type.Map(MapNum).MaxX Then
@@ -1012,34 +1012,34 @@ Friend Module [Event]
                     If pos(lastX + 1, lastY) = 100 + tim Then
                         'if it, then make it yellow, and change did to true
                         lastX = lastX + 1
-                        did = True
+                        did = 1
                     End If
                 End If
 
                 'This will then only work if the previous part didnt execute, and did is still false. THen
                 'we want to check another square, the on left. Is it a tim-1 one ?
-                If did = False Then
+                If did = 0 Then
                     If lastX > 0 Then
                         If pos(lastX - 1, lastY) = 100 + tim Then
                             lastX = lastX - 1
-                            did = True
+                            did = 1
                         End If
                     End If
                 End If
 
                 'We check the one below it
-                If did = False Then
+                If did = 0 Then
                     If lastY < Type.Map(MapNum).MaxY Then
                         If pos(lastX, lastY + 1) = 100 + tim Then
                             lastY = lastY + 1
-                            did = True
+                            did = 1
                         End If
                     End If
                 End If
 
                 'And above it. One of these have to be it, since we have found the solution, we know that already
                 'there is a way back.
-                If did = False Then
+                If did = 0 Then
                     If lastY > 0 Then
                         If pos(lastX, lastY - 1) = 100 + tim Then
                             lastY = lastY - 1
@@ -1084,7 +1084,7 @@ Friend Module [Event]
         walkThrough = Type.Map(MapNum).Event(TempPlayer(playerId).EventMap.EventPages(eventId).EventId).Pages(TempPlayer(playerId).EventMap.EventPages(eventId).PageId).WalkThrough
 
         i = Int(Rnd() * 5)
-        didwalk = False
+        didwalk = 0
 
         ' Lets move the event
         Select Case i
@@ -1094,7 +1094,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Down
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1103,7 +1103,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Up
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1112,7 +1112,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Right
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1121,7 +1121,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Left
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1131,7 +1131,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Left
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1140,7 +1140,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Right
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1149,7 +1149,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Up
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1158,7 +1158,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Down
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1168,7 +1168,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Up
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1177,7 +1177,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Down
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1186,7 +1186,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Left
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1195,7 +1195,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Right
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1205,7 +1205,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Right, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Right
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1214,7 +1214,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Left, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Left
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1223,7 +1223,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Down, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Down
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1232,7 +1232,7 @@ Friend Module [Event]
                     If CanEventMove(playerId, mapNum, x1, y1, eventId, walkThrough, DirectionType.Up, False) Then
                         CanEventMoveAwayFromPlayer = DirectionType.Up
                         Exit Function
-                        didwalk = True
+                        didwalk = 1
                     End If
                 End If
 
@@ -1453,7 +1453,7 @@ Friend Module [Event]
 
     End Sub
 
-    Sub SendSwitchesAndVariables(index As Integer, Optional everyone As Boolean = False)
+    Sub SendSwitchesAndVariables(index As Integer, Optional everyone As Boolean = 0)
         Dim buffer As New ByteStream(4), i As Integer
 
         buffer.WriteInt32(ServerPackets.SSwitchesAndVariables)

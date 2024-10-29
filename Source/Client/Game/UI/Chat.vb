@@ -22,7 +22,7 @@ Public Structure ChatData
 
         If Not Active Then
             If keys.Contains(Microsoft.Xna.Framework.Input.Keys.Enter) Then
-                Active = True
+                Active = 1
                 Return True
             End If
 
@@ -39,7 +39,7 @@ Public Structure ChatData
                         History.RemoveRange(0, History.Count - HistoryLimit)
                     End If
                     Cursor.Y = History.Count
-                    Active = False
+                    Active = 0
                     Return True
 
                 Case Microsoft.Xna.Framework.Input.Keys.Back
@@ -94,5 +94,5 @@ Public Structure ChatData
 End Structure
 
 Module ChatModule
-    Friend ChatInput As ChatData = New ChatData With {.Active = False, .HistoryLimit = 10, .MessageLimit = 100, .History = New List(Of String)(.HistoryLimit + 1), .CurrentMessage = "", .Cursor = New ChatCursor() With {.X = 0, .Y = 0}}
+    Friend ChatInput As ChatData = New ChatData With {.Active = 0, .HistoryLimit = 10, .MessageLimit = 100, .History = New List(Of String)(.HistoryLimit + 1), .CurrentMessage = "", .Cursor = New ChatCursor() With {.X = 0, .Y = 0}}
 End Module

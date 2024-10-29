@@ -17,7 +17,7 @@ Module Item
 
         Type.Item(index).Name = ""
         Type.Item(index).Description = ""
-        GameState.Item_Loaded(index) = False
+        GameState.Item_Loaded(index) = 0
     End Sub
 
     Sub ClearItems()
@@ -32,8 +32,8 @@ Module Item
     End Sub
     
     Sub StreamItem(itemNum As Integer)
-        If itemNum > 0 and Type.Item(itemNum).Name = "" Or GameState.Item_Loaded(itemNum) = False Then
-            GameState.Item_Loaded(itemNum) = True
+        If itemNum > 0 and Type.Item(itemNum).Name = "" Or GameState.Item_Loaded(itemNum) = 0 Then
+            GameState.Item_Loaded(itemNum) = 1
             SendRequestItem(itemNum)
         End If
     End Sub

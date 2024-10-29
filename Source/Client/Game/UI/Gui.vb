@@ -16,9 +16,9 @@ Public Class Gui
     Public Shared zOrder_Con As Long
 
     Public Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, ByRef design() As Long, ByRef image() As Long, ByRef texture() as String, ByRef callback() As Action,
-                            Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
-                            Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
-                            Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
+                            Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = 1, Optional canDrag As Boolean = 0, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
+                            Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = 0, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = 0, Optional icon As Long = 0,
+                            Optional onDraw As Action = Nothing, Optional isActive As Boolean = 1, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = 0, Optional length As Byte = NAME_LENGTH)
 
         Dim i As Long
 
@@ -73,7 +73,7 @@ Public Class Gui
             .yOffset = yOffset
             .zChange = zChange
             .zOrder = zOrder
-            .Enabled = True
+            .Enabled = 1
             .OnDraw = onDraw
             .Tooltip = tooltip
             .Group = group
@@ -90,7 +90,7 @@ Public Class Gui
         zOrder_Con = zOrder_Con + 1
     End Sub
 
-    Public Shared Sub UpdateZOrder(winNum As Long, Optional forced As Boolean = False)
+    Public Shared Sub UpdateZOrder(winNum As Long, Optional forced As Boolean = 0)
         Dim i As Long
         Dim oldZOrder As Long
 
@@ -145,10 +145,10 @@ Public Class Gui
     End Sub
 
     Public Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
-                            Optional visible As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
+                            Optional visible As Boolean = 1, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
                             Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
                             Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional onDraw As Action = Nothing,
-                            Optional canDrag As Boolean = True, Optional zChange As Byte = True, Optional isActive As Boolean = True, Optional clickThrough As Boolean = False)
+                            Optional canDrag As Boolean = 1, Optional zChange As Byte = 1, Optional isActive As Boolean = 1, Optional clickThrough As Boolean = 0)
 
         Dim i As Long
         Dim design(EntState.Count - 1) As Long
@@ -205,7 +205,7 @@ Public Class Gui
             .xOffset = xOffset
             .yOffset = yOffset
             .Icon = icon
-            .Enabled = True
+            .Enabled = 1
             .zChange = zChange
             .zOrder = zOrder
             .OnDraw = onDraw
@@ -220,8 +220,8 @@ Public Class Gui
     End Sub
 
     Public Sub UpdateTextbox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
-                             Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional isActive As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional image_norm As Long = 0,
-                             Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional censor As Boolean = False, Optional icon As Long = 0, Optional length As Byte = NAME_LENGTH,
+                             Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = 1, Optional alpha As Long = 255, Optional isActive As Boolean = 1, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional image_norm As Long = 0,
+                             Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional censor As Boolean = 0, Optional icon As Long = 0, Optional length As Byte = NAME_LENGTH,
                              Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef callback_enter As Action = Nothing)
 
         Dim design(EntState.Count - 1) As Long
@@ -251,7 +251,7 @@ Public Class Gui
     End Sub
 
     Public Sub UpdatePictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
-                                Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional alpha As Long = 255, Optional clickThrough As Boolean = True, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional texturePath As String = "",
+                                Optional visible As Boolean = 1, Optional canDrag As Boolean = 0, Optional alpha As Long = 255, Optional clickThrough As Boolean = 1, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional texturePath As String = "",
                                 Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing,
                                 Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef onDraw As Action = Nothing)
 
@@ -283,9 +283,9 @@ Public Class Gui
 
     Public Sub UpdateButton(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
                             Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional icon As Long = 0, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
-                            Optional visible As Boolean = True, Optional alpha As Long = 255, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
+                            Optional visible As Boolean = 1, Optional alpha As Long = 255, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
                             Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing,
-                            Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional tooltip As String = "", Optional censor As Boolean = False, Optional locked As Boolean = True)
+                            Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional tooltip As String = "", Optional censor As Boolean = 0, Optional locked As Boolean = 1)
 
         Dim design(EntState.Count - 1) As Long
         Dim image(EntState.Count - 1) As Long
@@ -313,8 +313,8 @@ Public Class Gui
     End Sub
 
     Public Sub UpdateLabel(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, text As String, font As FontType, color As Microsoft.Xna.Framework.Color,
-                           Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional censor As Boolean = False,
-                           Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional locked As Boolean = True)
+                           Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = 1, Optional alpha As Long = 255, Optional clickThrough As Boolean = 0, Optional censor As Boolean = 0,
+                           Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional locked As Boolean = 1)
 
         Dim design(EntState.Count - 1) As Long
         Dim image(EntState.Count - 1) As Long
@@ -333,8 +333,8 @@ Public Class Gui
     End Sub
 
     Public Sub UpdateCheckBox(winNum As Long, name As String, left As Long, top As Long, width As Long, Optional height As Long = 15, Optional value As Long = 0, Optional text As String = "", Optional font As FontType = FontType.Georgia,
-                              Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255,
-                              Optional theDesign As Long = 0, Optional group As Long = 0, Optional censor As Boolean = False,
+                              Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = 1, Optional alpha As Long = 255,
+                              Optional theDesign As Long = 0, Optional group As Long = 0, Optional censor As Boolean = 0,
                               Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing)
 
         Dim design(EntState.Count - 1) As Long
@@ -413,11 +413,11 @@ Public Class Gui
             Case ControlType.TextBox
                 Windows(curWindow).LastControl = Windows(curWindow).ActiveControl
                 Windows(curWindow).ActiveControl = curControl
-                SetActiveControl = True
+                SetActiveControl = 1
         End Select
     End Function
 
-    Public Function ActivateControl(Optional startIndex As Integer = 1, Optional skipLast As Boolean = True) As Integer
+    Public Function ActivateControl(Optional startIndex As Integer = 1, Optional skipLast As Boolean = 1) As Integer
         Dim currentActive As Integer = Windows(activeWindow).ActiveControl
         Dim lastControl As Integer = Windows(activeWindow).LastControl
 
@@ -456,9 +456,9 @@ Public Class Gui
         Next
     End Sub
 
-    Public Shared Sub ShowWindow(curWindow As Long, Optional forced As Boolean = False, Optional resetPosition As Boolean = True)
+    Public Shared Sub ShowWindow(curWindow As Long, Optional forced As Boolean = 0, Optional resetPosition As Boolean = 1)
         If curWindow = 0 Then Exit Sub
-        Windows(curWindow).Window.Visible = True
+        Windows(curWindow).Window.Visible = 1
 
         If forced Then
             UpdateZOrder(curWindow, forced)
@@ -472,7 +472,7 @@ Public Class Gui
             With Windows(curWindow).Window
                 .Left = .OrigLeft
                 .Top = .OrigTop
-                .Visible = True
+                .Visible = 1
             End With
         End If
     End Sub
@@ -480,7 +480,7 @@ Public Class Gui
     Public Shared Sub HideWindow(curWindow As Long)
         Dim i As Long
 
-        Windows(curWindow).Window.Visible = False
+        Windows(curWindow).Window.Visible = 0
 
         ' find next window to set as active
         For i = WindowCount To 1 Step -1
@@ -531,7 +531,7 @@ Public Class Gui
         UpdateCheckBox(WindowCount, "chkSaveUsername", 67, 114, 142, , Type.Setting.SaveUsername, "Save Username?", FontType.Arial, , , , DesignType.ChkNorm, , , , , New Action(AddressOf chkSaveUser_Click))
 
         ' Register Button
-        UpdateButton(WindowCount, "btnRegister", 12, Windows(WindowCount).Window.Height - 35, 252, 22, "Control Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
+        UpdateButton(WindowCount, "btnRegister", 12, Windows(WindowCount).Window.Height - 35, 252, 22, "Register Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
 
         ' Set the active control
         If Not Len(Windows(GetWindowIndex("winLogin")).Controls(GetControlIndex("winLogin", "txtUsername")).Text) > 0 Then
@@ -1173,9 +1173,9 @@ Public Class Gui
                     Dim actualHeight = textSize.Y
 
                     ' Calculate horizontal and vertical centers with padding
-                    Dim padding = actualWidth / 4.0
+                    Dim padding = actualWidth / 6.0
                     Dim horCentre = .Left + xO + .xOffset + ((.Width - actualWidth) / 2.0) + padding - 4
-                    padding = actualHeight / 4.0
+                    padding = actualHeight / 6.0
                     Dim verCentre = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0) + padding
 
                     ' Render the button's text
@@ -1623,12 +1623,12 @@ Public Class Gui
         ' make sure it exists
         If ItemNum > 0 Then
             If TradeYourOffer(ItemNum).Num = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Window.Visible = 0
                 Exit Sub
             End If
 
             If GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Window.Visible = 0
                 Exit Sub
             End If
 
@@ -1644,7 +1644,7 @@ Public Class Gui
             ' go go go
             ShowItemDesc(X, Y, GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num))
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -1659,7 +1659,7 @@ Public Class Gui
         ' make sure it exists
         If ItemNum > 0 Then
             If TradeTheirOffer(ItemNum).Num = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Window.Visible = 0
                 Exit Sub
             End If
 
@@ -1676,7 +1676,7 @@ Public Class Gui
             ' go go go
             ShowItemDesc(X, Y, TradeTheirOffer(ItemNum).Num)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -1707,8 +1707,8 @@ Public Class Gui
             Windows(GetWindowIndex("winComboMenu")).Window.Group = 0
 
             ' load the menu
-            Windows(GetWindowIndex("winComboMenu")).Window.Visible = True
-            Windows(GetWindowIndex("winComboMenuBG")).Window.Visible = True
+            Windows(GetWindowIndex("winComboMenu")).Window.Visible = 1
+            Windows(GetWindowIndex("winComboMenuBG")).Window.Visible = 1
             ShowWindow(GetWindowIndex("winComboMenuBG"), True, False)
             ShowWindow(GetWindowIndex("winComboMenu"), True, False)
         End With
@@ -2178,19 +2178,19 @@ Public Class Gui
     End Sub
 
     Public Sub btnChat_Up()
-        GameState.ChatButtonUp = True
+        GameState.ChatButtonUp = 1
     End Sub
 
     Public Sub btnChat_Down()
-        GameState.ChatButtonDown = True
+        GameState.ChatButtonDown = 1
     End Sub
 
     Public Sub btnChat_Up_MouseUp()
-        GameState.ChatButtonUp = False
+        GameState.ChatButtonUp = 0
     End Sub
 
     Public Sub btnChat_Down_MouseUp()
-        GameState.ChatButtonDown = False
+        GameState.ChatButtonDown = 0
     End Sub
 
     ' ###################
@@ -2428,7 +2428,7 @@ Public Class Gui
             ' go go go
             ShowInvDesc(x, y, itemNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -2465,7 +2465,7 @@ Public Class Gui
 
             ShowItemDesc(X, Y, GetBank(GameState.MyIndex, ItemNum))
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -2804,7 +2804,7 @@ Public Class Gui
             ' go go go
             ShowSkillDesc(x, y, GetPlayerSkill(GameState.MyIndex, slotNum), slotNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -2888,7 +2888,7 @@ Public Class Gui
                     ShowSkillDesc(x, y, Type.Player(GameState.MyIndex).Hotbar(slotNum).Slot, 0)
             End Select
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -3233,7 +3233,7 @@ Public Class Gui
             ' go go go
             ShowEqDesc(x, y, itemNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -3318,11 +3318,11 @@ Public Class Gui
                                 ' check if currency
                                 If Not Type.Item(tmpItem).Type = ItemType.Currency Then
                                     ' normal item, exit out
-                                    skipItem = True
+                                    skipItem = 1
                                 Else
                                     ' if amount = all currency, remove from inventory
                                     If TradeYourOffer(x).Value = GetPlayerInvValue(GameState.MyIndex, i) Then
-                                        skipItem = True
+                                        skipItem = 1
                                     Else
                                         ' not all, change modifier to show change in currency count
                                         amountModifier = TradeYourOffer(x).Value
@@ -3361,7 +3361,7 @@ Public Class Gui
                     End If
 
                     ' reset
-                    skipItem = False
+                    skipItem = 0
                 End If
             End If
         Next
@@ -3564,12 +3564,12 @@ Public Class Gui
 
         ' show buy button, hide sell
         With Windows(GetWindowIndex("winShop"))
-            .Controls(GetControlIndex("winShop", "btnSell")).Visible = False
-            .Controls(GetControlIndex("winShop", "btnBuy")).Visible = True
+            .Controls(GetControlIndex("winShop", "btnSell")).Visible = 0
+            .Controls(GetControlIndex("winShop", "btnBuy")).Visible = 1
         End With
 
         ' update the shop
-        GameState.shopIsSelling = False
+        GameState.shopIsSelling = 0
         GameState.shopSelectedSlot = 1
         UpdateShop()
     End Sub
@@ -3587,12 +3587,12 @@ Public Class Gui
 
         ' show sell button, hide buy
         With Windows(GetWindowIndex("winShop"))
-            .Controls(GetControlIndex("winShop", "btnBuy")).Visible = False
-            .Controls(GetControlIndex("winShop", "btnSell")).Visible = True
+            .Controls(GetControlIndex("winShop", "btnBuy")).Visible = 0
+            .Controls(GetControlIndex("winShop", "btnSell")).Visible = 1
         End With
 
         ' update the shop
-        GameState.shopIsSelling = True
+        GameState.shopIsSelling = 1
         GameState.shopSelectedSlot = 1
         UpdateShop()
     End Sub
@@ -3651,7 +3651,7 @@ Public Class Gui
                 ShowShopDesc(X, Y, ItemNum)
             End If
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Window.Visible = 0
         End If
     End Sub
 
@@ -3760,7 +3760,7 @@ Public Class Gui
             Else
                 AddText("Music tured on.", ColorType.BrightGreen)
                 ' play music
-                If GameState.InGame Then musicFile = MyMap.Music Else musicFile = Type.Setting.Music
+                If GameState.InGame = 1 Then musicFile = MyMap.Music Else musicFile = Type.Setting.Music
                 If Not musicFile = "None." Then
                     PlayMusic(musicFile)
                 Else
@@ -3787,12 +3787,12 @@ Public Class Gui
             Type.Setting.Autotile = Value
             ' let them know
             If Value = 0 Then
-                If GameState.InGame Then
+                If GameState.InGame = 1 Then
                     AddText("Autotiles turned off.", ColorType.BrightGreen)
                     InitAutotiles()
                 End If
             Else
-                If GameState.InGame Then
+                If GameState.InGame = 1 Then
                     AddText("Autotiles turned on.", ColorType.BrightGreen)
                     InitAutotiles()
                 End If
@@ -3803,13 +3803,13 @@ Public Class Gui
         Value = Windows(GetWindowIndex("winOptions")).Controls(GetControlIndex("winOptions", "chkFullscreen")).Value
         If Type.Setting.Fullscreen <> Value Then
             Type.Setting.Fullscreen = Value
-            message = True
+            message = 1
         End If
 
         ' resolution
         With Windows(GetWindowIndex("winOptions")).Controls(GetControlIndex("winOptions", "cmbRes"))
             If .Value > 0 And .Value <= 13 Then
-                message = True
+                message = 1
             End If
         End With
 
@@ -3817,7 +3817,7 @@ Public Class Gui
         Type.Setting.Save()
 
         ' let them know
-        If GameState.InGame Then
+        If GameState.InGame = 1 Then
             If message Then AddText("Some changes will take effect next time you load the game.", ColorType.BrightGreen)
         End If
 
@@ -3966,12 +3966,12 @@ Public Class Gui
             ' clear controls first
             For i = 1 To 3
                 .Controls(GetControlIndex("winParty", "lblName" & i)).Text = ""
-                .Controls(GetControlIndex("winParty", "picEmptyBar_HP" & i)).Visible = False
-                .Controls(GetControlIndex("winParty", "picEmptyBar_SP" & i)).Visible = False
-                .Controls(GetControlIndex("winParty", "picBar_HP" & i)).Visible = False
-                .Controls(GetControlIndex("winParty", "picBar_SP" & i)).Visible = False
-                .Controls(GetControlIndex("winParty", "picShadow" & i)).Visible = False
-                .Controls(GetControlIndex("winParty", "picChar" & i)).Visible = False
+                .Controls(GetControlIndex("winParty", "picEmptyBar_HP" & i)).Visible = 0
+                .Controls(GetControlIndex("winParty", "picEmptyBar_SP" & i)).Visible = 0
+                .Controls(GetControlIndex("winParty", "picBar_HP" & i)).Visible = 0
+                .Controls(GetControlIndex("winParty", "picBar_SP" & i)).Visible = 0
+                .Controls(GetControlIndex("winParty", "picShadow" & i)).Visible = 0
+                .Controls(GetControlIndex("winParty", "picChar" & i)).Visible = 0
                 .Controls(GetControlIndex("winParty", "picChar" & i)).Value = 0
             Next
 
@@ -3985,11 +3985,11 @@ Public Class Gui
                     If pIndex <> GameState.MyIndex Then
                         If IsPlaying(pIndex) Then
                             ' name and level
-                            .Controls(GetControlIndex("winParty", "lblName" & cIn)).Visible = True
+                            .Controls(GetControlIndex("winParty", "lblName" & cIn)).Visible = 1
                             .Controls(GetControlIndex("winParty", "lblName" & cIn)).Text = GetPlayerName(pIndex)
                             ' picture
-                            .Controls(GetControlIndex("winParty", "picShadow" & cIn)).Visible = True
-                            .Controls(GetControlIndex("winParty", "picChar" & cIn)).Visible = True
+                            .Controls(GetControlIndex("winParty", "picShadow" & cIn)).Visible = 1
+                            .Controls(GetControlIndex("winParty", "picChar" & cIn)).Visible = 1
                             ' store the player's index as a value for later use
                             .Controls(GetControlIndex("winParty", "picChar" & cIn)).Value = pIndex
                             For x = 0 To 5
@@ -3997,10 +3997,10 @@ Public Class Gui
                                 .Controls(GetControlIndex("winParty", "picChar" & cIn)).Texture(x) = Path.Characters
                             Next
                             ' bars
-                            .Controls(GetControlIndex("winParty", "picEmptyBar_HP" & cIn)).Visible = True
-                            .Controls(GetControlIndex("winParty", "picEmptyBar_SP" & cIn)).Visible = True
-                            .Controls(GetControlIndex("winParty", "picBar_HP" & cIn)).Visible = True
-                            .Controls(GetControlIndex("winParty", "picBar_SP" & cIn)).Visible = True
+                            .Controls(GetControlIndex("winParty", "picEmptyBar_HP" & cIn)).Visible = 1
+                            .Controls(GetControlIndex("winParty", "picEmptyBar_SP" & cIn)).Visible = 1
+                            .Controls(GetControlIndex("winParty", "picBar_HP" & cIn)).Visible = 1
+                            .Controls(GetControlIndex("winParty", "picBar_SP" & cIn)).Visible = 1
                             ' increment control usage
                             cIn = cIn + 1
                         End If

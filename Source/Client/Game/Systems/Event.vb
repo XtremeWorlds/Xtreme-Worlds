@@ -315,13 +315,13 @@ Module Events
         EventChatFace = buffer.ReadInt32
         EventText = buffer.ReadString
         If EventText = "" Then EventText = " "
-        EventChat = True
-        ShowEventLbl = True
+        EventChat = 1
+        ShowEventLbl = 1
         choices = buffer.ReadInt32
-        InEvent = True
+        InEvent = 1
         For i = 1 To 4
             EventChoices(i) = ""
-            EventChoiceVisible(i) = False
+            EventChoiceVisible(i) = 0
         Next
         EventChatType = 0
         If choices = 0 Then
@@ -329,7 +329,7 @@ Module Events
             EventChatType = 1
             For i = 0 To choices
                 EventChoices(i) = buffer.ReadString
-                EventChoiceVisible(i) = True
+                EventChoiceVisible(i) = 1
             Next
         End If
         AnotherChat = buffer.ReadInt32
@@ -339,11 +339,11 @@ Module Events
     End Sub
 
     Sub Packet_EventStart(ByRef data() As Byte)
-        InEvent = True
+        InEvent = 1
     End Sub
 
     Sub Packet_EventEnd(ByRef data() As Byte)
-        InEvent = False
+        InEvent = 0
     End Sub
 
     Sub Packet_Picture(ByRef data() As Byte)
@@ -385,9 +385,9 @@ Module Events
     Sub Packet_HoldPlayer(ByRef data() As Byte)
         Dim buffer As New ByteStream(data)
         If buffer.ReadInt32 = 0 Then
-            HoldPlayer = True
+            HoldPlayer = 1
         Else
-            HoldPlayer = False
+            HoldPlayer = 0
         End If
 
         buffer.Dispose()
@@ -406,7 +406,7 @@ Module Events
 
     Sub Packet_FadeOutBGM(ByRef data() As Byte)
         CurrentMusic = ""
-        FadeOutSwitch = True
+        FadeOutSwitch = 1
     End Sub
 
     Sub Packet_PlaySound(ByRef data() As Byte)
@@ -434,11 +434,11 @@ Module Events
 
         Select Case effectType
             Case GameState.EffectTypeFadein
-                GameState.UseFade = True
+                GameState.UseFade = 1
                 GameState.FadeType = 1
                 GameState.FadeAmount = 0
             Case GameState.EffectTypeFadeout
-                GameState.UseFade = True
+                GameState.UseFade = 1
                 GameState.FadeType = 0
                 GameState.FadeAmount = 255
             Case GameState.EffectTypeFlash
@@ -589,20 +589,20 @@ Module Events
 
         If AnotherChat = 1 Then
             For i = 1 To 4
-                EventChoiceVisible(i) = False
+                EventChoiceVisible(i) = 0
             Next
             EventText = ""
             EventChatType = 1
             EventChatTimer = GetTickCount() + 100
         ElseIf AnotherChat = 2 Then
             For i = 1 To 4
-                EventChoiceVisible(i) = False
+                EventChoiceVisible(i) = 0
             Next
             EventText = ""
             EventChatType = 1
             EventChatTimer = GetTickCount() + 100
         Else
-            EventChat = False
+            EventChat = 0
         End If
     End Sub
 

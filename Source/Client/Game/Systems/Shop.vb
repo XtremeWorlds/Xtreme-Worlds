@@ -12,7 +12,7 @@ Module Shop
         For x = 1 To MAX_TRADES
             ReDim Type.Shop(index).TradeItem(x)
         Next
-        GameState.Shop_Loaded(index) = False
+        GameState.Shop_Loaded(index) = 0
     End Sub
 
     Sub ClearShops()
@@ -27,8 +27,8 @@ Module Shop
     End Sub
 
     Sub StreamShop(shopNum As Integer)
-        If shopNum > 0 And Type.Shop(shopNum).Name = "" Or GameState.Shop_Loaded(shopNum) = False Then
-            GameState.Shop_Loaded(shopNum) = True
+        If shopNum > 0 And Type.Shop(shopNum).Name = "" Or GameState.Shop_Loaded(shopNum) = 0 Then
+            GameState.Shop_Loaded(shopNum) = 1
             SendRequestShop(shopNum)
         End If
     End Sub

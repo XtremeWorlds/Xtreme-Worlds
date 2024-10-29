@@ -197,7 +197,7 @@ Module NetworkReceive
                     Exit Sub
                 End If
 
-                If LoadAccount(index, username) = False Then
+                If LoadAccount(index, username) = 0 Then
                     AlertMsg(index, DialogueMsg.Login, MenuType.Login)
                     Exit Sub
                 End If
@@ -560,7 +560,7 @@ Module NetworkReceive
         Dim dir As Integer
         Dim buffer As New ByteStream(data)
 
-        If TempPlayer(index).GettingMap = True Then Exit Sub
+        If TempPlayer(index).GettingMap = 1 Then Exit Sub
 
         dir = buffer.ReadInt32
         buffer.Dispose()
@@ -1108,7 +1108,7 @@ Module NetworkReceive
 
         SpawnMapEventsFor(index, GetPlayerMap(index))
         SendJoinMap(index)
-        TempPlayer(index).GettingMap = False
+        TempPlayer(index).GettingMap = 0
     End Sub
 
     Sub Packet_RespawnMap(index As Integer, ByRef data() As Byte)
@@ -1852,7 +1852,7 @@ Module NetworkReceive
     End Sub
 
     Sub Packet_CloseBank(index As Integer, ByRef data() As Byte)
-        TempPlayer(index).InBank = False
+        TempPlayer(index).InBank = 0
     End Sub
 
     Sub Packet_AdminWarp(index As Integer, ByRef data() As Byte)
@@ -1966,7 +1966,7 @@ Module NetworkReceive
         Dim tmpTradeItem(MAX_INV) As PlayerInvStruct
         Dim tmpTradeItem2(MAX_INV) As PlayerInvStruct
 
-        TempPlayer(index).AcceptTrade = True
+        TempPlayer(index).AcceptTrade = 1
 
         tradeTarget = TempPlayer(index).InTrade
 
@@ -2094,8 +2094,8 @@ Module NetworkReceive
                     End If
 
                     ' cancel any trade agreement
-                    TempPlayer(index).AcceptTrade = False
-                    TempPlayer(TempPlayer(index).InTrade).AcceptTrade = False
+                    TempPlayer(index).AcceptTrade = 0
+                    TempPlayer(TempPlayer(index).InTrade).AcceptTrade = 0
 
                     SendTradeStatus(index, 0)
                     SendTradeStatus(TempPlayer(index).InTrade, 0)
@@ -2126,8 +2126,8 @@ Module NetworkReceive
         TempPlayer(index).TradeOffer(emptyslot).Value = amount
 
         ' cancel any trade agreement and send new data
-        TempPlayer(index).AcceptTrade = False
-        TempPlayer(TempPlayer(index).InTrade).AcceptTrade = False
+        TempPlayer(index).AcceptTrade = 0
+        TempPlayer(TempPlayer(index).InTrade).AcceptTrade = 0
 
         SendTradeStatus(index, 0)
         SendTradeStatus(TempPlayer(index).InTrade, 0)
@@ -2150,8 +2150,8 @@ Module NetworkReceive
         TempPlayer(index).TradeOffer(tradeslot).Num = 0
         TempPlayer(index).TradeOffer(tradeslot).Value = 0
 
-        If TempPlayer(index).AcceptTrade Then TempPlayer(index).AcceptTrade = False
-        If TempPlayer(TempPlayer(index).InTrade).AcceptTrade Then TempPlayer(TempPlayer(index).InTrade).AcceptTrade = False
+        If TempPlayer(index).AcceptTrade Then TempPlayer(index).AcceptTrade = 0
+        If TempPlayer(TempPlayer(index).InTrade).AcceptTrade Then TempPlayer(TempPlayer(index).InTrade).AcceptTrade = 0
 
         SendTradeStatus(index, 0)
         SendTradeStatus(TempPlayer(index).InTrade, 0)

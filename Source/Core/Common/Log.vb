@@ -18,7 +18,7 @@ Public Module Log
     Public Function Addlog(strData As String, FN As String) As Boolean
         Dim fullpath As String
         Dim contents As String
-        Dim bAns = False
+        Dim bAns = 0
         Dim objReader As StreamWriter
 
         ' Check if the directory exists
@@ -35,7 +35,7 @@ Public Module Log
             objReader = New StreamWriter(fullpath)
             objReader.Write(contents)
             objReader.Close()
-            bAns = True
+            bAns = 1
         Catch
         End Try
         Return bAns
@@ -44,7 +44,7 @@ Public Module Log
     Public Function AddTextToFile(strData As String, fn As String) As Boolean
         Dim fullpath As String
         Dim contents As String
-        Dim bAns = False
+        Dim bAns = 0
         Dim objReader As StreamWriter
 
         fullpath = System.IO.Path.Combine(Core.Path.Database, fn)
@@ -55,7 +55,7 @@ Public Module Log
             objReader = New StreamWriter(fullpath)
             objReader.Write(contents)
             objReader.Close()
-            bAns = True
+            bAns = 1
         Catch
         End Try
         Return bAns

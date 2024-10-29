@@ -8,7 +8,7 @@ Friend Module S_EventLogic
         Dim i As Integer, mapNum As Integer, x As Integer, id As Integer, page As Integer, compare As Integer
 
         For i = 1 To Socket.HighIndex()
-            If TempPlayer(i).EventMap.CurrentEvents > 0 And TempPlayer(i).GettingMap = False Then
+            If TempPlayer(i).EventMap.CurrentEvents > 0 And TempPlayer(i).GettingMap = 0 Then
                 mapNum = GetPlayerMap(i)
                 For x = 0 To TempPlayer(i).EventMap.CurrentEvents
                     id = TempPlayer(i).EventMap.EventPages(x).EventId
@@ -137,11 +137,11 @@ Friend Module S_EventLogic
 
                         If x < id Then Continue For
                         For z = Type.Map(MapNum).Event(id).PageCount To 1 Step -1
-                            spawnevent = True
+                            spawnevent = 1
 
                             If Type.Map(MapNum).Event(id).Pages(z).ChkHasItem = 1 Then
                                 If HasItem(i, Type.Map(MapNum).Event(id).Pages(z).HasItemIndex) = 0 Then
-                                    spawnevent = False
+                                    spawnevent = 0
                                 End If
                             End If
 
@@ -153,11 +153,11 @@ Friend Module S_EventLogic
                                 End If
                                 If Type.Map(MapNum).Event(id).Globals = 1 Then
                                     If Type.Map(MapNum).Event(id).SelfSwitches(Type.Map(MapNum).Event(id).Pages(z).SelfSwitchIndex) <> compare Then
-                                        spawnevent = False
+                                        spawnevent = 0
                                     End If
                                 Else
                                     If TempPlayer(i).EventMap.EventPages(id).SelfSwitches(Type.Map(MapNum).Event(id).Pages(z).SelfSwitchIndex) <> compare Then
-                                        spawnevent = False
+                                        spawnevent = 0
                                     End If
                                 End If
                             End If
@@ -166,27 +166,27 @@ Friend Module S_EventLogic
                                 Select Case Type.Map(MapNum).Event(id).Pages(z).VariableCompare
                                     Case 0
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) <> Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                     Case 1
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) < Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                     Case 2
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) > Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                     Case 3
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) <= Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                     Case 4
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) >= Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                     Case 5
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(z).VariableIndex) = Type.Map(MapNum).Event(id).Pages(z).VariableCondition Then
-                                            spawnevent = False
+                                            spawnevent = 0
                                         End If
                                 End Select
                             End If
@@ -194,24 +194,24 @@ Friend Module S_EventLogic
                             If Type.Map(MapNum).Event(id).Pages(z).ChkSwitch = 1 Then
                                 If Type.Map(MapNum).Event(id).Pages(z).SwitchCompare = 0 Then 'we want false
                                     If Type.Player(i).Switches(Type.Map(MapNum).Event(id).Pages(z).SwitchIndex) = 1 Then 'and switch is true
-                                        spawnevent = False 'do not spawn
+                                        spawnevent = 0 'do not spawn
                                     End If
                                 Else
                                     If Type.Player(i).Switches(Type.Map(MapNum).Event(id).Pages(z).SwitchIndex) = 0 Then ' else we want true and the switch is false
-                                        spawnevent = False
+                                        spawnevent = 0
                                     End If
                                 End If
                             End If
 
-                            If spawnevent = True Then
+                            If spawnevent = 1 Then
                                 If TempPlayer(i).EventMap.EventPages(x).Visible = 1 Then
                                     If z <= pageID Then
-                                        spawnevent = False
+                                        spawnevent = 0
                                     End If
                                 End If
                             End If
 
-                            If spawnevent = True Then
+                            If spawnevent = 1 Then
 
                                 If TempPlayer(i).EventProcessingCount > 0 Then
                                     For n = 0 To UBound(TempPlayer(i).EventProcessing)
@@ -373,7 +373,7 @@ Friend Module S_EventLogic
                                         End If
                                     Case 2 'Move Route
                                         With TempEventMap(i).Event(x)
-                                            isglobal = True
+                                            isglobal = 1
                                             mapNum = i
                                             playerID = 0
                                             eventID = x
@@ -383,12 +383,12 @@ Friend Module S_EventLogic
                                                     .MoveRouteStep = 0
                                                     .MoveRouteComplete = 1
                                                 ElseIf .MoveRouteStep >= .MoveRouteCount And .RepeatMoveRoute = 0 Then
-                                                    donotprocessmoveroute = True
+                                                    donotprocessmoveroute = 1
                                                     .MoveRouteComplete = 1
                                                 Else
                                                     .MoveRouteComplete = 0
                                                 End If
-                                                If donotprocessmoveroute = False Then
+                                                If donotprocessmoveroute = 0 Then
                                                     .MoveRouteStep = .MoveRouteStep + 1
                                                     Select Case .MoveSpeed
                                                         Case 0
@@ -447,8 +447,8 @@ Friend Module S_EventLogic
                                                                 End If
                                                             End If
                                                         Case 6
-                                                            If isglobal = False Then
-                                                                If IsOneBlockAway(.X, .Y, GetPlayerX(playerID), GetPlayerY(playerID)) = True Then
+                                                            If isglobal = 0 Then
+                                                                If IsOneBlockAway(.X, .Y, GetPlayerX(playerID), GetPlayerY(playerID)) = 1 Then
                                                                     EventDir(playerID, GetPlayerMap(playerID), eventID, GetDirToPlayer(playerID, GetPlayerMap(playerID), eventID), False)
                                                                     If .IgnoreIfCannotMove = 0 Then
                                                                         .MoveRouteStep = .MoveRouteStep - 1
@@ -473,7 +473,7 @@ Friend Module S_EventLogic
                                                                 End If
                                                             End If
                                                         Case 7
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = CanEventMoveAwayFromPlayer(playerID, mapNum, eventID)
                                                                 If z >= 5 Then
                                                                     'No
@@ -568,12 +568,12 @@ Friend Module S_EventLogic
                                                             z = Random.NextDouble(0,3)
                                                             EventDir(playerID, mapNum, eventID, z, isglobal)
                                                         Case 21
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = GetDirToPlayer(playerID, mapNum, eventID)
                                                                 EventDir(playerID, mapNum, eventID, z, isglobal)
                                                             End If
                                                         Case 22
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = GetDirAwayFromPlayer(playerID, mapNum, eventID)
                                                                 EventDir(playerID, mapNum, eventID, z, isglobal)
                                                             End If
@@ -602,19 +602,19 @@ Friend Module S_EventLogic
                                                         Case 34
                                                             .WalkingAnim = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 35
                                                             .WalkingAnim = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 36
                                                             .FixedDir = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 37
                                                             .FixedDir = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 38
                                                             .WalkThrough = 1
                                                         Case 39
@@ -622,15 +622,15 @@ Friend Module S_EventLogic
                                                         Case 40
                                                             .Position = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 41
                                                             .Position = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 42
                                                             .Position = 2
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 43
                                                             .GraphicType = .MoveRoute(.MoveRouteStep).Data1
                                                             .Graphic = .MoveRoute(.MoveRouteStep).Data2
@@ -651,7 +651,7 @@ Friend Module S_EventLogic
                                                                 End Select
                                                             End If
                                                             'Need to Send Update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                     End Select
 
                                                     If sendupdate Then
@@ -682,7 +682,7 @@ Friend Module S_EventLogic
                                                         Buffer.Dispose()
                                                     End If
                                                 End If
-                                                donotprocessmoveroute = False
+                                                donotprocessmoveroute = 0
                                             End If
                                         End With
                                 End Select
@@ -748,8 +748,8 @@ Friend Module S_EventLogic
                                         End If
                                     Case 2 'Move Route
                                         With TempPlayer(i).EventMap.EventPages(x)
-                                            isglobal = False
-                                            sendupdate = False
+                                            isglobal = 0
+                                            sendupdate = 0
                                             mapNum = GetPlayerMap(i)
                                             playerID = i
                                             eventID = x
@@ -759,12 +759,12 @@ Friend Module S_EventLogic
                                                     .MoveRouteStep = 0
                                                     .MoveRouteComplete = 1
                                                 ElseIf .MoveRouteStep >= .MoveRouteCount And .RepeatMoveRoute = 0 Then
-                                                    donotprocessmoveroute = True
+                                                    donotprocessmoveroute = 1
                                                     .MoveRouteComplete = 1
                                                 Else
                                                     .MoveRouteComplete = 0
                                                 End If
-                                                If donotprocessmoveroute = False Then
+                                                If donotprocessmoveroute = 0 Then
 
                                                     Select Case TempPlayer(i).EventMap.EventPages(x).MoveSpeed
                                                         Case 0
@@ -824,8 +824,8 @@ Friend Module S_EventLogic
                                                                 End If
                                                             End If
                                                         Case 6
-                                                            If isglobal = False Then
-                                                                If IsOneBlockAway(.X, .Y, GetPlayerX(playerID), GetPlayerY(playerID)) = True Then
+                                                            If isglobal = 0 Then
+                                                                If IsOneBlockAway(.X, .Y, GetPlayerX(playerID), GetPlayerY(playerID)) = 1 Then
                                                                     EventDir(playerID, GetPlayerMap(playerID), eventID, GetDirToPlayer(playerID, GetPlayerMap(playerID), eventID), False)
                                                                     'Lets do cool stuff!
                                                                    If Type.Map(GetPlayerMap(playerID)).Event(eventID).Pages(TempPlayer(playerID).EventMap.EventPages(eventID).PageId).Trigger = 1 Then
@@ -863,7 +863,7 @@ Friend Module S_EventLogic
                                                                 End If
                                                             End If
                                                         Case 7
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = CanEventMoveAwayFromPlayer(playerID, mapNum, eventID)
                                                                 If z >= 5 Then
                                                                     'No
@@ -958,12 +958,12 @@ Friend Module S_EventLogic
                                                             z = Random.NextDouble(0,3)
                                                             EventDir(playerID, mapNum, eventID, z, isglobal)
                                                         Case 21
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = GetDirToPlayer(playerID, mapNum, eventID)
                                                                 EventDir(playerID, mapNum, eventID, z, isglobal)
                                                             End If
                                                         Case 22
-                                                            If isglobal = False Then
+                                                            If isglobal = 0 Then
                                                                 z = GetDirAwayFromPlayer(playerID, mapNum, eventID)
                                                                 EventDir(playerID, mapNum, eventID, z, isglobal)
                                                             End If
@@ -992,19 +992,19 @@ Friend Module S_EventLogic
                                                         Case 34
                                                             .WalkingAnim = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 35
                                                             .WalkingAnim = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 36
                                                             .FixedDir = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 37
                                                             .FixedDir = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 38
                                                             .WalkThrough = 1
                                                         Case 39
@@ -1012,15 +1012,15 @@ Friend Module S_EventLogic
                                                         Case 40
                                                             .Position = 0
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 41
                                                             .Position = 1
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 42
                                                             .Position = 2
                                                             'Need to send update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                         Case 43
                                                             .GraphicType = .MoveRoute(.MoveRouteStep).Data1
                                                             .Graphic = .MoveRoute(.MoveRouteStep).Data2
@@ -1041,7 +1041,7 @@ Friend Module S_EventLogic
                                                                 End Select
                                                             End If
                                                             'Need to Send Update to client
-                                                            sendupdate = True
+                                                            sendupdate = 1
                                                     End Select
 
                                                     If sendupdate And TempPlayer(playerID).EventMap.EventPages(eventID).EventId > 0 Then
@@ -1072,7 +1072,7 @@ Friend Module S_EventLogic
                                                         Buffer.Dispose()
                                                     End If
                                                 End If
-                                                donotprocessmoveroute = False
+                                                donotprocessmoveroute = 0
                                             End If
                                         End With
                                 End Select
@@ -1104,7 +1104,7 @@ Friend Module S_EventLogic
         'Now, we process the damn things for commands :P
         For i = 1 To Socket.HighIndex()
             If IsPlaying(i) Then
-                If TempPlayer(i).GettingMap = False Then
+                If TempPlayer(i).GettingMap = 0 Then
                     If TempPlayer(i).EventMap.CurrentEvents > 0 Then
                         For x = 1 To TempPlayer(i).EventMap.CurrentEvents
                             If TempPlayer(i).EventProcessingCount > 0 Then
@@ -1140,22 +1140,22 @@ Friend Module S_EventLogic
         For i = 1 To Socket.HighIndex()
             If IsPlaying(i) Then
                 If TempPlayer(i).EventProcessingCount > 0 Then
-                    If TempPlayer(i).GettingMap = False Then
-                        restartloop = True
-                        Do While restartloop = True
-                            restartloop = False
+                    If TempPlayer(i).GettingMap = 0 Then
+                        restartloop = 1
+                        Do While restartloop = 1
+                            restartloop = 0
                             For x = 1 To TempPlayer(i).EventProcessingCount
                                 If TempPlayer(i).EventProcessing(x).Active = 1 Then
                                     With TempPlayer(i).EventProcessing(x)
                                         If TempPlayer(i).EventProcessingCount = 0 Then Exit Sub
-                                        removeEventProcess = False
+                                        removeEventProcess = 0
                                         If .WaitingForResponse = 2 Then
                                             If TempPlayer(i).InShop = 0 Then
                                                 .WaitingForResponse = 0
                                             End If
                                         End If
                                         If .WaitingForResponse = 3 Then
-                                            If TempPlayer(i).InBank = False Then
+                                            If TempPlayer(i).InBank = 0 Then
                                                 .WaitingForResponse = 0
                                             End If
                                         End If
@@ -1174,10 +1174,10 @@ Friend Module S_EventLogic
 
                                         If .WaitingForResponse = 0 Then
                                             If .ActionTimer <= GetTimeMs() Then
-                                                restartlist = True
-                                                endprocess = False
-                                                Do While restartlist = True And endprocess = False And .WaitingForResponse = 0
-                                                    restartlist = False
+                                                restartlist = 1
+                                                endprocess = 0
+                                                Do While restartlist = 1 And endprocess = 0 And .WaitingForResponse = 0
+                                                    restartlist = 0
                                                     If .ListLeftOff(.CurList) > 0 Then
                                                         .CurSlot = .ListLeftOff(.CurList) + 1
                                                         .ListLeftOff(.CurList) = 0
@@ -1185,23 +1185,23 @@ Friend Module S_EventLogic
 
                                                     If .CurList > Type.Map(Type.Player(i).Map).Event(.EventId).Pages(.PageId).CommandListCount Then
                                                         'Get rid of this event, it is bad
-                                                        removeEventProcess = True
-                                                        endprocess = True
+                                                        removeEventProcess = 1
+                                                        endprocess = 1
                                                     End If
 
                                                     If .CurSlot > Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).CommandCount Then
                                                         If .CurList = 1 Then
                                                             'Get rid of this event, it is bad
-                                                            removeEventProcess = True
-                                                            endprocess = True
+                                                            removeEventProcess = 1
+                                                            endprocess = 1
                                                         Else
                                                             .CurList = Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).ParentList
                                                             .CurSlot = 1
-                                                            restartlist = True
+                                                            restartlist = 1
                                                         End If
                                                     End If
 
-                                                    If restartlist = False And endprocess = False Then
+                                                    If restartlist = 0 And endprocess = 0 Then
                                                         'If we are still here, then we are good to process shit :D
                                                         Select Case Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Index
                                                             Case EventType.AddText
@@ -1423,7 +1423,7 @@ Friend Module S_EventLogic
                                                                             .CurSlot = 1
                                                                         End If
                                                                     Case 4
-                                                                        If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).ConditionalBranch.Data1) = True Then
+                                                                        If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).ConditionalBranch.Data1) = 1 Then
                                                                             .ListLeftOff(.CurList) = .CurSlot
                                                                             .CurList = Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).ConditionalBranch.CommandList
                                                                             .CurSlot = 1
@@ -1566,10 +1566,10 @@ Friend Module S_EventLogic
                                                                             .CurSlot = 1
                                                                         End If
                                                                 End Select
-                                                                endprocess = True
+                                                                endprocess = 1
                                                             Case EventType.ExitProcess
-                                                                removeEventProcess = True
-                                                                endprocess = True
+                                                                removeEventProcess = 1
+                                                                endprocess = 1
                                                             Case EventType.ChangeItems
                                                                 If Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data2 = 0 Then
                                                                     If HasItem(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1) > 0 Then
@@ -1605,7 +1605,7 @@ Friend Module S_EventLogic
                                                             Case EventType.ChangeSkills
                                                                 If Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data2 = 0 Then
                                                                     If FindOpenSkill(i) > 0 Then
-                                                                        If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1) = False Then
+                                                                        If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1) = 0 Then
                                                                             SetPlayerSkill(i, FindOpenSkill(i), Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1)
                                                                         Else
                                                                             'Error, already knows skill
@@ -1614,7 +1614,7 @@ Friend Module S_EventLogic
                                                                         'Error, no room for skills
                                                                     End If
                                                                 ElseIf Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data2 = 1 Then
-                                                                    If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1) = True Then
+                                                                    If HasSkill(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1) = 1 Then
                                                                         For p = 1 To MAX_PLAYER_SKILLS
                                                                             If Type.Player(i).Skill(p).Num = Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1 Then
                                                                                 SetPlayerSkill(i, p, 0)
@@ -1638,9 +1638,9 @@ Friend Module S_EventLogic
                                                                 SendPlayerData(i)
                                                             Case EventType.ChangePk
                                                                 If Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1 = 0 Then
-                                                                    Type.Player(i).Pk = False
+                                                                    Type.Player(i).Pk = 0
                                                                 ElseIf Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1 = 1 Then
-                                                                    Type.Player(i).Pk = True
+                                                                    Type.Player(i).Pk = 1
                                                                 End If
                                                                 SendPlayerData(i)
                                                             Case EventType.WarpPlayer
@@ -1722,7 +1722,7 @@ Friend Module S_EventLogic
                                                                 End If
                                                             Case EventType.OpenBank
                                                                 SendBank(i)
-                                                                TempPlayer(i).InBank = True
+                                                                TempPlayer(i).InBank = 1
                                                                 .WaitingForResponse = 3
                                                             Case EventType.GiveExp
                                                                 GivePlayerExp(i, Type.Map(GetPlayerMap(i)).Event(.EventId).Pages(.PageId).CommandList(.CurList).Commands(.CurSlot).Data1)
@@ -1805,17 +1805,17 @@ Friend Module S_EventLogic
                                                         End Select
                                                     End If
                                                 Loop
-                                                If endprocess = False Then
+                                                If endprocess = 0 Then
                                                     .CurSlot = .CurSlot + 1
                                                 End If
                                             End If
                                         End If
                                     End With
                                 End If
-                                If removeEventProcess = True Then
+                                If removeEventProcess = 1 Then
                                     TempPlayer(i).EventProcessing(x).Active = 0
-                                    restartloop = True
-                                    removeEventProcess = False
+                                    restartloop = 1
+                                    removeEventProcess = 0
                                 End If
                             Next
                         Loop
@@ -1845,7 +1845,7 @@ Friend Module S_EventLogic
             x = InStr(1, txt, "/v")
             If x > 0 Then
                 i = 0
-                Do Until IsNumeric(Mid(txt, x + 2 + i, 1)) = False
+                Do Until IsNumeric(Mid(txt, x + 2 + i, 1)) = 0
                     i = i + 1
                 Loop
                 newtxt = Mid(txt, 1, x - 1)
@@ -1875,28 +1875,28 @@ Friend Module S_EventLogic
         CurList = 1
         CurSlot = 1
 
-        Do Until removeEventProcess = True
+        Do Until removeEventProcess = 1
             If ListLeftOff(CurList) > 0 Then
                 CurSlot = ListLeftOff(CurList)
                 ListLeftOff(CurList) = 0
             End If
             If CurList > Type.Map(MapNum).Event(eventID).Pages(pageID).CommandListCount Then
                 'Get rid of this event, it is bad
-                removeEventProcess = True
+                removeEventProcess = 1
             End If
 
             If CurSlot > Type.Map(MapNum).Event(eventID).Pages(pageID).CommandList(CurList).CommandCount Then
                 If CurList = 1 Then
-                    removeEventProcess = True
+                    removeEventProcess = 1
                 Else
                     CurList = Type.Map(MapNum).Event(eventID).Pages(pageID).CommandList(CurList).ParentList
                     CurSlot = 1
-                    restartlist = True
+                    restartlist = 1
                 End If
             End If
 
-            If restartlist = False Then
-                If removeEventProcess = False Then
+            If restartlist = 0 Then
+                If removeEventProcess = 0 Then
                     'If we are still here, then we are good to process shit :D
                     Select Case Type.Map(MapNum).Event(eventID).Pages(pageID).CommandList(CurList).Commands(CurSlot).Index
                         Case EventType.ShowChoices
@@ -1957,7 +1957,7 @@ Friend Module S_EventLogic
                     CurSlot = CurSlot + 1
                 End If
             End If
-            restartlist = False
+            restartlist = 0
         Loop
 
         ListLeftOff = tmpListLeftOff
@@ -1990,12 +1990,12 @@ Friend Module S_EventLogic
         pos(FX, FY) = 2
 
         'reset reachable
-        reachable = False
+        reachable = 0
 
         'Do while reachable is false... if its set true in progress, we jump out
         'If the path is decided unreachable in process, we will use exit sub. Not proper,
         'but faster ;-)
-        Do While reachable = False
+        Do While reachable = 0
             'we loop through all squares
             For j = 0 To Type.Map(MapNum).MaxY
                 For i = 0 To Type.Map(MapNum).MaxX
@@ -2012,8 +2012,8 @@ Friend Module S_EventLogic
                                 'It will exapand that square too! This is crucial part of the program
                                 pos(i + 1, j) = 100 + tim + 1
                             ElseIf pos(i + 1, j) = 2 Then
-                                'If the position is no 0 but its 2 (FINISH) then Reachable = true!!! We found end
-                                reachable = True
+                                'If the position is no 0 but its 2 (FINISH) then Reachable = 1!!! We found end
+                                reachable = 1
                             End If
                         End If
 
@@ -2025,7 +2025,7 @@ Friend Module S_EventLogic
                             If pos((i - 1), j) = 0 Then
                                 pos(i - 1, j) = 100 + tim + 1
                             ElseIf pos(i - 1, j) = 2 Then
-                                reachable = True
+                                reachable = 1
                             End If
                         End If
 
@@ -2033,7 +2033,7 @@ Friend Module S_EventLogic
                             If pos(i, j + 1) = 0 Then
                                 pos(i, j + 1) = 100 + tim + 1
                             ElseIf pos(i, j + 1) = 2 Then
-                                reachable = True
+                                reachable = 1
                             End If
                         End If
 
@@ -2041,7 +2041,7 @@ Friend Module S_EventLogic
                             If pos(i, j - 1) = 0 Then
                                 pos(i, j - 1) = 100 + tim + 1
                             ElseIf pos(i, j - 1) = 2 Then
-                                reachable = True
+                                reachable = 1
                             End If
                         End If
                     End If
@@ -2049,7 +2049,7 @@ Friend Module S_EventLogic
             Next j
 
             'If the reachable is STILL false, then
-            If reachable = False Then
+            If reachable = 0 Then
                 'reset sum
                 Sum = 0
                 For j = 0 To Type.Map(MapNum).MaxY
@@ -2090,7 +2090,7 @@ Friend Module S_EventLogic
             'that value. When we find it, we just color it yellow as for the solution
             tim = tim - 1
             'reset did to false
-            did = False
+            did = 0
 
             'If we arent on edge
             If LastX < Type.Map(MapNum).MaxX Then
@@ -2098,34 +2098,34 @@ Friend Module S_EventLogic
                 If pos(LastX + 1, LastY) = 100 + tim Then
                     'if it, then make it yellow, and change did to true
                     LastX = LastX + 1
-                    did = True
+                    did = 1
                 End If
             End If
 
             'This will then only work if the previous part didnt execute, and did is still false. THen
             'we want to check another square, the on left. Is it a tim-1 one ?
-            If did = False Then
+            If did = 0 Then
                 If LastX > 0 Then
                     If pos(LastX - 1, LastY) = 100 + tim Then
                         LastX = LastX - 1
-                        did = True
+                        did = 1
                     End If
                 End If
             End If
 
             'We check the one below it
-            If did = False Then
+            If did = 0 Then
                 If LastY < Type.Map(MapNum).MaxY Then
                     If pos(LastX, LastY + 1) = 100 + tim Then
                         LastY = LastY + 1
-                        did = True
+                        did = 1
                     End If
                 End If
             End If
 
             'And above it. One of these have to be it, since we have found the solution, we know that already
             'there is a way back.
-            If did = False Then
+            If did = 0 Then
                 If LastY > 0 Then
                     If pos(LastX, LastY - 1) = 100 + tim Then
                         LastY = LastY - 1
@@ -2238,33 +2238,33 @@ Friend Module S_EventLogic
             If Type.Map(MapNum).Event(i).PageCount > 0 Then
                 For z = Type.Map(MapNum).Event(i).PageCount To 0 Step -1
                     With Type.Map(MapNum).Event(i).Pages(z)
-                        spawncurrentevent = True
+                        spawncurrentevent = 1
 
                         If .ChkVariable = 1 Then
                             Select Case .VariableCompare
                                 Case 0
                                     If Type.Player(index).Variables(.VariableIndex) <> .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                                 Case 1
                                     If Type.Player(index).Variables(.VariableIndex) < .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                                 Case 2
                                     If Type.Player(index).Variables(.VariableIndex) > .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                                 Case 3
                                     If Type.Player(index).Variables(.VariableIndex) <= .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                                 Case 4
                                     If Type.Player(index).Variables(.VariableIndex) >= .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                                 Case 5
                                     If Type.Player(index).Variables(.VariableIndex) = .VariableCondition Then
-                                        spawncurrentevent = False
+                                        spawncurrentevent = 0
                                     End If
                             End Select
                         End If
@@ -2273,18 +2273,18 @@ Friend Module S_EventLogic
                         If .ChkSwitch = 1 Then
                             If .SwitchCompare = 1 Then 'we want true
                                 If Type.Player(index).Switches(.SwitchIndex) = 0 Then 'it is false, so we stop the spawn
-                                    spawncurrentevent = False
+                                    spawncurrentevent = 0
                                 End If
                             Else
                                 If Type.Player(index).Switches(.SwitchIndex) = 1 Then 'we want false and it is true so we stop the spawn
-                                    spawncurrentevent = False
+                                    spawncurrentevent = 0
                                 End If
                             End If
                         End If
 
                         If .ChkHasItem = 1 Then
                             If HasItem(index, .HasItemIndex) = 0 Then
-                                spawncurrentevent = False
+                                spawncurrentevent = 0
                             End If
                         End If
 
@@ -2296,16 +2296,16 @@ Friend Module S_EventLogic
                             End If
                             If Type.Map(MapNum).Event(i).Globals = 1 Then
                                 If Type.Map(MapNum).Event(i).SelfSwitches(.SelfSwitchIndex) <> compare Then
-                                    spawncurrentevent = False
+                                    spawncurrentevent = 0
                                 End If
                             Else
                                 If compare = 1 Then
-                                    spawncurrentevent = False
+                                    spawncurrentevent = 0
                                 End If
                             End If
                         End If
 
-                        If spawncurrentevent = True Or (spawncurrentevent = False And z = 1) Then
+                        If spawncurrentevent = 1 Or (spawncurrentevent = 0 And z = 1) Then
                             'spawn the event... send data to player
                             TempPlayer(index).EventMap.CurrentEvents = TempPlayer(index).EventMap.CurrentEvents + 1
                             ReDim Preserve TempPlayer(index).EventMap.EventPages(TempPlayer(index).EventMap.CurrentEvents)
@@ -2357,7 +2357,7 @@ Friend Module S_EventLogic
                                 .Position = Type.Map(MapNum).Event(i).Pages(z).Position
                                 .EventId = i
                                 .PageId = z
-                                If spawncurrentevent = True Then
+                                If spawncurrentevent = 1 Then
                                     .Visible = 1
                                 Else
                                     .Visible = 0
@@ -2519,7 +2519,7 @@ Friend Module S_EventLogic
             End If
         End If
 
-        TriggerEvent = True
+        TriggerEvent = 1
     End Function
 
 End Module

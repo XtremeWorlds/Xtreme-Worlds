@@ -29,7 +29,7 @@ Module Sound
             Exit Sub
         End If
 
-        If Core.Type.Setting.Music = False Or Not File.Exists(path) Then
+        If Core.Type.Setting.Music = 0 Or Not File.Exists(path) Then
             StopMusic()
             Exit Sub
         End If
@@ -53,7 +53,7 @@ Module Sound
                 Bass.ChannelPlay(MusicStream)
                 Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, Core.Type.Setting.MusicVolume / 100.0F)
                 CurrentMusic = fileName
-                FadeInSwitch = True
+                FadeInSwitch = 1
             End If
         Catch ex As Exception
             Console.WriteLine($"Error playing music: {ex.Message}")
@@ -136,7 +136,7 @@ Module Sound
         End If
     End Sub
 
-    Sub PlaySound(fileName As String, x As Integer, y As Integer, Optional looped As Boolean = False)
+    Sub PlaySound(fileName As String, x As Integer, y As Integer, Optional looped As Boolean = 0)
         If Core.Type.Setting.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 
         Try
@@ -161,7 +161,7 @@ Module Sound
         End If
     End Sub
 
-    Sub PlayExtraSound(fileName As String, Optional looped As Boolean = False)
+    Sub PlayExtraSound(fileName As String, Optional looped As Boolean = 0)
         If Core.Type.Setting.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 
         Try
@@ -193,7 +193,7 @@ Module Sound
             If currentVolume < Core.Type.Setting.MusicVolume / 100.0F Then
                 Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, currentVolume + 0.03F)
             Else
-                FadeInSwitch = False
+                FadeInSwitch = 0
             End If
         End If
     End Sub
@@ -205,7 +205,7 @@ Module Sound
             If currentVolume > 0 Then
                 Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, currentVolume - 0.03F)
             Else
-                FadeOutSwitch = False
+                FadeOutSwitch = 0
                 StopMusic()
             End If
         End If
@@ -268,7 +268,7 @@ Module Sound
         Bass.Free()
     End Sub
 
-    Sub PlayWeatherSound(fileName As String, Optional looped As Boolean = False)
+    Sub PlayWeatherSound(fileName As String, Optional looped As Boolean = 0)
         ' Check if sound is enabled and the file exists
         If Not Core.Type.Setting.Sound = 1 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 

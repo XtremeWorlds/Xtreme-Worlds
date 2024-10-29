@@ -193,7 +193,7 @@ Friend Module Projectile
 
                             If IsPlaying(Targetindex) Then
                                 If Targetindex <> index Then
-                                    If CanPlayerAttackPlayer(index, Targetindex, True) = True Then
+                                    If CanPlayerAttackPlayer(index, Targetindex, True) = 1 Then
 
                                         ' Get the damage we can do
                                         Damage = GetPlayerDamage(index) + Type.Projectile(Type.MapProjectile(MapNum, ProjectileNum).ProjectileNum).Damage
@@ -212,7 +212,7 @@ Friend Module Projectile
 
                         Case TargetType.NPC
                             npcnum = MapNPC(MapNum).NPC(Targetindex).Num
-                            If CanPlayerAttackNpc(index, Targetindex, True) = True Then
+                            If CanPlayerAttackNpc(index, Targetindex, True) = 1 Then
                                 ' Get the damage we can do
                                 Damage = GetPlayerDamage(index) + Type.Projectile(Type.MapProjectile(MapNum, ProjectileNum).ProjectileNum).Damage
 

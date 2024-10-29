@@ -8,7 +8,7 @@ Friend Module Moral
         Type.Moral(index) = Nothing
 
         Type.Moral(index).Name = ""
-        GameState.Moral_Loaded(index) = False
+        GameState.Moral_Loaded(index) = 0
     End Sub
 
     Sub ClearMorals()
@@ -22,8 +22,8 @@ Friend Module Moral
     End Sub
 
     Friend Sub StreamMoral(moralNum As Integer)
-        If moralnum > 0 and Type.Moral(moralNum).Name = "" Or GameState.Moral_Loaded(moralNum) = False Then
-            GameState.Moral_Loaded(moralNum) = True
+        If moralnum > 0 and Type.Moral(moralNum).Name = "" Or GameState.Moral_Loaded(moralNum) = 0 Then
+            GameState.Moral_Loaded(moralNum) = 1
             SendRequestMoral(moralNum)
         End If
     End Sub

@@ -5,11 +5,11 @@ Public Class Settings
     Public Language As String = "English"
 
     Public Username As String = ""
-    Public SaveUsername As Boolean = False
+    Public SaveUsername As Boolean = 0
 
     Public MenuMusic As String = "menu.mid"
-    Public Music As Boolean = True
-    Public Sound As Boolean = True
+    Public Music As Boolean = 1
+    Public Sound As Boolean = 1
     Public MusicVolume As Single = 100.0F
     Public SoundVolume As Single = 100.0F
 
@@ -37,7 +37,7 @@ Public Class Settings
 
     Public TimeSpeed As Integer = 1
 
-    Public Autotile As Boolean = True
+    Public Autotile As Boolean = 1
 
      Public Shared Sub Load()
         Dim configPath As String = Core.Path.Config()

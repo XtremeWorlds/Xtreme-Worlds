@@ -52,7 +52,7 @@ Public Class GameClient
     End Class
     
     ' ManualResetEvent to signal when loading is complete
-    Public Shared IsLoading As Boolean = True
+    Public Shared IsLoading As Boolean = 1
     Public Shared ReadOnly loadLock As New Object()
     
     ' State tracking variables
@@ -700,7 +700,7 @@ Public Class GameClient
         Dim x As Integer, y As Integer, anim As Integer
 
         If sprite < 1 Or sprite > GameState.NumEmotes Then Exit Sub
-        If GameState.ShowAnimLayers = True Then
+        If GameState.ShowAnimLayers = 1 Then
             anim = 1
         Else
             anim = 0
@@ -1198,7 +1198,7 @@ Public Class GameClient
 
             ' check if it's timed out - close it if so
             If .Timer + 5000 < GetTickCount() Then
-                .Active = False
+                .Active = 0
             End If
         End With
     End Sub
@@ -1690,7 +1690,7 @@ Public Class GameClient
         DrawMapTint()
 
         ' Draw out a square at mouse cursor
-        If GameState.MapGrid = True And GameState.MyEditorType = EditorType.Map Then
+        If GameState.MapGrid = 1 And GameState.MyEditorType = EditorType.Map Then
             GameClient.DrawGrid()
         End If
         
