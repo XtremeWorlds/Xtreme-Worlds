@@ -15,7 +15,7 @@ Public Class Gui
     Public Shared zOrder_Win As Long
     Public Shared zOrder_Con As Long
 
-    Public Sub ControlControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, ByRef design() As Long, ByRef image() As Long, ByRef texture() as String, ByRef callback() As Action,
+    Public Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, ByRef design() As Long, ByRef image() As Long, ByRef texture() as String, ByRef callback() As Action,
                             Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
                             Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
                             Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
@@ -144,7 +144,7 @@ Public Class Gui
         Windows(winIndex).Controls(controlIndex).List(count + 1) = text
     End Sub
 
-    Public Sub ControlWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
+    Public Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
                             Optional visible As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
                             Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
                             Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional onDraw As Action = Nothing,
@@ -219,7 +219,7 @@ Public Class Gui
         zOrder_Win = zOrder_Win + 1
     End Sub
 
-    Public Sub ControlTextbox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
+    Public Sub UpdateTextbox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
                              Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional isActive As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional image_norm As Long = 0,
                              Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional censor As Boolean = False, Optional icon As Long = 0, Optional length As Byte = NAME_LENGTH,
                              Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef callback_enter As Action = Nothing)
@@ -247,10 +247,10 @@ Public Class Gui
         callback(EntState.Enter) = callback_enter
 
         ' Control the textbox
-        ControlControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset,  , censor, icon, , isActive, , , , length)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset,  , censor, icon, , isActive, , , , length)
     End Sub
 
-    Public Sub ControlPictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
+    Public Sub UpdatePictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
                                 Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional alpha As Long = 255, Optional clickThrough As Boolean = True, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional texturePath As String = "",
                                 Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing,
                                 Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef onDraw As Action = Nothing)
@@ -278,10 +278,10 @@ Public Class Gui
         callback(EntState.DblClick) = callback_dblclick
 
         ' Control the box
-        ControlControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.PictureBox, design, image, texture, callback, left, top, width, height, visible, canDrag, , , , , , , , alpha, clickThrough, , , , , onDraw)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.PictureBox, design, image, texture, callback, left, top, width, height, visible, canDrag, , , , , , , , alpha, clickThrough, , , , , onDraw)
     End Sub
 
-    Public Sub ControlButton(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
+    Public Sub UpdateButton(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
                             Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional icon As Long = 0, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
                             Optional visible As Boolean = True, Optional alpha As Long = 255, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
                             Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing,
@@ -309,10 +309,10 @@ Public Class Gui
         callback(EntState.DblClick) = callback_dblclick
 
         ' Control the button 
-        ControlControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Button, design, image, texture, callback, left, top, width, height, visible, , , , , text, , font, , alpha, xOffset, yOffset, , censor, icon, , , tooltip, , locked)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Button, design, image, texture, callback, left, top, width, height, visible, , , , , text, , font, , alpha, xOffset, yOffset, , censor, icon, , , tooltip, , locked)
     End Sub
 
-    Public Sub ControlLabel(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, text As String, font As FontType, color As Microsoft.Xna.Framework.Color,
+    Public Sub UpdateLabel(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, text As String, font As FontType, color As Microsoft.Xna.Framework.Color,
                            Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional censor As Boolean = False,
                            Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional locked As Boolean = True)
 
@@ -329,10 +329,10 @@ Public Class Gui
         callback(EntState.DblClick) = callback_dblclick
 
         ' Control the label
-        ControlControl(winNum, zOrder_Con, name, color.White, ControlType.Label, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, , alpha, clickThrough, , , censor, , , , , , locked)
+        UpdateControl(winNum, zOrder_Con, name, color.White, ControlType.Label, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, , alpha, clickThrough, , , censor, , , , , , locked)
     End Sub
 
-    Public Sub ControlCheckbox(winNum As Long, name As String, left As Long, top As Long, width As Long, Optional height As Long = 15, Optional value As Long = 0, Optional text As String = "", Optional font As FontType = FontType.Georgia,
+    Public Sub UpdateCheckBox(winNum As Long, name As String, left As Long, top As Long, width As Long, Optional height As Long = 15, Optional value As Long = 0, Optional text As String = "", Optional font As FontType = FontType.Georgia,
                               Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255,
                               Optional theDesign As Long = 0, Optional group As Long = 0, Optional censor As Boolean = False,
                               Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing)
@@ -353,7 +353,7 @@ Public Class Gui
         callback(EntState.DblClick) = callback_dblclick
 
         ' Control the box
-        ControlControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Checkbox, design, image, texture, callback, left, top, width, height, visible, , , , value, text, align, font, , alpha, , , , censor, , , , , group)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Checkbox, design, image, texture, callback, left, top, width, height, visible, , , , value, text, align, font, , alpha, , , , censor, , , , , group)
     End Sub
 
     Public Sub ControlComboBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, design As Long)
@@ -366,7 +366,7 @@ Public Class Gui
         texture(0) = Path.Gui
 
         ' Control the box
-        ControlControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Combobox, theDesign, image, texture, callback, left, top, width, height)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Combobox, theDesign, image, texture, callback, left, top, width, height)
     End Sub
 
     Public Shared Function GetWindowIndex(winName As String) As Long
@@ -491,9 +491,9 @@ Public Class Gui
         Next
     End Sub
 
-    Public Sub ControlWindow_Login()
+    Public Sub UpdateWindow_Login()
         ' Control the window
-        ControlWindow("winLogin", "Login", FontType.Georgia, zOrder_Win, 0, 0, 276, 212, 45, True, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winLogin", "Login", FontType.Georgia, zOrder_Win, 0, 0, 276, 212, 45, True, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -502,36 +502,36 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Shadows
-        ControlPictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , ,  , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlPictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , ,  , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf DestroyGame))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf DestroyGame))
 
         ' Buttons
-        ControlButton(WindowCount, "btnAccept", 67, 134, 67, 22, "Accept", FontType.Arial, , , ,  , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnLogin_Click))
-        ControlButton(WindowCount, "btnExit", 142, 134, 67, 22, "Exit", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf DestroyGame))
+        UpdateButton(WindowCount, "btnAccept", 67, 134, 67, 22, "Accept", FontType.Arial, , , ,  , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnLogin_Click))
+        UpdateButton(WindowCount, "btnExit", 142, 134, 67, 22, "Exit", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf DestroyGame))
 
         ' Labels
-        ControlLabel(WindowCount, "lblUsername", 72, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblPassword", 72, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblUsername", 72, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblPassword", 72, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Textboxes
         If Type.Setting.SaveUsername Then
-            ControlTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, Type.Setting.Username, FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+            UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, Type.Setting.Username, FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
         Else
-            ControlTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, "", FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+            UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, "", FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
         End If
-        ControlTextbox(WindowCount, "txtPassword", 67, 86, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        UpdateTextbox(WindowCount, "txtPassword", 67, 86, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
 
         ' Checkbox
-        ControlCheckbox(WindowCount, "chkSaveUsername", 67, 114, 142, , Type.Setting.SaveUsername, "Save Username?", FontType.Arial, , , , DesignType.ChkNorm, , , , , New Action(AddressOf chkSaveUser_Click))
+        UpdateCheckBox(WindowCount, "chkSaveUsername", 67, 114, 142, , Type.Setting.SaveUsername, "Save Username?", FontType.Arial, , , , DesignType.ChkNorm, , , , , New Action(AddressOf chkSaveUser_Click))
 
         ' Register Button
-        ControlButton(WindowCount, "btnRegister", 12, Windows(WindowCount).Window.Height - 35, 252, 22, "Control Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
+        UpdateButton(WindowCount, "btnRegister", 12, Windows(WindowCount).Window.Height - 35, 252, 22, "Control Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
 
         ' Set the active control
         If Not Len(Windows(GetWindowIndex("winLogin")).Controls(GetControlIndex("winLogin", "txtUsername")).Text) > 0 Then
@@ -541,9 +541,9 @@ Public Class Gui
         End If
     End Sub
 
-    Public Sub ControlWindow_Register()
+    Public Sub UpdateWindow_Register()
         ' Control the window
-        ControlWindow("winRegister", "Register Account", FontType.Georgia, zOrder_Win, 0, 0, 276, 202, 45, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winRegister", "Register Account", FontType.Georgia, zOrder_Win, 0, 0, 276, 202, 45, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -552,44 +552,44 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnReturnMain_Click))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnReturnMain_Click))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 264, 170, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 264, 170, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Shadows
-        ControlPictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlPictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlPictureBox(WindowCount, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        'ControlPictureBox(WindowCount, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        'ControlPictureBox(WindowCount, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(WindowCount, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        'UpdatePictureBox(WindowCount, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        'UpdatePictureBox(WindowCount, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         
         ' Buttons
-        ControlButton(WindowCount, "btnAccept", 68, 152, 67, 22, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
-        ControlButton(WindowCount, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
+        UpdateButton(WindowCount, "btnAccept", 68, 152, 67, 22, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
+        UpdateButton(WindowCount, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
 
         ' Labels
-        ControlLabel(WindowCount, "lblUsername", 66, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblPassword", 66, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblRetypePassword", 66, 111, 142, 10, "Retype Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        'ControlLabel(WindowCount, "lblCode", 66, 147, 142, 10, "Secret Code", FontType.Arial, AlignmentType.Center)
-        'ControlLabel(WindowCount, "lblCaptcha", 66, 183, 142, 10, "Captcha", FontType.Arial, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblUsername", 66, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblPassword", 66, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblRetypePassword", 66, 111, 142, 10, "Retype Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        'UpdateLabel(WindowCount, "lblCode", 66, 147, 142, 10, "Secret Code", FontType.Arial, AlignmentType.Center)
+        'UpdateLabel(WindowCount, "lblCaptcha", 66, 183, 142, 10, "Captcha", FontType.Arial, AlignmentType.Center)
 
         ' Textboxes
-        ControlTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlTextbox(WindowCount, "txtPassword", 67, 91, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
-        ControlTextbox(WindowCount, "txtRetypePassword", 67, 127, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
-        'ControlTextbox(WindowCount, "txtCode", 67, 163, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
-        'ControlTextbox(WindowCount, "txtCaptcha", 67, 235, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
+        UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdateTextbox(WindowCount, "txtPassword", 67, 91, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        UpdateTextbox(WindowCount, "txtRetypePassword", 67, 127, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        'UpdateTextbox(WindowCount, "txtCode", 67, 163, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
+        'UpdateTextbox(WindowCount, "txtCaptcha", 67, 235, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
 
-        ' ControlPictureBox(WindowCount, "picCaptcha", 67, 199, 156, 30, , , , , Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        ' UpdatePictureBox(WindowCount, "picCaptcha", 67, 199, 156, 30, , , , , Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
 
         SetActiveControl(GetWindowIndex("winRegister"), GetControlIndex("winRegister", "txtUsername"))
     End Sub
 
-    Public Sub ControlWindow_NewChar()
+    Public Sub UpdateWindow_NewChar()
         ' Control window
-        ControlWindow("winNewChar", "Control Character", FontType.Georgia, zOrder_Win, 0, 0, 291, 172, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winNewChar", "Control Character", FontType.Georgia, zOrder_Win, 0, 0, 291, 172, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -598,48 +598,48 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnNewChar_Cancel))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnNewChar_Cancel))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 278, 140, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 278, 140, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Name
-        ControlPictureBox(WindowCount, "picShadow_1", 29, 42, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblName", 29, 39, 124, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_1", 29, 42, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblName", 29, 39, 124, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Textbox
-        ControlTextbox(WindowCount, "txtName", 29, 55, 124, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdateTextbox(WindowCount, "txtName", 29, 55, 124, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
 
         ' Sex
-        ControlPictureBox(WindowCount, "picShadow_2", 29, 85, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblGender", 29, 82, 124, 10, "Gender", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_2", 29, 85, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblGender", 29, 82, 124, 10, "Gender", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Checkboxes
-        ControlCheckbox(WindowCount, "chkMale", 29, 103, 55, , 1, "Male", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Male))
-        ControlCheckbox(WindowCount, "chkFemale", 90, 103, 62, , 0, "Female", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Female))
+        UpdateCheckBox(WindowCount, "chkMale", 29, 103, 55, , 1, "Male", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Male))
+        UpdateCheckBox(WindowCount, "chkFemale", 90, 103, 62, , 0, "Female", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Female))
 
         ' Buttons
-        ControlButton(WindowCount, "btnAccept", 29, 127, 60, 24, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnNewChar_Accept))
-        ControlButton(WindowCount, "btnCancel", 93, 127, 60, 24, "Cancel", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnNewChar_Cancel))
+        UpdateButton(WindowCount, "btnAccept", 29, 127, 60, 24, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnNewChar_Accept))
+        UpdateButton(WindowCount, "btnCancel", 93, 127, 60, 24, "Cancel", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnNewChar_Cancel))
 
         ' Sprite
-        ControlPictureBox(WindowCount, "picShadow_3", 175, 42, 76, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblSprite", 175, 39, 76, 10, "Sprite", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_3", 175, 42, 76, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblSprite", 175, 39, 76, 10, "Sprite", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Scene
-        ControlPictureBox(WindowCount, "picScene", 165, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf NewChar_OnDraw))
+        UpdatePictureBox(WindowCount, "picScene", 165, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf NewChar_OnDraw))
 
         ' Buttons
-        ControlButton(WindowCount, "btnLeft", 163, 40, 11, 13, ,  , , 12, 14, 16, , , , , , , , New Action(AddressOf btnNewChar_Left))
-        ControlButton(WindowCount, "btnRight", 252, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnNewChar_Right))
+        UpdateButton(WindowCount, "btnLeft", 163, 40, 11, 13, ,  , , 12, 14, 16, , , , , , , , New Action(AddressOf btnNewChar_Left))
+        UpdateButton(WindowCount, "btnRight", 252, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnNewChar_Right))
 
         ' Set the active control
         SetActiveControl(GetWindowIndex("winNewChar"), GetControlIndex("winNewChar", "txtName"))
     End Sub
 
-    Public Sub ControlWindow_Chars()
+    Public Sub UpdateWindow_Chars()
         ' Control the window
-        ControlWindow("winChars", "Characters", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 62, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winChars", "Characters", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 62, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -648,39 +648,39 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnCharacters_Close))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnCharacters_Close))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Names
-        ControlPictureBox(WindowCount, "picShadow_1", 22, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblCharName_1", 22, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlPictureBox(WindowCount, "picShadow_2", 132, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblCharName_2", 132, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlPictureBox(WindowCount, "picShadow_3", 242, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblCharName_3", 242, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_1", 22, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblCharName_1", 22, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_2", 132, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblCharName_2", 132, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow_3", 242, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblCharName_3", 242, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Scenery Boxes
-        ControlPictureBox(WindowCount, "picScene_1", 23, 55, 96, 96, , , , , 11, 11, 11)
-        ControlPictureBox(WindowCount, "picScene_2", 133, 55, 96, 96, , , , , 11, 11, 11)
-        ControlPictureBox(WindowCount, "picScene_3", 243, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf Chars_OnDraw))
+        UpdatePictureBox(WindowCount, "picScene_1", 23, 55, 96, 96, , , , , 11, 11, 11)
+        UpdatePictureBox(WindowCount, "picScene_2", 133, 55, 96, 96, , , , , 11, 11, 11)
+        UpdatePictureBox(WindowCount, "picScene_3", 243, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf Chars_OnDraw))
 
         ' Control Buttons
-        ControlButton(WindowCount, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
-        ControlButton(WindowCount, "btnControlChar_1", 22, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
-        ControlButton(WindowCount, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
-        ControlButton(WindowCount, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
-        ControlButton(WindowCount, "btnControlChar_2", 132, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
-        ControlButton(WindowCount, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
-        ControlButton(WindowCount, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
-        ControlButton(WindowCount, "btnControlChar_3", 242, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
-        ControlButton(WindowCount, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
+        UpdateButton(WindowCount, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
+        UpdateButton(WindowCount, "btnControlChar_1", 22, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
+        UpdateButton(WindowCount, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
+        UpdateButton(WindowCount, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
+        UpdateButton(WindowCount, "btnControlChar_2", 132, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
+        UpdateButton(WindowCount, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
+        UpdateButton(WindowCount, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
+        UpdateButton(WindowCount, "btnControlChar_3", 242, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
+        UpdateButton(WindowCount, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
     End Sub
 
-    Public Sub ControlWindow_Jobs()
+    Public Sub UpdateWindow_Jobs()
         ' Control window
-        ControlWindow("winJob", "Select Job", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winJob", "Select Job", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -689,32 +689,32 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnJobs_Close))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnJobs_Close))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf Jobs_DrawFace))
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf Jobs_DrawFace))
 
         ' Job Name
-        ControlPictureBox(WindowCount, "picShadow", 183, 42, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblClassName", 183, 39, 98, 10, "Warrior", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow", 183, 42, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblClassName", 183, 39, 98, 10, "Warrior", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Select Buttons
-        ControlButton(WindowCount, "btnLeft", 171, 40, 11, 13, , , , 12, 14, 16, , , , , , , , New Action(AddressOf btnJobs_Left))
-        ControlButton(WindowCount, "btnRight", 282, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnJobs_Right))
+        UpdateButton(WindowCount, "btnLeft", 171, 40, 11, 13, , , , 12, 14, 16, , , , , , , , New Action(AddressOf btnJobs_Left))
+        UpdateButton(WindowCount, "btnRight", 282, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnJobs_Right))
 
         ' Accept Button
-        ControlButton(WindowCount, "btnAccept", 183, 185, 98, 22, "Accept", FontType.Arial, , , , ,  , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnJobs_Accept))
+        UpdateButton(WindowCount, "btnAccept", 183, 185, 98, 22, "Accept", FontType.Arial, , , , ,  , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnJobs_Accept))
 
         ' Text background
-        ControlPictureBox(WindowCount, "picBackground", 127, 55, 210, 124, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBackground", 127, 55, 210, 124, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Overlay
-        ControlPictureBox(WindowCount, "picOverlay", 6, 26, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Jobs_DrawText))
+        UpdatePictureBox(WindowCount, "picOverlay", 6, 26, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Jobs_DrawText))
     End Sub
 
-    Public Sub ControlWindow_Dialogue()
+    Public Sub UpdateWindow_Dialogue()
         ' Control dialogue window
-        ControlWindow("winDialogue", "Warning", FontType.Georgia, zOrder_Win, 0, 0, 348, 145, 38, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm, , , , , , , , , , False)
+        UpdateWindow("winDialogue", "Warning", FontType.Georgia, zOrder_Win, 0, 0, 348, 145, 38, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm, , , , , , , , , , False)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -723,106 +723,106 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnDialogue_Close))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnDialogue_Close))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 335, 113, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 335, 113, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Header
-        ControlPictureBox(WindowCount, "picShadow", 103, 44, 144, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblHeader", 103, 41, 144, 10, "Header", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow", 103, 44, 144, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblHeader", 103, 41, 144, 10, "Header", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Input
-        ControlTextbox(WindowCount, "txtInput", 93, 75, 162, 18, , FontType.Arial, AlignmentType.Center, , , , 5, 2, , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdateTextbox(WindowCount, "txtInput", 93, 75, 162, 18, , FontType.Arial, AlignmentType.Center, , , , 5, 2, , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Labels
-        ControlLabel(WindowCount, "lblBody_1", 15, 60, 314, 10, "Invalid username or password.", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblBody_2", 15, 75, 314, 10, "Please try again!", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblBody_1", 15, 60, 314, 10, "Invalid username or password.", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblBody_2", 15, 75, 314, 10, "Please try again!", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Buttons
-        ControlButton(WindowCount, "btnYes", 104, 98, 68, 24, "Yes", FontType.Arial, , , , , False, , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Yes))
-        ControlButton(WindowCount, "btnNo", 180, 98, 68, 24, "No", FontType.Arial, , ,  , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf Dialogue_No))
-        ControlButton(WindowCount, "btnOkay", 140, 98, 68, 24, "Okay", FontType.Arial, ,  , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Okay))
+        UpdateButton(WindowCount, "btnYes", 104, 98, 68, 24, "Yes", FontType.Arial, , , , , False, , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Yes))
+        UpdateButton(WindowCount, "btnNo", 180, 98, 68, 24, "No", FontType.Arial, , ,  , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf Dialogue_No))
+        UpdateButton(WindowCount, "btnOkay", 140, 98, 68, 24, "Okay", FontType.Arial, ,  , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Okay))
 
         ' Set active control
         SetActiveControl(WindowCount, GetControlIndex("winDialogue", "txtInput"))
     End Sub
 
-    Public Sub ControlWindow_Party()
+    Public Sub UpdateWindow_Party()
         ' Control window
-        ControlWindow("winParty", "", FontType.Georgia, zOrder_Win, 4, 78, 252, 158, 0, False, , , DesignType.Win_Party, DesignType.Win_Party, DesignType.Win_Party, , , , , , , , , , False)
+        UpdateWindow("winParty", "", FontType.Georgia, zOrder_Win, 4, 78, 252, 158, 0, False, , , DesignType.Win_Party, DesignType.Win_Party, DesignType.Win_Party, , , , , , , , , , False)
 
         ' Name labels
-        ControlLabel(WindowCount, "lblName1", 60, 20, 173, 10, "Richard - Level 10", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblName2", 60, 60, 173, 10, "Anna - Level 18", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblName3", 60, 100, 173, 10, "Doleo - Level 25", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblName1", 60, 20, 173, 10, "Richard - Level 10", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblName2", 60, 60, 173, 10, "Anna - Level 18", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblName3", 60, 100, 173, 10, "Doleo - Level 25", FontType.Arial, Microsoft.Xna.Framework.Color.White)
 
         ' Empty Bars - HP
-        ControlPictureBox(WindowCount, "picEmptyBar_HP1", 58, 34, 173, 9, , , , , 62, 62, 62)
-        ControlPictureBox(WindowCount, "picEmptyBar_HP2", 58, 74, 173, 9, , , , , 62, 62, 62)
-        ControlPictureBox(WindowCount, "picEmptyBar_HP3", 58, 114, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(WindowCount, "picEmptyBar_HP1", 58, 34, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(WindowCount, "picEmptyBar_HP2", 58, 74, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(WindowCount, "picEmptyBar_HP3", 58, 114, 173, 9, , , , , 62, 62, 62)
 
         ' Empty Bars - SP
-        ControlPictureBox(WindowCount, "picEmptyBar_SP1", 58, 44, 173, 9, , , , , 63, 63, 63)
-        ControlPictureBox(WindowCount, "picEmptyBar_SP2", 58, 84, 173, 9, , , , , 63, 63, 63)
-        ControlPictureBox(WindowCount, "picEmptyBar_SP3", 58, 124, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(WindowCount, "picEmptyBar_SP1", 58, 44, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(WindowCount, "picEmptyBar_SP2", 58, 84, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(WindowCount, "picEmptyBar_SP3", 58, 124, 173, 9, , , , , 63, 63, 63)
 
         ' Filled bars - HP
-        ControlPictureBox(WindowCount, "picBar_HP1", 58, 34, 173, 9, , , , , 64, 64, 64)
-        ControlPictureBox(WindowCount, "picBar_HP2", 58, 74, 173, 9, , , , , 64, 64, 64)
-        ControlPictureBox(WindowCount, "picBar_HP3", 58, 114, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(WindowCount, "picBar_HP1", 58, 34, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(WindowCount, "picBar_HP2", 58, 74, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(WindowCount, "picBar_HP3", 58, 114, 173, 9, , , , , 64, 64, 64)
 
         ' Filled bars - SP
-        ControlPictureBox(WindowCount, "picBar_SP1", 58, 44, 173, 9, , , , , 65, 65, 65)
-        ControlPictureBox(WindowCount, "picBar_SP2", 58, 84, 173, 9, , , , , 65, 65, 65)
-        ControlPictureBox(WindowCount, "picBar_SP3", 58, 124, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(WindowCount, "picBar_SP1", 58, 44, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(WindowCount, "picBar_SP2", 58, 84, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(WindowCount, "picBar_SP3", 58, 124, 173, 9, , , , , 65, 65, 65)
 
         ' Shadows
-        'ControlPictureBox(WindowCount, "picShadow1", 20, 24, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
-        'ControlPictureBox WindowCount, "picShadow2", 20, 64, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
-        'ControlPictureBox WindowCount, "picShadow3", 20, 104, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox(WindowCount, "picShadow1", 20, 24, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox WindowCount, "picShadow2", 20, 64, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox WindowCount, "picShadow3", 20, 104, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
 
         ' Characters
-        ControlPictureBox(WindowCount, "picChar1", 20, 20, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
-        ControlPictureBox(WindowCount, "picChar2", 20, 60, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
-        ControlPictureBox(WindowCount, "picChar3", 20, 100, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(WindowCount, "picChar1", 20, 20, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(WindowCount, "picChar2", 20, 60, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(WindowCount, "picChar3", 20, 100, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
     End Sub
 
-    Public Sub ControlWindow_Trade()
+    Public Sub UpdateWindow_Trade()
         ' Control window
-        ControlWindow("winTrade", "Trading with [Name]", FontType.Georgia, zOrder_Win, 0, 0, 412, 386, 112, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , , , , New Action(AddressOf DrawTrade))
+        UpdateWindow("winTrade", "Trading with [Name]", FontType.Georgia, zOrder_Win, 0, 0, 412, 386, 112, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , , , , New Action(AddressOf DrawTrade))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
 
         ' Close Button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnTrade_Close))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnTrade_Close))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 10, 312, 392, 66, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 10, 312, 392, 66, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Labels
-        ControlPictureBox(WindowCount, "picShadow", 36, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        ControlLabel(WindowCount, "lblYourTrade", 36, 27, 142, 9, "Robin's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlPictureBox(WindowCount, "picShadow", 36 + 200, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        ControlLabel(WindowCount, "lblTheirTrade", 36 + 200, 27, 142, 9, "Richard's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow", 36, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(WindowCount, "lblYourTrade", 36, 27, 142, 9, "Robin's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow", 36 + 200, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(WindowCount, "lblTheirTrade", 36 + 200, 27, 142, 9, "Richard's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Buttons
-        ControlButton(WindowCount, "btnAccept", 134, 340, 68, 24, "Accept", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnTrade_Accept))
-        ControlButton(WindowCount, "btnDecline", 210, 340, 68, 24, "Decline", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnTrade_Close))
+        UpdateButton(WindowCount, "btnAccept", 134, 340, 68, 24, "Accept", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnTrade_Accept))
+        UpdateButton(WindowCount, "btnDecline", 210, 340, 68, 24, "Decline", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnTrade_Close))
 
         ' Labels
-        ControlLabel(WindowCount, "lblStatus", 114, 322, 184, 10, "", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblStatus", 114, 322, 184, 10, "", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Amounts
-        ControlLabel(WindowCount, "lblBlank", 25, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblBlank", 285, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblYourValue", 25, 344, 100, 10, "52,812g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblTheirValue", 285, 344, 100, 10, "12,531g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblBlank", 25, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblBlank", 285, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblYourValue", 25, 344, 100, 10, "52,812g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblTheirValue", 285, 344, 100, 10, "12,531g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Item Containers
-        ControlPictureBox(WindowCount, "picYour", 14, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeDblClick_Your), New Action(AddressOf DrawYourTrade))
-        ControlPictureBox(WindowCount, "picTheir", 214, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf DrawTheirTrade))
+        UpdatePictureBox(WindowCount, "picYour", 14, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeDblClick_Your), New Action(AddressOf DrawYourTrade))
+        UpdatePictureBox(WindowCount, "picTheir", 214, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf DrawTheirTrade))
     End Sub
 
     ' Rendering & Initialisation
@@ -832,31 +832,31 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Menu
-        ControlWindow_Register()
-        ControlWindow_Login()
-        ControlWindow_NewChar()
-        ControlWindow_Jobs()
-        ControlWindow_Chars()
-        ControlWindow_ChatSmall()
-        ControlWindow_Chat()
-        ControlWindow_Menu()
-        ControlWindow_Description()
-        ControlWindow_Inventory()
-        ControlWindow_Skills()
-        ControlWindow_Character()
-        ControlWindow_Hotbar()
-        ControlWindow_Bank()
-        ControlWindow_Shop()
-        ControlWindow_EscMenu()
-        ControlWindow_Bars()
-        ControlWindow_Dialogue()
-        ControlWindow_DragBox()
-        ControlWindow_Options()
-        ControlWindow_Trade()
-        ControlWindow_Party()
-        ControlWindow_PlayerMenu()
-        ControlWindow_RightClick()
-        ControlWindow_Combobox()
+        UpdateWindow_Register()
+        UpdateWindow_Login()
+        UpdateWindow_NewChar()
+        UpdateWindow_Jobs()
+        UpdateWindow_Chars()
+        UpdateWindow_ChatSmall()
+        UpdateWindow_Chat()
+        UpdateWindow_Menu()
+        UpdateWindow_Description()
+        UpdateWindow_Inventory()
+        UpdateWindow_Skills()
+        UpdateWindow_Character()
+        UpdateWindow_Hotbar()
+        UpdateWindow_Bank()
+        UpdateWindow_Shop()
+        UpdateWindow_EscMenu()
+        UpdateWindow_Bars()
+        UpdateWindow_Dialogue()
+        UpdateWindow_DragBox()
+        UpdateWindow_Options()
+        UpdateWindow_Trade()
+        UpdateWindow_Party()
+        UpdateWindow_PlayerMenu()
+        UpdateWindow_RightClick()
+        UpdateWindow_Combobox()
     End Sub
 
     Public Function HandleInterfaceEvents(entState As EntState) As Boolean
@@ -2925,9 +2925,9 @@ Public Class Gui
         End With
     End Sub
 
-    Public Sub ControlWindow_EscMenu()
+    Public Sub UpdateWindow_EscMenu()
         ' Control window
-        ControlWindow("winEscMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 156, 0, False, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , False, , , False)
+        UpdateWindow("winEscMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 156, 0, False, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , False, , , False)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -2936,71 +2936,71 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 6, 198, 144, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 198, 144, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Buttons
-        ControlButton(WindowCount, "btnReturn", 16, 16, 178, 28, "Return to Game", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnEscMenu_Return))
-        ControlButton(WindowCount, "btnOptions", 16, 48, 178, 28, "Options", FontType.Georgia, , , , , , , DesignType.Orange, DesignType.Orange_Hover, DesignType.Orange_Click, , , New Action(AddressOf btnEscMenu_Options))
-        ControlButton(WindowCount, "btnMainMenu", 16, 80, 178, 28, "Back to Main Menu", FontType.Georgia, , , , , , , DesignType.Blue, DesignType.Blue_Hover, DesignType.Blue_Click, , , New Action(AddressOf btnEscMenu_MainMenu))
-        ControlButton(WindowCount, "btnExit", 16, 112, 178, 28, "Exit the Game", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnEscMenu_Exit))
+        UpdateButton(WindowCount, "btnReturn", 16, 16, 178, 28, "Return to Game", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnEscMenu_Return))
+        UpdateButton(WindowCount, "btnOptions", 16, 48, 178, 28, "Options", FontType.Georgia, , , , , , , DesignType.Orange, DesignType.Orange_Hover, DesignType.Orange_Click, , , New Action(AddressOf btnEscMenu_Options))
+        UpdateButton(WindowCount, "btnMainMenu", 16, 80, 178, 28, "Back to Main Menu", FontType.Georgia, , , , , , , DesignType.Blue, DesignType.Blue_Hover, DesignType.Blue_Click, , , New Action(AddressOf btnEscMenu_MainMenu))
+        UpdateButton(WindowCount, "btnExit", 16, 112, 178, 28, "Exit the Game", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnEscMenu_Exit))
     End Sub
 
-    Public Sub ControlWindow_Bars()
+    Public Sub UpdateWindow_Bars()
         ' Control window
-        ControlWindow("winBars", "", FontType.Georgia, zOrder_Win, 10, 10, 239, 77, 0, False, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , False, , , False)
+        UpdateWindow("winBars", "", FontType.Georgia, zOrder_Win, 10, 10, 239, 77, 0, False, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , False, , , False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 6, 227, 65, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 227, 65, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Blank Bars
-        ControlPictureBox(WindowCount, "picHP_Blank", 15, 15, 209, 13, , , , , 24, 24, 24)
-        ControlPictureBox(WindowCount, "picSP_Blank", 15, 32, 209, 13, , , , , 25, 25, 25)
-        ControlPictureBox(WindowCount, "picEXP_Blank", 15, 49, 209, 13, , , , , 26, 26, 26)
+        UpdatePictureBox(WindowCount, "picHP_Blank", 15, 15, 209, 13, , , , , 24, 24, 24)
+        UpdatePictureBox(WindowCount, "picSP_Blank", 15, 32, 209, 13, , , , , 25, 25, 25)
+        UpdatePictureBox(WindowCount, "picEXP_Blank", 15, 49, 209, 13, , , , , 26, 26, 26)
 
         ' Draw the bars
-        ControlPictureBox(WindowCount, "picBlank", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Bars_OnDraw))
+        UpdatePictureBox(WindowCount, "picBlank", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Bars_OnDraw))
 
         ' Bar Labels
-        ControlPictureBox(WindowCount, "picHealth", 16, 11, 44, 14, , , , , 21, 21, 21)
-        ControlPictureBox(WindowCount, "picSpirit", 16, 28, 44, 14, , , , , 22, 22, 22)
-        ControlPictureBox(WindowCount, "picExperience", 16, 45, 74, 14, , , , , 23, 23, 23)
+        UpdatePictureBox(WindowCount, "picHealth", 16, 11, 44, 14, , , , , 21, 21, 21)
+        UpdatePictureBox(WindowCount, "picSpirit", 16, 28, 44, 14, , , , , 22, 22, 22)
+        UpdatePictureBox(WindowCount, "picExperience", 16, 45, 74, 14, , , , , 23, 23, 23)
 
         ' Labels
-        ControlLabel(WindowCount, "lblHP", 15, 14, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblMP", 15, 31, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblEXP", 15, 48, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblHP", 15, 14, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblMP", 15, 31, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblEXP", 15, 48, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
     End Sub
 
-    Public Sub ControlWindow_Chat()
+    Public Sub UpdateWindow_Chat()
         ' Control window
-        ControlWindow("winChat", "", FontType.Georgia, zOrder_Win, 8, GameState.ResolutionHeight - 178, 352, 152, 0, False, , , , , , , , , , , , , , , False)
+        UpdateWindow("winChat", "", FontType.Georgia, zOrder_Win, 8, GameState.ResolutionHeight - 178, 352, 152, 0, False, , , , , , , , , , , , , , , False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Channel boxes
-        ControlCheckbox(WindowCount, "chkGame", 10, 2, 49, 23, 1, "Game", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Game))
-        ControlCheckbox(WindowCount, "chkMap", 60, 2, 49, 23, 1, "Map", FontType.Arial, , , , DesignType.ChkChat, , , New Action(AddressOf chkChat_Map))
-        ControlCheckbox(WindowCount, "chkGlobal", 110, 2, 49, 23, 1, "Global", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Global))
-        ControlCheckbox(WindowCount, "chkParty", 160, 2, 49, 23, 1, "Party", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Party))
-        ControlCheckbox(WindowCount, "chkGuild", 210, 2, 49, 23, 1, "Guild", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Guild))
-        ControlCheckbox(WindowCount, "chkPlayer", 260, 2, 49, 23, 1, "Player", FontType.Arial, , , , DesignType.ChkChat, , ,  , , New Action(AddressOf chkChat_Player))
+        UpdateCheckBox(WindowCount, "chkGame", 10, 2, 49, 23, 1, "Game", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Game))
+        UpdateCheckBox(WindowCount, "chkMap", 60, 2, 49, 23, 1, "Map", FontType.Arial, , , , DesignType.ChkChat, , , New Action(AddressOf chkChat_Map))
+        UpdateCheckBox(WindowCount, "chkGlobal", 110, 2, 49, 23, 1, "Global", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Global))
+        UpdateCheckBox(WindowCount, "chkParty", 160, 2, 49, 23, 1, "Party", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Party))
+        UpdateCheckBox(WindowCount, "chkGuild", 210, 2, 49, 23, 1, "Guild", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Guild))
+        UpdateCheckBox(WindowCount, "chkPlayer", 260, 2, 49, 23, 1, "Player", FontType.Arial, , , , DesignType.ChkChat, , ,  , , New Action(AddressOf chkChat_Player))
 
         ' Blank picturebox
-        ControlPictureBox(WindowCount, "picNull", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Chat_OnDraw))
+        UpdatePictureBox(WindowCount, "picNull", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Chat_OnDraw))
 
         ' Chat button
-        ControlButton(WindowCount, "btnChat", 296, 124 + 16, 48, 20, "Say", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSay_Click))
+        UpdateButton(WindowCount, "btnChat", 296, 124 + 16, 48, 20, "Say", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSay_Click))
 
         ' Chat Textbox
-        ControlTextbox(WindowCount, "txtChat", 12, 127 + 16, 286, 25, , FontType.Georgia, , , , , , , , , , , , , , , CHAT_LENGTH)
+        UpdateTextbox(WindowCount, "txtChat", 12, 127 + 16, 286, 25, , FontType.Georgia, , , , , , , , , , , , , , , CHAT_LENGTH)
 
         ' Buttons
-        ControlButton(WindowCount, "btnUp", 328, 28, 11, 13, , , , 4, 52, 4, , , , , , , , New Action(AddressOf btnChat_Up))
-        ControlButton(WindowCount, "btnDown", 327, 122, 11, 13, , , , 5, 53, 5, , , , , , , , New Action(AddressOf btnChat_Down))
+        UpdateButton(WindowCount, "btnUp", 328, 28, 11, 13, , , , 4, 52, 4, , , , , , , , New Action(AddressOf btnChat_Up))
+        UpdateButton(WindowCount, "btnDown", 327, 122, 11, 13, , , , 5, 53, 5, , , , , , , , New Action(AddressOf btnChat_Down))
 
         ' Custom Handlers for mouse up
         Windows(WindowCount).Controls(GetControlIndex("winChat", "btnUp")).CallBack(EntState.MouseUp) = New Action(AddressOf btnChat_Up_MouseUp)
@@ -3020,46 +3020,46 @@ Public Class Gui
         End With
     End Sub
 
-    Public Sub ControlWindow_ChatSmall()
+    Public Sub UpdateWindow_ChatSmall()
         ' Control window
-        ControlWindow("winChatSmall", "", FontType.Georgia, zOrder_Win, 8, 0, 0, 0, 0, False, , , , , , , , , , , , , , New Action(AddressOf ChatSmall_OnDraw), False, , , True)
+        UpdateWindow("winChatSmall", "", FontType.Georgia, zOrder_Win, 8, 0, 0, 0, 0, False, , , , , , , , , , , , , , New Action(AddressOf ChatSmall_OnDraw), False, , , True)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Chat Label
-        ControlLabel(WindowCount, "lblMsg", 12, 140, 286, 25, "Press 'Enter' to open chatbox.", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblMsg", 12, 140, 286, 25, "Press 'Enter' to open chatbox.", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
     End Sub
 
-    Public Sub ControlWindow_Hotbar()
+    Public Sub UpdateWindow_Hotbar()
         ' Control window
-        ControlWindow("winHotbar", "", FontType.Georgia, zOrder_Win, 372, 10, 418, 36, 0, False, , , , , , , , , , , New Action(AddressOf Hotbar_MouseMove), New Action(AddressOf Hotbar_MouseDown), New Action(AddressOf Hotbar_DblClick), New Action(AddressOf DrawHotbar), False, False)
+        UpdateWindow("winHotbar", "", FontType.Georgia, zOrder_Win, 372, 10, 418, 36, 0, False, , , , , , , , , , , New Action(AddressOf Hotbar_MouseMove), New Action(AddressOf Hotbar_MouseDown), New Action(AddressOf Hotbar_DblClick), New Action(AddressOf DrawHotbar), False, False)
     End Sub
 
-    Public Sub ControlWindow_Menu()
+    Public Sub UpdateWindow_Menu()
         ' Control window
-        ControlWindow("winMenu", "", FontType.Georgia, zOrder_Win, GameState.ResolutionWidth - 229, GameState.ResolutionHeight - 31, 229, 31, 0, False, , , , , , , , , , , , , , , , , False, False)
+        UpdateWindow("winMenu", "", FontType.Georgia, zOrder_Win, GameState.ResolutionWidth - 229, GameState.ResolutionHeight - 31, 229, 31, 0, False, , , , , , , , , , , , , , , , , False, False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Wood part
-        ControlPictureBox(WindowCount, "picWood", 0, 5, 228, 21, , , , , , , , DesignType.Wood, DesignType.Wood, DesignType.Wood)
+        UpdatePictureBox(WindowCount, "picWood", 0, 5, 228, 21, , , , , , , , DesignType.Wood, DesignType.Wood, DesignType.Wood)
         ' Buttons
-        ControlButton(WindowCount, "btnChar", 8, 1, 29, 29, , , 108, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Char), , , -1, -2, "Character (C)")
-        ControlButton(WindowCount, "btnInv", 44, 1, 29, 29, , , 1, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Inv), , , -1, -2, "Inventory (I)")
-        ControlButton(WindowCount, "btnSkills", 82, 1, 29, 29, , , 109, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Skills), , , -1, -2, "Skills (K)")
-        'ControlButton WindowCount, "btnMap", 119, 1, 29, 29, , , , 106, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Map), , , -1, -2
-        'ControlButton WindowCount, "btnGuild", 155, 1, 29, 29, , , , 107, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Guild), , , -1, -1
-        'ControlButton WindowCount, "btnQuest", 191, 1, 29, 29, , , , 23, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Quest), , , -1, -2
-        ControlButton(WindowCount, "btnMap", 119, 1, 29, 29, , , 106, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Map), , , -1, -2)
-        ControlButton(WindowCount, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , , , -1, -1)
-        ControlButton(WindowCount, "btnQuest", 191, 1, 29, 29, , , 23, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Quest), , , -1, -2)
+        UpdateButton(WindowCount, "btnChar", 8, 1, 29, 29, , , 108, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Char), , , -1, -2, "Character (C)")
+        UpdateButton(WindowCount, "btnInv", 44, 1, 29, 29, , , 1, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Inv), , , -1, -2, "Inventory (I)")
+        UpdateButton(WindowCount, "btnSkills", 82, 1, 29, 29, , , 109, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Skills), , , -1, -2, "Skills (K)")
+        'UpdateButton WindowCount, "btnMap", 119, 1, 29, 29, , , , 106, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Map), , , -1, -2
+        'UpdateButton WindowCount, "btnGuild", 155, 1, 29, 29, , , , 107, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Guild), , , -1, -1
+        'UpdateButton WindowCount, "btnQuest", 191, 1, 29, 29, , , , 23, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Quest), , , -1, -2
+        UpdateButton(WindowCount, "btnMap", 119, 1, 29, 29, , , 106, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Map), , , -1, -2)
+        UpdateButton(WindowCount, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , , , -1, -1)
+        UpdateButton(WindowCount, "btnQuest", 191, 1, 29, 29, , , 23, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Quest), , , -1, -2)
     End Sub
 
-    Public Sub ControlWindow_Inventory()
+    Public Sub UpdateWindow_Inventory()
         ' Control window
-        ControlWindow("winInventory", "Inventory", FontType.Georgia, zOrder_Win, 0, 0, 202, 319, 1, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Inventory_MouseMove), New Action(AddressOf Inventory_MouseDown), New Action(AddressOf Inventory_DblClick), New Action(AddressOf DrawInventory))
+        UpdateWindow("winInventory", "Inventory", FontType.Georgia, zOrder_Win, 0, 0, 202, 319, 1, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Inventory_MouseMove), New Action(AddressOf Inventory_MouseDown), New Action(AddressOf Inventory_DblClick), New Action(AddressOf DrawInventory))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -3068,19 +3068,19 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Inv))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Inv))
 
         ' Gold amount
-        ControlPictureBox(WindowCount, "picBlank", 8, 293, 186, 18, , , , , 67, 67, 67)
-        ControlLabel(WindowCount, "lblGold", 42, 296, 100, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.Yellow)
+        UpdatePictureBox(WindowCount, "picBlank", 8, 293, 186, 18, , , , , 67, 67, 67)
+        UpdateLabel(WindowCount, "lblGold", 42, 296, 100, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.Yellow)
 
         ' Drop
-        ControlButton(WindowCount, "btnDrop", 155, 294, 38, 16, "Drop", , , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , , , , 5, 3)
+        UpdateButton(WindowCount, "btnDrop", 155, 294, 38, 16, "Drop", , , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , , , , 5, 3)
     End Sub
 
-    Public Sub ControlWindow_Character()
+    Public Sub UpdateWindow_Character()
         ' Control window
-        ControlWindow("winCharacter", "Character", FontType.Georgia, zOrder_Win, 0, 0, 174, 356, 62, False, 2, 6, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_DblClick), New Action(AddressOf DrawCharacter))
+        UpdateWindow("winCharacter", "Character", FontType.Georgia, zOrder_Win, 0, 0, 174, 356, 62, False, 2, 6, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_DblClick), New Action(AddressOf DrawCharacter))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -3089,77 +3089,77 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Char))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Char))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 26, 162, 287, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 162, 287, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' White boxes
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 34, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 54, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 74, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 94, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 114, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 134, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        ControlPictureBox(WindowCount, "picWhiteBox", 13, 154, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 34, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 54, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 74, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 94, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 114, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 134, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 154, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
 
         ' Labels
-        ControlLabel(WindowCount, "lblName", 18, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblJob", 18, 56, 147, 10, "Job", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblLevel", 18, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblGuild", 18, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblHealth", 18, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblSpirit", 18, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblExperience", 18, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        ControlLabel(WindowCount, "lblName2", 13, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblJob2", 13, 56, 147, 10, "", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblLevel2", 13, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblGuild2", 13, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblHealth2", 13, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblSpirit2", 13, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblExperience2", 13, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblName", 18, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblJob", 18, 56, 147, 10, "Job", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblLevel", 18, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblGuild", 18, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblHealth", 18, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblSpirit", 18, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblExperience", 18, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblName2", 13, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblJob2", 13, 56, 147, 10, "", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblLevel2", 13, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblGuild2", 13, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblHealth2", 13, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblSpirit2", 13, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblExperience2", 13, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
 
         ' Attributes
-        ControlPictureBox(WindowCount, "picShadow", 18, 176, 138, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        ControlLabel(WindowCount, "lblLabel", 18, 173, 138, 10, "Attributes", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picShadow", 18, 176, 138, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(WindowCount, "lblLabel", 18, 173, 138, 10, "Attributes", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Black boxes
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 186, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 206, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 226, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 246, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 266, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        ControlPictureBox(WindowCount, "picBlackBox", 13, 286, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 186, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 206, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 226, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 246, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 266, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(WindowCount, "picBlackBox", 13, 286, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Labels
-        ControlLabel(WindowCount, "lblLabel", 18, 188, 138, 10, "Strength", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        ControlLabel(WindowCount, "lblLabel", 18, 208, 138, 10, "Vitality", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        ControlLabel(WindowCount, "lblLabel", 18, 228, 138, 10, "Intelligence", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        ControlLabel(WindowCount, "lblLabel", 18, 248, 138, 10, "Luck", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        ControlLabel(WindowCount, "lblLabel", 18, 268, 138, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        ControlLabel(WindowCount, "lblLabel", 18, 288, 138, 10, "Stat Points", FontType.Arial, Microsoft.Xna.Framework.Color.Green)
+        UpdateLabel(WindowCount, "lblLabel", 18, 188, 138, 10, "Strength", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(WindowCount, "lblLabel", 18, 208, 138, 10, "Vitality", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(WindowCount, "lblLabel", 18, 228, 138, 10, "Intelligence", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(WindowCount, "lblLabel", 18, 248, 138, 10, "Luck", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(WindowCount, "lblLabel", 18, 268, 138, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(WindowCount, "lblLabel", 18, 288, 138, 10, "Stat Points", FontType.Arial, Microsoft.Xna.Framework.Color.Green)
 
         ' Buttons
-        ControlButton(WindowCount, "btnStat_1", 144, 188, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint1))
-        ControlButton(WindowCount, "btnStat_2", 144, 208, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint2))
-        ControlButton(WindowCount, "btnStat_3", 144, 228, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint3))
-        ControlButton(WindowCount, "btnStat_4", 144, 248, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint4))
-        ControlButton(WindowCount, "btnStat_5", 144, 268, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint5))
+        UpdateButton(WindowCount, "btnStat_1", 144, 188, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint1))
+        UpdateButton(WindowCount, "btnStat_2", 144, 208, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint2))
+        UpdateButton(WindowCount, "btnStat_3", 144, 228, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint3))
+        UpdateButton(WindowCount, "btnStat_4", 144, 248, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint4))
+        UpdateButton(WindowCount, "btnStat_5", 144, 268, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint5))
 
         ' fake buttons
-        ControlPictureBox(WindowCount, "btnGreyStat_1", 144, 188, 15, 15, , , , , 47, 47, 47)
-        ControlPictureBox(WindowCount, "btnGreyStat_2", 144, 208, 15, 15, , , , , 47, 47, 47)
-        ControlPictureBox(WindowCount, "btnGreyStat_3", 144, 228, 15, 15, , , , , 47, 47, 47)
-        ControlPictureBox(WindowCount, "btnGreyStat_4", 144, 248, 15, 15, , , , , 47, 47, 47)
-        ControlPictureBox(WindowCount, "btnGreyStat_5", 144, 268, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(WindowCount, "btnGreyStat_1", 144, 188, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(WindowCount, "btnGreyStat_2", 144, 208, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(WindowCount, "btnGreyStat_3", 144, 228, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(WindowCount, "btnGreyStat_4", 144, 248, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(WindowCount, "btnGreyStat_5", 144, 268, 15, 15, , , , , 47, 47, 47)
 
         ' Labels
-        ControlLabel(WindowCount, "lblStat_1", 50, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblStat_2", 50, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblStat_3", 50, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblStat_4", 50, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblStat_5", 50, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        ControlLabel(WindowCount, "lblPoints", 65, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblStat_1", 50, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblStat_2", 50, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblStat_3", 50, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblStat_4", 50, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblStat_5", 50, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(WindowCount, "lblPoints", 65, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
     End Sub
 
 
@@ -3368,28 +3368,28 @@ Public Class Gui
         Next
     End Sub
 
-    Public Sub ControlWindow_Description()
+    Public Sub UpdateWindow_Description()
         ' Control window
-        ControlWindow("winDescription", "", FontType.Georgia, zOrder_Win, 0, 0, 193, 142, 0, False, , , DesignType.Win_Desc, DesignType.Win_Desc, DesignType.Win_Desc, , , , , , , , , , False)
+        UpdateWindow("winDescription", "", FontType.Georgia, zOrder_Win, 0, 0, 193, 142, 0, False, , , DesignType.Win_Desc, DesignType.Win_Desc, DesignType.Win_Desc, , , , , , , , , , False)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Name
-        ControlLabel(WindowCount, "lblName", 8, 12, 177, 10, "Flame Sword", FontType.Arial, Microsoft.Xna.Framework.Color.Blue, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblName", 8, 12, 177, 10, "Flame Sword", FontType.Arial, Microsoft.Xna.Framework.Color.Blue, AlignmentType.Center)
 
         ' Sprite box
-        ControlPictureBox(WindowCount, "picSprite", 18, 32, 68, 68, , , , , , , , DesignType.DescPic, DesignType.DescPic, DesignType.DescPic, , , , , , , New Action(AddressOf Description_OnDraw))
+        UpdatePictureBox(WindowCount, "picSprite", 18, 32, 68, 68, , , , , , , , DesignType.DescPic, DesignType.DescPic, DesignType.DescPic, , , , , , , New Action(AddressOf Description_OnDraw))
 
         ' Sep
-        ControlPictureBox(WindowCount, "picSep", 96, 28, 1, 92, , , , , 44, 44, 44)
+        UpdatePictureBox(WindowCount, "picSep", 96, 28, 1, 92, , , , , 44, 44, 44)
 
         ' Requirements
-        ControlLabel(WindowCount, "lblClass", 5, 102, 92, 10, "Warrior", FontType.Georgia, Microsoft.Xna.Framework.Color.Green, AlignmentType.Center)
-        ControlLabel(WindowCount, "lblLevel", 5, 114, 92, 10, "Level 20", FontType.Georgia, Microsoft.Xna.Framework.Color.Red, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblClass", 5, 102, 92, 10, "Warrior", FontType.Georgia, Microsoft.Xna.Framework.Color.Green, AlignmentType.Center)
+        UpdateLabel(WindowCount, "lblLevel", 5, 114, 92, 10, "Level 20", FontType.Georgia, Microsoft.Xna.Framework.Color.Red, AlignmentType.Center)
 
         ' Bar
-        ControlPictureBox(WindowCount, "picBar", 19, 114, 66, 12, False, , , , 45, 45, 45)
+        UpdatePictureBox(WindowCount, "picBar", 19, 114, 66, 12, False, , , , 45, 45, 45)
     End Sub
 
     ' #################
@@ -3434,16 +3434,16 @@ Public Class Gui
         Next
     End Sub
 
-    Public Sub ControlWindow_DragBox()
+    Public Sub UpdateWindow_DragBox()
         ' Control window
-        ControlWindow("winDragBox", "", FontType.Georgia, zOrder_Win, 0, 0, 32, 32, 0, False, , , , , , , , , , , , New Action(AddressOf DragBox_Check), , New Action(AddressOf DragBox_OnDraw))
+        UpdateWindow("winDragBox", "", FontType.Georgia, zOrder_Win, 0, 0, 32, 32, 0, False, , , , , , , , , , , , New Action(AddressOf DragBox_Check), , New Action(AddressOf DragBox_OnDraw))
 
         ' Need to set up unique mouseup event
         Windows(WindowCount).Window.CallBack(EntState.MouseUp) = New Action(AddressOf DragBox_Check)
     End Sub
 
-    Public Sub ControlWindow_Options()
-        ControlWindow("winOptions", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 212, 0, 0, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , , , False, False)
+    Public Sub UpdateWindow_Options()
+        UpdateWindow("winOptions", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 212, 0, 0, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , , , False, False)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -3452,46 +3452,46 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 6, 198, 200, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 198, 200, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' General
-        ControlPictureBox(WindowCount, "picBlank", 35, 25, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        ControlLabel(WindowCount, "lblBlank", 35, 22, 140, 0, "General Options", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picBlank", 35, 25, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(WindowCount, "lblBlank", 35, 22, 140, 0, "General Options", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Check boxes
-        ControlCheckbox(WindowCount, "chkMusic", 35, 40, 80, , , "Music", FontType.Georgia, , , , DesignType.ChkNorm)
-        ControlCheckbox(WindowCount, "chkSound", 115, 40, 80, , , "Sound", FontType.Georgia, , , , DesignType.ChkNorm)
-        ControlCheckbox(WindowCount, "chkAutotile", 35, 60, 80, , , "Autotile", FontType.Georgia, , , , DesignType.ChkNorm)
-        ControlCheckbox(WindowCount, "chkFullscreen", 115, 60, 80, , , "Fullscreen", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(WindowCount, "chkMusic", 35, 40, 80, , , "Music", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(WindowCount, "chkSound", 115, 40, 80, , , "Sound", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(WindowCount, "chkAutotile", 35, 60, 80, , , "Autotile", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(WindowCount, "chkFullscreen", 115, 60, 80, , , "Fullscreen", FontType.Georgia, , , , DesignType.ChkNorm)
 
         ' Resolution
-        ControlPictureBox(WindowCount, "picBlank", 35, 85, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        ControlLabel(WindowCount, "lblBlank", 35, 92, 140, 10, "Select Resolution", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(WindowCount, "picBlank", 35, 85, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(WindowCount, "lblBlank", 35, 92, 140, 10, "Select Resolution", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' combobox
         ControlComboBox(WindowCount, "cmbRes", 30, 100, 150, 18, DesignType.ComboNorm)
 
         ' Button
-        ControlButton(WindowCount, "btnConfirm", 65, 168, 80, 22, "Confirm", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , AddressOf btnOptions_Confirm)
+        UpdateButton(WindowCount, "btnConfirm", 65, 168, 80, 22, "Confirm", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , AddressOf btnOptions_Confirm)
 
         ' Populate the options screen
         SetOptionsScreen()
     End Sub
 
-    Public Sub ControlWindow_Combobox()
+    Public Sub UpdateWindow_Combobox()
         ' background window
-        ControlWindow("winComboMenuBG", "ComboMenuBG", FontType.Georgia, zOrder_Win, 0, 0, 800, 600, 0, False, , , , , , , , , , , , , New Action(AddressOf CloseComboMenu), , , False, False)
+        UpdateWindow("winComboMenuBG", "ComboMenuBG", FontType.Georgia, zOrder_Win, 0, 0, 800, 600, 0, False, , , , , , , , , , , , , New Action(AddressOf CloseComboMenu), , , False, False)
 
         ' window
-        ControlWindow("winComboMenu", "ComboMenu", FontType.Georgia, zOrder_Win, 0, 0, 100, 100, 0, False, , , DesignType.ComboMenuNorm, , , , , , , , , , , , , , False, False)
+        UpdateWindow("winComboMenu", "ComboMenu", FontType.Georgia, zOrder_Win, 0, 0, 100, 100, 0, False, , , DesignType.ComboMenuNorm, , , , , , , , , , , , , , False, False)
 
         ' centralize it
         CentralizeWindow(WindowCount)
     End Sub
 
-    Public Sub ControlWindow_Skills()
+    Public Sub UpdateWindow_Skills()
         ' Control window
-        ControlWindow("winSkills", "Skills", FontType.Georgia, zOrder_Win, 0, 0, 202, 297, 109, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Skills_MouseMove), New Action(AddressOf Skills_MouseDown), New Action(AddressOf Skills_DblClick), New Action(AddressOf DrawSkills))
+        UpdateWindow("winSkills", "Skills", FontType.Georgia, zOrder_Win, 0, 0, 202, 297, 109, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Skills_MouseMove), New Action(AddressOf Skills_MouseDown), New Action(AddressOf Skills_DblClick), New Action(AddressOf DrawSkills))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
@@ -3500,51 +3500,51 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Skills))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Skills))
     End Sub
 
-    Public Sub ControlWindow_Bank()
-        ControlWindow("winBank", "Bank", FontType.Georgia, zOrder_Win, 0, 0, 391, 373, 1, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Bank_MouseMove), New Action(AddressOf Bank_MouseDown), New Action(AddressOf Bank_DblClick), New Action(AddressOf DrawBank))
+    Public Sub UpdateWindow_Bank()
+        UpdateWindow("winBank", "Bank", FontType.Georgia, zOrder_Win, 0, 0, 391, 373, 1, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Bank_MouseMove), New Action(AddressOf Bank_MouseDown), New Action(AddressOf Bank_DblClick), New Action(AddressOf DrawBank))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Bank))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Bank))
     End Sub
 
-    Public Sub ControlWindow_Shop()
+    Public Sub UpdateWindow_Shop()
         ' Control window
-        ControlWindow("winShop", "Shop", FontType.Georgia, zOrder_Win, 0, 0, 278, 293, 17, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Shop_MouseMove), New Action(AddressOf Shop_MouseDown), , New Action(AddressOf DrawShopBackground))
+        UpdateWindow("winShop", "Shop", FontType.Georgia, zOrder_Win, 0, 0, 278, 293, 17, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Shop_MouseMove), New Action(AddressOf Shop_MouseDown), , New Action(AddressOf DrawShopBackground))
 
         ' Centralize it
         CentralizeWindow(WindowCount)
 
         ' Close button
-        ControlButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 6, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnShop_Close))
+        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 6, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnShop_Close))
 
         ' Parchment
-        ControlPictureBox(WindowCount, "picParchment", 6, 215, 266, 50, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf DrawShop))
+        UpdatePictureBox(WindowCount, "picParchment", 6, 215, 266, 50, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf DrawShop))
 
         ' Picture Box
-        ControlPictureBox(WindowCount, "picItemBG", 13, 222, 36, 36, , , , , 30, 30, 30)
-        ControlPictureBox(WindowCount, "picItem", 15, 224, 32, 32)
+        UpdatePictureBox(WindowCount, "picItemBG", 13, 222, 36, 36, , , , , 30, 30, 30)
+        UpdatePictureBox(WindowCount, "picItem", 15, 224, 32, 32)
 
         ' Buttons
-        ControlButton(WindowCount, "btnBuy", 190, 228, 70, 24, "Buy", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnShopBuy))
-        ControlButton(WindowCount, "btnSell", 190, 228, 70, 24, "Sell", FontType.Arial, , , , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnShopSell))
+        UpdateButton(WindowCount, "btnBuy", 190, 228, 70, 24, "Buy", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnShopBuy))
+        UpdateButton(WindowCount, "btnSell", 190, 228, 70, 24, "Sell", FontType.Arial, , , , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnShopSell))
 
         ' Buying/Selling
-        ControlCheckbox(WindowCount, "chkBuying", 173, 265, 49, 20, 1, , , , , , DesignType.ChkBuying, , , , , New Action(AddressOf chkShopBuying))
-        ControlCheckbox(WindowCount, "chkSelling", 222, 265, 49, 20, 0, , , , ,  , DesignType.ChkSelling, , , , , New Action(AddressOf chkShopSelling))
+        UpdateCheckBox(WindowCount, "chkBuying", 173, 265, 49, 20, 1, , , , , , DesignType.ChkBuying, , , , , New Action(AddressOf chkShopBuying))
+        UpdateCheckBox(WindowCount, "chkSelling", 222, 265, 49, 20, 0, , , , ,  , DesignType.ChkSelling, , , , , New Action(AddressOf chkShopSelling))
 
         '        Labels
-        ControlLabel(WindowCount, "lblName", 56, 226, 300, 10, "Test Item", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
-        ControlLabel(WindowCount, "lblCost", 56, 240, 300, 10, "1000g", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
+        UpdateLabel(WindowCount, "lblName", 56, 226, 300, 10, "Test Item", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
+        UpdateLabel(WindowCount, "lblCost", 56, 240, 300, 10, "1000g", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
 
         ' Gold
-        ControlLabel(WindowCount, "lblGold", 44, 269, 300, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(WindowCount, "lblGold", 44, 269, 300, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
     End Sub
 
     ' Shop
@@ -3826,29 +3826,29 @@ Public Class Gui
         btnOptions_Close()
     End Sub
 
-    Public Sub ControlWindow_RightClick()
+    Public Sub UpdateWindow_RightClick()
         ' Control window
-        ControlWindow("winRightClickBG", "", FontType.Georgia, zOrder_Win, 0, 0, 800, 600, 0, False, , , , , , , , , , , , New Action(AddressOf RightClick_Close), , , False)
+        UpdateWindow("winRightClickBG", "", FontType.Georgia, zOrder_Win, 0, 0, 800, 600, 0, False, , , , , , , , , , , , New Action(AddressOf RightClick_Close), , , False)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
     End Sub
 
-    Public Sub ControlWindow_PlayerMenu()
+    Public Sub UpdateWindow_PlayerMenu()
         ' Control window
-        ControlWindow("winPlayerMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 110, 106, 0, False, , , DesignType.Win_Desc, DesignType.Win_Desc, DesignType.Win_Desc, , , , , , , New Action(AddressOf RightClick_Close), , , False)
+        UpdateWindow("winPlayerMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 110, 106, 0, False, , , DesignType.Win_Desc, DesignType.Win_Desc, DesignType.Win_Desc, , , , , , , New Action(AddressOf RightClick_Close), , , False)
 
         ' Centralize it
         CentralizeWindow(WindowCount)
 
         ' Name
-        ControlButton(WindowCount, "btnName", 8, 8, 94, 18, "[Name]", FontType.Georgia, , , , , , , DesignType.MenuHeader, DesignType.MenuHeader, DesignType.MenuHeader, , , New Action(AddressOf RightClick_Close))
+        UpdateButton(WindowCount, "btnName", 8, 8, 94, 18, "[Name]", FontType.Georgia, , , , , , , DesignType.MenuHeader, DesignType.MenuHeader, DesignType.MenuHeader, , , New Action(AddressOf RightClick_Close))
 
         ' Options
-        ControlButton(WindowCount, "btnParty", 8, 26, 94, 18, "Invite to Party", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Party))
-        ControlButton(WindowCount, "btnTrade", 8, 44, 94, 18, "Request Trade", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Trade))
-        ControlButton(WindowCount, "btnGuild", 8, 62, 94, 18, "Invite to Guild", FontType.Georgia, , , , , , , DesignType.MenuOption, , , , , New Action(AddressOf PlayerMenu_Guild))
-        ControlButton(WindowCount, "btnPM", 8, 80, 94, 18, "Private Message", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Player))
+        UpdateButton(WindowCount, "btnParty", 8, 26, 94, 18, "Invite to Party", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Party))
+        UpdateButton(WindowCount, "btnTrade", 8, 44, 94, 18, "Request Trade", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Trade))
+        UpdateButton(WindowCount, "btnGuild", 8, 62, 94, 18, "Invite to Guild", FontType.Georgia, , , , , , , DesignType.MenuOption, , , , , New Action(AddressOf PlayerMenu_Guild))
+        UpdateButton(WindowCount, "btnPM", 8, 80, 94, 18, "Private Message", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Player))
     End Sub
 
     ' Right Click Menu
