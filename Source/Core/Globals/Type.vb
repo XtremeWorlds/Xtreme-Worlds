@@ -867,7 +867,7 @@ Public Module Type
         Dim EventId As Integer
     End Structure
 
-    Public Structure EntityStruct
+    Public Structure ControlStruct
         Dim Name As String
         Dim Type As Byte
         Dim Top As Long
@@ -920,8 +920,8 @@ Public Module Type
     End Structure
 
     Public Structure WindowStruct
-        Dim Window As EntityStruct
-        Dim Controls() As EntityStruct
+        Dim Window As ControlStruct
+        Dim Controls() As ControlStruct
         Dim ControlCount As Long
         Dim ActiveControl As Long
         Dim LastControl As Long

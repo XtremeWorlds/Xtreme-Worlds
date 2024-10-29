@@ -4415,5 +4415,24 @@ Public Class Gui
             End If
         Next
     End Sub
+    
+    Public Shared Sub UpdateActiveControl(modifiedControl As ControlStruct)
+        Dim activeWindow = Gui.Windows(Gui.ActiveWindow)
+
+        ' Reassign the modified control back into the active window
+        activeWindow.Controls(activeWindow.ActiveControl) = modifiedControl
+
+        ' Save the modified window back into the Gui system
+        Gui.Windows(Gui.ActiveWindow) = activeWindow
+    End Sub
+
+    Public Function GetActiveControl() As Nullable(Of ControlStruct)
+        If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Window.Visible AndAlso Gui.Windows(Gui.ActiveWindow).ActiveControl >= 0 Then
+            ' Return the active control
+            Return Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
+        End If
+        Return Nothing ' No active control found
+    End Function
+
 
 End Class

@@ -431,44 +431,44 @@ Module General
 
     Private Sub HandleTextInput()
         SyncLock GameClient.InputLock
-            ' Loop through all keys in the keyboard state
-            For Each key As Keys In System.Enum.GetValues(GetType(Keys))
-                Dim isKeyDown =  GameClient.IsKeyStateActive(key)
+            ' Iterate over all pressed keys
+            For Each key As Keys In GameClient.CurrentKeyboardState.GetPressedKeys()
+                If GameClient.IsKeyStateActive(key) AndAlso CanProcessKey(key) Then
+                    ' Handle Backspace key separately
+                    If key = Keys.Back Then
+                        Dim activeControl = Gui.GetActiveControl()
 
-                If isKeyDown Then
-                    ' Check if enough time has passed since the last key press processing
-                    If CanProcessKey(key) Then
-                        ' Handle Backspace separately
-                        If key = Keys.Back Then
-                            Dim control = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
-                            
-                            ' Ensure the control is not locked and text limit is respected
-                            If Not control.Locked AndALso control.Text.Length > 0 Then
-                                Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl).Text = control.Text.Substring(0, control.Text.Length - 1)
-                            End If
-                            Continue For
+                        If activeControl.HasValue AndAlso Not activeControl.Value.Locked AndAlso activeControl.Value.Text.Length > 0 Then
+                            ' Modify the text inside the struct and update it back in the window
+                            Dim modifiedControl = activeControl.Value
+                            modifiedControl.Text = modifiedControl.Text.Substring(0, modifiedControl.Text.Length - 1)
+
+                            ' Save the modified control back into the window
+                            Gui.UpdateActiveControl(modifiedControl)
                         End If
+                        Continue For ' Move to the next key
+                    End If
 
-                        ' Convert key to character
-                        Dim character As Nullable(Of Char) = ConvertKeyToChar(key, GameClient.IsKeyStateActive(Keys.LeftShift))
+                    ' Convert key to a character, considering Shift key
+                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
 
-                        ' If valid character and active control is available, add text
-                        If character.HasValue AndAlso Gui.ActiveWindow > 0 AndAlso
-                           Gui.Windows(Gui.ActiveWindow).Window.Visible AndAlso
-                           Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
+                    ' If the character is valid, update the active control's text
+                    If character.HasValue Then
+                        Dim activeControl = Gui.GetActiveControl()
 
-                            Dim control = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
+                        If activeControl.HasValue AndAlso Not activeControl.Value.Locked AndAlso activeControl.Value.Text.Length < activeControl.Value.Length Then
+                            ' Modify the control's text
+                            Dim modifiedControl = activeControl.Value
+                            modifiedControl.Text &= character.Value
 
-                            ' Ensure the control is not locked and text limit is respected
-                            If Not control.Locked AndAlso control.Text.Length < control.Length Then
-                                Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl).Text &= character.Value ' Add the character
-                            End If
+                            ' Save the modified control back into the window
+                            Gui.UpdateActiveControl(modifiedControl)
                         End If
                     End If
                 ElseIf KeyStates.ContainsKey(key) Then
-                    ' Remove the key from KeyStates when it is released
+                    ' If the key is released, remove it from KeyStates and reset the timer
                     KeyStates.Remove(key)
-                    KeyRepeatTimers.Remove(key) ' Reset the key's timer
+                    KeyRepeatTimers.Remove(key)
                 End If
             Next
         End SyncLock
@@ -652,7 +652,6 @@ Module General
 
                 If tmr25 < tick Then
                     PlayMusic(MyMap.Music)
-                    ProcessInputs()
                     tmr25 = tick + 25
                 End If
 
