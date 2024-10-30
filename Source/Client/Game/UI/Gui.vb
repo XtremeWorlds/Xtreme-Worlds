@@ -380,8 +380,7 @@ Public Class Gui
             End If
 
         Next
-
-        GetWindowIndex = 0
+        
     End Function
 
     Public Shared Function GetControlIndex(winName As String, controlName As String) As Long
@@ -399,8 +398,7 @@ Public Class Gui
             End If
 
         Next
-
-        GetControlIndex = 0
+        
     End Function
 
     Public Shared Function SetActiveControl(curWindow As Long, curControl As Long) As Boolean

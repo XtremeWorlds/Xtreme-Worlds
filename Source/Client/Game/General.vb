@@ -547,7 +547,7 @@ Module General
                 End If
 
                 ' In-game interactions after a successful left-click
-                If GameState.inGame Then
+                If GameState.InGame = 1 Then
                     If PetAlive( GameState.MyIndex) AndAlso IsInBounds() Then
                         PetMove( GameState.CurX, GameState.CurY)
                     End If
