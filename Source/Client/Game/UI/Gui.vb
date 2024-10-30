@@ -1006,23 +1006,13 @@ Public Class Gui
             End If
 
             ' call back
-            If Not callBack Is Nothing Then ExecuteCallback(callBack)
+            If Not callBack Is Nothing Then callBack()
         End If
 
         ' Reset
         If entState = EntState.MouseUp Then ResetMouseDown()
     End Function
-    
-    Private Sub ExecuteCallback(callBack As Action)
-        Task.Run(Sub()
-            Try
-                callBack?.Invoke()
-            Catch ex As Exception
-                Console.WriteLine($"Callback Error: {ex.Message}")
-            End Try
-        End Sub)
-    End Sub
-    
+
     Public Sub ResetInterface()
         Dim i As Long, x As Long
 
@@ -1046,13 +1036,13 @@ Public Class Gui
                 .Window.State = EntState.Normal
                 callBack = .Window.CallBack(EntState.Normal)
 
-                If Not callBack Is Nothing Then ExecuteCallback(callBack)
+                If Not callBack Is Nothing Then callBack()
 
                 For x = 1 To .ControlCount
                     .Controls(x).State = EntState.Normal
                     callBack = .Controls(x).CallBack(EntState.Normal)
 
-                    If Not callBack Is Nothing Then ExecuteCallback(callBack)
+                    If Not callBack Is Nothing Then callBack()
                 Next
 
             End With
