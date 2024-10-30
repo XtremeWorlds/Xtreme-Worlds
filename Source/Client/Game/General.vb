@@ -544,24 +544,26 @@ Private Sub HandleMouseClick(button As MouseButton)
         End If
 
         ' In-game interactions for left click
-        If button = MouseButton.Left AndAlso GameState.InGame Then
-            If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
-                PetMove(GameState.CurX, GameState.CurY)
-            End If
-            CheckAttack(True)
-            PlayerSearch(GameState.CurX, GameState.CurY, 0)
-        End If
-
-        ' Right-click interactions
-        If button = MouseButton.Right Then
-            If GameState.VbKeyShift Then
-                ' Admin warp if Shift is held and the player has moderator access
-                If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
-                    AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
+        If GameState.InGame = 1 Then
+            If button = MouseButton.Left Then
+                If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
+                    PetMove(GameState.CurX, GameState.CurY)
                 End If
-            Else
-                ' Handle right-click menu
-                HandleRightClickMenu()
+                CheckAttack(True)
+                PlayerSearch(GameState.CurX, GameState.CurY, 0)
+            End If
+
+            ' Right-click interactions
+            If button = MouseButton.Right and GameState.InGame = 1 Then
+                If GameState.VbKeyShift Then
+                    ' Admin warp if Shift is held and the player has moderator access
+                    If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
+                        AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
+                    End If
+                Else
+                    ' Handle right-click menu
+                    HandleRightClickMenu()
+                End If
             End If
         End If
 
