@@ -524,8 +524,7 @@ Public Class GameClient
             End Select
         End SyncLock
     End Function
-
-
+    
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()
         Environment.Exit(0)

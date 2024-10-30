@@ -493,8 +493,8 @@ Module General
     End Function
     
     Private Sub HandleMouseInputs()
-        HandleLeftClick()
-        HandleRightClick()
+        HandleMouseClick(MouseButton.Left)
+        HandleMouseClick(MouseButton.Right)
         HandleScrollWheel()
     End Sub
     
@@ -514,68 +514,62 @@ Module General
         End SyncLock
     End Sub
     
-    Private Sub HandleLeftClick()
-        SyncLock GameClient.InputLock
-            Dim currentTime As Integer = Environment.TickCount
-            
-            ' Detect MouseMove event (when the mouse position changes)
-            If GameClient.PreviousMouseState.LeftButton = ButtonState.Released And GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
-               GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
-                Gui.HandleInterfaceEvents(EntState.MouseMove)
-            End If
-            
-            ' Check if the left button has just been released after being pressed
-            If GameClient.CurrentMouseState.LeftButton = ButtonState.Pressed Then
-                ' Detect MouseDown event (when a button is pressed)
-                If GameClient.CurrentMouseState.LeftButton = ButtonState.Pressed Then
-                    Gui.HandleInterfaceEvents(EntState.MouseDown)
-                End If
+Private Sub HandleMouseClick(button As MouseButton)
+    SyncLock GameClient.InputLock
+        Dim currentTime As Integer = Environment.TickCount
 
-                ' Detect MouseUp event (when a button is released)
-                If GameClient.CurrentMouseState.LeftButton = ButtonState.Released Then
-                    Gui.HandleInterfaceEvents(EntState.MouseUp)
-                End If
-                
-                If GameClient.PreviousMouseState.LeftButton = ButtonState.Released Then
-                    ' Handle double-click logic
-                    If currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
-                        Gui.HandleInterfaceEvents(EntState.DblClick)
-                        GameState.LastLeftClickTime = 0 ' Reset to avoid consecutive double-clicks
-                    Else
-                        Gui.HandleInterfaceEvents(EntState.MouseDown)
-                        GameState.LastLeftClickTime = currentTime ' Track time for future double-clicks
-                    End If
-                End If
+        ' Handle MouseMove event when the mouse moves
+        If GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
+           GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
+            Gui.HandleInterfaceEvents(EntState.MouseMove)
+        End If
 
-                ' In-game interactions after a successful left-click
-                If GameState.InGame = 1 Then
-                    If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
-                        PetMove(GameState.CurX, GameState.CurY)
-                    End If
-                    CheckAttack(True)
-                    PlayerSearch(GameState.CurX, GameState.CurY, 0)
-                End If
-            End If
-        End SyncLock
-    End Sub
+        ' Check for MouseDown event (button pressed)
+        If GameClient.IsMouseButtonDown(button) AndAlso 
+           GameClient.PreviousMouseState.LeftButton = ButtonState.Released Then
+            Gui.HandleInterfaceEvents(EntState.MouseDown)
+            GameState.LastLeftClickTime = currentTime ' Track time for double-click detection
+        End If
 
-    Private Sub HandleRightClick()
-        SyncLock GameClient.InputLock
-            ' Check if the right button is pressed
-            If GameClient.CurrentMouseState.RightButton = ButtonState.Pressed Then
-                If GameState.VbKeyShift Then
-                    ' Admin warp if Shift is held and the player has moderator access
-                    If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
-                        AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
-                    End If
-                Else
-                    ' Handle the right-click menu
-                    HandleRightClickMenu()
-                End If
+        ' Check for MouseUp event (button released)
+        If Not GameClient.IsMouseButtonDown(button) AndAlso 
+           GameClient.PreviousMouseState.LeftButton = ButtonState.Pressed Then
+            Gui.HandleInterfaceEvents(EntState.MouseUp)
+        End If
+
+        ' Double-click detection for left button
+        If button = MouseButton.Left AndAlso 
+           currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
+            Gui.HandleInterfaceEvents(EntState.DblClick)
+            GameState.LastLeftClickTime = 0 ' Reset double-click timer
+        End If
+
+        ' In-game interactions for left click
+        If button = MouseButton.Left AndAlso GameState.InGame Then
+            If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
+                PetMove(GameState.CurX, GameState.CurY)
             End If
-        End SyncLock
-    End Sub
-    
+            CheckAttack(True)
+            PlayerSearch(GameState.CurX, GameState.CurY, 0)
+        End If
+
+        ' Right-click interactions
+        If button = MouseButton.Right Then
+            If GameState.VbKeyShift Then
+                ' Admin warp if Shift is held and the player has moderator access
+                If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
+                    AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
+                End If
+            Else
+                ' Handle right-click menu
+                HandleRightClickMenu()
+            End If
+        End If
+
+        ' Save the current state as the previous state for the next frame
+        GameClient.PreviousMouseState = GameClient.CurrentMouseState
+    End SyncLock
+End Sub
     Private Sub HandleRightClickMenu()
         ' Loop through all players and display the right-click menu for the matching one
         For i = 1 To MAX_PLAYERS
