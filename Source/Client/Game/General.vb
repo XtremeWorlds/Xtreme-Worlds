@@ -240,7 +240,7 @@ Module General
     Sub GameInit()
         ' Send a request to the server to open the admin menu if the user wants it.
         If Type.Setting.OpenAdminPanelOnLogin = 1 Then
-            If GetPlayerAccess( GameState.MyIndex) > 0 Then
+            If GetPlayerAccess(GameState.MyIndex) > 0 Then
                 SendRequestAdmin()
             End If
         End If
@@ -548,11 +548,11 @@ Module General
 
                 ' In-game interactions after a successful left-click
                 If GameState.InGame = 1 Then
-                    If PetAlive( GameState.MyIndex) AndAlso IsInBounds() Then
-                        PetMove( GameState.CurX, GameState.CurY)
+                    If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
+                        PetMove(GameState.CurX, GameState.CurY)
                     End If
                     CheckAttack(True)
-                    PlayerSearch( GameState.CurX, GameState.CurY, 0)
+                    PlayerSearch(GameState.CurX, GameState.CurY, 0)
                 End If
             End If
         End SyncLock
@@ -564,7 +564,7 @@ Module General
             If GameClient.CurrentMouseState.RightButton = ButtonState.Pressed Then
                 If GameState.VbKeyShift Then
                     ' Admin warp if Shift is held and the player has moderator access
-                    If GetPlayerAccess( GameState.MyIndex) >= AccessType.Moderator Then
+                    If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
                         AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
                     End If
                 Else
@@ -578,7 +578,7 @@ Module General
     Private Sub HandleRightClickMenu()
         ' Loop through all players and display the right-click menu for the matching one
         For i = 1 To MAX_PLAYERS
-            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap( GameState.MyIndex) Then
+            If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
                 If GetPlayerX(i) = GameState.CurX AndAlso GetPlayerY(i) = GameState. CurY Then
                     ' Use current mouse state for the X and Y positions
                     ShowPlayerMenu(i, GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
@@ -587,7 +587,7 @@ Module General
         Next
 
         ' Perform player search at the current cursor position
-        PlayerSearch( GameState.CurX, GameState.CurY, 1)
+        PlayerSearch(GameState.CurX, GameState.CurY, 1)
     End Sub
     
     Sub GameLoop()
@@ -710,10 +710,10 @@ mapsync:
                 ' check if we need to end the CD icon
                 If GameState.NumSkills > 0 Then
                     For i = 1 To MAX_PLAYER_SKILLS
-                        If Type.Player( GameState.MyIndex).Skill(i).Num > 0 Then
-                            If Type.Player( GameState.MyIndex).Skill(i).CD > 0 Then
-                                If Type.Player( GameState.MyIndex).Skill(i).CD + (Type.Skill(Type.Player( GameState.MyIndex).Skill(i).Num).CdTime * 1000) < tick Then
-                                    Type.Player( GameState.MyIndex).Skill(i).CD = 0
+                        If Type.Player(GameState.MyIndex).Skill(i).Num > 0 Then
+                            If Type.Player(GameState.MyIndex).Skill(i).CD > 0 Then
+                                If Type.Player(GameState.MyIndex).Skill(i).CD + (Type.Skill(Type.Player(GameState.MyIndex).Skill(i).Num).CdTime * 1000) < tick Then
+                                    Type.Player(GameState.MyIndex).Skill(i).CD = 0
                                 End If
                             End If
                         End If
@@ -722,7 +722,7 @@ mapsync:
 
                 ' check if we need to unlock the player's skill casting restriction
                 If GameState.SkillBuffer > 0 Then
-                    If GameState.SkillBufferTimer + (Type.Skill(Type.Player( GameState.MyIndex).Skill( GameState.SkillBuffer).Num).CastTime * 1000) < tick Then
+                    If GameState.SkillBufferTimer + (Type.Skill(Type.Player(GameState.MyIndex).Skill(GameState.SkillBuffer).Num).CastTime * 1000) < tick Then
                         GameState.SkillBuffer = 0
                         GameState.SkillBufferTimer = 0
                     End If
@@ -730,7 +730,7 @@ mapsync:
 
                 ' check if we need to unlock the pets's Skill casting restriction
                 If PetSkillBuffer > 0 Then
-                    If PetSkillBufferTimer + (Type.Skill(Type.Pet(Type.Player( GameState.MyIndex).Pet.Num).Skill(PetSkillBuffer)).CastTime * 1000) < tick Then
+                    If PetSkillBufferTimer + (Type.Skill(Type.Pet(Type.Player(GameState.MyIndex).Pet.Num).Skill(PetSkillBuffer)).CastTime * 1000) < tick Then
                         PetSkillBuffer = 0
                         PetSkillBufferTimer = 0
                     End If
@@ -827,19 +827,19 @@ mapsync:
 
                 ' elastic bars
                 If barTmr < tick Then
-                    SetBarWidth( GameState.BarWidth_GuiHP_Max, GameState.BarWidth_GuiHP)
-                    SetBarWidth( GameState.BarWidth_GuiSP_Max, GameState.BarWidth_GuiSP)
-                    SetBarWidth( GameState.BarWidth_GuiEXP_Max, GameState.BarWidth_GuiEXP)
+                    SetBarWidth(GameState.BarWidth_GuiHP_Max, GameState.BarWidth_GuiHP)
+                    SetBarWidth(GameState.BarWidth_GuiSP_Max, GameState.BarWidth_GuiSP)
+                    SetBarWidth(GameState.BarWidth_GuiEXP_Max, GameState.BarWidth_GuiEXP)
                     For i = 1 To MAX_MAP_NPCS
                         If Type.MyMapNPC(i).Num > 0 Then
-                            SetBarWidth( GameState.BarWidth_NpcHP_Max(i), GameState.BarWidth_NpcHP(i))
+                            SetBarWidth(GameState.BarWidth_NpcHP_Max(i), GameState.BarWidth_NpcHP(i))
                         End If
                     Next
 
                     For i = 1 To MAX_PLAYERS
-                        If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap( GameState.MyIndex) Then
-                            SetBarWidth( GameState.BarWidth_PlayerHP_Max(i), GameState.BarWidth_PlayerHP(i))
-                            SetBarWidth( GameState.BarWidth_PlayerSP_Max(i), GameState.BarWidth_PlayerSP(i))
+                        If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
+                            SetBarWidth(GameState.BarWidth_PlayerHP_Max(i), GameState.BarWidth_PlayerHP(i))
+                            SetBarWidth(GameState.BarWidth_PlayerSP_Max(i), GameState.BarWidth_PlayerSP(i))
                         End If
                     Next
 
