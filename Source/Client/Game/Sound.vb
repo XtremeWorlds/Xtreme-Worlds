@@ -29,7 +29,7 @@ Module Sound
             Exit Sub
         End If
 
-        If Core.Type.Setting.Music = 0 Or Not File.Exists(path) Then
+        If Core.Settings.Music = 0 Or Not File.Exists(path) Then
             StopMusic()
             Exit Sub
         End If
@@ -51,7 +51,7 @@ Module Sound
             MusicStream = Bass.CreateStream(path, 0, 0, BassFlags.Loop)
             If MusicStream <> 0 Then
                 Bass.ChannelPlay(MusicStream)
-                Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, Core.Type.Setting.MusicVolume / 100.0F)
+                Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, Core.Settings.MusicVolume / 100.0F)
                 CurrentMusic = fileName
                 FadeInSwitch = 1
             End If
@@ -119,7 +119,7 @@ Module Sound
 
         If MusicStream <> 0 Then
             Bass.ChannelPlay(MusicStream)
-            Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, Core.Type.Setting.MusicVolume / 100.0F)
+            Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, Core.Settings.MusicVolume / 100.0F)
         Else
             ' Log the last error if stream creation fails
             Dim errorCode As Errors = Bass.LastError
@@ -136,8 +136,8 @@ Module Sound
         End If
     End Sub
 
-    Sub PlaySound(fileName As String, x As Integer, y As Integer, Optional looped As Boolean = 0)
-        If Core.Type.Setting.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
+    Sub PlaySound(fileName As String, x As Integer, y As Integer, Optional looped As Boolean = False)
+        If Core.Settings.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 
         Try
             StopSound() ' Stop previous sound if any
@@ -161,15 +161,15 @@ Module Sound
         End If
     End Sub
 
-    Sub PlayExtraSound(fileName As String, Optional looped As Boolean = 0)
-        If Core.Type.Setting.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
+    Sub PlayExtraSound(fileName As String, Optional looped As Boolean = False)
+        If Core.Settings.Sound = 0 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 
         Try
             StopExtraSound()
 
             ExtraSoundStream = Bass.CreateStream(Core.Path.Sounds & fileName, 0, 0, If(looped, BassFlags.Loop, BassFlags.Default))
             If ExtraSoundStream <> 0 Then
-                Bass.ChannelSetAttribute(ExtraSoundStream, ChannelAttribute.Volume, Core.Type.Setting.SoundVolume / 100.0F)
+                Bass.ChannelSetAttribute(ExtraSoundStream, ChannelAttribute.Volume, Core.Settings.SoundVolume / 100.0F)
                 Bass.ChannelPlay(ExtraSoundStream)
             End If
         Catch ex As Exception
@@ -190,7 +190,7 @@ Module Sound
         If MusicStream <> 0 Then
             Dim currentVolume As Single
             Bass.ChannelGetAttribute(MusicStream, ChannelAttribute.Volume, currentVolume)
-            If currentVolume < Core.Type.Setting.MusicVolume / 100.0F Then
+            If currentVolume < Core.Settings.MusicVolume / 100.0F Then
                 Bass.ChannelSetAttribute(MusicStream, ChannelAttribute.Volume, currentVolume + 0.03F)
             Else
                 FadeInSwitch = 0
@@ -215,14 +215,14 @@ Module Sound
         Dim X1, X2, Y1, Y2 As Integer
         Dim Distance As Double
 
-        If Not State.InGame Then
+        If Not GameState.InGame = True Then
             CalculateSoundVolume = 1
             Return CalculateSoundVolume
         End If
 
-        If State.InGame AndAlso x = GetPlayerX(State.MyIndex) AndAlso y = GetPlayerY(State.MyIndex) Then
+        If GameState.InGame AndAlso x = GetPlayerX(State.MyIndex) AndAlso y = GetPlayerY(State.MyIndex) Then
             CalculateSoundVolume = 1
-            CalculateSoundVolume *= Core.Type.Setting.SoundVolume
+            CalculateSoundVolume *= Core.Settings.SoundVolume
             Return CalculateSoundVolume
         End If
 
@@ -256,7 +256,7 @@ Module Sound
             CalculateSoundVolume = 1
         End If
 
-        CalculateSoundVolume *= Core.Type.Setting.SoundVolume
+        CalculateSoundVolume *= Core.Settings.SoundVolume
 
         Return CalculateSoundVolume
     End Function
@@ -268,9 +268,9 @@ Module Sound
         Bass.Free()
     End Sub
 
-    Sub PlayWeatherSound(fileName As String, Optional looped As Boolean = 0)
+    Sub PlayWeatherSound(fileName As String, Optional looped As Boolean = False)
         ' Check if sound is enabled and the file exists
-        If Not Core.Type.Setting.Sound = 1 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
+        If Not Core.Settings.Sound = 1 Or Not File.Exists(Core.Path.Sounds & fileName) Then Exit Sub
 
         ' Avoid reloading the same sound if it's already playing
         If CurrentWeatherMusic = fileName Then Exit Sub
@@ -285,7 +285,7 @@ Module Sound
         ' Check if the stream was created successfully
         If WeatherStream <> 0 Then
             ' Play the sound
-            Bass.ChannelSetAttribute(WeatherStream, ChannelAttribute.Volume, Core.Type.Setting.SoundVolume / 100.0F)
+            Bass.ChannelSetAttribute(WeatherStream, ChannelAttribute.Volume, Core.Settings.SoundVolume / 100.0F)
             Bass.ChannelPlay(WeatherStream, False)
             CurrentWeatherMusic = fileName
         Else

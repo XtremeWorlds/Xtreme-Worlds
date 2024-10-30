@@ -575,7 +575,7 @@ Module Player
         End If
 
         For i = 1 To GameState.CurrentEvents
-           If MapEvents(i).Visible = 1 Then
+           If MapEvents(i).Visible = True Then
                If MapEvents(i).X = x And MapEvents(i).Y = y Then
                    If MapEvents(i).WalkThrough = 0 Then
                         CheckDirection = 1
@@ -664,7 +664,7 @@ Module Player
 #End Region
 
 #Region "Attacking"
-    Sub CheckAttack(Optional mouse As Boolean = 0)
+    Sub CheckAttack(Optional mouse As Boolean = False)
         Dim attackspeed As Integer, x As Integer, y As Integer
         Dim buffer As New ByteStream(4)
 
@@ -728,7 +728,7 @@ Module Player
 
             If GetTickCount() > Type.Player(GameState.MyIndex).EventTimer Then
                 For i = 1 To GameState.CurrentEvents
-                   If MapEvents(i).Visible = 1 Then
+                   If MapEvents(i).Visible = True Then
                        If MapEvents(i).X = x And MapEvents(i).Y = y Then
                             buffer = New ByteStream(4)
                             buffer.WriteInt32(ClientPackets.CEvent)
@@ -910,15 +910,15 @@ Module Player
                 ' grey out buttons
                 If GetPlayerPoints(GameState.MyIndex) = 0 Then
                     For x = 1 To StatType.Count - 1
-                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = 1
+                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = True
                     Next
                 Else
                     For x = 1 To StatType.Count - 1
-                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = 0
+                        .Controls(Gui.GetControlIndex("winCharacter", "btnGreyStat_" & x)).Visible = False
                     Next
                 End If
             End With
-            GameState.PlayerData = 1
+            GameState.PlayerData = True
         End If
 
         buffer.Dispose()

@@ -13,7 +13,7 @@ Friend Module NetworkConfig
             AddHandler Socket.ConnectionSuccess, AddressOf OnConnectionSuccess
             AddHandler Socket.ConnectionFailed, AddressOf OnConnectionFailed
             
-            Socket.Connect("127.0.0.1", Setting.Port) ' Adjust IP and port as needed
+            Socket.Connect("127.0.0.1", Settings.Port) ' Adjust IP and port as needed
         Catch ex As Exception
             Console.WriteLine($"Network initialization failed: {ex.Message}")
         End Try
@@ -26,7 +26,7 @@ Friend Module NetworkConfig
 
     Private Sub OnConnectionFailed()
         Console.WriteLine("Failed to connect to the server. Retrying in 5 seconds...")
-        Task.Delay(5000).ContinueWith(Sub() Socket.Connect("127.0.0.1", Setting.Port))
+        Task.Delay(5000).ContinueWith(Sub() Socket.Connect("127.0.0.1", Settings.Port))
     End Sub
 
     Friend Sub DestroyNetwork()

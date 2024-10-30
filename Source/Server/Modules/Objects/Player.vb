@@ -6,7 +6,7 @@ Module Player
 
 #Region "PlayerCombat"
 
-    Function CanPlayerAttackPlayer(Attacker As Integer, Victim As Integer, Optional IsSkill As Boolean = 0) As Boolean
+    Function CanPlayerAttackPlayer(Attacker As Integer, Victim As Integer, Optional IsSkill As Boolean = False) As Boolean
 
         If Not IsSkill Then
             ' Check attack timer
@@ -326,7 +326,7 @@ Module Player
         End If
     End Sub
 
-    Function CanPlayerAttackNpc(Attacker As Integer, MapNPCNum As Integer, Optional IsSkill As Boolean = 0) As Boolean
+    Function CanPlayerAttackNpc(Attacker As Integer, MapNPCNum As Integer, Optional IsSkill As Boolean = False) As Boolean
         Dim mapNum As Integer
         Dim NpcNum As Integer
         Dim atkX As Integer
@@ -836,7 +836,7 @@ Module Player
             ' Send an ok to client to start receiving in game data
             SendLoginOK(index)
             JoinGame(index)
-            Dim text = String.Format("{0} | {1} has began playing {2}.", GetPlayerLogin(index), GetPlayerName(index), Type.Setting.GameName)
+            Dim text = String.Format("{0} | {1} has began playing {2}.", GetPlayerLogin(index), GetPlayerName(index), Settings.GameName)
             Addlog(text, PLAYER_LOG)
             Call Global.System.Console.WriteLine(text)
         End If
@@ -859,7 +859,7 @@ Module Player
 #End Region
 
 #Region "Movement"
-    Sub PlayerWarp(index As Integer, MapNum As Integer, X As Integer, Y As Integer, Optional NoInstance As Boolean = 0)
+    Sub PlayerWarp(index As Integer, MapNum As Integer, X As Integer, Y As Integer, Optional NoInstance As Boolean = False)
         Dim OldMap As Integer
         Dim i As Integer
         Dim buffer As ByteStream
@@ -1284,9 +1284,9 @@ Module Player
                 For i = 1 To TempPlayer(index).EventMap.CurrentEvents
                     If TempPlayer(index).EventMap.EventPages(i).EventId > 0 Then
                         If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Globals = 1 Then
-                            If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).X = x And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = 1
+                            If Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).X = x And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = True Then begineventprocessing = 1
                         Else
-                            If TempPlayer(index).EventMap.EventPages(i).X = x And TempPlayer(index).EventMap.EventPages(i).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = 1 Then begineventprocessing = 1
+                            If TempPlayer(index).EventMap.EventPages(i).X = x And TempPlayer(index).EventMap.EventPages(i).Y = y And Type.Map(GetPlayerMap(index)).Event(TempPlayer(index).EventMap.EventPages(i).EventId).Pages(TempPlayer(index).EventMap.EventPages(i).PageId).Trigger = 1 And TempPlayer(index).EventMap.EventPages(i).Visible = True Then begineventprocessing = 1
                         End If
                         begineventprocessing = 0
                         If begineventprocessing = 1 Then
@@ -1500,7 +1500,7 @@ Module Player
 
     End Function
 
-    Function GiveInv(index As Integer, ItemNum As Integer, ItemVal As Integer, Optional SendUpdate As Boolean = 1) As Boolean
+    Function GiveInv(index As Integer, ItemNum As Integer, ItemVal As Integer, Optional SendUpdate As Boolean = True) As Boolean
         Dim i As Integer
 
         ' Check for subscript out of range
@@ -2064,7 +2064,7 @@ Module Player
         TempPlayer(index).InGame = 1
 
         ' Notify everyone that a player has joined the game.
-        GlobalMsg(String.Format("{0} has joined {1}!", GetPlayerName(index), Type.Setting.GameName))
+        GlobalMsg(String.Format("{0} has joined {1}!", GetPlayerName(index), Settings.GameName))
 
         ' Warp the player to his saved location
         PlayerWarp(index, GetPlayerMap(index), GetPlayerX(index), GetPlayerY(index))
@@ -2120,9 +2120,9 @@ Module Player
             End If
 
             ' Send a global message that he/she left
-            GlobalMsg(String.Format("{0} has left {1}!", GetPlayerName(index), Type.Setting.GameName))
+            GlobalMsg(String.Format("{0} has left {1}!", GetPlayerName(index), Settings.GameName))
 
-            Call Global.System.Console.WriteLine(String.Format("{0} has left {1}!", GetPlayerName(index), Type.Setting.GameName))
+            Call Global.System.Console.WriteLine(String.Format("{0} has left {1}!", GetPlayerName(index), Settings.GameName))
 
             ReCallPet(index)
             SaveCharacter(index, TempPlayer(index).Slot)

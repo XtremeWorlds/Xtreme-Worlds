@@ -132,8 +132,7 @@ Public Class GameState
     ' Controls main gameloop
     Public Shared InGame As Boolean
     Public Shared InMenu As Boolean
-
-    Public Shared IsLogging As Boolean
+    
     Public Shared MapData As Boolean
     Public Shared PlayerData As Boolean
 

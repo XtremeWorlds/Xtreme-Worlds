@@ -19,10 +19,10 @@ Friend Module S_EventLogic
                     If Type.Map(MapNum).Event(id).PageCount >= page Then
                         'See if there is any reason to delete this event....
                         'In other words, go back through conditions and make sure they all check up.
-                        If TempPlayer(i).EventMap.EventPages(x).Visible = 1 Then
+                        If TempPlayer(i).EventMap.EventPages(x).Visible = True Then
                             If Type.Map(MapNum).Event(id).Pages(page).ChkHasItem = 1 Then
                                 If HasItem(i, Type.Map(MapNum).Event(id).Pages(page).HasItemIndex) = 0 Then
-                                    TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                    TempPlayer(i).EventMap.EventPages(x).Visible = False
                                 End If
                             End If
 
@@ -34,11 +34,11 @@ Friend Module S_EventLogic
                                 End If
                                 If Type.Map(MapNum).Event(id).Globals = 1 Then
                                     If Type.Map(MapNum).Event(id).SelfSwitches(Type.Map(MapNum).Event(id).Pages(page).SelfSwitchIndex) <> compare Then
-                                        TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                        TempPlayer(i).EventMap.EventPages(x).Visible = False
                                     End If
                                 Else
                                     If TempPlayer(i).EventMap.EventPages(id).SelfSwitches(Type.Map(MapNum).Event(id).Pages(page).SelfSwitchIndex) <> compare Then
-                                        TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                        TempPlayer(i).EventMap.EventPages(x).Visible = False
                                     End If
                                 End If
                             End If
@@ -47,27 +47,27 @@ Friend Module S_EventLogic
                                 Select Case Type.Map(MapNum).Event(id).Pages(page).VariableCompare
                                     Case 0
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) <> Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                     Case 1
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) < Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                     Case 2
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) > Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                     Case 3
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) <= Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                     Case 4
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) >= Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                     Case 5
                                         If Type.Player(i).Variables(Type.Map(MapNum).Event(id).Pages(page).VariableIndex) = Type.Map(MapNum).Event(id).Pages(page).VariableCondition Then
-                                            TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                            TempPlayer(i).EventMap.EventPages(x).Visible = False
                                         End If
                                 End Select
                             End If
@@ -75,18 +75,18 @@ Friend Module S_EventLogic
                             If Type.Map(MapNum).Event(id).Pages(page).ChkSwitch = 1 Then
                                 If Type.Map(MapNum).Event(id).Pages(page).SwitchCompare = 1 Then 'we expect true
                                     If Type.Player(i).Switches(Type.Map(MapNum).Event(id).Pages(page).SwitchIndex) = 0 Then ' we see false so we despawn the event
-                                        TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                        TempPlayer(i).EventMap.EventPages(x).Visible = False
                                     End If
                                 Else
                                     If Type.Player(i).Switches(Type.Map(MapNum).Event(id).Pages(page).SwitchIndex) = 1 Then ' we expect false and we see true so we despawn the event
-                                        TempPlayer(i).EventMap.EventPages(x).Visible = 0
+                                        TempPlayer(i).EventMap.EventPages(x).Visible = False
                                     End If
                                 End If
                             End If
 
-                            If Type.Map(MapNum).Event(id).Globals = 1 And TempPlayer(i).EventMap.EventPages(x).Visible = 0 Then TempEventMap(MapNum).Event(id).Active = 0
+                            If Type.Map(MapNum).Event(id).Globals = 1 And TempPlayer(i).EventMap.EventPages(x).Visible = False Then TempEventMap(MapNum).Event(id).Active = 0
 
-                            If TempPlayer(i).EventMap.EventPages(x).Visible = 0 And id > 0 Then
+                            If TempPlayer(i).EventMap.EventPages(x).Visible = False And id > 0 Then
                                 Dim Buffer As New ByteStream(4)
                                 Buffer.WriteInt32(Packets.ServerPackets.SSpawnEvent)
                                 Buffer.WriteInt32(id)
@@ -133,7 +133,7 @@ Friend Module S_EventLogic
                     If id > 0 And id <= TempPlayer(i).EventMap.CurrentEvents Then
                         pageID = TempPlayer(i).EventMap.EventPages(x).PageId
 
-                        If TempPlayer(i).EventMap.EventPages(x).Visible = 0 Then pageID = 1
+                        If TempPlayer(i).EventMap.EventPages(x).Visible = False Then pageID = 1
 
                         If x < id Then Continue For
                         For z = Type.Map(MapNum).Event(id).PageCount To 1 Step -1
@@ -204,7 +204,7 @@ Friend Module S_EventLogic
                             End If
 
                             If spawnevent = 1 Then
-                                If TempPlayer(i).EventMap.EventPages(x).Visible = 1 Then
+                                If TempPlayer(i).EventMap.EventPages(x).Visible = True Then
                                     If z <= pageID Then
                                         spawnevent = 0
                                     End If
@@ -260,7 +260,7 @@ Friend Module S_EventLogic
                                     .Position = Type.Map(MapNum).Event(id).Pages(z).Position
                                     .EventId = id
                                     .PageId = z
-                                    .Visible = 1
+                                    .Visible = True
 
                                     .MoveType = Type.Map(MapNum).Event(id).Pages(z).MoveType
                                     If .MoveType = 2 Then
@@ -719,7 +719,7 @@ Friend Module S_EventLogic
                 For x = 0 To TempPlayer(i).EventMap.CurrentEvents
                     If TempPlayer(i).EventMap.EventPages(x).EventId > UBound(Type.Map(GetPlayerMap(i)).Event) Then Exit For
                     If Type.Map(GetPlayerMap(i)).Event(TempPlayer(i).EventMap.EventPages(x).EventId).Globals = 0 Then
-                        If TempPlayer(i).EventMap.EventPages(x).Visible = 1 Then
+                        If TempPlayer(i).EventMap.EventPages(x).Visible = True Then
                             If TempPlayer(i).EventMap.EventPages(x).MoveTimer <= GetTimeMs() Then
                                 'Real event! Lets process it!
                                 Select Case TempPlayer(i).EventMap.EventPages(x).MoveType
@@ -1108,7 +1108,7 @@ Friend Module S_EventLogic
                     If TempPlayer(i).EventMap.CurrentEvents > 0 Then
                         For x = 1 To TempPlayer(i).EventMap.CurrentEvents
                             If TempPlayer(i).EventProcessingCount > 0 Then
-                                If TempPlayer(i).EventMap.EventPages(x).Visible = 1 Then
+                                If TempPlayer(i).EventMap.EventPages(x).Visible = True Then
                                     If x < TempPlayer(i).EventMap.EventPages(x).EventId Then Continue For
                                     If Type.Map(Type.Player(i).Map).Event(Type.TempPlayer(i).EventMap.EventPages(x).EventId).Pages(Type.TempPlayer(i).EventMap.EventPages(x).PageId).Trigger = 2 Then 'Parallel Process baby!
 
@@ -2358,9 +2358,9 @@ Friend Module S_EventLogic
                                 .EventId = i
                                 .PageId = z
                                 If spawncurrentevent = 1 Then
-                                    .Visible = 1
+                                    .Visible = True
                                 Else
-                                    .Visible = 0
+                                    .Visible = False
                                 End If
 
                                 .MoveType = Type.Map(MapNum).Event(i).Pages(z).MoveType

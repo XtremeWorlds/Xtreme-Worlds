@@ -48,7 +48,7 @@ Module Text
 
         Chat(1).Text = text
         Chat(1).Color = Color
-        Chat(1).Visible = 1
+        Chat(1).Visible = True
         Chat(1).Timer = GetTickCount()
         Chat(1).Channel = channel
     End Sub
@@ -381,15 +381,15 @@ Module Text
             If Len(Chat(i).Text) = 0 Then Exit Do
 
             ' get visible state
-            isVisible = 1
-            If GameState.inSmallChat Then
-                If Not Chat(i).Visible Then isVisible = 0
+            isVisible = True
+            If GameState.inSmallChat = True Then
+                If Not Chat(i).Visible = True Then isVisible = False
             End If
 
-            If Type.Setting.ChannelState(Type.Chat(i).Channel) = 0 Then isVisible = 0
+            If Settings.ChannelState(Type.Chat(i).Channel) = 0 Then isVisible = False
 
             ' make sure it's visible
-            If isVisible Then
+            If isVisible = True
                 ' render line
                 Color = Chat(i).Color
                 Color2 = GameClient.QbColorToXnaColor(Color)

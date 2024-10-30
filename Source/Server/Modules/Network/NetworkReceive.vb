@@ -1158,7 +1158,7 @@ Module NetworkReceive
         If n <> index Then
             If n > 0 Then
                 If GetPlayerAccess(n) < GetPlayerAccess(index) Then
-                    GlobalMsg(GetPlayerName(n) & " has been kicked from " & Type.Setting.GameName & " by " & GetPlayerName(index) & "!")
+                    GlobalMsg(GetPlayerName(n) & " has been kicked from " & Settings.GameName & " by " & GetPlayerName(index) & "!")
                     Addlog(GetPlayerName(index) & " has kicked " & GetPlayerName(n) & ".", ADMIN_LOG)
                     AlertMsg(n, DialogueMsg.Kicked, MenuType.Login)
                 Else
@@ -1441,11 +1441,11 @@ Module NetworkReceive
         ' Prevent hacking
         If GetPlayerAccess(index) < AccessType.Mapper Then Exit Sub
 
-        Type.Setting.Welcome = buffer.ReadString
+        Settings.Welcome = buffer.ReadString
         Settings.Save()
 
-        GlobalMsg("Welcome changed to: " & Type.Setting.Welcome)
-        Addlog(GetPlayerName(index) & " changed welcome to: " & Type.Setting.Welcome, ADMIN_LOG)
+        GlobalMsg("Welcome changed to: " & Settings.Welcome)
+        Addlog(GetPlayerName(index) & " changed welcome to: " & Settings.Welcome, ADMIN_LOG)
 
         buffer.Dispose()
     End Sub

@@ -29,7 +29,7 @@ Module General
 
         Settings.Load()
 
-        Core.Time.Instance.GameSpeed = Type.Setting.TimeSpeed
+        Core.Time.Instance.GameSpeed = Settings.TimeSpeed
 
         Global.System.Console.Title = "XtremeWorlds Server"
 
@@ -89,7 +89,7 @@ Module General
         UpdateCaption()
 
         ' Start listener now that everything is loaded
-        Socket.StartListening(Type.Setting.Port, 5)
+        Socket.StartListening(Settings.Port, 5)
 
         ' Starts the server loop
         ServerLoop()
@@ -112,7 +112,7 @@ Module General
 
     Sub UpdateCaption()
         Try
-            Global.System.Console.Title = String.Format("{0} <IP {1}:{2}> ({3} Players Online) - Current Errors: {4} - Time: {5}", Type.Setting.GameName, MyIPAddress, Type.Setting.Port, Socket.HighIndex(), ErrorCount, Core.Time.Instance.ToString())
+            Global.System.Console.Title = String.Format("{0} <IP {1}:{2}> ({3} Players Online) - Current Errors: {4} - Time: {5}", Settings.GameName, MyIPAddress, Settings.Port, Socket.HighIndex(), ErrorCount, Core.Time.Instance.ToString())
         Catch ex As Exception
             Exit Sub
         End Try

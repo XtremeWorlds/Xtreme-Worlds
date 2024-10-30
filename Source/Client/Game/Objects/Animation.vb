@@ -9,7 +9,7 @@ Module Animation
         If AnimInstance(index).Animation = 0 Then Exit Sub
 
         Dim sprite As Integer = Type.Animation(AnimInstance(index).Animation).Sprite(layer)
-        If sprite < 1 Or sprite > State.NumAnimations Then Return
+        If sprite < 1 Or sprite > GameState.NumAnimations Then Return
 
         Dim gfxInfo As GameClient.GfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Animations, sprite))
 
@@ -74,19 +74,19 @@ Module Animation
 
         Select Case AnimInstance(index).LockType
             Case TargetType.Player
-                If IsPlaying(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( State.MyIndex) Then
-                    x = (GetPlayerX(lockindex) *  State.PicX) + 16 - (width / 2) + Type.Player(lockindex).XOffset
-                    y = (GetPlayerY(lockindex) *  State.PicY) + 16 - (height / 2) + Type.Player(lockindex).YOffset
+                If IsPlaying(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( GameState.MyIndex) Then
+                    x = (GetPlayerX(lockindex) *  GameState.PicX) + 16 - (width / 2) + Type.Player(lockindex).XOffset
+                    y = (GetPlayerY(lockindex) *  GameState.PicY) + 16 - (height / 2) + Type.Player(lockindex).YOffset
                 End If
             Case TargetType.NPC
                 If MyMapNPC(lockindex).Num > 0 AndAlso MyMapNPC(lockindex).Vital(VitalType.HP) > 0 Then
-                    x = (MyMapNPC(lockindex).X *  State.PicX) + 16 - (width / 2) + MyMapNPC(lockindex).XOffset
-                    y = (MyMapNPC(lockindex).Y * State. PicY) + 16 - (height / 2) + MyMapNPC(lockindex).YOffset
+                    x = (MyMapNPC(lockindex).X *  GameState.PicX) + 16 - (width / 2) + MyMapNPC(lockindex).XOffset
+                    y = (MyMapNPC(lockindex).Y * GameState. PicY) + 16 - (height / 2) + MyMapNPC(lockindex).YOffset
                 End If
             Case TargetType.Pet
-                If IsPlaying(lockindex) AndAlso PetAlive(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( State.MyIndex) Then
-                    x = (Type.Player(lockindex).Pet.X *  State.PicX) + 16 - (width / 2) + Type.Player(lockindex).Pet.XOffset
-                    y = (Type.Player(lockindex).Pet.Y *  State.PicY) + 16 - (height / 2) + Type.Player(lockindex).Pet.YOffset
+                If IsPlaying(lockindex) AndAlso PetAlive(lockindex) AndAlso GetPlayerMap(lockindex) = GetPlayerMap( GameState.MyIndex) Then
+                    x = (Type.Player(lockindex).Pet.X *  GameState.PicX) + 16 - (width / 2) + Type.Player(lockindex).Pet.XOffset
+                    y = (Type.Player(lockindex).Pet.Y *  GameState.PicY) + 16 - (height / 2) + Type.Player(lockindex).Pet.YOffset
                 End If
         End Select
 
@@ -222,7 +222,7 @@ Module Animation
         Type.Animation(index).LoopCount(1) = 1
         Type.Animation(index).LoopTime(0) = 1
         Type.Animation(index).LoopTime(1) = 1
-         State.Animation_Loaded(index) = 0
+         GameState.Animation_Loaded(index) = 0
     End Sub
 
     Sub ClearAnimations()
@@ -284,8 +284,8 @@ Module Animation
     End Sub
 
     Sub StreamAnimation(animationNum As Integer)
-        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or  State.Animation_Loaded(animationNum) = 0 Then
-             State.Animation_Loaded(animationNum) = 1
+        If animationNum > 0 and Type.Animation(animationNum).Name = "" Or  GameState.Animation_Loaded(animationNum) = 0 Then
+             GameState.Animation_Loaded(animationNum) = 1
             SendRequestAnimation(animationNum)
         End If
     End Sub

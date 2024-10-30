@@ -92,7 +92,7 @@ Module NetworkSend
 
     Sub GetPing()
         Dim buffer As New ByteStream(4)
-        State.PingStart = GetTickCount()
+        GameState.PingStart = GetTickCount()
 
         buffer.WriteInt32(ClientPackets.CCheckPing)
         Socket.SendData(buffer.Data, buffer.Head)
@@ -384,7 +384,7 @@ Module NetworkSend
     Friend Sub SendDropItem(invNum As Integer, amount As Integer)
         Dim buffer As New ByteStream(4)
 
-        If State.InBank Or State.InShop > 0 Then Exit Sub
+        If GameState.InBank Or GameState.InShop > 0 Then Exit Sub
 
         ' do basic checks
         If invNum <= 0 Or invNum > MAX_INV Then Exit Sub
@@ -458,7 +458,7 @@ Module NetworkSend
         End If
 
         ' dont let them forget a skill which is buffered
-        If State.SkillBuffer = skillslot Then
+        If GameState.SkillBuffer = skillslot Then
             AddText("Cannot forget a skill which you are casting!", ColorType.Red)
             Exit Sub
         End If
@@ -797,7 +797,7 @@ Module NetworkSend
     End Sub
 
     Friend Sub SendCloseEditor()
-        If State.InGame = 0 Then Exit Sub
+        If GameState.InGame = 0 Then Exit Sub
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(ClientPackets.CCloseEditor)
@@ -866,8 +866,8 @@ Module NetworkSend
         Socket.SendData(buffer.Data, buffer.Head)
         buffer.Dispose()
 
-        State.SkillBuffer = skillslot
-        State.SkillBufferTimer = GetTickCount()
+        GameState.SkillBuffer = skillslot
+        GameState.SkillBufferTimer = GetTickCount()
     End Sub
 
     Sub SendRequestMoral(moralNum As Integer)

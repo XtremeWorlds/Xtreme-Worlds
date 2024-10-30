@@ -157,7 +157,7 @@ Module Server
                     Dim speed As Double
                     Double.TryParse(parts(1), speed)
                     Core.Time.Instance.GameSpeed = speed
-                    Type.Setting.TimeSpeed = speed
+                    Settings.TimeSpeed = speed
                     Settings.Save()
                     Call Global.System.Console.WriteLine("Set GameSpeed to " & Core.Time.Instance.GameSpeed & " secs per seconds")
 

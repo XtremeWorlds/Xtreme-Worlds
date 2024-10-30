@@ -31,7 +31,7 @@ Public Class GameClient
     Private Shared ReadOnly FpsLock As New Object()
 
     ' Safely set FPS with a lock
-    Public Sub SetFps(newFps As Integer)
+    Public Shared Sub SetFps(newFps As Integer)
         SyncLock FpsLock
             gameFps = newFps
         End SyncLock
@@ -52,7 +52,7 @@ Public Class GameClient
     End Class
     
     ' ManualResetEvent to signal when loading is complete
-    Public Shared IsLoading As Boolean = 1
+    Public Shared IsLoading As Boolean = True
     Public Shared ReadOnly loadLock As New Object()
     
     ' State tracking variables
@@ -71,7 +71,7 @@ Public Class GameClient
 
     Private elapsedTime As TimeSpan = TimeSpan.Zero
 
-    Private TilesetWindow As RenderTarget2D
+    Private Shared TilesetWindow As RenderTarget2D
     Private EditorAnimation_Anim1 As RenderTarget2D
     Private EditorAnimation_Anim2 As RenderTarget2D
     Private Shared RenderTarget As RenderTarget2D
@@ -91,13 +91,14 @@ Public Class GameClient
     End Function
     
     Public Sub New()
-        GetResolutionSize(Setting.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
+        GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
         
         Graphics = New GraphicsDeviceManager(Me)
 
         ' Set the desired window size
         Graphics.PreferredBackBufferWidth = GameState.ResolutionWidth
         Graphics.PreferredBackBufferHeight = GameState.ResolutionHeight
+        Graphics.SynchronizeWithVerticalRetrace = Settings.Vsync
  
         ' Apply changes to ensure the window resizes
         Graphics.ApplyChanges()
@@ -110,7 +111,7 @@ Public Class GameClient
     End Sub
     
     Protected Overrides Sub Initialize()
-        Window.Title = Setting.GameName
+        Window.Title = Settings.GameName
 
         ' Create the RenderTarget2D with the same size as the screen
         RenderTarget = New RenderTarget2D(
@@ -192,7 +193,7 @@ Public Class GameClient
         Return Content.Load(Of SpriteFont)(IO.Path.Combine(path, font))
     End Function
 
-    Public Sub EnqueueText(ByRef text As String, path As String, x As Integer, y As Integer, 
+    Public Shared Sub EnqueueText(ByRef text As String, path As String, x As Integer, y As Integer, 
                            font As FontType, frontColor As Color, backColor As Color,
                            Optional entityID As Integer = 0)
         
@@ -228,7 +229,7 @@ Public Class GameClient
     End Sub
 
     ' Method to enqueue textures and manage duplicates
-    Public Sub EnqueueTexture(ByRef path As String, dX As Integer, dY As Integer,
+    Public Shared Sub EnqueueTexture(ByRef path As String, dX As Integer, dY As Integer,
                               sX As Integer, sY As Integer, dW As Integer, dH As Integer,
                               Optional sW As Integer = 1, Optional sH As Integer = 1,
                               Optional alpha As Byte = 255, Optional red As Byte = 255,
@@ -299,14 +300,14 @@ Public Class GameClient
         SpriteBatch.Draw(texture, dRect, sRect, Color)
     End Sub
     
-    Private Function GenerateUniqueTextureID(path As String, index As Integer) As Integer
+    Private Shared Function GenerateUniqueTextureID(path As String, index As Integer) As Integer
         Dim pathHash = path.GetHashCode() ' Generate a hash from the path
         Dim uniqueID = Math.Abs(pathHash + index) ' Ensure the ID is non-negative
 
         Return uniqueID
     End Function
     
-    Private Function UpdateBatches(newCommand As RenderCommand) As Boolean
+    Private Shared Function UpdateBatches(newCommand As RenderCommand) As Boolean
         Dim batchToUpdate As RenderBatch = Nothing
         Dim matchingCommand As RenderCommand
  
@@ -320,7 +321,7 @@ Public Class GameClient
                         Function(cmd) cmd.EntityID = newCommand.EntityID)
 
                     If matchingCommand IsNot Nothing Then
-                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Window.Visible Then
+                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Window.Visible = True
                             Batches.TryRemove(key, batchToUpdate)
                             Continue For
                         End If
@@ -394,7 +395,7 @@ Public Class GameClient
         End SyncLock
         
         SpriteBatch.Begin()
-        If GameState.InGame = 1 Then
+        If GameState.InGame Then
             Render_Game()
         Else 
             Render_Menu()
@@ -527,6 +528,21 @@ Public Class GameClient
         End SyncLock
     End Function
     
+    Public Shared Function IsMouseButtonUp(button As MouseButton) As Boolean
+        SyncLock InputLock
+            Select Case button
+                Case MouseButton.Left
+                    Return CurrentMouseState.LeftButton = ButtonState.Released
+                Case MouseButton.Right
+                    Return CurrentMouseState.RightButton = ButtonState.Released
+                Case MouseButton.Middle
+                    Return CurrentMouseState.MiddleButton = ButtonState.Released
+                Case Else
+                    Return False
+            End Select
+        End SyncLock
+    End Function
+    
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()
         Environment.Exit(0)
@@ -559,7 +575,7 @@ Public Class GameClient
     End Sub
     
     ' Draw a filled rectangle with an optional outline
-    Public Sub DrawRectangle(position As Vector2, size As Vector2, fillColor As Color, outlineColor As Color, outlineThickness As Single)
+    Public Shared Sub DrawRectangle(position As Vector2, size As Vector2, fillColor As Color, outlineColor As Color, outlineThickness As Single)
         ' Create a 1x1 white texture for drawing
         Dim whiteTexture As New Texture2D(SpriteBatch.GraphicsDevice, 1, 1)
 
@@ -594,7 +610,7 @@ Public Class GameClient
     ''' <param name="fillColor">The color to fill the rectangle.</param>
     ''' <param name="outlineColor">The color of the outline.</param>
     ''' <param name="outlineThickness">The thickness of the outline.</param>
-    Public Sub DrawRectangleWithOutline(
+    Public Shared Sub DrawRectangleWithOutline(
         rect As Rectangle,
         fillColor As Color,
         outlineColor As Color,
@@ -626,7 +642,7 @@ Public Class GameClient
         whiteTexture.Dispose()
     End Sub
 
-    Public Sub DrawSelectionRectangle()
+    Public Shared Sub DrawSelectionRectangle()
         Dim selectionRect As New Rectangle(
             GameState.EditorTileSelStart.X * GameState.PicX, GameState.EditorTileSelStart.Y * GameState.PicY,
             GameState.EditorTileWidth * GameState.PicX, GameState.EditorTileHeight * GameState.PicY
@@ -890,23 +906,7 @@ Public Class GameClient
 
         RenderTexture(IO.Path.Combine(Core.Path.Characters, sprite), x, y, sRECT.X, sRECT.Y, sRECT.Width, sRECT.Height, sRECT.Width, sRECT.Height)
     End Sub
-
-    Friend Sub DrawShadow(x2 As Integer, y2 As Integer)
-        Dim x As Integer
-        Dim y As Integer
-        Dim srcrec As Rectangle
-        Dim destrec As Rectangle
-
-        If Type.Setting.Shadow = 0 Then Exit Sub
-
-        x = ConvertMapX(x2)
-        y = ConvertMapY(y2)
-        srcrec = New Rectangle(0, 0, GameState.PicX, GameState.PicY)
-        destrec = New Rectangle(ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), GameState.PicX, GameState.PicY)
-
-        RenderTexture(IO.Path.Combine(Core.Path.Misc, "Shadow"), x, y, srcrec.X, srcrec.Y, destrec.Width, destrec.Height, destrec.Width, destrec.Height)
-    End Sub
-
+    
     Friend Shared Sub DrawBlood(index As Integer)
         Dim srcrec As Rectangle
         Dim destrec As Rectangle
@@ -1369,7 +1369,7 @@ Public Class GameClient
         Next
     End Sub
 
-    Public Sub RenderCharacterGraphic(eventData As EventStruct, x As Integer, y As Integer)
+    Public Shared Sub RenderCharacterGraphic(eventData As EventStruct, x As Integer, y As Integer)
         ' Get the graphic index from the event's first page
         Dim gfxIndex As Integer = eventData.Pages(1).Graphic
 
@@ -1423,7 +1423,7 @@ Public Class GameClient
     Friend Shared Sub DrawEvent(id As Integer) ' draw on map, outside the editor
         Dim x As Integer, y As Integer, width As Integer, height As Integer, sRect As Rectangle, anim As Integer, spritetop As Integer
 
-        If MapEvents(id).Visible = 0 Then
+        If MapEvents(id).Visible = False Then
             Exit Sub
         End If
 
@@ -1706,7 +1706,7 @@ Public Class GameClient
 
         If GameState.CurrentEvents > 0 AndAlso MyMap.EventCount >= GameState.CurrentEvents Then
             For i = 1 To GameState.CurrentEvents
-                If MapEvents(i).Visible = 1 Then
+                If MapEvents(i).Visible = True Then
                     If MapEvents(i).ShowName = 1 Then
                         DrawEventName(i)
                     End If

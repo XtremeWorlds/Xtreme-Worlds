@@ -1875,7 +1875,7 @@ Module S_Pet
 
     End Sub
 
-    Friend Function CanPetAttackNpc(attacker As Integer, mapnpcnum As Integer, Optional isSkill As Boolean = 0) As Boolean
+    Friend Function CanPetAttackNpc(attacker As Integer, mapnpcnum As Integer, Optional isSkill As Boolean = False) As Boolean
         Dim mapNum As Integer
         Dim npcnum As Integer
         Dim npcX As Integer
@@ -1945,7 +1945,7 @@ Module S_Pet
 
     End Function
 
-    Friend Sub PetAttackNpc(attacker As Integer, mapnpcnum As Integer, damage As Integer, Optional skillnum As Integer = 0) ', Optional overTime As Boolean = 0)
+    Friend Sub PetAttackNpc(attacker As Integer, mapnpcnum As Integer, damage As Integer, Optional skillnum As Integer = 0) ', Optional overTime As Boolean = False)
         Dim name As String, exp As Integer
         Dim i As Integer, mapNum As Integer, npcnum As Integer
 
@@ -2248,7 +2248,7 @@ Module S_Pet
 
 #Region "Pet > Player"
 
-    Function CanPetAttackPlayer(attacker As Integer, victim As Integer, Optional isSkill As Boolean = 0) As Boolean
+    Function CanPetAttackPlayer(attacker As Integer, victim As Integer, Optional isSkill As Boolean = False) As Boolean
 
         If Not isSkill Then
             If GetTimeMs() < TempPlayer(attacker).PetAttackTimer + 1000 Then Exit Function
@@ -2882,7 +2882,7 @@ Module S_Pet
 
     End Sub
 
-    Friend Sub PetCastSkill(index As Integer, skillslot As Integer, target As Integer, targetType As Byte, Optional takeMana As Boolean = 1)
+    Friend Sub PetCastSkill(index As Integer, skillslot As Integer, target As Integer, targetType As Byte, Optional takeMana As Boolean = True)
         Dim skillnum As Integer, mpCost As Integer, levelReq As Integer
         Dim mapNum As Integer, vital As Integer, didCast As Boolean
         Dim accessReq As Integer, i As Integer
@@ -3391,7 +3391,7 @@ Module S_Pet
 
 #Region "Player > Pet"
 
-    Function CanPlayerAttackPet(attacker As Integer, victim As Integer, Optional isSkill As Boolean = 0) As Boolean
+    Function CanPlayerAttackPet(attacker As Integer, victim As Integer, Optional isSkill As Boolean = False) As Boolean
 
         If isSkill = 0 Then
             ' Check attack timer

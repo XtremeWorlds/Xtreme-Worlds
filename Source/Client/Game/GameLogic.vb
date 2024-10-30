@@ -63,9 +63,9 @@ Module GameLogic
 
     Function GameStarted() As Boolean
         GameStarted = 0
-        If GameState.InGame = 0 Then Exit Function
-        If GameState.MapData = 0 Then Exit Function
-        If GameState.PlayerData = 0 Then Exit Function
+        If GameState.InGame = False Then Exit Function
+        If GameState.MapData = False Then Exit Function
+        If GameState.PlayerData = False Then Exit Function
         GameStarted = 1
     End Function
 
@@ -142,7 +142,7 @@ Module GameLogic
 
         ' hide/show chat window
         If chatText = "" Then
-            If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible Then
+            If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True
                 Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
                 HideChat()
                 Exit Sub
@@ -792,28 +792,28 @@ Continue1:
     Public Sub Dialogue(ByVal header As String, ByVal body As String, ByVal body2 As String, ByVal Index As Byte, Optional ByVal style As Byte = 1, Optional ByVal Data1 As Long = 0, Optional ByVal Data2 As Long = 0, Optional ByVal Data3 As Long = 0, Optional ByVal Data4 As Long = 0, Optional ByVal Data5 As Long = 0)
         ' exit out if we've already got a dialogue open
         If Gui.GetWindowIndex("winDialogue") = 0 Then Exit Sub
-        If Gui.Windows(Gui.GetWindowIndex("winDialogue")).Window.Visible Then Exit Sub
+        If Gui.Windows(Gui.GetWindowIndex("winDialogue")).Window.Visible = True Then Exit Sub
 
         ' set buttons
         With Gui.Windows(Gui.GetWindowIndex("winDialogue"))
             If style = DialogueStyle.YesNo Then
-                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = 1
-                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = 1
-                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = 1
+                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = True
+                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = True
+                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = True
             ElseIf style = DialogueStyle.Okay Then
-                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = 1
-                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = 1
+                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = True
+                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = True
             ElseIf style = DialogueStyle.Input Then
-                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = 0
-                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = 1
-                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = 1
-                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = 0
+                .Controls(Gui.GetControlIndex("winDialogue", "btnYes")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "btnNo")).Visible = False
+                .Controls(Gui.GetControlIndex("winDialogue", "btnOkay")).Visible = True
+                .Controls(Gui.GetControlIndex("winDialogue", "txtInput")).Visible = True
+                .Controls(Gui.GetControlIndex("winDialogue", "lblBody_2")).Visible = False
             End If
 
             ' set labels
@@ -998,7 +998,7 @@ Continue1:
     End Sub
 
     Public Sub UpdateChat()
-        Setting.Save()
+        Settings.Save()
     End Sub
 
     Public Sub ScrollChatBox(ByVal direction As Byte)
@@ -1072,9 +1072,9 @@ Continue1:
         GameState.descLastItem = GameState.descItem
 
         ' show req. labels
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblClass")).Visible = 1
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblLevel")).Visible = 1
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = 0
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblClass")).Visible = True
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblLevel")).Visible = True
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = False
 
         ' set variables
         With Gui.Windows(Gui.GetWindowIndex("winDescription"))
@@ -1282,8 +1282,8 @@ Continue1:
         ReDim GameState.descText(1)
     
         ' hide req. labels
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblLevel")).Visible = 0
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = 1
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "lblLevel")).Visible = False
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = True
     
         ' set variables
         With Gui.Windows(Gui.GetWindowIndex("winDescription"))
@@ -1316,15 +1316,15 @@ Continue1:
                     sUse = "Max Rank"
                 'End If
                 ' show controls
-                .Controls(Gui.GetControlIndex("winDescription", "lblClass")).visible = 1
-                .Controls(Gui.GetControlIndex("winDescription", "picBar")).visible = 1
+                .Controls(Gui.GetControlIndex("winDescription", "lblClass")).Visible = True
+                .Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = True
                  'set vals
                 .Controls(Gui.GetControlIndex("winDescription", "lblClass")).Text = sUse
                 .Controls(Gui.GetControlIndex("winDescription", "lblClass")).Color = Microsoft.Xna.Framework.Color.White
             Else
                 ' hide some controls
-                .Controls(Gui.GetControlIndex("winDescription", "lblClass")).visible = 0
-                .Controls(Gui.GetControlIndex("winDescription", "picBar")).visible = 0
+                .Controls(Gui.GetControlIndex("winDescription", "lblClass")).Visible = False
+                .Controls(Gui.GetControlIndex("winDescription", "picBar")).Visible = False
             End If
         End With
     
@@ -1401,9 +1401,8 @@ Continue1:
     End Sub
 
     Public Sub LogoutGame()
-        GameState.isLogging = 1
-        GameState.InMenu = 1
-        GameState.InGame = 0
+        GameState.InMenu = True
+        GameState.InGame = False
 
         DestroyNetwork()
         InitNetwork()
@@ -1431,11 +1430,11 @@ Continue1:
 
         ' fill the options screen
         With Gui.Windows(Gui.GetWindowIndex("winOptions"))
-            .Controls(Gui.GetControlIndex("winOptions", "chkMusic")).Value = Type.Setting.Music
-            .Controls(Gui.GetControlIndex("winOptions", "chkSound")).Value = Type.Setting.Sound
-            .Controls(Gui.GetControlIndex("winOptions", "chkAutotile")).Value = Type.Setting.Autotile
-            .Controls(Gui.GetControlIndex("winOptions", "chkFullscreen")).Value = Type.Setting.Fullscreen
-            .Controls(Gui.GetControlIndex("winOptions", "cmbRes")).Value = Type.Setting.Resolution
+            .Controls(Gui.GetControlIndex("winOptions", "chkMusic")).Value = Settings.Music
+            .Controls(Gui.GetControlIndex("winOptions", "chkSound")).Value = Settings.Sound
+            .Controls(Gui.GetControlIndex("winOptions", "chkAutotile")).Value = Settings.Autotile
+            .Controls(Gui.GetControlIndex("winOptions", "chkFullscreen")).Value = Settings.Fullscreen
+            .Controls(Gui.GetControlIndex("winOptions", "cmbRes")).Value = Settings.Resolution
         End With
     End Sub
 
@@ -1446,8 +1445,8 @@ Continue1:
         GameState.shopSelectedItem = Type.Shop(GameState.InShop).TradeItem(1).Item
         Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "chkSelling")).Value = 0
         Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "chkBuying")).Value = 1
-        Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "btnSell")).visible = 0
-        Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "btnBuy")).visible = 1
+        Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "btnSell")).Visible = False
+        Gui.Windows(Gui.GetWindowIndex("winShop")).Controls(Gui.GetControlIndex("winShop", "btnBuy")).Visible = True
         GameState.shopIsSelling = 0
     
         ' set the current item
@@ -1481,7 +1480,7 @@ Continue1:
         With Gui.Windows(Gui.GetWindowIndex("winParty"))
             For i = 1 To 3
                 ' get the pIndex from the control
-                If .Controls(Gui.GetControlIndex("winParty", "picChar" & i)).visible = 1 Then
+                If .Controls(Gui.GetControlIndex("winParty", "picChar" & i)).Visible = True Then
                     pIndex = .Controls(Gui.GetControlIndex("winParty", "picChar" & i)).value
                     ' make sure they exist
                     If pIndex > 0 Then
@@ -1765,22 +1764,22 @@ Continue1:
         ' Clamp the camera position within the map bounds after interpolation
         If GameState.CurrentCameraX < 0 Then
             GameState.CurrentCameraX = 0
-        ElseIf GameState.CurrentCameraX + Type.Setting.CameraWidth > mapMaxWidth Then
-            GameState.CurrentCameraX = mapMaxWidth - Type.Setting.CameraWidth
+        ElseIf GameState.CurrentCameraX + Settings.CameraWidth > mapMaxWidth Then
+            GameState.CurrentCameraX = mapMaxWidth - Settings.CameraWidth
         End If
 
         If GameState.CurrentCameraY < 0 Then
             GameState.CurrentCameraY = 0
-        ElseIf GameState.CurrentCameraY + Type.Setting.CameraHeight > mapMaxHeight Then
-            GameState.CurrentCameraY = mapMaxHeight - Type.Setting.CameraHeight
+        ElseIf GameState.CurrentCameraY + Settings.CameraHeight > mapMaxHeight Then
+            GameState.CurrentCameraY = mapMaxHeight - Settings.CameraHeight
         End If
 
         ' Set the TileView properties based on the clamped camera position
         With GameState.TileView
             .Top = GameState.CurrentCameraY
-            .Bottom = GameState.CurrentCameraY + Type.Setting.CameraHeight + 3
+            .Bottom = GameState.CurrentCameraY + Settings.CameraHeight + 3
             .Left = GameState.CurrentCameraX
-            .Right = GameState.CurrentCameraX + Type.Setting.CameraWidth + 3
+            .Right = GameState.CurrentCameraX + Settings.CameraWidth + 3
         End With
 
         ' Update the Camera properties

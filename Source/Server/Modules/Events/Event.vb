@@ -79,7 +79,7 @@ Friend Module [Event]
 
 #Region "Movement"
 
-    Function CanEventMove(index As Integer, mapNum As Integer, x As Integer, y As Integer, eventId As Integer, walkThrough As Integer, dir As Byte, Optional globalevent As Boolean = 0) As Boolean
+    Function CanEventMove(index As Integer, mapNum As Integer, x As Integer, y As Integer, eventId As Integer, walkThrough As Integer, dir As Byte, Optional globalevent As Boolean = False) As Boolean
         Dim i As Integer
         Dim n As Integer, n2 As Integer, z As Integer, begineventprocessing As Boolean
 
@@ -436,7 +436,7 @@ Friend Module [Event]
 
     End Function
 
-    Sub EventDir(playerindex As Integer, mapNum As Integer, eventId As Integer, dir As Integer, Optional globalevent As Boolean = 0)
+    Sub EventDir(playerindex As Integer, mapNum As Integer, eventId As Integer, dir As Integer, Optional globalevent As Boolean = False)
         Dim buffer As New ByteStream(4)
         Dim eventindex As Integer, i As Integer
 
@@ -480,7 +480,7 @@ Friend Module [Event]
 
     End Sub
 
-    Sub EventMove(index As Integer, mapNum As Integer, eventId As Integer, dir As Integer, movementspeed As Integer, Optional globalevent As Boolean = 0)
+    Sub EventMove(index As Integer, mapNum As Integer, eventId As Integer, dir As Integer, movementspeed As Integer, Optional globalevent As Boolean = False)
         Dim buffer As New ByteStream(4)
         Dim eventindex As Integer, i As Integer
 
@@ -893,7 +893,7 @@ Friend Module [Event]
             ReDim pos(Type.Map(MapNum).MaxX, Type.Map(MapNum).MaxY)
 
             For i = 0 To TempPlayer(playerId).EventMap.CurrentEvents
-                If TempPlayer(playerId).EventMap.EventPages(i).Visible Then
+                If TempPlayer(playerId).EventMap.EventPages(i).Visible = True
                     If TempPlayer(playerId).EventMap.EventPages(i).WalkThrough = 1 Then
                         pos(TempPlayer(playerId).EventMap.EventPages(i).X, TempPlayer(playerId).EventMap.EventPages(i).Y) = 9
                     End If
@@ -1453,7 +1453,7 @@ Friend Module [Event]
 
     End Sub
 
-    Sub SendSwitchesAndVariables(index As Integer, Optional everyone As Boolean = 0)
+    Sub SendSwitchesAndVariables(index As Integer, Optional everyone As Boolean = False)
         Dim buffer As New ByteStream(4), i As Integer
 
         buffer.WriteInt32(ServerPackets.SSwitchesAndVariables)

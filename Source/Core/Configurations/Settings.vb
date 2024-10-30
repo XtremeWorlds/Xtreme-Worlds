@@ -2,42 +2,41 @@
 Imports System.Xml.Serialization
 
 Public Class Settings
-    Public Language As String = "English"
+    Public Shared Language As String = "English"
 
-    Public Username As String = ""
-    Public SaveUsername As Boolean = 0
+    Public Shared Username As String = ""
+    Public Shared SaveUsername As Boolean = False
 
-    Public MenuMusic As String = "menu.mid"
-    Public Music As Boolean = 1
-    Public Sound As Boolean = 1
-    Public MusicVolume As Single = 100.0F
-    Public SoundVolume As Single = 100.0F
+    Public Shared MenuMusic As String = "menu.mid"
+    Public Shared Music As Boolean = True
+    Public Shared Sound As Boolean = True
+    Public Shared MusicVolume As Single = 100.0F
+    Public Shared SoundVolume As Single = 100.0F
 
-    Public MusicExt As String = ".mid"
-    Public SoundExt As String = ".ogg"
+    Public Shared MusicExt As String = ".mid"
+    Public Shared SoundExt As String = ".ogg"
 
-    Public Resolution As Byte = 13
-    Public Vsync As Byte = 1
-    Public ShowNpcBar As Byte = 1
-    Public Fullscreen As Byte = 1
-    Public CameraWidth As Byte = 32
-    Public CameraHeight As Byte = 24
-    Public OpenAdminPanelOnLogin As Byte = 1
-    Public DynamicLightRendering As Byte = 1
-    Public ChannelState(ChatChannel.Count - 1) As Byte
-    Public Shadow As Byte = 0
+    Public Shared Resolution As Byte = 13
+    Public Shared Vsync As Byte = 1
+    Public Shared ShowNpcBar As Byte = 1
+    Public Shared Fullscreen As Byte = 1
+    Public Shared CameraWidth As Byte = 32
+    Public Shared CameraHeight As Byte = 24
+    Public Shared OpenAdminPanelOnLogin As Byte = 1
+    Public Shared DynamicLightRendering As Byte = 1
+    Public Shared ChannelState(ChatChannel.Count - 1) As Byte
 
-    Public Ip As String = "127.0.0.1"
-    Public Port As Integer = 7001
+    Public Shared Ip As String = "127.0.0.1"
+    Public Shared Port As Integer = 7001
 
-    <XmlIgnore()> Public GameName As String = "XtremeWorlds"
-    <XmlIgnore()> Public Website As String = "https://xtremeworlds.com/"
+    <XmlIgnore()> Public Shared GameName As String = "XtremeWorlds"
+    <XmlIgnore()> Public Shared Website As String = "https://xtremeworlds.com/"
 
-    Public Welcome As String = "Welcome to XtremeWorlds, enjoy your stay!"
+    Public Shared Welcome As String = "Welcome to XtremeWorlds, enjoy your stay!"
 
-    Public TimeSpeed As Integer = 1
+    Public Shared TimeSpeed As Integer = 1
 
-    Public Autotile As Boolean = 1
+    Public Shared Autotile As Boolean = True
 
      Public Shared Sub Load()
         Dim configPath As String = Core.Path.Config()

@@ -71,10 +71,6 @@
         CTradeItem
         CUntradeItem
         CAdmin
-        CRequestQuests
-        CQuestLogUpdate
-        CPlayerHandleQuest
-        CQuestReset
         CSetHotbarSlot
         CDeleteHotbarSlot
         CUseHotbarSlot

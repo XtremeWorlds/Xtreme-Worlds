@@ -6,7 +6,7 @@ Imports System.Buffers
 
 Module NetworkSend
 
-    Sub AlertMsg(ByVal index As Long, ByVal menuNo As Integer, Optional ByVal menuReset As Integer = 0, Optional ByVal kick As Boolean = 1)
+    Sub AlertMsg(ByVal index As Long, ByVal menuNo As Integer, Optional ByVal menuReset As Integer = 0, Optional ByVal kick As Boolean = True)
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(Packets.ServerPackets.SAlertMsg)
@@ -430,8 +430,8 @@ Module NetworkSend
     Sub SendWelcome(index As Integer)
 
         ' Send them welcome
-        If Type.Setting.Welcome.Length > 0 Then
-            PlayerMsg(index, Type.Setting.Welcome, ColorType.BrightCyan)
+        If Settings.Welcome.Length > 0 Then
+            PlayerMsg(index, Settings.Welcome, ColorType.BrightCyan)
         End If
 
         ' Send whos online

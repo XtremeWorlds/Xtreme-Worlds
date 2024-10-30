@@ -103,7 +103,7 @@ Module Map
 
                     ' Autotile rendering state
                 ElseIf Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateAutotile Then
-                    If Type.Setting.Autotile Then
+                    If Settings.Autotile Then
                         DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), 1, x, y, 0, False)
                         DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY), 2, x, y, 0, False)
                         DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY) + 16, 3, x, y, 0, False)
@@ -161,7 +161,7 @@ mapsync:
 
                     ' Handle autotile rendering
                 ElseIf Type.Autotile(x, y).Layer(i).RenderState = GameState.RenderStateAutotile Then
-                    If Type.Setting.Autotile Then
+                    If Settings.Autotile Then
                         ' Render autotiles
                         DrawAutoTile(i, ConvertMapX(x * GameState.PicX), ConvertMapY(y * GameState.PicY), 1, x, y, 0, False)
                         DrawAutoTile(i, ConvertMapX(x * GameState.PicX) + 16, ConvertMapY(y * GameState.PicY), 2, x, y, 0, False)
@@ -175,7 +175,7 @@ mapsync:
 mapsync:
     End Sub
 
-    Friend Sub DrawAutoTile(layerNum As Integer, dX As Integer, dY As Integer, quarterNum As Integer, x As Integer, y As Integer, Optional forceFrame As Integer = 0, Optional strict As Boolean = 1)
+    Friend Sub DrawAutoTile(layerNum As Integer, dX As Integer, dY As Integer, quarterNum As Integer, x As Integer, y As Integer, Optional forceFrame As Integer = 0, Optional strict As Boolean = True)
         Dim yOffset As Integer, xOffset As Integer
 
         ' calculate the offset
@@ -792,7 +792,7 @@ mapsync:
         UpdateDrawMapName()
 
         GameState.GettingMap = 0
-        GameState.CanMoveNow = 1
+        GameState.CanMoveNow = True
 
     End Sub
 
@@ -853,7 +853,7 @@ mapsync:
         UpdateDrawMapName()
 
         GameState.GettingMap = 0
-        GameState.CanMoveNow = 1
+        GameState.CanMoveNow = True
 
     End Sub
 
@@ -878,7 +878,7 @@ mapsync:
         buffer.Dispose()
 
         GameState.GettingMap = 1
-        GameState.CanMoveNow = 0
+        GameState.CanMoveNow = False
 
     End Sub
 
@@ -896,7 +896,7 @@ mapsync:
         Dim data() As Byte
         Dim buffer As New ByteStream(4)
 
-        GameState.CanMoveNow = 0
+        GameState.CanMoveNow = False
 
         buffer.WriteString(MyMap.Name)
         buffer.WriteString(MyMap.Music)
