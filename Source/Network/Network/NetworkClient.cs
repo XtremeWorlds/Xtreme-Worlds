@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Mirage.Sharp.Asfw.Network
 {
@@ -59,42 +61,26 @@ namespace Mirage.Sharp.Asfw.Network
       this.PacketId = (NetworkClient.DataArgs[]) null;
     }
 
+    private readonly object _socketLock = new object();
+
     public void Connect(string ip, int port)
     {
-      if (this._socket == null)
+      lock (_socketLock)
       {
-        Console.WriteLine("Error: Socket is null.");
-        return;
-      }
+        if (_socket == null || _socket.Connected || _connecting) return;
 
-      if (this._socket.Connected)
-      {
-        Console.WriteLine("Warning: Already connected.");
-        return;
-      }
-
-      if (this._connecting)
-      {
-        Console.WriteLine("Warning: Connection already in progress.");
-        return;
-      }
-
-      try
-      {
-        this._connecting = true;
-        Console.WriteLine($"Attempting to connect to {ip}:{port}...");
-
-        IPAddress address = ip.ToLower() == "localhost" 
-          ? IPAddress.Loopback 
-          : IPAddress.Parse(ip);
-
-        _socket.BeginConnect(new IPEndPoint(address, port), 
-          new AsyncCallback(this.DoConnect), null);
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine($"Connection error: {ex.Message}");
-        this._connecting = false;
+        try
+        {
+          _connecting = true;
+          Console.WriteLine($"Attempting to connect to {ip}:{port}...");
+          IPAddress address = ip.ToLower() == "localhost" ? IPAddress.Loopback : IPAddress.Parse(ip);
+          _socket.BeginConnect(new IPEndPoint(address, port), DoConnect, null);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Connection error: {ex.Message}");
+          _connecting = false;
+        }
       }
     }
 
@@ -129,13 +115,33 @@ namespace Mirage.Sharp.Asfw.Network
 
     public bool IsConnected => this._socket != null && this._socket.Connected;
 
+    private CancellationTokenSource _cancellationTokenSource = new();
+
     public void Disconnect()
     {
-      if (this._socket == null || !this._socket.Connected)
-        return;
-      this._socket.BeginDisconnect(false, new AsyncCallback(this.DoDisconnect), (object) null);
+      lock (_socketLock)
+      {
+        if (_socket == null || !_socket.Connected) return;
+
+        _cancellationTokenSource.Cancel();
+        _socket.BeginDisconnect(false, DoDisconnect, null);
+      }
     }
 
+    private bool _verboseLogging = false;
+
+    public void Log(string message, bool includeStackTrace = false)
+    {
+      if (_verboseLogging)
+      {
+        Console.WriteLine(message);
+        if (includeStackTrace)
+        {
+          Console.WriteLine(Environment.StackTrace);
+        }
+      }
+    }
+    
     private void DoDisconnect(IAsyncResult ar)
     {
       if (this._socket == null)
@@ -159,55 +165,56 @@ namespace Mirage.Sharp.Asfw.Network
       this._socket.BeginReceive(this._receiveBuffer, 0, this._packetSize, SocketFlags.None, new AsyncCallback(this.DoReceive), (object) null);
     }
 
+    private MemoryStream _packetStream = new MemoryStream();
+
     private void DoReceive(IAsyncResult ar)
     {
-      if (this._socket == null)
-        return;
-      int length1;
+      int bytesRead;
       try
       {
-        length1 = this._socket.EndReceive(ar);
+        bytesRead = _socket.EndReceive(ar);
       }
-      catch
+      catch (Exception ex)
       {
-        NetworkClient.CrashReportArgs crashReport = this.CrashReport;
-        if (crashReport != null)
-          crashReport("ConnectionForciblyClosedException");
-        this.Disconnect();
+        CrashReport?.Invoke("ConnectionForciblyClosedException: " + ex.Message);
+        Disconnect();
         return;
       }
-      if (length1 < 1)
+
+      if (bytesRead <= 0)
       {
-        if (this._socket == null)
-          return;
-        NetworkClient.CrashReportArgs crashReport = this.CrashReport;
-        if (crashReport != null)
-          crashReport("BufferUnderflowException");
-        this.Disconnect();
+        Disconnect();
+        return;
       }
-      else
-      {
-        NetworkClient.TrafficInfoArgs trafficReceived = this.TrafficReceived;
-        if (trafficReceived != null)
-          trafficReceived(length1, ref this._receiveBuffer);
-        if (this._packetRing == null)
-        {
-          this._packetRing = new byte[length1];
-          Buffer.BlockCopy((Array) this._receiveBuffer, 0, (Array) this._packetRing, 0, length1);
-        }
-        else
-        {
-          int length2 = this._packetRing.Length;
-          byte[] dst = new byte[length2 + length1];
-          Buffer.BlockCopy((Array) this._packetRing, 0, (Array) dst, 0, length2);
-          Buffer.BlockCopy((Array) this._receiveBuffer, 0, (Array) dst, length2, length1);
-          this._packetRing = dst;
-        }
-        this.PacketHandler();
-        this._receiveBuffer = new byte[this._packetSize];
-        this._socket?.BeginReceive(this._receiveBuffer, 0, this._packetSize, SocketFlags.None, new AsyncCallback(this.DoReceive), (object) null);
-      }
+
+      // Write the received data into the MemoryStream.
+      _packetStream.Write(_receiveBuffer, 0, bytesRead);
+      ProcessPackets();
+      BeginReceiveData(); // Start receiving the next chunk.
     }
+
+    private void ProcessPackets()
+    {
+      _packetStream.Seek(0, SeekOrigin.Begin);
+      while (_packetStream.Length >= 4)
+      {
+        byte[] lengthBytes = new byte[4];
+        _packetStream.Read(lengthBytes, 0, 4);
+        int packetLength = BitConverter.ToInt32(lengthBytes, 0);
+
+        if (packetLength > _packetStream.Length - 4) break; // Incomplete packet.
+
+        byte[] packet = new byte[packetLength];
+        _packetStream.Read(packet, 0, packetLength);
+        PacketReceived?.Invoke(packetLength, BitConverter.ToInt32(packet, 0), ref packet);
+      }
+
+      // Move remaining data to the start of the stream.
+      var remainingData = _packetStream.ToArray()[(int)_packetStream.Position..];
+      _packetStream.SetLength(0);
+      _packetStream.Write(remainingData, 0, remainingData.Length);
+    }
+
 
     private void PacketHandler()
     {
@@ -361,8 +368,7 @@ namespace Mirage.Sharp.Asfw.Network
             Console.WriteLine("Failed to send data: " + ex.Message);
         }
     }
-
-
+    
     private void DoSend(IAsyncResult ar)
     {
         try
