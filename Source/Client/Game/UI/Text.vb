@@ -53,8 +53,6 @@ Module Text
         Chat(1).Channel = channel
     End Sub
 
-    Public SplitChars As Char() = New Char() {" "c, "-"c, ControlChars.Tab}
-
     Public Sub WordWrap(ByVal text As String, ByVal font As FontType, ByVal MaxLineLen As Long, ByRef theArray() As String)
         Dim lineCount As Long, i As Long, size As Long, lastSpace As Long, b As Long, tmpNum As Long
 

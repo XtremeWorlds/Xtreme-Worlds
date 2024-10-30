@@ -351,33 +351,34 @@ Module General
     End Sub
     
     Private Sub HandleActiveWindowInput()
+        Dim key As Keys
+
         SyncLock GameClient.InputLock
-            ' Check for active window
+            ' Check if there is an active window and that it is visible.
             If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Window.Visible Then
-                ' Check if an active control exists
+                ' Check if an active control exists.
                 If Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
-                    ' Get the active control
+                    ' Get the active control.
                     Dim activeControl = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
 
-                    If GameClient.IsKeyStateActive(Keys.Enter) Then
-                        ' Handle Enter: Call the control’s callback or activate a new control
-                        If Not activeControl.CallBack(EntState.Enter) Is Nothing Then
+                    ' Check if the Enter key is active and can be processed.
+                    key = Keys.Enter
+                    If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
+                        ' Handle Enter: Call the control's callback or activate a new control.
+                        If activeControl.CallBack(EntState.Enter) IsNot Nothing Then
                             activeControl.CallBack(EntState.Enter) = Nothing
                         Else
                             Dim n As Integer = Gui.ActivateControl()
-
-                            If n = 0 Then
-                                Gui.ActivateControl(n, False)
-                            End If
+                            If n = 0 Then Gui.ActivateControl(n, False)
                         End If
+                    End If
 
-                    ElseIf GameClient.IsKeyStateActive(Keys.Tab) Then
-                        ' Handle Tab: Switch to the next control
+                    ' Check if the Tab key is active and can be processed.
+                    key = Keys.Tab
+                    If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
+                        ' Handle Tab: Switch to the next control.
                         Dim n As Integer = Gui.ActivateControl()
-                        
-                        If n = 0 Then
-                            Gui.ActivateControl(n, False)
-                        End If
+                        If n = 0 Then Gui.ActivateControl(n, False)
                     End If
                 End If
             End If
