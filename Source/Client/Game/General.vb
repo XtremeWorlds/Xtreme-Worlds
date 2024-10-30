@@ -283,20 +283,20 @@ Module General
                 If GameState.InMenu = True Then Exit Sub
 
                 ' Hide options screen
-                If Gui.Windows(Gui.GetWindowIndex("winOptions")).Window.Visible = True
+                If Gui.Windows(Gui.GetWindowIndex("winOptions")).Window.Visible = True Then
                     Gui.HideWindow(Gui.GetWindowIndex("winOptions"))
                     Gui.CloseComboMenu()
                     Exit Sub
                 End If
 
                 ' hide/show chat window
-                If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True
+                If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True Then
                     Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
                     HideChat()
                     Exit Sub
                 End If
 
-                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Window.Visible = True
+                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Window.Visible = True Then
                     Gui.HideWindow(Gui.GetWindowIndex("winEscMenu"))
                     Exit Sub
                 Else
