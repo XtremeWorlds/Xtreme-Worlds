@@ -35,7 +35,6 @@ Module General
     Friend Sub LoadGame()
         Settings.Load()
         Languages.Load()
-        Input.Load()
         CheckAnimations()
         CheckCharacters()
         CheckEmotes()
