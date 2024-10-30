@@ -437,6 +437,8 @@ Public Class GameClient
             Return
         End If
         
+        IsMouseVisible = True
+
         UpdateMouseCache()
         UpdateKeyCache()
         ProcessInputs()
