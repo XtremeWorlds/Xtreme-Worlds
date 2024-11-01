@@ -56,9 +56,9 @@ Public Class Gui
         Public Property CallBack As List(Of Action)
 
         ' Controls in this window
-        Public Controls As List(Of Control)
+        Public Property Controls As List(Of Control)
         Public Property LastControl As Integer
-        Public Shared ActiveControl As Integer
+        Public Property ActiveControl As Integer
     End Class
 
     Public Class Control
@@ -487,12 +487,11 @@ Public Class Gui
 
         ' If no control was activated and skipping the last control, try again without skipping
         If skipLast Then
-            Return ActivateControl(1, False)  ' Recursive call without skipping the last control
-        Else
-            Return 0  ' Return 0 if no control could be activated after all attempts
+            Return ActivateControl(0, False)  ' Recursive call without skipping the last control
+        Else 
+            Return 0
         End If
     End Function
-
 
     Public Shared Sub CentralizeWindow(curWindow As Long)
         With Windows(curWindow)
@@ -4401,14 +4400,11 @@ Public Class Gui
     End Sub
     
     Public Shared Sub UpdateActiveControl(ByVal modifiedControl As Control)
-        ' Retrieve the active window
-        Dim activeWindow As Window = Windows(Gui.ActiveWindow)
-
-        ' Update the control within the active window's Controls array
-        activeWindow.Controls(Window.ActiveControl) = modifiedControl
-
-        ' Save the modified window back to the Guis array
-        Windows(Gui.ActiveWindow) = activeWindow
+        ' Ensure there is an active window and an active control to update
+        If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
+            ' Update the control within the active window's Controls array
+            Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl) = modifiedControl
+        End If
     End Sub
 
     Public Shared Function GetActiveControl() As Control
