@@ -9,7 +9,7 @@ Module NetworkSend
         Dim buffer As New ByteStream(4)
 
         buffer.WriteInt32(Packets.ClientPackets.CAddChar)
-        buffer.WriteInt32(State.CharNum)
+        buffer.WriteInt32(GameState.CharNum)
         buffer.WriteString((name))
         buffer.WriteInt32(sexNum)
         buffer.WriteInt32(jobNum)
