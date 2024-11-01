@@ -14,7 +14,7 @@ Imports Path = System.IO.Path
 Module Database
     Dim connectionString As String = Configuration.GetValue("Database:ConnectionString", "Host=localhost;Port=5432;Username=postgres;Password=mirage;Database=mirage")
 
-    Public Shared Sub ExecuteSql(connectionString As String, sql As String)
+    Public Sub ExecuteSql(connectionString As String, sql As String)
         Using connection As New NpgsqlConnection(connectionString)
             connection?.Open()
 
@@ -47,7 +47,7 @@ Module Database
         End Try
     End Function
 
-    Public Shared Sub CreateDatabase(databaseName As String)
+    Public Sub CreateDatabase(databaseName As String)
         If Not DatabaseExists("mirage") Then
             Dim sql As String = $"CREATE DATABASE {databaseName};"
 
@@ -130,7 +130,7 @@ Module Database
         End Using
     End Function
 
-    Public Shared Sub UpdateRowByColumn(columnName As String, value As Int64, targetColumn As String, newValue As String, tableName As String)
+    Public Sub UpdateRowByColumn(columnName As String, value As Int64, targetColumn As String, newValue As String, tableName As String)
         Dim sql As String = $"UPDATE {tableName} SET {targetColumn} = @newValue::jsonb WHERE {columnName} = @value;"
 
         Dim jsonData As JObject = JObject.Parse(newValue) ' Parse the string into a JObject
@@ -147,7 +147,7 @@ Module Database
         End Using
     End Sub
 
-    Public Shared Sub CreateTables()
+    Public Sub CreateTables()
         Dim dataTable As String = "id SERIAL PRIMARY KEY, data jsonb"
         Dim playerTable As String = "id BIGINT PRIMARY KEY, data jsonb, bank jsonb"
 
@@ -164,7 +164,7 @@ Module Database
         CreateTable("account", playerTable)
     End Sub
 
-    Public Shared Sub CreateTable(tableName As String, layout As String)
+    Public Sub CreateTable(tableName As String, layout As String)
         Using conn As New NpgsqlConnection(connectionString)
             conn.Open()
 
@@ -218,7 +218,7 @@ Module Database
         End Using
     End Function
 
-    Public Shared Sub InsertRow(id As Int64, data As String, tableName As String)
+    Public Sub InsertRow(id As Int64, data As String, tableName As String)
         Dim jsonData As JObject = JObject.Parse(data) ' Parse the string into a JObject
 
         Using conn As New NpgsqlConnection(connectionString)
@@ -235,7 +235,7 @@ Module Database
         End Using
     End Sub
 
-    Public Shared Sub InsertRow(id As Int64, data As String, tableName As String, columnName As String)
+    Public Sub InsertRow(id As Int64, data As String, tableName As String, columnName As String)
         Dim jsonData As JObject = JObject.Parse(data) ' Parse the string into a JObject
 
         Using conn As New NpgsqlConnection(connectionString)
@@ -252,7 +252,7 @@ Module Database
         End Using
     End Sub
 
-    Public Shared Sub InsertRowByColumn(id As Int64, data As String, tableName As String, dataColumn As String, idColumn As String)
+    Public Sub InsertRowByColumn(id As Int64, data As String, tableName As String, dataColumn As String, idColumn As String)
         Dim jsonData As JObject = JObject.Parse(data) ' Parse the string into a JObject
 
         Dim sql As String = $"INSERT INTO {tableName} ({idColumn}, {dataColumn}) VALUES (@id, @data::jsonb);"
@@ -341,7 +341,7 @@ Module Database
         Return String.Empty ' Key not found
     End Function
 
-    Public Shared Sub PutVar(filePath As String, section As String, key As String, value As String)
+    Public Sub PutVar(filePath As String, section As String, key As String, value As String)
         Dim lines As New List(Of String)(File.ReadAllLines(filePath))
         Dim updated As Boolean = False
         Dim isInSection As Boolean = False
@@ -493,7 +493,7 @@ Module Database
         Type.Map(MapNum).MaxY = MAX_MAPY
     End Sub
 
-    Public Shared Sub SaveMap(MapNum As Integer)
+    Public Sub SaveMap(MapNum As Integer)
         Dim json As String = JsonConvert.SerializeObject(Type.Map(MapNum)).ToString()
 
         If RowExists(MapNum, "map") Then
@@ -798,7 +798,7 @@ Module Database
         Return tile
     End Function
 
-    Public Shared Sub SetXWTileType(ByRef tileType As TileType)
+    Public Sub SetXWTileType(ByRef tileType As TileType)
         Select Case tileType
             Case XWTileType.Warp
                 tileType = TileType.Warp
