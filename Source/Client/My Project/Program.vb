@@ -610,12 +610,13 @@ Public Class GameClient
                 SendRequestAdmin()
             End If
             
-            HandleHotbarInput()
             HandleMouseInputs()
             HandleActiveWindowInput()
             HandleTextInput()
             
             If GameState.InGame = True Then
+                HandleHotbarInput()
+                
                 If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
             
                 If GameClient.IsKeyStateActive(Keys.I) Then
