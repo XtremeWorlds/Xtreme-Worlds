@@ -268,11 +268,11 @@ mapsync:
                     tmr250 = tick + 250
                 End If
 
-                If FadeInSwitch = 1 Then
+                If FadeInSwitch = True Then
                     FadeIn()
                 End If
 
-                If FadeOutSwitch = 1 Then
+                If FadeOutSwitch = True Then
                     FadeOut()
                 End If
             Else

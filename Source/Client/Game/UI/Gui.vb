@@ -415,7 +415,7 @@ Public Class Gui
         End Select
     End Function
 
-    Public Function ActivateControl(Optional startIndex As Integer = 1, Optional skipLast As Boolean = True) As Integer
+    Public Shared Function ActivateControl(Optional startIndex As Integer = 1, Optional skipLast As Boolean = True) As Integer
         Dim currentActive As Integer = Windows(activeWindow).ActiveControl
         Dim lastControl As Integer = Windows(activeWindow).LastControl
 
@@ -857,7 +857,7 @@ Public Class Gui
         UpdateWindow_Combobox()
     End Sub
 
-    Public Function HandleInterfaceEvents(entState As EntState) As Boolean
+    Public Shared Function HandleInterfaceEvents(entState As EntState) As Boolean
         Dim i As Long, curWindow As Long, curControl As Long, callBack As Action, x As Long
 
         ' Find the container
@@ -1683,7 +1683,7 @@ Public Class Gui
         HideWindow(GetWindowIndex("winComboMenu"))
     End Sub
 
-    Sub ShowComboMenu(curWindow As Long, curControl As Long)
+    Shared Sub ShowComboMenu(curWindow As Long, curControl As Long)
         Dim Top As Long
 
         With Windows(curWindow).Controls(curControl)
@@ -1712,7 +1712,7 @@ Public Class Gui
         End With
     End Sub
 
-    Sub ComboMenu_MouseMove(curWindow As Long)
+    Shared Sub ComboMenu_MouseMove(curWindow As Long)
         Dim y As Long, i As Long
         With Windows(curWindow).Window
             y = GameState.CurMouseY - .Top
@@ -1728,7 +1728,7 @@ Public Class Gui
         End With
     End Sub
 
-    Sub ComboMenu_MouseDown(curWindow As Long)
+    Shared Sub ComboMenu_MouseDown(curWindow As Long)
         Dim y As Long, i As Long
 
         With Windows(curWindow).Window
@@ -4423,7 +4423,7 @@ Public Class Gui
         Gui.Windows(Gui.ActiveWindow) = activeWindow
     End Sub
 
-    Public Function GetActiveControl() As Nullable(Of ControlStruct)
+    Public Shared Function GetActiveControl() As Nullable(Of ControlStruct)
         If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Window.Visible = True AndAlso Gui.Windows(Gui.ActiveWindow).ActiveControl >= 0 Then
             ' Return the active control
             Return Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
