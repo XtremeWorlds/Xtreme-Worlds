@@ -645,7 +645,7 @@ Public Class Gui
 
     Public Shared Sub UpdateWindow_NewChar()
         ' Control window
-        UpdateWindow("winNewChar", "Control Character", FontType.Georgia, zOrder_Win, 0, 0, 291, 172, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
+        UpdateWindow("winNewChar", "Create Character", FontType.Georgia, zOrder_Win, 0, 0, 291, 172, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
         CentralizeWindow(Windows.Count)
@@ -2073,7 +2073,7 @@ Public Class Gui
                 textArray(I),
                 x, y,
                 Microsoft.Xna.Framework.Color.White,
-                Microsoft.Xna.Framework.Color.White
+                Microsoft.Xna.Framework.Color.Black
                 )
             y += 14
         Next
