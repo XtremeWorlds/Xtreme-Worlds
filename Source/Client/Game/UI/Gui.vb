@@ -984,6 +984,11 @@ Public Class Gui
                         If .State <> EntState.MouseDown Then
                             .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
                         End If
+                        
+                        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
+                            .movedX = GameState.CurMouseX - .Left
+                            .movedY = GameState.CurMouseY - .Top
+                        End If
 
                         ' Handle specific control types
                         Select Case .Type
@@ -1007,6 +1012,9 @@ Public Class Gui
                         If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
                             .movedX = GameState.CurMouseX - .Left
                             .movedY = GameState.CurMouseY - .Top
+                        End If
+                        
+                        If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                             SetActiveControl(curWindow, curControl)
                         End If
                         
