@@ -944,7 +944,7 @@ Public Class Gui
                         End If
 
                         ' Handle window dragging
-                        If entState = EntState.MouseMove AndAlso .CanDrag AndAlso .State = EntState.MouseDown Then
+                        If entState = EntState.MouseMove AndAlso .CanDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
                             .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, GameState.ResolutionWidth - .Width)
                             .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, GameState.ResolutionHeight - .Height)
                         End If
@@ -970,7 +970,7 @@ Public Class Gui
                             End If
 
                             ' Handle control dragging
-                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso .State = EntState.MouseDown Then
+                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
                                 .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, Windows(curWindow).Width - .Width)
                                 .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, Windows(curWindow).Height - .Height)
                             End If
@@ -985,7 +985,7 @@ Public Class Gui
                             .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
                         End If
 
-                        If .State = EntState.MouseDown AndAlso .CanDrag Then
+                        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
                             .movedX = GameState.CurMouseX - .Left
                             .movedY = GameState.CurMouseY - .Top
                         End If
@@ -2317,7 +2317,7 @@ Public Class Gui
 
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex)
-                .State = EntState.MouseDown
+                GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
                 .movedX = GameState.CurMouseX - .Left
@@ -2484,7 +2484,7 @@ Public Class Gui
 
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex)
-                .State = EntState.MouseDown
+                GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
                 .movedX = GameState.CurMouseX - .Left
@@ -2746,7 +2746,7 @@ Public Class Gui
 
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex)
-                .State = EntState.MouseDown
+                GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
                 .movedX = GameState.CurMouseX - .Left
@@ -2826,7 +2826,7 @@ Public Class Gui
 
             winIndex = GetWindowIndex("winDragBox")
             With Windows(winIndex)
-                .State = EntState.MouseDown
+                GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
                 .movedX = GameState.CurMouseX - .Left
