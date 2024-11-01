@@ -958,16 +958,14 @@ Public Class Gui
                     With Windows(curWindow).Controls(i)
                         If .Enabled AndAlso .Visible Then
                             If .State <> EntState.MouseDown Then .State = EntState.Normal
+                            
+                            If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
+                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
 
-                            If GameClient.IsMouseButtonDown(MouseButton.Left)
-                                If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
-                                   GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
-                                   GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
-                                   GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
-
-                                    If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
-                                        curControl = i
-                                    End If
+                                If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
+                                    curControl = i
                                 End If
                             End If
 
@@ -985,11 +983,6 @@ Public Class Gui
                     With Windows(curWindow).Controls(curControl)
                         If .State <> EntState.MouseDown Then
                             .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
-                        End If
-
-                        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
-                            .movedX = GameState.CurMouseX - .Left
-                            .movedY = GameState.CurMouseY - .Top
                         End If
 
                         ' Handle specific control types
@@ -1011,7 +1004,12 @@ Public Class Gui
                                 ShowComboMenu(curWindow, curControl)
                         End Select
 
-                        SetActiveControl(curWindow, curControl)
+                        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
+                            .movedX = GameState.CurMouseX - .Left
+                            .movedY = GameState.CurMouseY - .Top
+                            SetActiveControl(curWindow, curControl)
+                        End If
+                        
                         callBack = .CallBack(entState)
                     End With
                 Else
