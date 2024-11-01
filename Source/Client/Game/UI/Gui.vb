@@ -621,7 +621,7 @@ Public Class Gui
         'UpdatePictureBox(Windows.Count, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         
         ' Buttons
-        UpdateButton(Windows.Count, "btnAccept", 68, 152, 67, 22, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
+        UpdateButton(Windows.Count, "btnAccept", 68, 152, 67, 22, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
         UpdateButton(Windows.Count, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
 
         ' Labels
@@ -724,13 +724,13 @@ Public Class Gui
 
         ' Control Buttons
         UpdateButton(Windows.Count, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
-        UpdateButton(Windows.Count, "btnControlChar_1", 22, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
+        UpdateButton(Windows.Count, "btnControlChar_1", 22, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
         UpdateButton(Windows.Count, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
         UpdateButton(Windows.Count, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
-        UpdateButton(Windows.Count, "btnControlChar_2", 132, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
+        UpdateButton(Windows.Count, "btnControlChar_2", 132, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
         UpdateButton(Windows.Count, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
         UpdateButton(Windows.Count, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
-        UpdateButton(Windows.Count, "btnControlChar_3", 242, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
+        UpdateButton(Windows.Count, "btnControlChar_3", 242, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
         UpdateButton(Windows.Count, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
     End Sub
 
@@ -959,13 +959,15 @@ Public Class Gui
                         If .Enabled AndAlso .Visible Then
                             If .State <> EntState.MouseDown Then .State = EntState.Normal
 
-                            If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
-                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
+                            If GameClient.IsMouseButtonDown(MouseButton.Left)
+                                If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
+                                   GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                                   GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                                   GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
 
-                                If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
-                                    curControl = i
+                                    If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
+                                        curControl = i
+                                    End If
                                 End If
                             End If
 
