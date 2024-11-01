@@ -40,7 +40,7 @@ Module General
         CheckDesigns()
         InitializeBASS()
         InitNetwork()
-        Gui.InitInterface()
+        Gui.Init()
         GameState.Ping = -1
     End Sub
 

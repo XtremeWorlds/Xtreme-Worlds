@@ -142,7 +142,7 @@ Module GameLogic
 
         ' hide/show chat window
         If chatText = "" Then
-            If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True
+            If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True
                 Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
                 HideChat()
                 Exit Sub
@@ -792,7 +792,7 @@ Continue1:
     Public Sub Dialogue(ByVal header As String, ByVal body As String, ByVal body2 As String, ByVal Index As Byte, Optional ByVal style As Byte = 1, Optional ByVal Data1 As Long = 0, Optional ByVal Data2 As Long = 0, Optional ByVal Data3 As Long = 0, Optional ByVal Data4 As Long = 0, Optional ByVal Data5 As Long = 0)
         ' exit out if we've already got a dialogue open
         If Gui.GetWindowIndex("winDialogue") = 0 Then Exit Sub
-        If Gui.Windows(Gui.GetWindowIndex("winDialogue")).Window.Visible = True Then Exit Sub
+        If Gui.Windows(Gui.GetWindowIndex("winDialogue")).Visible = True Then Exit Sub
 
         ' set buttons
         With Gui.Windows(Gui.GetWindowIndex("winDialogue"))
@@ -1058,8 +1058,8 @@ Continue1:
         GameState.descItem = itemNum
 
         ' set position
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Window.Left = x
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Window.Top = y
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Left = x
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Top = y
 
         ' show the window
         Gui.ShowWindow(Gui.GetWindowIndex("winDescription"), , False)
@@ -1269,8 +1269,8 @@ Continue1:
         GameState.descItem = Skillnum
     
         ' set position
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Window.Left = x
-        Gui.Windows(Gui.GetWindowIndex("winDescription")).Window.Top = y
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Left = x
+        Gui.Windows(Gui.GetWindowIndex("winDescription")).Top = y
     
         ' show the window
         Gui.ShowWindow(Gui.GetWindowIndex("winDescription"), , False)
@@ -1409,10 +1409,6 @@ Continue1:
     End Sub
 
     Sub SetOptionsScreen()
-        ' clear the combolists
-        Erase Gui.Windows(Gui.GetWindowIndex("winOptions")).Controls(Gui.GetControlIndex("winOptions", "cmbRes")).list
-        ReDim Gui.Windows(Gui.GetWindowIndex("winOptions")).Controls(Gui.GetControlIndex("winOptions", "cmbRes")).list(0)
-
         ' Resolutions
         Gui.Combobox_AddItem(Gui.GetWindowIndex("winOptions"), Gui.GetControlIndex("winOptions", "cmbRes"), "1920x1080")
         Gui.Combobox_AddItem(Gui.GetWindowIndex("winOptions"), Gui.GetControlIndex("winOptions", "cmbRes"), "1680x1050")
@@ -1512,7 +1508,7 @@ Continue1:
 
         ' set the controls up
         With Gui.Windows(Gui.GetWindowIndex("winTrade"))
-            .Window.text = "Trading with " & GetPlayerName(InTrade)
+            .Text = "Trading with " & GetPlayerName(InTrade)
             .Controls(Gui.GetControlIndex("winTrade", "lblYourTrade")).text = GetPlayerName(GameState.MyIndex) & "'s Offer"
             .Controls(Gui.GetControlIndex("winTrade", "lblTheirTrade")).text = GetPlayerName(InTrade) & "'s Offer"
             .Controls(Gui.GetControlIndex("winTrade", "lblYourValue")).text = "0g"
@@ -1524,8 +1520,8 @@ Continue1:
     Sub ShowPlayerMenu(Index As Long, X As Long, Y As Long)
         GameState.PlayerMenuIndex = Index
         If GameState.PlayerMenuIndex = 0 Or GameState.PlayerMenuIndex = GameState.MyIndex Then Exit Sub
-        Gui.Windows(Gui.GetWindowIndex("winPlayerMenu")).Window.Left = X - 5
-        Gui.Windows(Gui.GetWindowIndex("winPlayerMenu")).Window.Top = Y - 5
+        Gui.Windows(Gui.GetWindowIndex("winPlayerMenu")).Left = X - 5
+        Gui.Windows(Gui.GetWindowIndex("winPlayerMenu")).Top = Y - 5
         Gui.Windows(Gui.GetWindowIndex("winPlayerMenu")).Controls(Gui.GetControlIndex("winPlayerMenu", "btnName")).text = GetPlayerName(GameState.PlayerMenuIndex)
         Gui.ShowWindow(Gui.GetWindowIndex("winRightClickBG"))
         Gui.ShowWindow(Gui.GetWindowIndex("winPlayerMenu"))

@@ -33,7 +33,7 @@ Module Bank
 
         GameState.InBank = 1
 
-        If Not Gui.Windows(Gui.GetWindowIndex("winBank")).Window.Visible = True
+        If Not Gui.Windows(Gui.GetWindowIndex("winBank")).Visible = True
             Gui.ShowWindow(Gui.GetWindowIndex("winBank"), , False)
         End If
 
@@ -78,7 +78,7 @@ Module Bank
     End Sub
 
     Friend Sub CloseBank()
-        If Gui.Windows(Gui.GetWindowIndex("winBank")).Window.Visible = True
+        If Gui.Windows(Gui.GetWindowIndex("winBank")).Visible = True
             Gui.HideWindow(Gui.GetWindowIndex("winBank"))
         End If
 

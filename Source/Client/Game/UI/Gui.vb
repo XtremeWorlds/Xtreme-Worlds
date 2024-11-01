@@ -1,91 +1,164 @@
 ﻿
+Imports System.Collections.Concurrent
+Imports System.Net.Mime
+Imports System.Text.RegularExpressions
 Imports Core
 Imports Microsoft.Xna.Framework
+Imports Microsoft.Xna.Framework.Graphics
 
 Public Class Gui
-    ' GUI
-    Public Shared Windows() As WindowStruct
-    Public Shared WindowCount As Long
+   ' GUI
+    Public Shared ReadOnly Windows As New ConcurrentDictionary(Of Long, Window)
     Public Shared ActiveWindow As Long
 
     ' GUI parts
     Public Shared DragBox As ControlPartStruct
 
     ' Used for automatically the zOrder
-    Public Shared zOrder_Win As Long
-    Public Shared zOrder_Con As Long
+    Private Shared zOrder_Win As Long
+    Private Shared zOrder_Con As Long
 
-    Public Shared Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, ByRef design() As Long, ByRef image() As Long, ByRef texture() as String, ByRef callback() As Action,
-                            Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
-                            Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
-                            Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
+    Public Class Window
+        Public Property Name As String
+        Public Property Type As ControlType
+        Public Property Left As Long
+        Public Property Top As Long
+        Public Property OrigLeft As Long
+        Public Property OrigTop As Long
+        Public Property MovedX As Long
+        Public Property MovedY As Long
+        Public Property Width As Long
+        Public Property Height As Long
+        Public Property Visible As Boolean
+        Public Property CanDrag As Boolean
+        Public Property Font As FontType
+        Public Property Text As String
+        Public Property xOffset As Long
+        Public Property yOffset As Long
+        Public Property Icon As Long
+        Public Property Enabled As Boolean
+        Public Property Value As Long
+        Public Property Group As Long
+        Public Property zChange As Byte
+        Public Property zOrder As Long
+        Public Property OnDraw As Action
+        Public Property Censor As Boolean
+        Public Property ClickThrough As Boolean
+        Public Property LinkedToWin As Long
+        Public Property LinkedToCon As Long
 
-        Dim i As Long
+        Public Property State As EntState
+        Public Property List As List(Of String)
 
-        ' check if it's a legal number
-        If winNum <= 0 Or winNum > WindowCount Then
-            Exit Sub
-        End If
+        ' Arrays for states
+        Public Property Design As List(Of Long)
+        Public Property Image As List(Of Long)
+        Public Property CallBack As List(Of Action)
 
-        ' re-dim the control array
-        With Windows(winNum)
-            .ControlCount = .ControlCount + 1
-            ReDim Preserve .Controls(.ControlCount)
-        End With
+        ' Controls in this window
+        Public Controls As List(Of Control)
+        Public Property LastControl As Integer
+        Public Shared ActiveControl As Integer
+    End Class
 
-        ' Set the new control values
-        With Windows(winNum).Controls(Windows(winNum).ControlCount)
-            .Name = name
-            .Type = tType
+    Public Class Control
+        Public Property Name As String
+        Public Property Type As ControlType
+        Public Property Left As Long
+        Public Property Top As Long
+        Public Property OrigLeft As Long
+        Public Property OrigTop As Long
+        Public Property MovedX As Long
+        Public Property MovedY As Long
+        Public Property Width As Long
+        Public Property Height As Long
+        Public Property Visible As Boolean
+        Public Property CanDrag As Boolean
+        Public Property Max As Long
+        Public Property Min As Long
+        Public Property Value As Long
+        Public Property Text As String
+        Public Property Length As Byte
+        Public Property Align As Byte
+        Public Property Font As FontType
+        Public Property Color As Microsoft.Xna.Framework.Color
+        Public Property Alpha As Long
+        Public Property ClickThrough As Boolean
+        Public Property xOffset As Long
+        Public Property yOffset As Long
+        Public Property zChange As Byte
+        Public Property zOrder As Long
+        Public Property Enabled As Boolean
+        Public Property OnDraw As Action
+        Public Property Tooltip As String
+        Public Property Group As Long
+        Public Property Censor As Boolean
+        Public Property Icon As Long
+        Public Property Locked As Boolean
+        Public Property State As EntState
+        Public Property List As List(Of String)
 
-            ReDim .Design(EntState.Count - 1)
-            ReDim .Image(EntState.Count - 1)
-            ReDim .Texture(EntState.Count  -1)
-            ReDim .CallBack(EntState.Count - 1)
+        ' Arrays for states
+        Public Property Design As List(Of Long)
+        Public Property Image As List(Of Long)
+        Public Property Texture As List(Of String)
+        Public Property CallBack As List(Of Action)
+    End Class
+    
+      Public Shared Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, design As List(Of Long), image As List(Of Long), texture As List(Of String), callback As List(Of Action),
+                                    Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
+                                    Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
+                                    Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
 
-            ' loop through states
-            For i = 0 To EntState.Count - 1
-                .Design(i) = design(i)
-                .Image(i) = image(i)
-                .Texture(i) = texture(i)
-                .CallBack(i) = callback(i)
-            Next
+        ' Ensure the window exists in the Windows collection
+        If Not Windows.ContainsKey(winNum) Then Exit Sub
 
-            .Left = left
-            .Top = top
-            .OrigLeft = left
-            .OrigTop = top
-            .Width = width
-            .Height = height
-            .Visible = visible
-            .CanDrag = canDrag
-            .Max = Max
-            .Min = Min
-            .Value = value
-            .Text = text
-            .Length = length
-            .Align = align
-            .Font = font
-            .Color = color
-            .Alpha = alpha
-            .ClickThrough = clickThrough
-            .xOffset = xOffset
-            .yOffset = yOffset
-            .zChange = zChange
-            .zOrder = zOrder
-            .Enabled = 1
-            .OnDraw = onDraw
-            .Tooltip = tooltip
-            .Group = group
-            .Censor = censor
-            .Icon = icon
-            .Locked = locked
-            ReDim .List(0)
-        End With
+        ' Create a new instance of Control with specified properties
+        Dim newControl As New Control With {
+                .Name = name,
+                .Type = tType,
+                .Left = left,
+                .Top = top,
+                .OrigLeft = left,
+                .OrigTop = top,
+                .Width = width,
+                .Height = height,
+                .Visible = visible,
+                .CanDrag = canDrag,
+                .Max = Max,
+                .Min = Min,
+                .Value = value,
+                .Text = text,
+                .Length = length,
+                .Align = align,
+                .Font = font,
+                .Color = color,
+                .Alpha = alpha,
+                .ClickThrough = clickThrough,
+                .xOffset = xOffset,
+                .yOffset = yOffset,
+                .zChange = zChange,
+                .zOrder = zOrder,
+                .Enabled = True,
+                .OnDraw = onDraw,
+                .Tooltip = tooltip,
+                .Group = group,
+                .Censor = censor,
+                .Icon = icon,
+                .Locked = locked,
+                .Design = design,
+                .Image = image,
+                .Texture = texture,
+                .CallBack = callback
+                }
 
-        ' set the active control
-        If isActive Then Windows(winNum).ActiveControl = Windows(winNum).ControlCount
-
+        ' Add the new control to the specified window's controls list
+        If Windows(winNum).Controls Is Nothing Then Windows(winNum).Controls = New List(Of Control)()
+        Windows(winNum).Controls.Add(newControl)
+        
+        ' Update active control if necessary
+        If isActive Then Windows(winNum).ActiveControl = Gui.Windows(winNum).Controls.Count - 1
+        
         ' set the zOrder
         zOrder_Con = zOrder_Con + 1
     End Sub
@@ -94,27 +167,27 @@ Public Class Gui
         Dim i As Long
         Dim oldZOrder As Long
 
-        With Windows(winNum).Window
+        With Windows(winNum)
 
             If Not forced Then If .zChange = 0 Then Exit Sub
-            If .zOrder = WindowCount Then Exit Sub
+            If .zOrder = Windows.Count Then Exit Sub
             oldZOrder = .zOrder
 
-            For i = 1 To WindowCount - 1
+            For i = 1 To Windows.Count
 
-                If Windows(i).Window.zOrder > oldZOrder Then
-                    Windows(i).Window.zOrder = Windows(i).Window.zOrder - 1
+                If Windows(i).zOrder > oldZOrder Then
+                    Windows(i).zOrder = Windows(i).zOrder - 1
                 End If
 
             Next
 
-            .zOrder = WindowCount
+            .zOrder = Windows.Count
         End With
 
     End Sub
 
     Public Shared Sub SortWindows()
-        Dim tempWindow As WindowStruct
+        Dim tempWindow As Window
         Dim i As Long, x As Long
 
         x = 1
@@ -122,9 +195,9 @@ Public Class Gui
         While x <> 0
             x = 0
 
-            For i = 1 To WindowCount - 1
+            For i = 1 To Windows.Count
 
-                If Windows(i).Window.zOrder > Windows(i + 1).Window.zOrder Then
+                If Windows(i).zOrder > Windows(i + 1).zOrder Then
                     tempWindow = Windows(i)
                     Windows(i) = Windows(i + 1)
                     Windows(i + 1) = tempWindow
@@ -137,108 +210,90 @@ Public Class Gui
 
     End Sub    
 
-    Public Shared Sub Combobox_AddItem(winIndex As Long, controlIndex As Long, text As String)
-        Dim count As Long
-        count = UBound(Windows(winIndex).Controls(controlIndex).List)
-        ReDim Preserve Windows(winIndex).Controls(controlIndex).List(count + 1)
-        Windows(winIndex).Controls(controlIndex).List(count + 1) = text
+    Public Shared Sub Combobox_AddItem(winName As String, controlIndex As Long, text As String)
+        ' Ensure the List property is initialized as a List(Of String) in Control class
+        If Windows(winName).Controls(controlIndex).List Is Nothing Then
+            Windows(winName).Controls(controlIndex).List = New List(Of String)()
+        End If
+        Windows(winName).Controls(controlIndex).List.Add(text)
     End Sub
+    
+      Public Shared Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
+                                   Optional visible As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
+                                   Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
+                                   Optional callback_norm As Action = Nothing, Optional callback_hover As Action = Nothing, Optional callback_mousemove As Action = Nothing, Optional callback_mousedown As Action = Nothing, Optional callback_dblclick As Action = Nothing, Optional onDraw As Action = Nothing,
+                                   Optional canDrag As Boolean = True, Optional zChange As Byte = 1, Optional isActive As Boolean = True, Optional clickThrough As Boolean = False)
 
-    Public Shared Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
-                            Optional visible As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
-                            Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
-                            Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional onDraw As Action = Nothing,
-                            Optional canDrag As Boolean = True, Optional zChange As Byte = 1, Optional isActive As Boolean = True, Optional clickThrough As Boolean = False)
 
-        Dim i As Long
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim callback(EntState.Count - 1) As Action
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
-        ' fill temp arrays
+        ' Assign specific values for each state
         design(EntState.Normal) = design_norm
         design(EntState.Hover) = design_hover
         design(EntState.MouseDown) = design_mousedown
-        design(EntState.DblClick) = design_norm
-        design(EntState.MouseUp) = design_norm
         image(EntState.Normal) = image_norm
         image(EntState.Hover) = image_hover
         image(EntState.MouseDown) = image_mousedown
-        image(EntState.DblClick) = image_norm
-        image(EntState.MouseUp) = image_norm
         callback(EntState.Normal) = callback_norm
         callback(EntState.Hover) = callback_hover
         callback(EntState.MouseDown) = callback_mousedown
         callback(EntState.MouseMove) = callback_mousemove
         callback(EntState.DblClick) = callback_dblclick
+  
+        ' Create a new instance of Window and populate it
+        Dim newWindow As New Window With {
+                .Name = name,
+                .Type = ControlType.Window,
+                .Left = left,
+                .Top = top,
+                .OrigLeft = left,
+                .OrigTop = top,
+                .Width = width,
+                .Height = height,
+                .Visible = visible,
+                .CanDrag = canDrag,
+                .Font = font,
+                .Text = caption,
+                .xOffset = xOffset,
+                .yOffset = yOffset,
+                .Icon = icon,
+                .Enabled = True,
+                .zChange = zChange,
+                .zOrder = zOrder,
+                .OnDraw = onDraw,
+                .ClickThrough = clickThrough,
+                .Design = design,
+                .Image = image,
+                .CallBack = callback
+                }
+        
+        ' Add the new control to the specified window's controls list
+        Windows.TryAdd(Windows.Count + 1, newWindow)
 
-        ' redim the windows
-        WindowCount = WindowCount + 1
-        ReDim Preserve Windows(WindowCount)
-
-        ' set the properties
-        With Windows(WindowCount).Window
-            .Name = name
-            .Type = ControlType.Window
-
-            ReDim .Design(EntState.Count - 1)
-            ReDim .Image(EntState.Count - 1)
-            ReDim .CallBack(EntState.Count - 1)
-
-            ' loop through states
-            For i = 0 To EntState.Count - 1
-                .Design(i) = design(i)
-                .Image(i) = image(i)
-                .CallBack(i) = callback(i)
-            Next
-
-            .Left = left
-            .Top = top
-            .OrigLeft = left
-            .OrigTop = top
-            .Width = width
-            .Height = height
-            .Visible = visible
-            .CanDrag = canDrag
-            .Font = font
-            .Text = caption
-            .xOffset = xOffset
-            .yOffset = yOffset
-            .Icon = icon
-            .Enabled = 1
-            .zChange = zChange
-            .zOrder = zOrder
-            .OnDraw = onDraw
-            .ClickThrough = clickThrough
-
-            ' set active
-            If .Visible Then activeWindow = WindowCount
-        End With
-
-        ' set the zOrder
-        zOrder_Win = zOrder_Win + 1
+        ' Set the active window if visible
+        If visible Then activeWindow = Gui.Windows.Count
     End Sub
 
     Public Shared Sub UpdateTextbox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
-                             Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional isActive As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional image_norm As Long = 0,
-                             Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional censor As Boolean = False, Optional icon As Long = 0, Optional length As Byte = NAME_LENGTH,
-                             Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef callback_enter As Action = Nothing)
+                                    Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional isActive As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional image_norm As Long = 0,
+                                    Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional censor As Boolean = False, Optional icon As Long = 0, Optional length As Byte = NAME_LENGTH,
+                                    Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef callback_enter As Action = Nothing)
 
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
-        ' fill temp arrays
+        ' Assign specific values for each state
         design(EntState.Normal) = design_norm
         design(EntState.Hover) = design_hover
         design(EntState.MouseDown) = design_mousedown
         image(EntState.Normal) = image_norm
         image(EntState.Hover) = image_hover
         image(EntState.MouseDown) = image_mousedown
-        texture(EntState.Normal) = Path.Designs
-        texture(EntState.Hover) = Path.Designs
-        texture(EntState.MouseDown) = Path.Designs
         callback(EntState.Normal) = callback_norm
         callback(EntState.Hover) = callback_hover
         callback(EntState.MouseDown) = callback_mousedown
@@ -247,18 +302,19 @@ Public Class Gui
         callback(EntState.Enter) = callback_enter
 
         ' Control the textbox
-        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset,  , censor, icon, , isActive, , , , length)
+        UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.TextBox, design, image, texture, callback, left, top, width, height, visible, , , , , text, align, font, alpha, , xOffset, yOffset, , censor, icon, , isActive, , , , length)
     End Sub
 
-    Public Shared Sub UpdatePictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
-                                Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional alpha As Long = 255, Optional clickThrough As Boolean = True, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional texturePath As String = "",
-                                Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing,
-                                Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef onDraw As Action = Nothing)
 
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+    Public Shared Sub UpdatePictureBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
+                                       Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional alpha As Long = 255, Optional clickThrough As Boolean = True, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0, Optional texturePath As String = "",
+                                       Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing,
+                                       Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional ByRef onDraw As Action = Nothing)
+
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
         ' fill temp arrays
         design(EntState.Normal) = design_norm
@@ -282,15 +338,15 @@ Public Class Gui
     End Sub
 
     Public Shared Sub UpdateButton(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
-                            Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional icon As Long = 0, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
-                            Optional visible As Boolean = True, Optional alpha As Long = 255, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
-                            Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing,
-                            Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional tooltip As String = "", Optional censor As Boolean = False, Optional locked As Boolean = True)
+                                   Optional text As String = "", Optional font As FontType = FontType.Georgia, Optional icon As Long = 0, Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
+                                   Optional visible As Boolean = True, Optional alpha As Long = 255, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
+                                   Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing,
+                                   Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional tooltip As String = "", Optional censor As Boolean = False, Optional locked As Boolean = True)
 
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
         ' fill temp arrays
         design(EntState.Normal) = design_norm
@@ -313,13 +369,13 @@ Public Class Gui
     End Sub
 
     Public Shared Sub UpdateLabel(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, text As String, font As FontType, color As Microsoft.Xna.Framework.Color,
-                           Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional censor As Boolean = False,
-                           Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional locked As Boolean = True)
+                                  Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional censor As Boolean = False,
+                                  Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing, Optional locked As Boolean = True)
 
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
         ' fill temp arrays
         callback(EntState.Normal) = callback_norm
@@ -333,14 +389,14 @@ Public Class Gui
     End Sub
 
     Public Shared Sub UpdateCheckBox(winNum As Long, name As String, left As Long, top As Long, width As Long, Optional height As Long = 15, Optional value As Long = 0, Optional text As String = "", Optional font As FontType = FontType.Georgia,
-                              Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255,
-                              Optional theDesign As Long = 0, Optional group As Long = 0, Optional censor As Boolean = False,
-                              Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing)
+                                     Optional align As Byte = AlignmentType.Left, Optional visible As Boolean = True, Optional alpha As Long = 255,
+                                     Optional theDesign As Long = 0, Optional group As Long = 0, Optional censor As Boolean = False,
+                                     Optional ByRef callback_norm As Action = Nothing, Optional ByRef callback_hover As Action = Nothing, Optional ByRef callback_mousedown As Action = Nothing, Optional ByRef callback_mousemove As Action = Nothing, Optional ByRef callback_dblclick As Action = Nothing)
 
-        Dim design(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+        Dim design As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
         design(0) = theDesign
         texture(0) = Path.Gui
@@ -356,25 +412,27 @@ Public Class Gui
         UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Checkbox, design, image, texture, callback, left, top, width, height, visible, , , , value, text, align, font, , alpha, , , , censor, , , , , group)
     End Sub
 
+
     Public Shared Sub ControlComboBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, design As Long)
-        Dim theDesign(EntState.Count - 1) As Long
-        Dim image(EntState.Count - 1) As Long
-        Dim texture(EntState.Count - 1) As String
-        Dim callback(EntState.Count - 1) As Action
+        ' Initialize lists for the control states
+        Dim theDesign As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
+        Dim texture As New List(Of String)(Enumerable.Repeat(Path.Gui, EntState.Count).ToList())
+        Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
+        ' Set the design for the normal state
         theDesign(0) = design
-        texture(0) = Path.Gui
 
-        ' Control the box
+        ' Update the control in the window using the updated lists
         UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Combobox, theDesign, image, texture, callback, left, top, width, height)
     End Sub
 
     Public Shared Function GetWindowIndex(winName As String) As Long
         Dim i As Long
 
-        For i = 1 To WindowCount
+        For i = 1 To Windows.Count
 
-            If LCase$(Windows(i).Window.Name) = LCase$(winName) Then
+            If LCase$(Windows(i).Name) = LCase$(winName) Then
                 GetWindowIndex = i
                 Exit Function
             End If
@@ -384,13 +442,12 @@ Public Class Gui
     End Function
 
     Public Shared Function GetControlIndex(winName As String, controlName As String) As Long
-        Dim i As Long, winIndex As Long
-
+        Dim i As Long
+        Dim winIndex As Long
+        
         winIndex = GetWindowIndex(winName)
-
-        If Not winIndex > 0 Or Not winIndex <= WindowCount Then Exit Function
-
-        For i = 1 To Windows(winIndex).ControlCount
+        
+        For i = 0 To Windows(winIndex).Controls.Count - 1
 
             If LCase$(Windows(winIndex).Controls(i).Name) = LCase$(controlName) Then
                 GetControlIndex = i
@@ -398,8 +455,8 @@ Public Class Gui
             End If
 
         Next
-        
-    End Function
+    
+         End Function
 
     Public Shared Function SetActiveControl(curWindow As Long, curControl As Long) As Boolean
         If Windows(curWindow).Controls(curControl).Locked Then
@@ -415,12 +472,12 @@ Public Class Gui
         End Select
     End Function
 
-    Public Shared Function ActivateControl(Optional startIndex As Integer = 1, Optional skipLast As Boolean = True) As Integer
+    Public Shared Function ActivateControl(Optional startIndex As Integer = 0, Optional skipLast As Boolean = True) As Integer
         Dim currentActive As Integer = Windows(activeWindow).ActiveControl
         Dim lastControl As Integer = Windows(activeWindow).LastControl
 
         ' Attempt to activate the next available control
-        For i As Integer = startIndex To Windows(activeWindow).ControlCount
+        For i As Integer = startIndex To Windows(activeWindow).Controls.Count - 1
             If i <> currentActive AndAlso (Not skipLast OrElse i <> lastControl) Then
                 If SetActiveControl(activeWindow, i) Then
                     Return i  ' Return the index of the control that was activated
@@ -438,7 +495,7 @@ Public Class Gui
 
 
     Public Shared Sub CentralizeWindow(curWindow As Long)
-        With Windows(curWindow).Window
+        With Windows(curWindow)
             .Left = (GameState.ResolutionWidth / 2) - (.Width / 2)
             .Top = (GameState.ResolutionHeight / 2) - (.Height / 2)
             .OrigLeft = .Left
@@ -449,25 +506,25 @@ Public Class Gui
     Public Shared Sub HideWindows()
         Dim i As Long
 
-        For i = 1 To WindowCount
+        For i = 1 To Windows.Count
             HideWindow(i)
         Next
     End Sub
 
     Public Shared Sub ShowWindow(curWindow As Long, Optional forced As Boolean = False, Optional resetPosition As Boolean = True)
         If curWindow = 0 Then Exit Sub
-        Windows(curWindow).Window.Visible = True
+        Windows(curWindow).Visible = True
 
         If forced Then
             UpdateZOrder(curWindow, forced)
             activeWindow = curWindow
-        ElseIf Windows(curWindow).Window.zChange Then
+        ElseIf Windows(curWindow).zChange Then
             UpdateZOrder(curWindow)
             activeWindow = curWindow
         End If
 
         If resetPosition Then
-            With Windows(curWindow).Window
+            With Windows(curWindow)
                 .Left = .OrigLeft
                 .Top = .OrigTop
                 .Visible = True
@@ -478,11 +535,11 @@ Public Class Gui
     Public Shared Sub HideWindow(curWindow As Long)
         Dim i As Long
 
-        Windows(curWindow).Window.Visible = False
+        Windows(curWindow).Visible = False
 
         ' find next window to set as active
-        For i = WindowCount - 1 To 1 Step -1
-            If Windows(i).Window.Visible = True And Windows(i).Window.zChange = 1 Then
+        For i = Windows.Count - 1 To 1 Step -1
+            If Windows(i).Visible = True And Windows(i).zChange = 1 Then
                 activeWindow = i
                 Exit For
             End If
@@ -494,42 +551,44 @@ Public Class Gui
         UpdateWindow("winLogin", "Login", FontType.Georgia, zOrder_Win, 0, 0, 276, 212, 45, True, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        ' FIX: We have to do it twice because the first time it doesn't work
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Shadows
-        UpdatePictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , ,  , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdatePictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(Windows.Count, "picShadow_1", 67, 43, 142, 9, , ,  , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(Windows.Count, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf DestroyGame))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf DestroyGame))
 
         ' Buttons
-        UpdateButton(WindowCount, "btnAccept", 67, 134, 67, 22, "Accept", FontType.Arial, , , ,  , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnLogin_Click))
-        UpdateButton(WindowCount, "btnExit", 142, 134, 67, 22, "Exit", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf DestroyGame))
+        UpdateButton(Windows.Count, "btnAccept", 67, 134, 67, 22, "Accept", FontType.Arial, , , ,  , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnLogin_Click))
+        UpdateButton(Windows.Count, "btnExit", 142, 134, 67, 22, "Exit", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf DestroyGame))
 
         ' Labels
-        UpdateLabel(WindowCount, "lblUsername", 72, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblPassword", 72, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblUsername", 72, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblPassword", 72, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Textboxes
         If Settings.SaveUsername Then
-            UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, Settings.Username, FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+            UpdateTextbox(Windows.Count, "txtUsername", 67, 55, 142, 19, Settings.Username, FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
         Else
-            UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, "", FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+            UpdateTextbox(Windows.Count, "txtUsername", 67, 55, 142, 19, "", FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
         End If
-        UpdateTextbox(WindowCount, "txtPassword", 67, 86, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        UpdateTextbox(Windows.Count, "txtPassword", 67, 86, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
 
         ' Checkbox
-        UpdateCheckBox(WindowCount, "chkSaveUsername", 67, 114, 142, , Settings.SaveUsername, "Save Username?", FontType.Arial, , , , DesignType.ChkNorm, , , , , New Action(AddressOf chkSaveUser_Click))
+        UpdateCheckBox(Windows.Count, "chkSaveUsername", 67, 114, 142, , Settings.SaveUsername, "Save Username?", FontType.Arial, , , , DesignType.ChkNorm, , , , , New Action(AddressOf chkSaveUser_Click))
 
         ' Register Button
-        UpdateButton(WindowCount, "btnRegister", 12, Windows(WindowCount).Window.Height - 35, 252, 22, "Register Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
+        UpdateButton(Windows.Count, "btnRegister", 12, Windows(Windows.Count).Height - 35, 252, 22, "Register Account", FontType.Arial,  , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnRegister_Click))
 
         ' Set the active control
         If Not Len(Windows(GetWindowIndex("winLogin")).Controls(GetControlIndex("winLogin", "txtUsername")).Text) > 0 Then
@@ -544,43 +603,43 @@ Public Class Gui
         UpdateWindow("winRegister", "Register Account", FontType.Georgia, zOrder_Win, 0, 0, 276, 202, 45, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnReturnMain_Click))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnReturnMain_Click))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 264, 170, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 264, 170, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Shadows
-        UpdatePictureBox(WindowCount, "picShadow_1", 67, 43, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdatePictureBox(WindowCount, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdatePictureBox(WindowCount, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        'UpdatePictureBox(WindowCount, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        'UpdatePictureBox(WindowCount, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(Windows.Count, "picShadow_1", 67, 43, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(Windows.Count, "picShadow_2", 67, 79, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdatePictureBox(Windows.Count, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        'UpdatePictureBox(Windows.Count, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        'UpdatePictureBox(Windows.Count, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         
         ' Buttons
-        UpdateButton(WindowCount, "btnAccept", 68, 152, 67, 22, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
-        UpdateButton(WindowCount, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
+        UpdateButton(Windows.Count, "btnAccept", 68, 152, 67, 22, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
+        UpdateButton(Windows.Count, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
 
         ' Labels
-        UpdateLabel(WindowCount, "lblUsername", 66, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblPassword", 66, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblRetypePassword", 66, 111, 142, 10, "Retype Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        'UpdateLabel(WindowCount, "lblCode", 66, 147, 142, 10, "Secret Code", FontType.Arial, AlignmentType.Center)
-        'UpdateLabel(WindowCount, "lblCaptcha", 66, 183, 142, 10, "Captcha", FontType.Arial, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblUsername", 66, 39, 142, 10, "Username", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblPassword", 66, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblRetypePassword", 66, 111, 142, 10, "Retype Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        'UpdateLabel(Windows.Count, "lblCode", 66, 147, 142, 10, "Secret Code", FontType.Arial, AlignmentType.Center)
+        'UpdateLabel(Windows.Count, "lblCaptcha", 66, 183, 142, 10, "Captcha", FontType.Arial, AlignmentType.Center)
 
         ' Textboxes
-        UpdateTextbox(WindowCount, "txtUsername", 67, 55, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdateTextbox(WindowCount, "txtPassword", 67, 91, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
-        UpdateTextbox(WindowCount, "txtRetypePassword", 67, 127, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
-        'UpdateTextbox(WindowCount, "txtCode", 67, 163, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
-        'UpdateTextbox(WindowCount, "txtCaptcha", 67, 235, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
+        UpdateTextbox(Windows.Count, "txtUsername", 67, 55, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdateTextbox(Windows.Count, "txtPassword", 67, 91, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        UpdateTextbox(Windows.Count, "txtRetypePassword", 67, 127, 142, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, True)
+        'UpdateTextbox(Windows.Count, "txtCode", 67, 163, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
+        'UpdateTextbox(Windows.Count, "txtCaptcha", 67, 235, 142, 19, , FontType.Arial, , AlignmentType.Left, , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite, False)
 
-        ' UpdatePictureBox(WindowCount, "picCaptcha", 67, 199, 156, 30, , , , , Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        ' UpdatePictureBox(Windows.Count, "picCaptcha", 67, 199, 156, 30, , , , , Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), Tex_Captcha(GlobalCaptcha), DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
 
         SetActiveControl(GetWindowIndex("winRegister"), GetControlIndex("winRegister", "txtUsername"))
     End Sub
@@ -590,46 +649,46 @@ Public Class Gui
         UpdateWindow("winNewChar", "Control Character", FontType.Georgia, zOrder_Win, 0, 0, 291, 172, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnNewChar_Cancel))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnNewChar_Cancel))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 278, 140, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 278, 140, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Name
-        UpdatePictureBox(WindowCount, "picShadow_1", 29, 42, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblName", 29, 39, 124, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_1", 29, 42, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblName", 29, 39, 124, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Textbox
-        UpdateTextbox(WindowCount, "txtName", 29, 55, 124, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdateTextbox(Windows.Count, "txtName", 29, 55, 124, 19, , FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
 
         ' Sex
-        UpdatePictureBox(WindowCount, "picShadow_2", 29, 85, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblGender", 29, 82, 124, 10, "Gender", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_2", 29, 85, 124, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblGender", 29, 82, 124, 10, "Gender", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Checkboxes
-        UpdateCheckBox(WindowCount, "chkMale", 29, 103, 55, , 1, "Male", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Male))
-        UpdateCheckBox(WindowCount, "chkFemale", 90, 103, 62, , 0, "Female", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Female))
+        UpdateCheckBox(Windows.Count, "chkMale", 29, 103, 55, , 1, "Male", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Male))
+        UpdateCheckBox(Windows.Count, "chkFemale", 90, 103, 62, , 0, "Female", FontType.Arial, AlignmentType.Center, , , DesignType.ChkNorm, , , , , New Action(AddressOf chkNewChar_Female))
 
         ' Buttons
-        UpdateButton(WindowCount, "btnAccept", 29, 127, 60, 24, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnNewChar_Accept))
-        UpdateButton(WindowCount, "btnCancel", 93, 127, 60, 24, "Cancel", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnNewChar_Cancel))
+        UpdateButton(Windows.Count, "btnAccept", 29, 127, 60, 24, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnNewChar_Accept))
+        UpdateButton(Windows.Count, "btnCancel", 93, 127, 60, 24, "Cancel", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnNewChar_Cancel))
 
         ' Sprite
-        UpdatePictureBox(WindowCount, "picShadow_3", 175, 42, 76, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblSprite", 175, 39, 76, 10, "Sprite", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_3", 175, 42, 76, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblSprite", 175, 39, 76, 10, "Sprite", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Scene
-        UpdatePictureBox(WindowCount, "picScene", 165, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf NewChar_OnDraw))
+        UpdatePictureBox(Windows.Count, "picScene", 165, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf NewChar_OnDraw))
 
         ' Buttons
-        UpdateButton(WindowCount, "btnLeft", 163, 40, 11, 13, ,  , , 12, 14, 16, , , , , , , , New Action(AddressOf btnNewChar_Left))
-        UpdateButton(WindowCount, "btnRight", 252, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnNewChar_Right))
+        UpdateButton(Windows.Count, "btnLeft", 163, 40, 11, 13, ,  , , 12, 14, 16, , , , , , , , New Action(AddressOf btnNewChar_Left))
+        UpdateButton(Windows.Count, "btnRight", 252, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnNewChar_Right))
 
         ' Set the active control
         SetActiveControl(GetWindowIndex("winNewChar"), GetControlIndex("winNewChar", "txtName"))
@@ -640,40 +699,40 @@ Public Class Gui
         UpdateWindow("winChars", "Characters", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 62, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnCharacters_Close))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnCharacters_Close))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Names
-        UpdatePictureBox(WindowCount, "picShadow_1", 22, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblCharName_1", 22, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdatePictureBox(WindowCount, "picShadow_2", 132, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblCharName_2", 132, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdatePictureBox(WindowCount, "picShadow_3", 242, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblCharName_3", 242, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_1", 22, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblCharName_1", 22, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_2", 132, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblCharName_2", 132, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow_3", 242, 41, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblCharName_3", 242, 37, 98, 10, "Blank Slot", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Scenery Boxes
-        UpdatePictureBox(WindowCount, "picScene_1", 23, 55, 96, 96, , , , , 11, 11, 11)
-        UpdatePictureBox(WindowCount, "picScene_2", 133, 55, 96, 96, , , , , 11, 11, 11)
-        UpdatePictureBox(WindowCount, "picScene_3", 243, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf Chars_OnDraw))
+        UpdatePictureBox(Windows.Count, "picScene_1", 23, 55, 96, 96, , , , , 11, 11, 11)
+        UpdatePictureBox(Windows.Count, "picScene_2", 133, 55, 96, 96, , , , , 11, 11, 11)
+        UpdatePictureBox(Windows.Count, "picScene_3", 243, 55, 96, 96, , , , , 11, 11, 11, , , , , , , , , , New Action(AddressOf Chars_OnDraw))
 
         ' Control Buttons
-        UpdateButton(WindowCount, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
-        UpdateButton(WindowCount, "btnControlChar_1", 22, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
-        UpdateButton(WindowCount, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
-        UpdateButton(WindowCount, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
-        UpdateButton(WindowCount, "btnControlChar_2", 132, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
-        UpdateButton(WindowCount, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
-        UpdateButton(WindowCount, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
-        UpdateButton(WindowCount, "btnControlChar_3", 242, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
-        UpdateButton(WindowCount, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
+        UpdateButton(Windows.Count, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
+        UpdateButton(Windows.Count, "btnControlChar_1", 22, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
+        UpdateButton(Windows.Count, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
+        UpdateButton(Windows.Count, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
+        UpdateButton(Windows.Count, "btnControlChar_2", 132, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
+        UpdateButton(Windows.Count, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
+        UpdateButton(Windows.Count, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
+        UpdateButton(Windows.Count, "btnControlChar_3", 242, 155, 98, 24, "Control", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
+        UpdateButton(Windows.Count, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
     End Sub
 
     Public Shared Sub UpdateWindow_Jobs()
@@ -681,33 +740,33 @@ Public Class Gui
         UpdateWindow("winJob", "Select Job", FontType.Georgia, zOrder_Win, 0, 0, 364, 229, 17, False, 2, 6, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnJobs_Close))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnJobs_Close))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf Jobs_DrawFace))
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 352, 197, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf Jobs_DrawFace))
 
         ' Job Name
-        UpdatePictureBox(WindowCount, "picShadow", 183, 42, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblClassName", 183, 39, 98, 10, "Warrior", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow", 183, 42, 98, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblClassName", 183, 39, 98, 10, "Warrior", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Select Buttons
-        UpdateButton(WindowCount, "btnLeft", 171, 40, 11, 13, , , , 12, 14, 16, , , , , , , , New Action(AddressOf btnJobs_Left))
-        UpdateButton(WindowCount, "btnRight", 282, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnJobs_Right))
+        UpdateButton(Windows.Count, "btnLeft", 171, 40, 11, 13, , , , 12, 14, 16, , , , , , , , New Action(AddressOf btnJobs_Left))
+        UpdateButton(Windows.Count, "btnRight", 282, 40, 11, 13, , , , 13, 15, 17, , , , , , , , New Action(AddressOf btnJobs_Right))
 
         ' Accept Button
-        UpdateButton(WindowCount, "btnAccept", 183, 185, 98, 22, "Accept", FontType.Arial, , , , ,  , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnJobs_Accept))
+        UpdateButton(Windows.Count, "btnAccept", 183, 185, 98, 22, "Accept", FontType.Arial, , , , ,  , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnJobs_Accept))
 
         ' Text background
-        UpdatePictureBox(WindowCount, "picBackground", 127, 55, 210, 124, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBackground", 127, 55, 210, 124, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Overlay
-        UpdatePictureBox(WindowCount, "picOverlay", 6, 26, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Jobs_DrawText))
+        UpdatePictureBox(Windows.Count, "picOverlay", 6, 26, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Jobs_DrawText))
     End Sub
 
     Public Shared Sub UpdateWindow_Dialogue()
@@ -715,35 +774,35 @@ Public Class Gui
         UpdateWindow("winDialogue", "Warning", FontType.Georgia, zOrder_Win, 0, 0, 348, 145, 38, False, 3, 5, DesignType.Win_Norm, DesignType.Win_Norm, DesignType.Win_Norm, , , , , , , , , , False)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnDialogue_Close))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnDialogue_Close))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 335, 113, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 335, 113, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Header
-        UpdatePictureBox(WindowCount, "picShadow", 103, 44, 144, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblHeader", 103, 41, 144, 10, "Header", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow", 103, 44, 144, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblHeader", 103, 41, 144, 10, "Header", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Input
-        UpdateTextbox(WindowCount, "txtInput", 93, 75, 162, 18, , FontType.Arial, AlignmentType.Center, , , , 5, 2, , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdateTextbox(Windows.Count, "txtInput", 93, 75, 162, 18, , FontType.Arial, AlignmentType.Center, , , , 5, 2, , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Labels
-        UpdateLabel(WindowCount, "lblBody_1", 15, 60, 314, 10, "Invalid username or password.", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblBody_2", 15, 75, 314, 10, "Please try again!", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblBody_1", 15, 60, 314, 10, "Invalid username or password.", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblBody_2", 15, 75, 314, 10, "Please try again!", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnYes", 104, 98, 68, 24, "Yes", FontType.Arial, , , , , False, , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Yes))
-        UpdateButton(WindowCount, "btnNo", 180, 98, 68, 24, "No", FontType.Arial, , ,  , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf Dialogue_No))
-        UpdateButton(WindowCount, "btnOkay", 140, 98, 68, 24, "Okay", FontType.Arial, ,  , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Okay))
+        UpdateButton(Windows.Count, "btnYes", 104, 98, 68, 24, "Yes", FontType.Arial, , , , , False, , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Yes))
+        UpdateButton(Windows.Count, "btnNo", 180, 98, 68, 24, "No", FontType.Arial, , ,  , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf Dialogue_No))
+        UpdateButton(Windows.Count, "btnOkay", 140, 98, 68, 24, "Okay", FontType.Arial, ,  , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf Dialogue_Okay))
 
         ' Set active control
-        SetActiveControl(WindowCount, GetControlIndex("winDialogue", "txtInput"))
+        SetActiveControl(Windows.Count, GetControlIndex("winDialogue", "txtInput"))
     End Sub
 
     Public Shared Sub UpdateWindow_Party()
@@ -751,39 +810,39 @@ Public Class Gui
         UpdateWindow("winParty", "", FontType.Georgia, zOrder_Win, 4, 78, 252, 158, 0, False, , , DesignType.Win_Party, DesignType.Win_Party, DesignType.Win_Party, , , , , , , , , , False)
 
         ' Name labels
-        UpdateLabel(WindowCount, "lblName1", 60, 20, 173, 10, "Richard - Level 10", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblName2", 60, 60, 173, 10, "Anna - Level 18", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblName3", 60, 100, 173, 10, "Doleo - Level 25", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblName1", 60, 20, 173, 10, "Richard - Level 10", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblName2", 60, 60, 173, 10, "Anna - Level 18", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblName3", 60, 100, 173, 10, "Doleo - Level 25", FontType.Arial, Microsoft.Xna.Framework.Color.White)
 
         ' Empty Bars - HP
-        UpdatePictureBox(WindowCount, "picEmptyBar_HP1", 58, 34, 173, 9, , , , , 62, 62, 62)
-        UpdatePictureBox(WindowCount, "picEmptyBar_HP2", 58, 74, 173, 9, , , , , 62, 62, 62)
-        UpdatePictureBox(WindowCount, "picEmptyBar_HP3", 58, 114, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_HP1", 58, 34, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_HP2", 58, 74, 173, 9, , , , , 62, 62, 62)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_HP3", 58, 114, 173, 9, , , , , 62, 62, 62)
 
         ' Empty Bars - SP
-        UpdatePictureBox(WindowCount, "picEmptyBar_SP1", 58, 44, 173, 9, , , , , 63, 63, 63)
-        UpdatePictureBox(WindowCount, "picEmptyBar_SP2", 58, 84, 173, 9, , , , , 63, 63, 63)
-        UpdatePictureBox(WindowCount, "picEmptyBar_SP3", 58, 124, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_SP1", 58, 44, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_SP2", 58, 84, 173, 9, , , , , 63, 63, 63)
+        UpdatePictureBox(Windows.Count, "picEmptyBar_SP3", 58, 124, 173, 9, , , , , 63, 63, 63)
 
         ' Filled bars - HP
-        UpdatePictureBox(WindowCount, "picBar_HP1", 58, 34, 173, 9, , , , , 64, 64, 64)
-        UpdatePictureBox(WindowCount, "picBar_HP2", 58, 74, 173, 9, , , , , 64, 64, 64)
-        UpdatePictureBox(WindowCount, "picBar_HP3", 58, 114, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(Windows.Count, "picBar_HP1", 58, 34, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(Windows.Count, "picBar_HP2", 58, 74, 173, 9, , , , , 64, 64, 64)
+        UpdatePictureBox(Windows.Count, "picBar_HP3", 58, 114, 173, 9, , , , , 64, 64, 64)
 
         ' Filled bars - SP
-        UpdatePictureBox(WindowCount, "picBar_SP1", 58, 44, 173, 9, , , , , 65, 65, 65)
-        UpdatePictureBox(WindowCount, "picBar_SP2", 58, 84, 173, 9, , , , , 65, 65, 65)
-        UpdatePictureBox(WindowCount, "picBar_SP3", 58, 124, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(Windows.Count, "picBar_SP1", 58, 44, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(Windows.Count, "picBar_SP2", 58, 84, 173, 9, , , , , 65, 65, 65)
+        UpdatePictureBox(Windows.Count, "picBar_SP3", 58, 124, 173, 9, , , , , 65, 65, 65)
 
         ' Shadows
-        'UpdatePictureBox(WindowCount, "picShadow1", 20, 24, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
-        'UpdatePictureBox WindowCount, "picShadow2", 20, 64, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
-        'UpdatePictureBox WindowCount, "picShadow3", 20, 104, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox(Windows.Count, "picShadow1", 20, 24, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox Windows.Count, "picShadow2", 20, 64, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
+        'UpdatePictureBox Windows.Count, "picShadow3", 20, 104, 32, 32, , , , , Tex_Shadow, Tex_Shadow, Tex_Shadow
 
         ' Characters
-        UpdatePictureBox(WindowCount, "picChar1", 20, 20, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
-        UpdatePictureBox(WindowCount, "picChar2", 20, 60, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
-        UpdatePictureBox(WindowCount, "picChar3", 20, 100, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(Windows.Count, "picChar1", 20, 20, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(Windows.Count, "picChar2", 20, 60, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
+        UpdatePictureBox(Windows.Count, "picChar3", 20, 100, 32, 32, , , , , 1, 1, 1, , , , Path.Characters)
     End Sub
 
     Public Shared Sub UpdateWindow_Trade()
@@ -791,40 +850,40 @@ Public Class Gui
         UpdateWindow("winTrade", "Trading with [Name]", FontType.Georgia, zOrder_Win, 0, 0, 412, 386, 112, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , , , , New Action(AddressOf DrawTrade))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Close Button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnTrade_Close))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnTrade_Close))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 10, 312, 392, 66, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 10, 312, 392, 66, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Labels
-        UpdatePictureBox(WindowCount, "picShadow", 36, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        UpdateLabel(WindowCount, "lblYourTrade", 36, 27, 142, 9, "Robin's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdatePictureBox(WindowCount, "picShadow", 36 + 200, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        UpdateLabel(WindowCount, "lblTheirTrade", 36 + 200, 27, 142, 9, "Richard's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow", 36, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(Windows.Count, "lblYourTrade", 36, 27, 142, 9, "Robin's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow", 36 + 200, 30, 142, 9, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(Windows.Count, "lblTheirTrade", 36 + 200, 27, 142, 9, "Richard's Offer", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnAccept", 134, 340, 68, 24, "Accept", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnTrade_Accept))
-        UpdateButton(WindowCount, "btnDecline", 210, 340, 68, 24, "Decline", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnTrade_Close))
+        UpdateButton(Windows.Count, "btnAccept", 134, 340, 68, 24, "Accept", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnTrade_Accept))
+        UpdateButton(Windows.Count, "btnDecline", 210, 340, 68, 24, "Decline", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnTrade_Close))
 
         ' Labels
-        UpdateLabel(WindowCount, "lblStatus", 114, 322, 184, 10, "", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblStatus", 114, 322, 184, 10, "", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Amounts
-        UpdateLabel(WindowCount, "lblBlank", 25, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblBlank", 285, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblYourValue", 25, 344, 100, 10, "52,812g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblTheirValue", 285, 344, 100, 10, "12,531g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblBlank", 25, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblBlank", 285, 330, 100, 10, "Total Value", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblYourValue", 25, 344, 100, 10, "52,812g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblTheirValue", 285, 344, 100, 10, "12,531g", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Item Containers
-        UpdatePictureBox(WindowCount, "picYour", 14, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeDblClick_Your), New Action(AddressOf DrawYourTrade))
-        UpdatePictureBox(WindowCount, "picTheir", 214, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf DrawTheirTrade))
+        UpdatePictureBox(Windows.Count, "picYour", 14, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeMouseMove_Your), New Action(AddressOf TradeDblClick_Your), New Action(AddressOf DrawYourTrade))
+        UpdatePictureBox(Windows.Count, "picTheir", 214, 46, 184, 260, , , , , , , , , , , , , , New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf TradeMouseMove_Their), New Action(AddressOf DrawTheirTrade))
     End Sub
 
     ' Rendering & Initialisation
-    Public Shared Sub InitInterface()
+    Public Shared Sub Init()
         ' Starter values
         zOrder_Win = 1
         zOrder_Con = 1
@@ -860,166 +919,122 @@ Public Class Gui
     Public Shared Function HandleInterfaceEvents(entState As EntState) As Boolean
         Dim i As Long, curWindow As Long, curControl As Long, callBack As Action, x As Long
 
-        ' Find the container
-        For i = 1 To WindowCount
-            With Windows(i).Window
-                If .Enabled And .Visible = True
-                    If .State <> EntState.MouseDown Then .State = EntState.Normal
-                    If GameState.CurMouseX >= .Left And GameState.CurMouseX <= .Width + .Left Then
-                        If GameState.CurMouseY >= .Top And GameState.CurMouseY <= .Height + .Top Then
-                            ' set the combomenu
+        SyncLock GameClient.InputLock
+            ' Find the container
+            For i = 1 To Windows.Count
+                With Windows(i)
+                    If .Enabled AndAlso .Visible Then
+                        If .State <> EntState.MouseDown Then .State = EntState.Normal
+
+                        If GameState.CurMouseX >= .Left AndAlso GameState.CurMouseX <= .Width + .Left AndAlso
+                           GameState.CurMouseY >= .Top AndAlso GameState.CurMouseY <= .Height + .Top Then
+                            
+                            ' Handle combo menu logic
                             If .Design(0) = DesignType.ComboMenuNorm Then
-                                ' set the hover menu
-                                If entState = EntState.MouseMove Or entState = EntState.Hover Then
+                                If entState = EntState.MouseMove OrElse entState = EntState.Hover Then
                                     ComboMenu_MouseMove(i)
                                 ElseIf entState = EntState.MouseDown Then
                                     ComboMenu_MouseDown(i)
                                 End If
                             End If
 
-                            ' everything else
-                            If curWindow = 0 Then curWindow = i
-                            If .zOrder > Windows(curWindow).Window.zOrder Then curWindow = i
-                        End If
-                    End If
-
-                    If entState = EntState.MouseMove Then
-                        If .CanDrag Then
-                            If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                                .Left = Clamp(.Left + ((GameState.CurMouseX - .Left) - .movedX), 0, GameState.ResolutionWidth - .Width)
-                                .Top = Clamp(.Top + ((GameState.CurMouseY - .Top) - .movedY), 0, GameState.ResolutionHeight - .Height)
-                            End If
-                        End If
-                    End If
-                End If
-            End With
-        Next
-
-        ' Handle any controls first
-        If curWindow Then
-            ' reset /all other/ control mouse events
-            For i = 1 To WindowCount
-                If i <> curWindow Then
-                    For x = 1 To Windows(i).ControlCount
-                        Windows(i).Controls(x).State = EntState.Normal
-                    Next
-                End If
-            Next
-
-            For i = 1 To Windows(curWindow).ControlCount
-                With Windows(curWindow).Controls(i)
-                    If .Enabled And .Visible = True
-                        If .State <> EntState.MouseDown Then .State = EntState.Normal
-                        If GameState.CurMouseX >= .Left + Windows(curWindow).Window.Left And GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Window.Left Then
-                            If GameState.CurMouseY >= .Top + Windows(curWindow).Window.Top And GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Window.Top Then
-                                If curControl = 0 Then curControl = i
-                                If .zOrder > Windows(curWindow).Controls(curControl).zOrder Then curControl = i
+                            ' Track the top-most window
+                            If curWindow = 0 OrElse .zOrder > Windows(curWindow).zOrder Then
+                                curWindow = i
                             End If
                         End If
 
-                        If entState = EntState.MouseMove Then
-                            If .CanDrag Then
-                                If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                                    .Left = Clamp(.Left + ((GameState.CurMouseX - .Left) - .movedX), 0, Windows(curWindow).Window.Width - .Width)
-                                    .Top = Clamp(.Top + ((GameState.CurMouseY - .Top) - .movedY), 0, Windows(curWindow).Window.Height - .Height)
-                                End If
-                            End If
+                        ' Handle window dragging
+                        If entState = EntState.MouseMove AndAlso .CanDrag AndAlso .State = EntState.MouseDown Then
+                            .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, GameState.ResolutionWidth - .Width)
+                            .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, GameState.ResolutionHeight - .Height)
                         End If
                     End If
                 End With
             Next
 
-            ' Handle control
-            If curControl Then
-                With Windows(curWindow).Controls(curControl)
-                    If .State <> EntState.MouseDown Then
-                        If entState <> EntState.MouseMove Then
-                            .State = entState
-                        Else
-                            .State = EntState.Hover
-                        End If
-                    End If
+            If curWindow > 0 Then
+                ' Handle controls in the active window
+                For i = 0 To Windows(curWindow).Controls.Count - 1
+                    With Windows(curWindow).Controls(i)
+                        If .Enabled AndAlso .Visible Then
+                            If .State <> EntState.MouseDown Then .State = EntState.Normal
 
-                    If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                        If .CanDrag Then
+                            If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
+                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
+
+                                If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
+                                    curControl = i
+                                End If
+                            End If
+
+                            ' Handle control dragging
+                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso .State = EntState.MouseDown Then
+                                .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, Windows(curWindow).Width - .Width)
+                                .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, Windows(curWindow).Height - .Height)
+                            End If
+                        End If
+                    End With
+                Next
+
+                ' Handle active control
+                If curControl > 0 Then
+                    With Windows(curWindow).Controls(curControl)
+                        If .State <> EntState.MouseDown Then
+                            .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
+                        End If
+
+                        If .State = EntState.MouseDown AndAlso .CanDrag Then
                             .movedX = GameState.CurMouseX - .Left
                             .movedY = GameState.CurMouseY - .Top
                         End If
 
-                        ' toggle boxes
+                        ' Handle specific control types
                         Select Case .Type
                             Case ControlType.Checkbox
-                                ' grouped boxes
-                                If .Group > 0 Then
-                                    If .Value = 0 Then
-                                        For i = 1 To Windows(curWindow).ControlCount
-                                            If Windows(curWindow).Controls(i).Type = ControlType.Checkbox Then
-                                                If Windows(curWindow).Controls(i).Group = .Group Then
-                                                    Windows(curWindow).Controls(i).Value = 0
-                                                End If
-                                            End If
-                                        Next
-                                        .Value = 1
-                                    End If
+                                If .Group > 0 AndAlso .Value = 0 Then
+                                    For i = 0 To Windows(curWindow).Controls.Count - 1
+                                        If Windows(curWindow).Controls(i).Type = ControlType.Checkbox AndAlso
+                                           Windows(curWindow).Controls(i).Group = .Group Then
+                                            Windows(curWindow).Controls(i).Value = 0
+                                        End If
+                                    Next
+                                    .Value = 1
                                 Else
-                                    If .Value = 0 Then
-                                        .Value = 1
-                                    Else
-                                        .Value = 0
-                                    End If
+                                    .Value = If(.Value = 0, 1, 0)
                                 End If
 
                             Case ControlType.Combobox
                                 ShowComboMenu(curWindow, curControl)
                         End Select
 
-                        ' set active input
                         SetActiveControl(curWindow, curControl)
-                    End If
-                    callBack = .CallBack(entState)
-                End With
-            Else
-                ' Handle container
-                With Windows(curWindow).Window
-                    If .State <> EntState.MouseDown Then
-                        If entState <> EntState.MouseMove Then
-                            .State = entState
-                        Else
-                            .State = EntState.Hover
-                        End If
-                    End If
+                        callBack = .CallBack(entState)
+                    End With
+                Else
+                    ' Handle the active window's callback
+                    callBack = Gui.Windows(curWindow).CallBack(entState)
+                End If
 
-                    If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                        If .CanDrag Then
-                            .movedX = GameState.CurMouseX - .Left
-                            .movedY = GameState.CurMouseY - .Top
-                        End If
-                    End If
-                    callBack = .CallBack(entState)
-                End With
+                ' Execute the callback if it exists
+                callBack?.Invoke()
             End If
 
-            ' bring to front
-            If entState = EntState.MouseDown Then
-                UpdateZOrder(curWindow)
-                activeWindow = curWindow
-            End If
+            ' Reset mouse state on MouseUp
+            If entState = EntState.MouseUp Then ResetMouseDown()
+        End SyncLock
 
-            ' call back
-            If Not callBack Is Nothing Then callBack()
-        End If
-
-        ' Reset
-        If entState = EntState.MouseUp Then ResetMouseDown()
+        Return True
     End Function
-
     Public Shared Sub ResetInterface()
         Dim i As Long, x As Long
 
-        For i = 1 To WindowCount
-            If Windows(i).Window.State <> EntState.MouseDown Then Windows(i).Window.State = EntState.Normal
+        For i = 1 To Windows.Count
+            If Windows(i).State <> EntState.MouseDown Then Windows(i).State = EntState.Normal
 
-            For x = 1 To Windows(i).ControlCount
+            For x = 0 To Windows(i).Controls.Count - 1
                 If Windows(i).Controls(x).State <> EntState.MouseDown Then Windows(i).Controls(x).State = EntState.Normal
             Next
         Next
@@ -1030,77 +1045,72 @@ Public Class Gui
         Dim callBack As Action
         Dim i As Long, x As Long
 
-        For i = 1 To WindowCount
+        SyncLock GameClient.InputLock
+            For i = 1 To Windows.Count
+                With Windows(i)
+                    .State = EntState.Normal
+                    callBack = .CallBack(EntState.Normal)
 
-            With Windows(i)
-                .Window.State = EntState.Normal
-                callBack = .Window.CallBack(EntState.Normal)
+                    If callBack IsNot Nothing Then callBack?.Invoke()
 
-                If Not callBack Is Nothing Then callBack()
+                    ' Check if Controls is not Nothing and has at least one element
+                    If .Controls IsNot Nothing AndAlso .Controls.Count > 0 Then
+                        For x = 0 To .Controls.Count - 1
+                            .Controls(x).State = EntState.Normal
+                            callBack = .Controls(x).CallBack(EntState.Normal)
 
-                For x = 1 To .ControlCount
-                    .Controls(x).State = EntState.Normal
-                    callBack = .Controls(x).CallBack(EntState.Normal)
-
-                    If Not callBack Is Nothing Then callBack()
-                Next
-
-            End With
-
-        Next
-    End Sub
-
-    Public Shared Sub RenderEntities()
-        Dim i As Long, x As Long, curZOrder As Long
-
-        ' don't render anything if we don't have any containers
-        If WindowCount = 0 Then Exit Sub
-
-        ' reset zOrder
-        curZOrder = 1
-
-        ' loop through windows
-        Do While curZOrder <= WindowCount
-            For i = 1 To WindowCount
-                If curZOrder = Windows(i).Window.zOrder Then
-                    ' increment
-                    curZOrder = curZOrder + 1
-                    ' make sure it's visible
-                    If Windows(i).Window.Visible = True
-                        ' render container
-                        Gui.RenderWindow(i)
-
-                        ' render controls
-                        For x = 1 To Windows(i).ControlCount
-                            If Windows(i).Controls(x).Visible = True
-                                Gui.RenderControl(i, x)
-                            End If
+                            If callBack IsNot Nothing Then callBack?.Invoke()
                         Next
                     End If
+                End With
+            Next
+        End SyncLock
+    End Sub
+
+    Public Shared Sub Render()
+        ' Exit if no windows are present
+        If Windows.Count = 0 Then Exit Sub
+
+        ' Reset Z-order
+        Dim curZOrder As Long = 1
+
+        ' Loop through each window based on Z-order
+        For curZOrder = 1 To Windows.Count
+            For i = 1 To Windows.Count
+                If curZOrder = Gui.Windows(i).zOrder AndAlso Windows(i).Visible Then
+                    ' Render the window
+                    Gui.RenderWindow(i)
+
+                    ' Render visible controls within the window
+                    For x = 1 To Windows(i).Controls.Count - 1
+                        If Windows(i).Controls(x).Visible Then
+                            Gui.RenderControl(i, x)
+                        End If
+                    Next
                 End If
             Next
-        Loop
+        Next
     End Sub
 
     Public Shared Sub RenderControl(winNum As Long, entNum As Long)
         Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
         Dim textArray() As String, count As Long, i As Long, taddText As String
         Dim yOffset As Long
-    
+
         ' Check if the window and Control exist
-        If winNum <= 0 Or winNum > WindowCount OrElse entNum <= 0 Or entNum > Windows(winNum).ControlCount Then
+        If winNum <= 0 Or winNum > Windows.Count OrElse entNum <= 0 Or entNum > Windows(winNum).Controls.Count - 1 Then
             Exit Sub
         End If
 
         ' Get the window's position offsets
-        xO = Windows(winNum).Window.Left
-        yO = Windows(winNum).Window.Top
+        xO = Gui.Windows(winNum).Left
+        yO = Gui.Windows(winNum).Top
 
         With Windows(winNum).Controls(entNum)
             Select Case .Type
                 Case ControlType.PictureBox
                     If .Design(.State) > 0 Then
-                        Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha, winNum)
+                        Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
                     End If
 
                     If Not .Image(.State) = 0 Then
@@ -1111,7 +1121,7 @@ Public Class Gui
                 Case ControlType.TextBox
                     ' Render the design if available
                     If .Design(.State) > 0 Then
-                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha, winNum)
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
                     End If
 
                     ' Render the image if present
@@ -1136,7 +1146,7 @@ Public Class Gui
                     ' Apply padding and calculate position
                     Dim left = .Left + xO + .xOffset
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
-               
+           
                     ' Render the final text
                     RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
 
@@ -1178,7 +1188,7 @@ Public Class Gui
 
                     ' Render the button's text
                     RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-                
+            
                 Case ControlType.Label
                     If Len(.Text) > 0 Then
                         Select Case .Align
@@ -1260,83 +1270,67 @@ Public Class Gui
                     End If
             End Select
 
-            If Not .OnDraw Is Nothing Then .OnDraw()
+            If Not .OnDraw Is Nothing Then .OnDraw.Invoke()
         End With
     End Sub
 
-    Public Shared Sub RenderWindow(winNum As Long)
+     Public Shared Sub RenderWindow(winNum As Long)
         Dim x As Long, y As Long, i As Long, left As Long
 
-        ' check if the window exists
-        If winNum <= 0 Or winNum > WindowCount Then
+        ' Check if the window exists
+        If winNum <= 0 OrElse winNum > Windows.Count Then
             Exit Sub
         End If
 
-        With Windows(winNum).Window
+        With Windows(winNum)
+            ' Apply censoring if necessary
             If .Censor Then
                 .Text = CensorText(.Text)
-            Else
-                .Text = .Text
             End If
 
             Select Case .Design(0)
                 Case DesignType.ComboMenuNorm
                     GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), .Left, .Top, 0, 0, .Width, .Height, 157, 0, 0, 0)
 
-                    ' text
-                    If UBound(.List) > 0 Then
+                    ' Render text
+                    If .List.Count > 0 Then
                         y = .Top + 2
                         x = .Left
 
-                        For i = 1 To UBound(.List)
-                            ' render select
-                            If i = .Value Or i = .Group Then
+                        For i = 1 To .List.Count - 1
+                            ' Render selection
+                            If i = .Value OrElse i = .Group Then
                                 GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "1"), x, y - 1, 0, 0, .Width, 15, 255, 0, 0, 0)
                             End If
 
-                            ' render text
+                            ' Render the text, centered
                             left = x + (.Width \ 2) - (TextWidth(.List(i), .Font) \ 2)
+                            RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
-                            If i = .Value Or i = .Group Then
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
-                            Else
-                                RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
-                            End If
-                            y = y + 16
+                            y += 16
                         Next
                     End If
                     Exit Sub
             End Select
 
+            ' Handle different window designs
             Select Case .Design(.State)
-
                 Case DesignType.Win_Black
                     GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "61"), .Left, .Top, 0, 0, .Width, .Height, 190, 255, 255, 255)
 
                 Case DesignType.Win_Norm
-                    ' render window
                     RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
                     RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
-
-                    ' render icon
-                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, )
-
-                    ' render the caption
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
                     RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
                 Case DesignType.Win_NoBar
-                    ' render window
                     RenderDesign(DesignType.Wood, .Left, .Top, .Width, .Height)
 
                 Case DesignType.Win_Empty
-                    ' render window
                     RenderDesign(DesignType.Wood_Empty, .Left, .Top, .Width, .Height)
                     RenderDesign(DesignType.Green, .Left, .Top, .Width, 23)
-
-                    ' render the icon
-                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height, )
-
-                    ' render the caption
+                    GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon), .Left + .xOffset, .Top - 16 + .yOffset, 0, 0, .Width, .Height, .Width, .Height)
                     RenderText(.Text, .Left + 32, .Top + 4, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
                 Case DesignType.Win_Desc
@@ -1349,9 +1343,9 @@ Public Class Gui
                     RenderDesign(DesignType.Win_Party, .Left, .Top, .Width, .Height)
             End Select
 
-            If Not .OnDraw Is Nothing Then .OnDraw()
+            ' Call the OnDraw action if it exists
+            If .OnDraw IsNot Nothing Then .OnDraw.Invoke()
         End With
-
     End Sub
 
     Public Shared Sub RenderDesign(design As Long, left As Long, top As Long, width As Long, height As Long, Optional alpha As Long = 255, Optional windowID As Integer = 0)
@@ -1594,8 +1588,8 @@ Public Class Gui
     Shared Sub TradeDblClick_Your()
         Dim Xo As Long, Yo As Long, ItemNum As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
+        Xo = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
         ItemNum = IsTrade(Xo, Yo)
 
         ' make sure it exists
@@ -1613,68 +1607,68 @@ Public Class Gui
     Shared Sub TradeMouseMove_Your()
         Dim Xo As Long, Yo As Long, ItemNum As Long, X As Long, Y As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
+        Xo = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
 
         ItemNum = IsTrade(Xo, Yo)
 
         ' make sure it exists
         If ItemNum > 0 Then
             If TradeYourOffer(ItemNum).Num = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Visible = False
                 Exit Sub
             End If
 
             If GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num) = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Visible = False
                 Exit Sub
             End If
 
-            X = Windows(GetWindowIndex("winTrade")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            Y = Windows(GetWindowIndex("winTrade")).Window.Top - 6
+            X = Windows(GetWindowIndex("winTrade")).Left - Windows(GetWindowIndex("winDescription")).Width
+            Y = Windows(GetWindowIndex("winTrade")).Top - 6
 
             ' offscreen?
             If X < 0 Then
                 ' switch to right
-                X = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Window.Width
+                X = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Width
             End If
 
             ' go go go
             ShowItemDesc(X, Y, GetPlayerInv(GameState.MyIndex, TradeYourOffer(ItemNum).Num))
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
     Shared Sub TradeMouseMove_Their()
         Dim Xo As Long, Yo As Long, ItemNum As Long, X As Long, Y As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Top
+        Xo = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Top
 
         ItemNum = IsTrade(Xo, Yo)
 
         ' make sure it exists
         If ItemNum > 0 Then
             If TradeTheirOffer(ItemNum).Num = 0 Then
-                Windows(GetWindowIndex("winDescription")).Window.Visible = False
+                Windows(GetWindowIndex("winDescription")).Visible = False
                 Exit Sub
             End If
 
             ' calc position
-            X = Windows(GetWindowIndex("winTrade")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            Y = Windows(GetWindowIndex("winTrade")).Window.Top - 6
+            X = Windows(GetWindowIndex("winTrade")).Left - Windows(GetWindowIndex("winDescription")).Width
+            Y = Windows(GetWindowIndex("winTrade")).Top - 6
 
             ' offscreen?
             If X < 0 Then
                 ' switch to right
-                X = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Window.Width
+                X = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Width
             End If
 
             ' go go go
             ShowItemDesc(X, Y, TradeTheirOffer(ItemNum).Num)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -1687,26 +1681,29 @@ Public Class Gui
         Dim Top As Long
 
         With Windows(curWindow).Controls(curControl)
-            ' linked to
-            Windows(GetWindowIndex("winComboMenu")).Window.LinkedToWin = curWindow
-            Windows(GetWindowIndex("winComboMenu")).Window.LinkedToCon = curControl
+            ' Linked to
+            Dim comboMenuIndex As Long = GetWindowIndex("winComboMenu")
+            Windows(comboMenuIndex).LinkedToWin = curWindow
+            Windows(comboMenuIndex).LinkedToCon = curControl
 
-            ' set the size
-            Windows(GetWindowIndex("winComboMenu")).Window.Height = 2 + (UBound(.List) * 16)
-            Windows(GetWindowIndex("winComboMenu")).Window.Left = Windows(curWindow).Window.Left + .Left + 2
-            Top = Windows(curWindow).Window.Top + .Top + .Height
-            If Top + Windows(GetWindowIndex("winComboMenu")).Window.Height > GameState.ResolutionHeight Then Top = GameState.ResolutionHeight - Windows(GetWindowIndex("winComboMenu")).Window.Height
-            Windows(GetWindowIndex("winComboMenu")).Window.Top = Top
-            Windows(GetWindowIndex("winComboMenu")).Window.Width = .Width - 4
+            ' Set the size
+            Windows(comboMenuIndex).Height = 2 + (.List.Count * 16)  ' Assumes .List is a collection
+            Windows(comboMenuIndex).Left = Windows(curWindow).Left + .Left + 2
+            Top = Windows(curWindow).Top + .Top + .Height
+            If Top + Windows(comboMenuIndex).Height > GameState.ResolutionHeight Then
+                Top = GameState.ResolutionHeight - Windows(comboMenuIndex).Height
+            End If
+            Windows(comboMenuIndex).Top = Top
+            Windows(comboMenuIndex).Width = .Width - 4
 
-            ' set the values
-            Windows(GetWindowIndex("winComboMenu")).Window.List = .List
-            Windows(GetWindowIndex("winComboMenu")).Window.Value = .Value
-            Windows(GetWindowIndex("winComboMenu")).Window.Group = 0
+            ' Set the values
+            Windows(comboMenuIndex).List = .List
+            Windows(comboMenuIndex).Value = .Value
+            Windows(comboMenuIndex).Group = 0
 
-            ' load the menu
-            Windows(GetWindowIndex("winComboMenu")).Window.Visible = True
-            Windows(GetWindowIndex("winComboMenuBG")).Window.Visible = True
+            ' Load the menu
+            Windows(comboMenuIndex).Visible = True
+            Windows(GetWindowIndex("winComboMenuBG")).Visible = True
             ShowWindow(GetWindowIndex("winComboMenuBG"), True, False)
             ShowWindow(GetWindowIndex("winComboMenu"), True, False)
         End With
@@ -1714,13 +1711,13 @@ Public Class Gui
 
     Shared Sub ComboMenu_MouseMove(curWindow As Long)
         Dim y As Long, i As Long
-        With Windows(curWindow).Window
+        With Windows(curWindow)
             y = GameState.CurMouseY - .Top
 
-            ' find the option we're hovering over
-            If UBound(.List) > 0 Then
-                For i = 1 To UBound(.List)
-                    If y >= (16 * (i - 1)) And y <= (16 * (i)) Then
+            ' Find the option we're hovering over
+            If .List.Count > 0 Then
+                For i = 1 To .List.Count - 1
+                    If y >= (16 * (i - 1)) And y <= (16 * i) Then
                         .Group = i
                     End If
                 Next
@@ -1731,15 +1728,16 @@ Public Class Gui
     Shared Sub ComboMenu_MouseDown(curWindow As Long)
         Dim y As Long, i As Long
 
-        With Windows(curWindow).Window
+        With Windows(curWindow)
             y = GameState.CurMouseY - .Top
 
-            ' find the option we're hovering over
-            If UBound(.List) > 0 Then
-                For i = 1 To UBound(.List)
-                    If y >= (16 * (i - 1)) And y <= (16 * (i)) Then
+            ' Find the option we're hovering over
+            If .List IsNot Nothing AndAlso .List.Count > 0 Then
+                For i = 1 To .List.Count
+                    If y >= (16 * (i - 1)) And y <= (16 * i) Then
                         Windows(.LinkedToWin).Controls(.LinkedToCon).Value = i
                         CloseComboMenu()
+                        Exit For
                     End If
                 Next
             End If
@@ -1822,7 +1820,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winCharacter")
 
-        If Windows(curWindow).Window.Visible = True
+        If Windows(curWindow).Visible = True
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1834,7 +1832,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winInventory")
 
-        If Windows(curWindow).Window.Visible = True
+        If Windows(curWindow).Visible = True
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1846,7 +1844,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winSkills")
 
-        If Windows(curWindow).Window.Visible = True
+        If Windows(curWindow).Visible = True
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1854,15 +1852,15 @@ Public Class Gui
     End Sub
 
     Public Shared Sub btnMenu_Map()
-        Windows(GetWindowIndex("winCharacter")).Window.Visible = Not Windows(GetWindowIndex("winCharacter")).Window.Visible
+        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     Public Shared Sub btnMenu_Guild()
-        Windows(GetWindowIndex("winCharacter")).Window.Visible = Not Windows(GetWindowIndex("winCharacter")).Window.Visible
+        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     Public Shared Sub btnMenu_Quest()
-        Windows(GetWindowIndex("winCharacter")).Window.Visible = Not Windows(GetWindowIndex("winCharacter")).Window.Visible
+        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     ' ##############
@@ -1939,8 +1937,8 @@ Public Class Gui
     Public Shared Sub Bars_OnDraw()
         Dim xO As Long, yO As Long, Width As Long
 
-        xO = Windows(GetWindowIndex("winBars")).Window.Left
-        yO = Windows(GetWindowIndex("winBars")).Window.Top
+        xO = Windows(GetWindowIndex("winBars")).Left
+        yO = Windows(GetWindowIndex("winBars")).Top
 
         ' Bars
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, GameState.BarWidth_GuiHP, 13, GameState.BarWidth_GuiHP, 13)
@@ -1956,8 +1954,8 @@ Public Class Gui
         Dim xO As Long, yO As Long, x As Long, I As Long
 
         ' Get the window's top-left corner coordinates
-        xO = Windows(GetWindowIndex("WinChars")).Window.Left
-        yO = Windows(GetWindowIndex("WinChars")).Window.Top
+        xO = Windows(GetWindowIndex("WinChars")).Left
+        yO = Windows(GetWindowIndex("WinChars")).Top
 
         ' Set the initial X position for character rendering
         x = xO + 24
@@ -2001,8 +1999,8 @@ Public Class Gui
         Dim imageChar As Long, xO As Long, yO As Long
 
         ' Get window coordinates
-        xO = Windows(GetWindowIndex("winJob")).Window.Left
-        yO = Windows(GetWindowIndex("winJob")).Window.Top
+        xO = Windows(GetWindowIndex("winJob")).Left
+        yO = Windows(GetWindowIndex("winJob")).Top
 
         ' Ensure a valid job is selected
         If GameState.newCharJob = 0 Then GameState.newCharJob = 1
@@ -2039,8 +2037,8 @@ Public Class Gui
         Dim y As Long, x As Long
 
         ' Get window coordinates
-        xO = Windows(GetWindowIndex("winJob")).Window.Left
-        yO = Windows(GetWindowIndex("winJob")).Window.Top
+        xO = Windows(GetWindowIndex("winJob")).Left
+        yO = Windows(GetWindowIndex("winJob")).Top
 
         ' Get job description or use default
         If Type.Job(GameState.newCharJob).Desc = "" Then
@@ -2057,13 +2055,13 @@ Public Class Gui
         End If
 
         ' Wrap text to fit within 330 pixels
-        WordWrap(text, Windows(GetWindowIndex("winJob")).Window.Font, 330, textArray)
+        WordWrap(text, Windows(GetWindowIndex("winJob")).Font, 330, textArray)
 
         ' Render each line of the wrapped text
         count = UBound(textArray)
         y = yO + 60
         For I = 1 To count
-            x = xO + 118 + (200 \ 2) - (TextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Window.Font) \ 2)
+            x = xO + 118 + (200 \ 2) - (TextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Font) \ 2)
             RenderText(
                 textArray(I),
                 x, y,
@@ -2116,8 +2114,8 @@ Public Class Gui
     Public Shared Sub Chat_OnDraw()
         Dim winIndex As Long, xO As Long, yO As Long
         winIndex = GetWindowIndex("winChat")
-        xO = Windows(winIndex).Window.Left
-        yO = Windows(winIndex).Window.Top + 16
+        xO = Windows(winIndex).Left
+        yO = Windows(winIndex).Top + 16
 
         ' draw the box
         RenderDesign(DesignType.Win_Desc, xO, yO, 352, 152)
@@ -2138,7 +2136,7 @@ Public Class Gui
         If GameState.actChatWidth < 160 Then GameState.actChatWidth = 160
         If GameState.actChatHeight < 10 Then GameState.actChatHeight = 10
 
-        xO = Windows(winIndex).Window.Left + 10
+        xO = Windows(winIndex).Left + 10
         yO = GameState.ResolutionHeight - 10
 
         ' draw the background
@@ -2197,8 +2195,8 @@ Public Class Gui
     Public Shared Sub NewChar_OnDraw()
         Dim imageFace As Long, imageChar As Long, xO As Long, yO As Long
 
-        xO = Windows(GetWindowIndex("winNewChar")).Window.Left
-        yO = Windows(GetWindowIndex("winNewChar")).Window.Top
+        xO = Windows(GetWindowIndex("winNewChar")).Left
+        yO = Windows(GetWindowIndex("winNewChar")).Top
 
         If GameState.newCharGender = SexType.Male Then
             imageFace = Type.Job(GameState.newCharJob).MaleSprite
@@ -2307,7 +2305,7 @@ Public Class Gui
         Dim invNum As Long, winIndex As Long, I As Long
 
         ' is there an item?
-        invNum = IsInv(Windows(GetWindowIndex("winInventory")).Window.Left, Windows(GetWindowIndex("winInventory")).Window.Top)
+        invNum = IsInv(Windows(GetWindowIndex("winInventory")).Left, Windows(GetWindowIndex("winInventory")).Top)
 
         If invNum > 0 Then
             ' drag it
@@ -2319,7 +2317,7 @@ Public Class Gui
             End With
 
             winIndex = GetWindowIndex("winDragBox")
-            With Windows(winIndex).Window
+            With Windows(winIndex)
                 .State = EntState.MouseDown
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
@@ -2330,7 +2328,7 @@ Public Class Gui
             ShowWindow(winIndex, , False)
 
             ' stop dragging inventory
-            Windows(GetWindowIndex("winInventory")).Window.State = EntState.Normal
+            Windows(GetWindowIndex("winInventory")).State = EntState.Normal
         End If
 
         Inventory_MouseMove()
@@ -2339,7 +2337,7 @@ Public Class Gui
     Public Shared Sub Inventory_DblClick()
         Dim invNum As Long, I As Long
 
-        invNum = IsInv(Windows(GetWindowIndex("winInventory")).Window.Left, Windows(GetWindowIndex("winInventory")).Window.Top)
+        invNum = IsInv(Windows(GetWindowIndex("winInventory")).Left, Windows(GetWindowIndex("winInventory")).Top)
 
         If invNum > 0 Then
             If GameState.InBank Then
@@ -2391,7 +2389,7 @@ Public Class Gui
         ' exit out early if dragging
         If DragBox.Type <> PartType.None Then Exit Sub
 
-        itemNum = IsInv(Windows(GetWindowIndex("winInventory")).Window.Left, Windows(GetWindowIndex("winInventory")).Window.Top)
+        itemNum = IsInv(Windows(GetWindowIndex("winInventory")).Left, Windows(GetWindowIndex("winInventory")).Top)
         If itemNum > 0 Then
             ' exit out if we're offering that item
             If InTrade > 0 Then
@@ -2414,19 +2412,19 @@ Public Class Gui
             If DragBox.Type = PartType.Item And DragBox.Value = itemNum Then Exit Sub
 
             ' calc position
-            x = Windows(GetWindowIndex("winInventory")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            y = Windows(GetWindowIndex("winInventory")).Window.Top - 6
+            x = Windows(GetWindowIndex("winInventory")).Left - Windows(GetWindowIndex("winDescription")).Width
+            y = Windows(GetWindowIndex("winInventory")).Top - 6
 
             ' offscreen?
             If x < 0 Then
                 ' switch to right
-                x = Windows(GetWindowIndex("winInventory")).Window.Left + Windows(GetWindowIndex("winInventory")).Window.Width
+                x = Windows(GetWindowIndex("winInventory")).Left + Windows(GetWindowIndex("winInventory")).Width
             End If
 
             ' go go go
             ShowInvDesc(x, y, itemNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -2434,7 +2432,7 @@ Public Class Gui
     ' ##    Bank   ##
     ' ###############
     Public Shared Sub btnMenu_Bank()
-        If Windows(GetWindowIndex("winBank")).Window.Visible = True
+        If Windows(GetWindowIndex("winBank")).Visible = True
             CloseBank()
         End If
     End Sub
@@ -2445,25 +2443,25 @@ Public Class Gui
         ' exit out early if dragging
         If DragBox.Type <> PartType.None Then Exit Sub
 
-        ItemNum = IsBank(Windows(GetWindowIndex("winBank")).Window.Left, Windows(GetWindowIndex("winBank")).Window.Top)
+        ItemNum = IsBank(Windows(GetWindowIndex("winBank")).Left, Windows(GetWindowIndex("winBank")).Top)
 
         If ItemNum > 0 Then
             ' make sure we're not dragging the item
             If DragBox.Type = PartType.Item And DragBox.Value = ItemNum Then Exit Sub
 
             ' calc position
-            X = Windows(GetWindowIndex("winBank")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            Y = Windows(GetWindowIndex("winBank")).Window.Top - 6
+            X = Windows(GetWindowIndex("winBank")).Left - Windows(GetWindowIndex("winDescription")).Width
+            Y = Windows(GetWindowIndex("winBank")).Top - 6
 
             ' offscreen?
             If X < 0 Then
                 ' switch to right
-                X = Windows(GetWindowIndex("winBank")).Window.Left + Windows(GetWindowIndex("winBank")).Window.Width
+                X = Windows(GetWindowIndex("winBank")).Left + Windows(GetWindowIndex("winBank")).Width
             End If
 
             ShowItemDesc(X, Y, GetBank(GameState.MyIndex, ItemNum))
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -2471,7 +2469,7 @@ Public Class Gui
         Dim BankSlot As Long, winIndex As Long, i As Long
 
         ' is there an item?
-        BankSlot = IsBank(Windows(GetWindowIndex("winBank")).Window.Left, Windows(GetWindowIndex("winBank")).Window.Top)
+        BankSlot = IsBank(Windows(GetWindowIndex("winBank")).Left, Windows(GetWindowIndex("winBank")).Top)
 
         If BankSlot > 0 Then
             ' exit out if we're offering that item
@@ -2486,7 +2484,7 @@ Public Class Gui
             End With
 
             winIndex = GetWindowIndex("winDragBox")
-            With Windows(winIndex).Window
+            With Windows(winIndex)
                 .State = EntState.MouseDown
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
@@ -2497,7 +2495,7 @@ Public Class Gui
             ShowWindow(winIndex, , False)
 
             ' stop dragging inventory
-            Windows(GetWindowIndex("winBank")).Window.State = EntState.Normal
+            Windows(GetWindowIndex("winBank")).State = EntState.Normal
         End If
 
         Bank_MouseMove()
@@ -2507,7 +2505,7 @@ Public Class Gui
         Dim BankSlot As Long, winIndex As Long, i As Long
 
         ' is there an item?
-        BankSlot = IsBank(Windows(GetWindowIndex("winBank")).Window.Left, Windows(GetWindowIndex("winBank")).Window.Top)
+        BankSlot = IsBank(Windows(GetWindowIndex("winBank")).Left, Windows(GetWindowIndex("winBank")).Top)
 
         If BankSlot > 0 Then
             WithdrawItem(BankSlot, GetBankValue(GameState.MyIndex, BankSlot))
@@ -2524,8 +2522,8 @@ Public Class Gui
         Dim xO As Long, yO As Long, texNum As Long, winIndex As Long
 
         winIndex = GetWindowIndex("winDragBox")
-        xO = Windows(winIndex).Window.Left
-        yO = Windows(winIndex).Window.Top
+        xO = Windows(winIndex).Left
+        yO = Windows(winIndex).Top
 
         If DragBox.Type = PartType.None Then Exit Sub
 
@@ -2555,15 +2553,15 @@ Public Class Gui
         If DragBox.Type = PartType.None Then Exit Sub
 
         ' check for other windows
-        For I = 1 To WindowCount
-            With Windows(I).Window
+        For I = 1 To Windows.Count
+            With Windows(I)
                 If .Visible = True
                     ' can't drag to self
                     If .Name <> "winDragBox" Then
                         If GameState.CurMouseX >= .Left And GameState.CurMouseX <= .Left + .Width Then
                             If GameState.CurMouseY >= .Top And GameState.CurMouseY <= .Top + .Height Then
                                 If curWindow = 0 Then curWindow = I
-                                If .zOrder > Windows(curWindow).Window.zOrder Then curWindow = I
+                                If .zOrder > Windows(curWindow).zOrder Then curWindow = I
                             End If
                         End If
                     End If
@@ -2573,16 +2571,16 @@ Public Class Gui
 
         ' we have a window - check if we can drop
         If curWindow Then
-            Select Case Windows(curWindow).Window.Name
+            Select Case Windows(curWindow).Name
                 Case "winBank"
                     If DragBox.Origin = PartOriginType.Bank Then
                         If DragBox.Type = PartType.Item Then
                             ' find the slot to switch with
                             For I = 1 To MAX_BANK
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + GameState.BankTop + ((GameState.BankOffsetY + 32) * ((I - 1) \ GameState.BankColumns))
+                                    .Top = Windows(curWindow).Top + GameState.BankTop + ((GameState.BankOffsetY + 32) * ((I - 1) \ GameState.BankColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + GameState.BankLeft + ((GameState.BankOffsetX + 32) * (((I - 1) Mod GameState.BankColumns)))
+                                    .Left = Windows(curWindow).Left + GameState.BankLeft + ((GameState.BankOffsetX + 32) * (((I - 1) Mod GameState.BankColumns)))
                                     .Right = .Left + 32
                                 End With
 
@@ -2618,9 +2616,9 @@ Public Class Gui
                             ' find the slot to switch with
                             For I = 1 To MAX_INV
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + GameState.InvTop + ((GameState.InvOffsetY + 32) * ((I - 1) \ GameState.InvColumns))
+                                    .Top = Windows(curWindow).Top + GameState.InvTop + ((GameState.InvOffsetY + 32) * ((I - 1) \ GameState.InvColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + GameState.InvLeft + ((GameState.InvOffsetX + 32) * (((I - 1) Mod GameState.InvColumns)))
+                                    .Left = Windows(curWindow).Left + GameState.InvLeft + ((GameState.InvOffsetX + 32) * (((I - 1) Mod GameState.InvColumns)))
                                     .Right = .Left + 32
                                 End With
 
@@ -2653,9 +2651,9 @@ Public Class Gui
                             ' find the slot to switch with
                             For I = 1 To MAX_PLAYER_SKILLS
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + GameState.SkillTop + ((GameState.SkillOffsetY + 32) * ((I - 1) \ GameState.SkillColumns))
+                                    .Top = Windows(curWindow).Top + GameState.SkillTop + ((GameState.SkillOffsetY + 32) * ((I - 1) \ GameState.SkillColumns))
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + GameState.SkillLeft + ((GameState.SkillOffsetX + 32) * (((I - 1) Mod GameState.SkillColumns)))
+                                    .Left = Windows(curWindow).Left + GameState.SkillLeft + ((GameState.SkillOffsetX + 32) * (((I - 1) Mod GameState.SkillColumns)))
                                     .Right = .Left + 32
                                 End With
 
@@ -2676,9 +2674,9 @@ Public Class Gui
                             ' find the slot
                             For I = 1 To MAX_Hotbar
                                 With tmpRec
-                                    .Top = Windows(curWindow).Window.Top + GameState.HotbarTop
+                                    .Top = Windows(curWindow).Top + GameState.HotbarTop
                                     .Bottom = .Top + 32
-                                    .Left = Windows(curWindow).Window.Left + GameState.HotbarLeft + ((I - 1) * GameState.HotbarOffsetX)
+                                    .Left = Windows(curWindow).Left + GameState.HotbarLeft + ((I - 1) * GameState.HotbarOffsetX)
                                     .Right = .Left + 32
                                 End With
 
@@ -2737,7 +2735,7 @@ Public Class Gui
         Dim slotNum As Long, winIndex As Long
 
         ' is there an item?
-        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Window.Left, Windows(GetWindowIndex("winSkills")).Window.Top)
+        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Left, Windows(GetWindowIndex("winSkills")).Top)
 
         If slotNum Then
             With DragBox
@@ -2748,7 +2746,7 @@ Public Class Gui
             End With
 
             winIndex = GetWindowIndex("winDragBox")
-            With Windows(winIndex).Window
+            With Windows(winIndex)
                 .State = EntState.MouseDown
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
@@ -2759,7 +2757,7 @@ Public Class Gui
             ShowWindow(winIndex, , False)
 
             ' stop dragging inventory
-            Windows(GetWindowIndex("winSkills")).Window.State = EntState.Normal
+            Windows(GetWindowIndex("winSkills")).State = EntState.Normal
         End If
 
         Skills_MouseMove()
@@ -2768,7 +2766,7 @@ Public Class Gui
     Public Shared Sub Skills_DblClick()
         Dim slotNum As Long
 
-        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Window.Left, Windows(GetWindowIndex("winSkills")).Window.Top)
+        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Left, Windows(GetWindowIndex("winSkills")).Top)
 
         If slotNum > 0 Then
             PlayerCastSkill(slotNum)
@@ -2783,26 +2781,26 @@ Public Class Gui
         ' exit out early if dragging
         If DragBox.Type <> PartType.None Then Exit Sub
 
-        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Window.Left, Windows(GetWindowIndex("winSkills")).Window.Top)
+        slotNum = IsSkill(Windows(GetWindowIndex("winSkills")).Left, Windows(GetWindowIndex("winSkills")).Top)
 
         If slotNum > 0 Then
             ' make sure we're not dragging the item
             If DragBox.Type = PartType.Item And DragBox.Value = slotNum Then Exit Sub
 
             ' calc position
-            x = Windows(GetWindowIndex("winSkills")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            y = Windows(GetWindowIndex("winSkills")).Window.Top - 6
+            x = Windows(GetWindowIndex("winSkills")).Left - Windows(GetWindowIndex("winDescription")).Width
+            y = Windows(GetWindowIndex("winSkills")).Top - 6
 
             ' offscreen?
             If x < 0 Then
                 ' switch to right
-                x = Windows(GetWindowIndex("winSkills")).Window.Left + Windows(GetWindowIndex("winSkills")).Window.Width
+                x = Windows(GetWindowIndex("winSkills")).Left + Windows(GetWindowIndex("winSkills")).Width
             End If
 
             ' go go go
             ShowSkillDesc(x, y, GetPlayerSkill(GameState.MyIndex, slotNum), slotNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -2813,7 +2811,7 @@ Public Class Gui
         Dim slotNum As Long, winIndex As Long
 
         ' is there an item?
-        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Window.Left, Windows(GetWindowIndex("winHotbar")).Window.Top)
+        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Left, Windows(GetWindowIndex("winHotbar")).Top)
 
         If slotNum > 0 Then
             With DragBox
@@ -2828,7 +2826,7 @@ Public Class Gui
             End With
 
             winIndex = GetWindowIndex("winDragBox")
-            With Windows(winIndex).Window
+            With Windows(winIndex)
                 .State = EntState.MouseDown
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
@@ -2838,7 +2836,7 @@ Public Class Gui
             ShowWindow(winIndex, , False)
 
             ' stop dragging inventory
-            Windows(GetWindowIndex("winHotbar")).Window.State = EntState.Normal
+            Windows(GetWindowIndex("winHotbar")).State = EntState.Normal
         End If
 
         Hotbar_MouseMove()
@@ -2847,7 +2845,7 @@ Public Class Gui
     Public Shared Sub Hotbar_DblClick()
         Dim slotNum As Long
 
-        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Window.Left, Windows(GetWindowIndex("winHotbar")).Window.Top)
+        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Left, Windows(GetWindowIndex("winHotbar")).Top)
 
         If slotNum > 0 Then
             SendUseHotbarSlot(slotNum)
@@ -2862,20 +2860,20 @@ Public Class Gui
         ' exit out early if dragging
         If DragBox.Type <> PartOriginsType.None Then Exit Sub
 
-        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Window.Left, Windows(GetWindowIndex("winHotbar")).Window.Top)
+        slotNum = IsHotbar(Windows(GetWindowIndex("winHotbar")).Left, Windows(GetWindowIndex("winHotbar")).Top)
 
         If slotNum > 0 Then
             ' make sure we're not dragging the item
             If DragBox.Origin = PartOriginType.Hotbar And DragBox.Slot = slotNum Then Exit Sub
 
             ' calc position
-            x = Windows(GetWindowIndex("winHotbar")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            y = Windows(GetWindowIndex("winHotbar")).Window.Top - 6
+            x = Windows(GetWindowIndex("winHotbar")).Left - Windows(GetWindowIndex("winDescription")).Width
+            y = Windows(GetWindowIndex("winHotbar")).Top - 6
 
             ' offscreen?
             If x < 0 Then
                 ' switch to right
-                x = Windows(GetWindowIndex("winHotbar")).Window.Left + Windows(GetWindowIndex("winHotbar")).Window.Width
+                x = Windows(GetWindowIndex("winHotbar")).Left + Windows(GetWindowIndex("winHotbar")).Width
             End If
 
             ' go go go
@@ -2886,7 +2884,7 @@ Public Class Gui
                     ShowSkillDesc(x, y, Type.Player(GameState.MyIndex).Hotbar(slotNum).Slot, 0)
             End Select
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -2927,19 +2925,19 @@ Public Class Gui
         UpdateWindow("winEscMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 156, 0, False, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , False, , , False)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 198, 144, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 6, 198, 144, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnReturn", 16, 16, 178, 28, "Return to Game", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnEscMenu_Return))
-        UpdateButton(WindowCount, "btnOptions", 16, 48, 178, 28, "Options", FontType.Georgia, , , , , , , DesignType.Orange, DesignType.Orange_Hover, DesignType.Orange_Click, , , New Action(AddressOf btnEscMenu_Options))
-        UpdateButton(WindowCount, "btnMainMenu", 16, 80, 178, 28, "Back to Main Menu", FontType.Georgia, , , , , , , DesignType.Blue, DesignType.Blue_Hover, DesignType.Blue_Click, , , New Action(AddressOf btnEscMenu_MainMenu))
-        UpdateButton(WindowCount, "btnExit", 16, 112, 178, 28, "Exit the Game", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnEscMenu_Exit))
+        UpdateButton(Windows.Count, "btnReturn", 16, 16, 178, 28, "Return to Game", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnEscMenu_Return))
+        UpdateButton(Windows.Count, "btnOptions", 16, 48, 178, 28, "Options", FontType.Georgia, , , , , , , DesignType.Orange, DesignType.Orange_Hover, DesignType.Orange_Click, , , New Action(AddressOf btnEscMenu_Options))
+        UpdateButton(Windows.Count, "btnMainMenu", 16, 80, 178, 28, "Back to Main Menu", FontType.Georgia, , , , , , , DesignType.Blue, DesignType.Blue_Hover, DesignType.Blue_Click, , , New Action(AddressOf btnEscMenu_MainMenu))
+        UpdateButton(Windows.Count, "btnExit", 16, 112, 178, 28, "Exit the Game", FontType.Georgia, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnEscMenu_Exit))
     End Sub
 
     Public Shared Sub UpdateWindow_Bars()
@@ -2950,25 +2948,25 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 227, 65, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 6, 227, 65, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Blank Bars
-        UpdatePictureBox(WindowCount, "picHP_Blank", 15, 15, 209, 13, , , , , 24, 24, 24)
-        UpdatePictureBox(WindowCount, "picSP_Blank", 15, 32, 209, 13, , , , , 25, 25, 25)
-        UpdatePictureBox(WindowCount, "picEXP_Blank", 15, 49, 209, 13, , , , , 26, 26, 26)
+        UpdatePictureBox(Windows.Count, "picHP_Blank", 15, 15, 209, 13, , , , , 24, 24, 24)
+        UpdatePictureBox(Windows.Count, "picSP_Blank", 15, 32, 209, 13, , , , , 25, 25, 25)
+        UpdatePictureBox(Windows.Count, "picEXP_Blank", 15, 49, 209, 13, , , , , 26, 26, 26)
 
         ' Draw the bars
-        UpdatePictureBox(WindowCount, "picBlank", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Bars_OnDraw))
+        UpdatePictureBox(Windows.Count, "picBlank", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Bars_OnDraw))
 
         ' Bar Labels
-        UpdatePictureBox(WindowCount, "picHealth", 16, 11, 44, 14, , , , , 21, 21, 21)
-        UpdatePictureBox(WindowCount, "picSpirit", 16, 28, 44, 14, , , , , 22, 22, 22)
-        UpdatePictureBox(WindowCount, "picExperience", 16, 45, 74, 14, , , , , 23, 23, 23)
+        UpdatePictureBox(Windows.Count, "picHealth", 16, 11, 44, 14, , , , , 21, 21, 21)
+        UpdatePictureBox(Windows.Count, "picSpirit", 16, 28, 44, 14, , , , , 22, 22, 22)
+        UpdatePictureBox(Windows.Count, "picExperience", 16, 45, 74, 14, , , , , 23, 23, 23)
 
         ' Labels
-        UpdateLabel(WindowCount, "lblHP", 15, 14, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblMP", 15, 31, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblEXP", 15, 48, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblHP", 15, 14, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblMP", 15, 31, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblEXP", 15, 48, 209, 10, "999/999", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
     End Sub
 
     Public Shared Sub UpdateWindow_Chat()
@@ -2979,29 +2977,29 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Channel boxes
-        UpdateCheckBox(WindowCount, "chkGame", 10, 2, 49, 23, 1, "Game", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Game))
-        UpdateCheckBox(WindowCount, "chkMap", 60, 2, 49, 23, 1, "Map", FontType.Arial, , , , DesignType.ChkChat, , , New Action(AddressOf chkChat_Map))
-        UpdateCheckBox(WindowCount, "chkGlobal", 110, 2, 49, 23, 1, "Global", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Global))
-        UpdateCheckBox(WindowCount, "chkParty", 160, 2, 49, 23, 1, "Party", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Party))
-        UpdateCheckBox(WindowCount, "chkGuild", 210, 2, 49, 23, 1, "Guild", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Guild))
-        UpdateCheckBox(WindowCount, "chkPlayer", 260, 2, 49, 23, 1, "Player", FontType.Arial, , , , DesignType.ChkChat, , ,  , , New Action(AddressOf chkChat_Player))
+        UpdateCheckBox(Windows.Count, "chkGame", 10, 2, 49, 23, 1, "Game", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Game))
+        UpdateCheckBox(Windows.Count, "chkMap", 60, 2, 49, 23, 1, "Map", FontType.Arial, , , , DesignType.ChkChat, , , New Action(AddressOf chkChat_Map))
+        UpdateCheckBox(Windows.Count, "chkGlobal", 110, 2, 49, 23, 1, "Global", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Global))
+        UpdateCheckBox(Windows.Count, "chkParty", 160, 2, 49, 23, 1, "Party", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Party))
+        UpdateCheckBox(Windows.Count, "chkGuild", 210, 2, 49, 23, 1, "Guild", FontType.Arial, , , , DesignType.ChkChat, , , , , New Action(AddressOf chkChat_Guild))
+        UpdateCheckBox(Windows.Count, "chkPlayer", 260, 2, 49, 23, 1, "Player", FontType.Arial, , , , DesignType.ChkChat, , ,  , , New Action(AddressOf chkChat_Player))
 
         ' Blank picturebox
-        UpdatePictureBox(WindowCount, "picNull", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Chat_OnDraw))
+        UpdatePictureBox(Windows.Count, "picNull", 0, 0, 0, 0, , , , , , , , , , , , , , , , , New Action(AddressOf Chat_OnDraw))
 
         ' Chat button
-        UpdateButton(WindowCount, "btnChat", 296, 124 + 16, 48, 20, "Say", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSay_Click))
+        UpdateButton(Windows.Count, "btnChat", 296, 124 + 16, 48, 20, "Say", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSay_Click))
 
         ' Chat Textbox
-        UpdateTextbox(WindowCount, "txtChat", 12, 127 + 16, 286, 25, , FontType.Georgia, , , , , , , , , , , , , , , CHAT_LENGTH)
+        UpdateTextbox(Windows.Count, "txtChat", 12, 127 + 16, 286, 25, , FontType.Georgia, , , , , , , , , , , , , , , CHAT_LENGTH)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnUp", 328, 28, 11, 13, , , , 4, 52, 4, , , , , , , , New Action(AddressOf btnChat_Up))
-        UpdateButton(WindowCount, "btnDown", 327, 122, 11, 13, , , , 5, 53, 5, , , , , , , , New Action(AddressOf btnChat_Down))
+        UpdateButton(Windows.Count, "btnUp", 328, 28, 11, 13, , , , 4, 52, 4, , , , , , , , New Action(AddressOf btnChat_Up))
+        UpdateButton(Windows.Count, "btnDown", 327, 122, 11, 13, , , , 5, 53, 5, , , , , , , , New Action(AddressOf btnChat_Down))
 
         ' Custom Handlers for mouse up
-        Windows(WindowCount).Controls(GetControlIndex("winChat", "btnUp")).CallBack(EntState.MouseUp) = New Action(AddressOf btnChat_Up_MouseUp)
-        Windows(WindowCount).Controls(GetControlIndex("winChat", "btnDown")).CallBack(EntState.MouseUp) = New Action(AddressOf btnChat_Down_MouseUp)
+        Windows(Windows.Count).Controls(GetControlIndex("winChat", "btnUp")).CallBack(EntState.MouseUp) = New Action(AddressOf btnChat_Up_MouseUp)
+        Windows(Windows.Count).Controls(GetControlIndex("winChat", "btnDown")).CallBack(EntState.MouseUp) = New Action(AddressOf btnChat_Down_MouseUp)
 
         ' Set the active control
         SetActiveControl(GetWindowIndex("winChat"), GetControlIndex("winChat", "txtChat"))
@@ -3025,7 +3023,7 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Chat Label
-        UpdateLabel(WindowCount, "lblMsg", 12, 140, 286, 25, "Press 'Enter' to open chatbox.", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblMsg", 12, 140, 286, 25, "Press 'Enter' to open chatbox.", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
     End Sub
 
     Public Shared Sub UpdateWindow_Hotbar()
@@ -3041,17 +3039,17 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Wood part
-        UpdatePictureBox(WindowCount, "picWood", 0, 5, 228, 21, , , , , , , , DesignType.Wood, DesignType.Wood, DesignType.Wood)
+        UpdatePictureBox(Windows.Count, "picWood", 0, 5, 228, 21, , , , , , , , DesignType.Wood, DesignType.Wood, DesignType.Wood)
         ' Buttons
-        UpdateButton(WindowCount, "btnChar", 8, 1, 29, 29, , , 108, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Char), , , -1, -2, "Character (C)")
-        UpdateButton(WindowCount, "btnInv", 44, 1, 29, 29, , , 1, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Inv), , , -1, -2, "Inventory (I)")
-        UpdateButton(WindowCount, "btnSkills", 82, 1, 29, 29, , , 109, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Skills), , , -1, -2, "Skills (K)")
-        'UpdateButton WindowCount, "btnMap", 119, 1, 29, 29, , , , 106, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Map), , , -1, -2
-        'UpdateButton WindowCount, "btnGuild", 155, 1, 29, 29, , , , 107, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Guild), , , -1, -1
-        'UpdateButton WindowCount, "btnQuest", 191, 1, 29, 29, , , , 23, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Quest), , , -1, -2
-        UpdateButton(WindowCount, "btnMap", 119, 1, 29, 29, , , 106, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Map), , , -1, -2)
-        UpdateButton(WindowCount, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , , , -1, -1)
-        UpdateButton(WindowCount, "btnQuest", 191, 1, 29, 29, , , 23, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Quest), , , -1, -2)
+        UpdateButton(Windows.Count, "btnChar", 8, 1, 29, 29, , , 108, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Char), , , -1, -2, "Character (C)")
+        UpdateButton(Windows.Count, "btnInv", 44, 1, 29, 29, , , 1, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Inv), , , -1, -2, "Inventory (I)")
+        UpdateButton(Windows.Count, "btnSkills", 82, 1, 29, 29, , , 109, , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnMenu_Skills), , , -1, -2, "Skills (K)")
+        'UpdateButton Windows.Count, "btnMap", 119, 1, 29, 29, , , , 106, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Map), , , -1, -2
+        'UpdateButton Windows.Count, "btnGuild", 155, 1, 29, 29, , , , 107, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Guild), , , -1, -1
+        'UpdateButton Windows.Count, "btnQuest", 191, 1, 29, 29, , , , 23, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Quest), , , -1, -2
+        UpdateButton(Windows.Count, "btnMap", 119, 1, 29, 29, , , 106, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Map), , , -1, -2)
+        UpdateButton(Windows.Count, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , , , -1, -1)
+        UpdateButton(Windows.Count, "btnQuest", 191, 1, 29, 29, , , 23, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Quest), , , -1, -2)
     End Sub
 
     Public Shared Sub UpdateWindow_Inventory()
@@ -3059,20 +3057,20 @@ Public Class Gui
         UpdateWindow("winInventory", "Inventory", FontType.Georgia, zOrder_Win, 0, 0, 202, 319, 1, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Inventory_MouseMove), New Action(AddressOf Inventory_MouseDown), New Action(AddressOf Inventory_DblClick), New Action(AddressOf DrawInventory))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Inv))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Inv))
 
         ' Gold amount
-        UpdatePictureBox(WindowCount, "picBlank", 8, 293, 186, 18, , , , , 67, 67, 67)
-        UpdateLabel(WindowCount, "lblGold", 42, 296, 100, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.Yellow)
+        UpdatePictureBox(Windows.Count, "picBlank", 8, 293, 186, 18, , , , , 67, 67, 67)
+        UpdateLabel(Windows.Count, "lblGold", 42, 296, 100, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.Yellow)
 
         ' Drop
-        UpdateButton(WindowCount, "btnDrop", 155, 294, 38, 16, "Drop", , , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , , , , 5, 3)
+        UpdateButton(Windows.Count, "btnDrop", 155, 294, 38, 16, "Drop", , , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , , , , 5, 3)
     End Sub
 
     Public Shared Sub UpdateWindow_Character()
@@ -3080,83 +3078,83 @@ Public Class Gui
         UpdateWindow("winCharacter", "Character", FontType.Georgia, zOrder_Win, 0, 0, 174, 356, 62, False, 2, 6, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_MouseMove), New Action(AddressOf Character_DblClick), New Action(AddressOf DrawCharacter))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Char))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Char))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 26, 162, 287, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 162, 287, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' White boxes
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 34, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 54, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 74, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 94, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 114, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 134, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
-        UpdatePictureBox(WindowCount, "picWhiteBox", 13, 154, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 34, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 54, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 74, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 94, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 114, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 134, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
+        UpdatePictureBox(Windows.Count, "picWhiteBox", 13, 154, 148, 19, , , , , , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
 
         ' Labels
-        UpdateLabel(WindowCount, "lblName", 18, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblJob", 18, 56, 147, 10, "Job", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblLevel", 18, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblGuild", 18, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblHealth", 18, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblSpirit", 18, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblExperience", 18, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White)
-        UpdateLabel(WindowCount, "lblName2", 13, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblJob2", 13, 56, 147, 10, "", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblLevel2", 13, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblGuild2", 13, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblHealth2", 13, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblSpirit2", 13, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblExperience2", 13, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblName", 18, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblJob", 18, 56, 147, 10, "Job", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblLevel", 18, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblGuild", 18, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblHealth", 18, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblSpirit", 18, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblExperience", 18, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblName2", 13, 36, 147, 10, "Name", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblJob2", 13, 56, 147, 10, "", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblLevel2", 13, 76, 147, 10, "Level", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblGuild2", 13, 96, 147, 10, "Guild", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblHealth2", 13, 116, 147, 10, "Health", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblSpirit2", 13, 136, 147, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblExperience2", 13, 156, 147, 10, "Experience", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
 
         ' Attributes
-        UpdatePictureBox(WindowCount, "picShadow", 18, 176, 138, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        UpdateLabel(WindowCount, "lblLabel", 18, 173, 138, 10, "Attributes", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picShadow", 18, 176, 138, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 173, 138, 10, "Attributes", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Black boxes
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 186, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 206, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 226, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 246, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 266, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
-        UpdatePictureBox(WindowCount, "picBlackBox", 13, 286, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 186, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 206, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 226, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 246, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 266, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
+        UpdatePictureBox(Windows.Count, "picBlackBox", 13, 286, 148, 19, , , , , , , , DesignType.TextBlack, DesignType.TextBlack, DesignType.TextBlack)
 
         ' Labels
-        UpdateLabel(WindowCount, "lblLabel", 18, 188, 138, 10, "Strength", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        UpdateLabel(WindowCount, "lblLabel", 18, 208, 138, 10, "Vitality", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        UpdateLabel(WindowCount, "lblLabel", 18, 228, 138, 10, "Intelligence", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        UpdateLabel(WindowCount, "lblLabel", 18, 248, 138, 10, "Luck", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        UpdateLabel(WindowCount, "lblLabel", 18, 268, 138, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
-        UpdateLabel(WindowCount, "lblLabel", 18, 288, 138, 10, "Stat Points", FontType.Arial, Microsoft.Xna.Framework.Color.Green)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 188, 138, 10, "Strength", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 208, 138, 10, "Vitality", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 228, 138, 10, "Intelligence", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 248, 138, 10, "Luck", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 268, 138, 10, "Spirit", FontType.Arial, Microsoft.Xna.Framework.Color.Yellow)
+        UpdateLabel(Windows.Count, "lblLabel", 18, 288, 138, 10, "Stat Points", FontType.Arial, Microsoft.Xna.Framework.Color.Green)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnStat_1", 144, 188, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint1))
-        UpdateButton(WindowCount, "btnStat_2", 144, 208, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint2))
-        UpdateButton(WindowCount, "btnStat_3", 144, 228, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint3))
-        UpdateButton(WindowCount, "btnStat_4", 144, 248, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint4))
-        UpdateButton(WindowCount, "btnStat_5", 144, 268, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint5))
+        UpdateButton(Windows.Count, "btnStat_1", 144, 188, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint1))
+        UpdateButton(Windows.Count, "btnStat_2", 144, 208, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint2))
+        UpdateButton(Windows.Count, "btnStat_3", 144, 228, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint3))
+        UpdateButton(Windows.Count, "btnStat_4", 144, 248, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint4))
+        UpdateButton(Windows.Count, "btnStat_5", 144, 268, 15, 15, , , , 48, 49, 50, , , , , , , , New Action(AddressOf Character_SpendPoint5))
 
         ' fake buttons
-        UpdatePictureBox(WindowCount, "btnGreyStat_1", 144, 188, 15, 15, , , , , 47, 47, 47)
-        UpdatePictureBox(WindowCount, "btnGreyStat_2", 144, 208, 15, 15, , , , , 47, 47, 47)
-        UpdatePictureBox(WindowCount, "btnGreyStat_3", 144, 228, 15, 15, , , , , 47, 47, 47)
-        UpdatePictureBox(WindowCount, "btnGreyStat_4", 144, 248, 15, 15, , , , , 47, 47, 47)
-        UpdatePictureBox(WindowCount, "btnGreyStat_5", 144, 268, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(Windows.Count, "btnGreyStat_1", 144, 188, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(Windows.Count, "btnGreyStat_2", 144, 208, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(Windows.Count, "btnGreyStat_3", 144, 228, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(Windows.Count, "btnGreyStat_4", 144, 248, 15, 15, , , , , 47, 47, 47)
+        UpdatePictureBox(Windows.Count, "btnGreyStat_5", 144, 268, 15, 15, , , , , 47, 47, 47)
 
         ' Labels
-        UpdateLabel(WindowCount, "lblStat_1", 50, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblStat_2", 50, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblStat_3", 50, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblStat_4", 50, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblStat_5", 50, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(WindowCount, "lblPoints", 65, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_1", 50, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_2", 50, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_3", 50, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_4", 50, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_5", 50, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblPoints", 65, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
     End Sub
 
 
@@ -3168,8 +3166,8 @@ Public Class Gui
 
         if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
     
-        xO = Windows(GetWindowIndex("winCharacter")).Window.Left
-        yO = Windows(GetWindowIndex("winCharacter")).Window.Top
+        xO = Windows(GetWindowIndex("winCharacter")).Left
+        yO = Windows(GetWindowIndex("winCharacter")).Top
 
         ' Render bottom
         GameClient.RenderTexture(IO.Path.Combine(Path.Gui, "37"), xO + 4, yO + 314, 0, 0, 40, 38, 40, 38)
@@ -3190,8 +3188,8 @@ Public Class Gui
                     ItemIcon = Type.Item(itemNum).Icon
                 End If
 
-                yO = Windows(GetWindowIndex("winCharacter")).Window.Top + GameState.EqTop
-                xO = Windows(GetWindowIndex("winCharacter")).Window.Left + GameState.EqLeft + ((GameState.EqOffsetX + 32) * (((i - 1) Mod GameState.EqColumns)))
+                yO = Windows(GetWindowIndex("winCharacter")).Top + GameState.EqTop
+                xO = Windows(GetWindowIndex("winCharacter")).Left + GameState.EqLeft + ((GameState.EqOffsetX + 32) * (((i - 1) Mod GameState.EqColumns)))
                 GameClient.RenderTexture(IO.Path.Combine(Path.Items, ItemIcon), xO, yO, 0, 0, 32, 32, 32, 32)
             End If
         Next
@@ -3200,7 +3198,7 @@ Public Class Gui
     Public Shared Sub Character_DblClick()
         Dim itemNum As Long
 
-        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Window.Left, Windows(GetWindowIndex("winCharacter")).Window.Top)
+        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Left, Windows(GetWindowIndex("winCharacter")).Top)
 
         If itemNum > 0 Then
             SendUnequip(itemNum)
@@ -3215,30 +3213,30 @@ Public Class Gui
         ' exit out early if dragging
         If DragBox.Type <> PartType.None Then Exit Sub
 
-        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Window.Left, Windows(GetWindowIndex("winCharacter")).Window.Top)
+        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Left, Windows(GetWindowIndex("winCharacter")).Top)
 
         If itemNum > 0 Then
             ' calc position
-            x = Windows(GetWindowIndex("winCharacter")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            y = Windows(GetWindowIndex("winCharacter")).Window.Top - 6
+            x = Windows(GetWindowIndex("winCharacter")).Left - Windows(GetWindowIndex("winDescription")).Width
+            y = Windows(GetWindowIndex("winCharacter")).Top - 6
 
             ' offscreen?
             If x < 0 Then
                 ' switch to right
-                x = Windows(GetWindowIndex("winCharacter")).Window.Left + Windows(GetWindowIndex("winCharacter")).Window.Width
+                x = Windows(GetWindowIndex("winCharacter")).Left + Windows(GetWindowIndex("winCharacter")).Width
             End If
 
             ' go go go
             ShowEqDesc(x, y, itemNum)
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
     Public Shared Sub Character_DbClick()
         Dim itemNum As Long
 
-        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Window.Left, Windows(GetWindowIndex("winCharacter")).Window.Top)
+        itemNum = IsEq(Windows(GetWindowIndex("winCharacter")).Left, Windows(GetWindowIndex("winCharacter")).Top)
 
         If itemNum > 0 Then
             SendUnequip(itemNum)
@@ -3273,10 +3271,10 @@ Public Class Gui
 
         if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
     
-        xO = Windows(GetWindowIndex("winInventory")).Window.Left
-        yO = Windows(GetWindowIndex("winInventory")).Window.Top
-        Width = Windows(GetWindowIndex("winInventory")).Window.Width
-        Height = Windows(GetWindowIndex("winInventory")).Window.Height
+        xO = Windows(GetWindowIndex("winInventory")).Left
+        yO = Windows(GetWindowIndex("winInventory")).Top
+        Width = Windows(GetWindowIndex("winInventory")).Width
+        Height = Windows(GetWindowIndex("winInventory")).Height
 
         ' render green
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
@@ -3373,20 +3371,20 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Name
-        UpdateLabel(WindowCount, "lblName", 8, 12, 177, 10, "Flame Sword", FontType.Arial, Microsoft.Xna.Framework.Color.Blue, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblName", 8, 12, 177, 10, "Flame Sword", FontType.Arial, Microsoft.Xna.Framework.Color.Blue, AlignmentType.Center)
 
         ' Sprite box
-        UpdatePictureBox(WindowCount, "picSprite", 18, 32, 68, 68, , , , , , , , DesignType.DescPic, DesignType.DescPic, DesignType.DescPic, , , , , , , New Action(AddressOf Description_OnDraw))
+        UpdatePictureBox(Windows.Count, "picSprite", 18, 32, 68, 68, , , , , , , , DesignType.DescPic, DesignType.DescPic, DesignType.DescPic, , , , , , , New Action(AddressOf Description_OnDraw))
 
         ' Sep
-        UpdatePictureBox(WindowCount, "picSep", 96, 28, 1, 92, , , , , 44, 44, 44)
+        UpdatePictureBox(Windows.Count, "picSep", 96, 28, 1, 92, , , , , 44, 44, 44)
 
         ' Requirements
-        UpdateLabel(WindowCount, "lblClass", 5, 102, 92, 10, "Warrior", FontType.Georgia, Microsoft.Xna.Framework.Color.Green, AlignmentType.Center)
-        UpdateLabel(WindowCount, "lblLevel", 5, 114, 92, 10, "Level 20", FontType.Georgia, Microsoft.Xna.Framework.Color.Red, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblClass", 5, 102, 92, 10, "Warrior", FontType.Georgia, Microsoft.Xna.Framework.Color.Green, AlignmentType.Center)
+        UpdateLabel(Windows.Count, "lblLevel", 5, 114, 92, 10, "Level 20", FontType.Georgia, Microsoft.Xna.Framework.Color.Red, AlignmentType.Center)
 
         ' Bar
-        UpdatePictureBox(WindowCount, "picBar", 19, 114, 66, 12, False, , , , 45, 45, 45)
+        UpdatePictureBox(Windows.Count, "picBar", 19, 114, 66, 12, False, , , , 45, 45, 45)
     End Sub
 
     ' #################
@@ -3398,8 +3396,8 @@ Public Class Gui
         ' exit out if we don't have a num
         If GameState.descItem = 0 Or GameState.descType = 0 Then Exit Sub
 
-        xO = Windows(GetWindowIndex("winDescription")).Window.Left
-        yO = Windows(GetWindowIndex("winDescription")).Window.Top
+        xO = Windows(GetWindowIndex("winDescription")).Left
+        yO = Windows(GetWindowIndex("winDescription")).Top
 
         Select Case GameState.descType
             Case 1 ' Inventory Item
@@ -3436,40 +3434,40 @@ Public Class Gui
         UpdateWindow("winDragBox", "", FontType.Georgia, zOrder_Win, 0, 0, 32, 32, 0, False, , , , , , , , , , , , New Action(AddressOf DragBox_Check), , New Action(AddressOf DragBox_OnDraw))
 
         ' Need to set up unique mouseup event
-        Windows(WindowCount).Window.CallBack(EntState.MouseUp) = New Action(AddressOf DragBox_Check)
+        Windows(Windows.Count).CallBack(EntState.MouseUp) = New Action(AddressOf DragBox_Check)
     End Sub
 
     Public Shared Sub UpdateWindow_Options()
         UpdateWindow("winOptions", "", FontType.Georgia, zOrder_Win, 0, 0, 210, 212, 0, 0, , , DesignType.Win_NoBar, DesignType.Win_NoBar, DesignType.Win_NoBar, , , , , , , , , , , , False, False)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 6, 198, 200, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 6, 198, 200, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' General
-        UpdatePictureBox(WindowCount, "picBlank", 35, 25, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        UpdateLabel(WindowCount, "lblBlank", 35, 22, 140, 0, "General Options", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picBlank", 35, 25, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(Windows.Count, "lblBlank", 35, 22, 140, 0, "General Options", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Check boxes
-        UpdateCheckBox(WindowCount, "chkMusic", 35, 40, 80, , , "Music", FontType.Georgia, , , , DesignType.ChkNorm)
-        UpdateCheckBox(WindowCount, "chkSound", 115, 40, 80, , , "Sound", FontType.Georgia, , , , DesignType.ChkNorm)
-        UpdateCheckBox(WindowCount, "chkAutotile", 35, 60, 80, , , "Autotile", FontType.Georgia, , , , DesignType.ChkNorm)
-        UpdateCheckBox(WindowCount, "chkFullscreen", 115, 60, 80, , , "Fullscreen", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(Windows.Count, "chkMusic", 35, 40, 80, , , "Music", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(Windows.Count, "chkSound", 115, 40, 80, , , "Sound", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(Windows.Count, "chkAutotile", 35, 60, 80, , , "Autotile", FontType.Georgia, , , , DesignType.ChkNorm)
+        UpdateCheckBox(Windows.Count, "chkFullscreen", 115, 60, 80, , , "Fullscreen", FontType.Georgia, , , , DesignType.ChkNorm)
 
         ' Resolution
-        UpdatePictureBox(WindowCount, "picBlank", 35, 85, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        UpdateLabel(WindowCount, "lblBlank", 35, 92, 140, 10, "Select Resolution", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
+        UpdatePictureBox(Windows.Count, "picBlank", 35, 85, 140, 10, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
+        UpdateLabel(Windows.Count, "lblBlank", 35, 92, 140, 10, "Select Resolution", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' combobox
-        ControlComboBox(WindowCount, "cmbRes", 30, 100, 150, 18, DesignType.ComboNorm)
+        ControlComboBox(Windows.Count, "cmbRes", 30, 100, 150, 18, DesignType.ComboNorm)
 
         ' Button
-        UpdateButton(WindowCount, "btnConfirm", 65, 168, 80, 22, "Confirm", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , AddressOf btnOptions_Confirm)
+        UpdateButton(Windows.Count, "btnConfirm", 65, 168, 80, 22, "Confirm", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , AddressOf btnOptions_Confirm)
 
         ' Populate the options screen
         SetOptionsScreen()
@@ -3483,7 +3481,7 @@ Public Class Gui
         UpdateWindow("winComboMenu", "ComboMenu", FontType.Georgia, zOrder_Win, 0, 0, 100, 100, 0, False, , , DesignType.ComboMenuNorm, , , , , , , , , , , , , , False, False)
 
         ' centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
     End Sub
 
     Public Shared Sub UpdateWindow_Skills()
@@ -3491,24 +3489,24 @@ Public Class Gui
         UpdateWindow("winSkills", "Skills", FontType.Georgia, zOrder_Win, 0, 0, 202, 297, 109, False, 2, 7, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Skills_MouseMove), New Action(AddressOf Skills_MouseDown), New Action(AddressOf Skills_DblClick), New Action(AddressOf DrawSkills))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Skills))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 16, 16, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Skills))
     End Sub
 
     Public Shared Sub UpdateWindow_Bank()
         UpdateWindow("winBank", "Bank", FontType.Georgia, zOrder_Win, 0, 0, 391, 373, 1, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Bank_MouseMove), New Action(AddressOf Bank_MouseDown), New Action(AddressOf Bank_DblClick), New Action(AddressOf DrawBank))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Set the index for spawning controls
         zOrder_Con = 1
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Bank))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 5, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnMenu_Bank))
     End Sub
 
     Public Shared Sub UpdateWindow_Shop()
@@ -3516,32 +3514,32 @@ Public Class Gui
         UpdateWindow("winShop", "Shop", FontType.Georgia, zOrder_Win, 0, 0, 278, 293, 17, False, 2, 5, DesignType.Win_Empty, DesignType.Win_Empty, DesignType.Win_Empty, , , , , , New Action(AddressOf Shop_MouseMove), New Action(AddressOf Shop_MouseDown), , New Action(AddressOf DrawShopBackground))
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Close button
-        UpdateButton(WindowCount, "btnClose", Windows(WindowCount).Window.Width - 19, 6, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnShop_Close))
+        UpdateButton(Windows.Count, "btnClose", Windows(Windows.Count).Width - 19, 6, 36, 36, , , , 8, 9, 10, , , , , , , , New Action(AddressOf btnShop_Close))
 
         ' Parchment
-        UpdatePictureBox(WindowCount, "picParchment", 6, 215, 266, 50, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf DrawShop))
+        UpdatePictureBox(Windows.Count, "picParchment", 6, 215, 266, 50, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment, , , , , , , New Action(AddressOf DrawShop))
 
         ' Picture Box
-        UpdatePictureBox(WindowCount, "picItemBG", 13, 222, 36, 36, , , , , 30, 30, 30)
-        UpdatePictureBox(WindowCount, "picItem", 15, 224, 32, 32)
+        UpdatePictureBox(Windows.Count, "picItemBG", 13, 222, 36, 36, , , , , 30, 30, 30)
+        UpdatePictureBox(Windows.Count, "picItem", 15, 224, 32, 32)
 
         ' Buttons
-        UpdateButton(WindowCount, "btnBuy", 190, 228, 70, 24, "Buy", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnShopBuy))
-        UpdateButton(WindowCount, "btnSell", 190, 228, 70, 24, "Sell", FontType.Arial, , , , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnShopSell))
+        UpdateButton(Windows.Count, "btnBuy", 190, 228, 70, 24, "Buy", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnShopBuy))
+        UpdateButton(Windows.Count, "btnSell", 190, 228, 70, 24, "Sell", FontType.Arial, , , , , False, , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnShopSell))
 
         ' Buying/Selling
-        UpdateCheckBox(WindowCount, "chkBuying", 173, 265, 49, 20, 1, , , , , , DesignType.ChkBuying, , , , , New Action(AddressOf chkShopBuying))
-        UpdateCheckBox(WindowCount, "chkSelling", 222, 265, 49, 20, 0, , , , ,  , DesignType.ChkSelling, , , , , New Action(AddressOf chkShopSelling))
+        UpdateCheckBox(Windows.Count, "chkBuying", 173, 265, 49, 20, 1, , , , , , DesignType.ChkBuying, , , , , New Action(AddressOf chkShopBuying))
+        UpdateCheckBox(Windows.Count, "chkSelling", 222, 265, 49, 20, 0, , , , ,  , DesignType.ChkSelling, , , , , New Action(AddressOf chkShopSelling))
 
         '        Labels
-        UpdateLabel(WindowCount, "lblName", 56, 226, 300, 10, "Test Item", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
-        UpdateLabel(WindowCount, "lblCost", 56, 240, 300, 10, "1000g", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
+        UpdateLabel(Windows.Count, "lblName", 56, 226, 300, 10, "Test Item", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
+        UpdateLabel(Windows.Count, "lblCost", 56, 240, 300, 10, "1000g", FontType.Arial, Microsoft.Xna.Framework.Color.Black, AlignmentType.Left)
 
         ' Gold
-        UpdateLabel(WindowCount, "lblGold", 44, 269, 300, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
+        UpdateLabel(Windows.Count, "lblGold", 44, 269, 300, 10, "g", FontType.Georgia, Microsoft.Xna.Framework.Color.White)
     End Sub
 
     ' Shop
@@ -3607,7 +3605,7 @@ Public Class Gui
         Dim shopNum As Long
 
         ' is there an item?
-        shopNum = IsShop(Windows(GetWindowIndex("winShop")).Window.Left, Windows(GetWindowIndex("winShop")).Window.Top)
+        shopNum = IsShop(Windows(GetWindowIndex("winShop")).Left, Windows(GetWindowIndex("winShop")).Top)
         If shopNum > 0 Then
             If Type.Shop(GameState.InShop).TradeItem(GameState.shopSelectedSlot).Item > 0 Then
                 ' set the active slot
@@ -3623,17 +3621,17 @@ Public Class Gui
 
         If GameState.InShop < 1 Or GameState.InShop > MAX_SHOPS Then Exit Sub
 
-        shopSlot = IsShop(Windows(GetWindowIndex("winShop")).Window.Left, Windows(GetWindowIndex("winShop")).Window.Top)
+        shopSlot = IsShop(Windows(GetWindowIndex("winShop")).Left, Windows(GetWindowIndex("winShop")).Top)
 
         If shopSlot > 0 Then
             ' calc position
-            X = Windows(GetWindowIndex("winShop")).Window.Left - Windows(GetWindowIndex("winDescription")).Window.Width
-            Y = Windows(GetWindowIndex("winShop")).Window.Top - 6
+            X = Windows(GetWindowIndex("winShop")).Left - Windows(GetWindowIndex("winDescription")).Width
+            Y = Windows(GetWindowIndex("winShop")).Top - 6
 
             ' offscreen?
             If X < 0 Then
                 ' switch to right
-                X = Windows(GetWindowIndex("winShop")).Window.Left + Windows(GetWindowIndex("winShop")).Window.Width
+                X = Windows(GetWindowIndex("winShop")).Left + Windows(GetWindowIndex("winShop")).Width
             End If
 
             ' selling/buying
@@ -3649,7 +3647,7 @@ Public Class Gui
                 ShowShopDesc(X, Y, ItemNum)
             End If
         Else
-            Windows(GetWindowIndex("winDescription")).Window.Visible = False
+            Windows(GetWindowIndex("winDescription")).Visible = False
         End If
     End Sub
 
@@ -3657,37 +3655,26 @@ Public Class Gui
         Dim Top As Long
 
         ' move Hotbar
-        Windows(GetWindowIndex("winHotbar")).Window.Left = GameState.ResolutionWidth - 432
+        Windows(GetWindowIndex("winHotbar")).Left = GameState.ResolutionWidth - 432
 
         ' move chat
-        Windows(GetWindowIndex("winChat")).Window.Top = GameState.ResolutionHeight - 178
-        Windows(GetWindowIndex("winChatSmall")).Window.Top = GameState.ResolutionHeight - 162
+        Windows(GetWindowIndex("winChat")).Top = GameState.ResolutionHeight - 178
+        Windows(GetWindowIndex("winChatSmall")).Top = GameState.ResolutionHeight - 162
 
         ' move menu
-        Windows(GetWindowIndex("winMenu")).Window.Left = GameState.ResolutionWidth - 242
-        Windows(GetWindowIndex("winMenu")).Window.Top = -42
-
-        ' move invitations
-        Windows(GetWindowIndex("winInvite_Party")).Window.Left = GameState.ResolutionWidth - 234
-        Windows(GetWindowIndex("winInvite_Party")).Window.Top = -80
-
+        Windows(GetWindowIndex("winMenu")).Left = GameState.ResolutionWidth - 242
+        Windows(GetWindowIndex("winMenu")).Top = -42
+        
         ' loop through
         Top = -80
-
-        If Windows(GetWindowIndex("winInvite_Party")).Window.Visible = True
-            Top = Top - 37
-        End If
-
-        Windows(GetWindowIndex("winInvite_Trade")).Window.Left = GameState.ResolutionWidth - 234
-        Windows(GetWindowIndex("winInvite_Trade")).Window.Top = Top
-
+        
         ' re-size right-click background
-        Windows(GetWindowIndex("winRightClickBG")).Window.Width = GameState.ResolutionWidth
-        Windows(GetWindowIndex("winRightClickBG")).Window.Height = GameState.ResolutionHeight
+        Windows(GetWindowIndex("winRightClickBG")).Width = GameState.ResolutionWidth
+        Windows(GetWindowIndex("winRightClickBG")).Height = GameState.ResolutionHeight
 
         ' re-size combo background
-        Windows(GetWindowIndex("winComboMenuBG")).Window.Width = GameState.ResolutionWidth
-        Windows(GetWindowIndex("winComboMenuBG")).Window.Height = GameState.ResolutionHeight
+        Windows(GetWindowIndex("winComboMenuBG")).Width = GameState.ResolutionWidth
+        Windows(GetWindowIndex("winComboMenuBG")).Height = GameState.ResolutionHeight
     End Sub
 
     Public Shared Sub DrawSkills()
@@ -3695,11 +3682,11 @@ Public Class Gui
 
         if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
     
-        xO = Windows(GetWindowIndex("winSkills")).Window.Left
-        yO = Windows(GetWindowIndex("winSkills")).Window.Top
+        xO = Windows(GetWindowIndex("winSkills")).Left
+        yO = Windows(GetWindowIndex("winSkills")).Top
 
-        Width = Windows(GetWindowIndex("winSkills")).Window.Width
-        Height = Windows(GetWindowIndex("winSkills")).Window.Height
+        Width = Windows(GetWindowIndex("winSkills")).Width
+        Height = Windows(GetWindowIndex("winSkills")).Height
 
         ' render green
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
@@ -3828,7 +3815,7 @@ Public Class Gui
         UpdateWindow("winRightClickBG", "", FontType.Georgia, zOrder_Win, 0, 0, 800, 600, 0, False, , , , , , , , , , , , New Action(AddressOf RightClick_Close), , , False)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
     End Sub
 
     Public Shared Sub UpdateWindow_PlayerMenu()
@@ -3836,16 +3823,16 @@ Public Class Gui
         UpdateWindow("winPlayerMenu", "", FontType.Georgia, zOrder_Win, 0, 0, 110, 106, 0, False, , , DesignType.Win_Desc, DesignType.Win_Desc, DesignType.Win_Desc, , , , , , , New Action(AddressOf RightClick_Close), , , False)
 
         ' Centralize it
-        CentralizeWindow(WindowCount)
+        CentralizeWindow(Windows.Count)
 
         ' Name
-        UpdateButton(WindowCount, "btnName", 8, 8, 94, 18, "[Name]", FontType.Georgia, , , , , , , DesignType.MenuHeader, DesignType.MenuHeader, DesignType.MenuHeader, , , New Action(AddressOf RightClick_Close))
+        UpdateButton(Windows.Count, "btnName", 8, 8, 94, 18, "[Name]", FontType.Georgia, , , , , , , DesignType.MenuHeader, DesignType.MenuHeader, DesignType.MenuHeader, , , New Action(AddressOf RightClick_Close))
 
         ' Options
-        UpdateButton(WindowCount, "btnParty", 8, 26, 94, 18, "Invite to Party", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Party))
-        UpdateButton(WindowCount, "btnTrade", 8, 44, 94, 18, "Request Trade", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Trade))
-        UpdateButton(WindowCount, "btnGuild", 8, 62, 94, 18, "Invite to Guild", FontType.Georgia, , , , , , , DesignType.MenuOption, , , , , New Action(AddressOf PlayerMenu_Guild))
-        UpdateButton(WindowCount, "btnPM", 8, 80, 94, 18, "Private Message", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Player))
+        UpdateButton(Windows.Count, "btnParty", 8, 26, 94, 18, "Invite to Party", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Party))
+        UpdateButton(Windows.Count, "btnTrade", 8, 44, 94, 18, "Request Trade", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Trade))
+        UpdateButton(Windows.Count, "btnGuild", 8, 62, 94, 18, "Invite to Guild", FontType.Georgia, , , , , , , DesignType.MenuOption, , , , , New Action(AddressOf PlayerMenu_Guild))
+        UpdateButton(Windows.Count, "btnPM", 8, 80, 94, 18, "Private Message", FontType.Georgia, , , , , , , , DesignType.MenuOption, , , , New Action(AddressOf PlayerMenu_Player))
     End Sub
 
     ' Right Click Menu
@@ -4015,7 +4002,7 @@ Public Class Gui
                 Case 3 : Height = 118
                 Case 4 : Height = 158
             End Select
-            .Window.Height = Height
+            .Height = Height
         End With
     End Sub
 
@@ -4044,15 +4031,15 @@ Public Class Gui
     
         if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
     
-        xO = Windows(GetWindowIndex("winHotbar")).Window.Left
-        yO = Windows(GetWindowIndex("winHotbar")).Window.Top
+        xO = Windows(GetWindowIndex("winHotbar")).Left
+        yO = Windows(GetWindowIndex("winHotbar")).Top
 
         ' Render start + end wood
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
         For i = 1 To MAX_Hotbar
-            xO = Windows(GetWindowIndex("winHotbar")).Window.Left + GameState.HotbarLeft + ((i - 1) * GameState.HotbarOffsetX)
-            yO = Windows(GetWindowIndex("winHotbar")).Window.Top + GameState.HotbarTop
+            xO = Windows(GetWindowIndex("winHotbar")).Left + GameState.HotbarLeft + ((i - 1) * GameState.HotbarOffsetX)
+            yO = Windows(GetWindowIndex("winHotbar")).Top + GameState.HotbarTop
             Width = 36
             Height = 36
 
@@ -4103,8 +4090,8 @@ Public Class Gui
 
         StreamShop(GameState.InShop)
 
-        Xo = Windows(GetWindowIndex("winShop")).Window.Left
-        Yo = Windows(GetWindowIndex("winShop")).Window.Top
+        Xo = Windows(GetWindowIndex("winShop")).Left
+        Yo = Windows(GetWindowIndex("winShop")).Top
 
         If Not GameState.shopIsSelling Then
             ' render the shop items
@@ -4174,10 +4161,10 @@ Public Class Gui
     Public Shared Sub DrawShopBackground()
         Dim Xo As Long, Yo As Long, Width As Long, Height As Long, i As Long, Y As Long
 
-        Xo = Windows(GetWindowIndex("winShop")).Window.Left
-        Yo = Windows(GetWindowIndex("winShop")).Window.Top
-        Width = Windows(GetWindowIndex("winShop")).Window.Width
-        Height = Windows(GetWindowIndex("winShop")).Window.Height
+        Xo = Windows(GetWindowIndex("winShop")).Left
+        Yo = Windows(GetWindowIndex("winShop")).Top
+        Width = Windows(GetWindowIndex("winShop")).Width
+        Height = Windows(GetWindowIndex("winShop")).Height
 
         ' render green
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
@@ -4209,10 +4196,10 @@ Public Class Gui
 
         if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
     
-        Xo = Windows(GetWindowIndex("winBank")).Window.Left
-        Yo = Windows(GetWindowIndex("winBank")).Window.Top
-        width = Windows(GetWindowIndex("winBank")).Window.Width
-        height = Windows(GetWindowIndex("winBank")).Window.Height
+        Xo = Windows(GetWindowIndex("winBank")).Left
+        Yo = Windows(GetWindowIndex("winBank")).Top
+        width = Windows(GetWindowIndex("winBank")).Width
+        height = Windows(GetWindowIndex("winBank")).Height
 
         ' render green
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, width - 8, height - 27, 4, 4)
@@ -4276,10 +4263,10 @@ Public Class Gui
     Shared Sub DrawTrade()
         Dim Xo As Long, Yo As Long, Width As Long, Height As Long, i As Long, Y As Long, X As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top
-        Width = Windows(GetWindowIndex("winTrade")).Window.Width
-        Height = Windows(GetWindowIndex("winTrade")).Window.Height
+        Xo = Windows(GetWindowIndex("winTrade")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top
+        Width = Windows(GetWindowIndex("winTrade")).Width
+        Height = Windows(GetWindowIndex("winTrade")).Height
 
         ' render green
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
@@ -4329,8 +4316,8 @@ Public Class Gui
         Dim i As Long, ItemNum As Long, ItemPic As Long, Top As Long, Left As Long, Color As Long, Amount As String, X As Long, Y As Long
         Dim Xo As Long, Yo As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
+        Xo = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picYour")).Top
 
         ' your items
         For i = 1 To MAX_INV
@@ -4374,8 +4361,8 @@ Public Class Gui
         Dim i As Long, ItemNum As Long, ItemPic As Long, Top As Long, Left As Long, Color As Long, Amount As String, X As Long, Y As Long
         Dim Xo As Long, Yo As Long
 
-        Xo = Windows(GetWindowIndex("winTrade")).Window.Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Left
-        Yo = Windows(GetWindowIndex("winTrade")).Window.Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Top
+        Xo = Windows(GetWindowIndex("winTrade")).Left + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Left
+        Yo = Windows(GetWindowIndex("winTrade")).Top + Windows(GetWindowIndex("winTrade")).Controls(GetControlIndex("winTrade", "picTheir")).Top
 
         ' their items
         For i = 1 To MAX_INV
@@ -4413,22 +4400,26 @@ Public Class Gui
         Next
     End Sub
     
-    Public Shared Sub UpdateActiveControl(modifiedControl As ControlStruct)
-        Dim activeWindow = Gui.Windows(Gui.ActiveWindow)
+    Public Shared Sub UpdateActiveControl(ByVal modifiedControl As Control)
+        ' Retrieve the active window
+        Dim activeWindow As Window = Windows(Gui.ActiveWindow)
 
-        ' Reassign the modified control back into the active window
-        activeWindow.Controls(activeWindow.ActiveControl) = modifiedControl
+        ' Update the control within the active window's Controls array
+        activeWindow.Controls(Window.ActiveControl) = modifiedControl
 
-        ' Save the modified window back into the Gui system
-        Gui.Windows(Gui.ActiveWindow) = activeWindow
+        ' Save the modified window back to the Guis array
+        Windows(Gui.ActiveWindow) = activeWindow
     End Sub
 
-    Public Shared Function GetActiveControl() As Nullable(Of ControlStruct)
-        If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Window.Visible = True AndAlso Gui.Windows(Gui.ActiveWindow).ActiveControl >= 0 Then
-            ' Return the active control
-            Return Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
+    Public Shared Function GetActiveControl() As Control
+        ' Ensure there is an active window and an active control within that window
+        If ActiveWindow > 0 AndAlso Windows.ContainsKey(Gui.ActiveWindow) AndAlso Windows(Gui.ActiveWindow).ActiveControl > 0 Then
+            ' Return the active control from the active window
+            Return Windows(ActiveWindow).Controls(Windows(Gui.ActiveWindow).ActiveControl)
         End If
-        Return Nothing ' No active control found
+
+        ' No active control found, return Nothing
+        Return Nothing
     End Function
 
 

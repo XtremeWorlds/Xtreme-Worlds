@@ -325,7 +325,7 @@ Public Class GameClient
                         Function(cmd) cmd.EntityID = newCommand.EntityID)
 
                     If matchingCommand IsNot Nothing Then
-                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Window.Visible = True
+                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Visible = True
                             Batches.TryRemove(key, batchToUpdate)
                             Continue For
                         End If
@@ -577,25 +577,25 @@ Public Class GameClient
                 If GameState.InMenu = True Then Exit Sub
 
                 ' Hide options screen
-                If Gui.Windows(Gui.GetWindowIndex("winOptions")).Window.Visible = True Then
+                If Gui.Windows(Gui.GetWindowIndex("winOptions")).Visible = True Then
                     Gui.HideWindow(Gui.GetWindowIndex("winOptions"))
                     Gui.CloseComboMenu()
                     Exit Sub
                 End If
 
                 ' hide/show chat window
-                If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True Then
+                If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then
                     Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
                     HideChat()
                     Exit Sub
                 End If
 
-                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Window.Visible = True Then
+                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then
                     Gui.HideWindow(Gui.GetWindowIndex("winEscMenu"))
                     Exit Sub
                 Else
                     ' show them
-                    If Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = False Then
+                    If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = False Then
                         Gui.ShowWindow(Gui.GetWindowIndex("winEscMenu"), True)
                         Exit Sub
                     End If
@@ -616,25 +616,25 @@ Public Class GameClient
             HandleTextInput()
             
             If GameState.InGame = True Then
-                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Window.Visible = True Then Exit Sub
+                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
             
                 If GameClient.IsKeyStateActive(Keys.I) Then
                     ' hide/show inventory
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True Then Gui.btnMenu_Inv
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv
                 End If
                 
                 If GameClient.IsKeyStateActive(Keys.C) Then
                     ' hide/show char
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True Then Gui.btnMenu_Char
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char
                 End If
             
                 If GameClient.IsKeyStateActive(Keys.K) Then
                     ' hide/show skills
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Window.Visible = True Then Gui.btnMenu_Skills
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills
                 End If
             
                 If GameClient.IsKeyStateActive(Keys.Enter)
-                    If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Window.Visible = True
+                    If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True
                         ShowChat()
                         GameState.inSmallChat = 0
                         Exit Sub
@@ -646,12 +646,12 @@ Public Class GameClient
         End SyncLock
     End Sub
     
-      Private Sub HandleActiveWindowInput()
+    Private Sub HandleActiveWindowInput()
         Dim key As Keys
 
         SyncLock GameClient.InputLock
             ' Check if there is an active window and that it is visible.
-            If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Window.Visible = True
+            If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Visible Then
                 ' Check if an active control exists.
                 If Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
                     ' Get the active control.
@@ -662,10 +662,12 @@ Public Class GameClient
                     If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
                         ' Handle Enter: Call the control's callback or activate a new control.
                         If activeControl.CallBack(EntState.Enter) IsNot Nothing Then
-                            activeControl.CallBack(EntState.Enter) = Nothing
+                            activeControl.CallBack(EntState.Enter).Invoke()
                         Else
-                            Dim n As Integer = Gui.ActivateControl()
-                            If n = 0 Then Gui.ActivateControl(n, False)
+                            ' If no callback, activate a new control.
+                            If Gui.ActivateControl() = 0 Then
+                                Gui.ActivateControl(0, False)
+                            End If
                         End If
                     End If
 
@@ -673,8 +675,9 @@ Public Class GameClient
                     key = Keys.Tab
                     If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
                         ' Handle Tab: Switch to the next control.
-                        Dim n As Integer = Gui.ActivateControl()
-                        If n = 0 Then Gui.ActivateControl(n, False)
+                        If Gui.ActivateControl() = 0 Then
+                            Gui.ActivateControl(0, False)
+                        End If
                     End If
                 End If
             End If
@@ -704,13 +707,10 @@ Public Class GameClient
                     If key = Keys.Back Then
                         Dim activeControl = Gui.GetActiveControl()
 
-                        If activeControl.HasValue AndAlso Not activeControl.Value.Locked AndAlso activeControl.Value.Text.Length > 0 Then
-                            ' Modify the text inside the struct and update it back in the window
-                            Dim modifiedControl = activeControl.Value
-                            modifiedControl.Text = modifiedControl.Text.Substring(0, modifiedControl.Text.Length - 1)
-
-                            ' Save the modified control back into the window
-                            Gui.UpdateActiveControl(modifiedControl)
+                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Text.Length > 0 Then
+                            ' Modify the text and update it back in the window
+                            activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
+                            Gui.UpdateActiveControl(activeControl)
                         End If
                         Continue For ' Move to the next key
                     End If
@@ -722,13 +722,10 @@ Public Class GameClient
                     If character.HasValue Then
                         Dim activeControl = Gui.GetActiveControl()
 
-                        If activeControl.HasValue AndAlso Not activeControl.Value.Locked AndAlso activeControl.Value.Text.Length < activeControl.Value.Length Then
-                            ' Modify the control's text
-                            Dim modifiedControl = activeControl.Value
-                            modifiedControl.Text &= character.Value
-
-                            ' Save the modified control back into the window
-                            Gui.UpdateActiveControl(modifiedControl)
+                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked Then
+                            ' Append character to the control's text
+                            activeControl.Text &= character.Value
+                            Gui.UpdateActiveControl(activeControl)
                         End If
                     End If
                 ElseIf KeyStates.ContainsKey(key) Then
@@ -2079,13 +2076,13 @@ Public Class GameClient
 
         GameClient.DrawBars()
         DrawMapFade()
-        Gui.RenderEntities()
+        Gui.Render()
         GameClient.RenderTexture(IO.Path.Combine(Core.Path.Misc, "Cursor"), GameState.CurMouseX, GameState.CurMouseY, 0, 0, 16, 16, 32, 32)
     End Sub
 
     Friend Sub Render_Menu()
         Gui.DrawMenuBG()
-        Gui.RenderEntities()
+        Gui.Render()
         GameClient.RenderTexture(IO.Path.Combine(Core.Path.Misc, "Cursor"), GameState.CurMouseX, GameState.CurMouseY, 0, 0, 16, 16, 32, 32)
     End Sub
 End Class

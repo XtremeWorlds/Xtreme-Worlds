@@ -867,64 +867,11 @@ Public Module Type
         Dim EventId As Integer
     End Structure
 
-    Public Structure ControlStruct
-        Dim Name As String
-        Dim Type As Byte
-        Dim Top As Long
-        Dim Left As Long
-        Dim Width As Long
-        Dim Height As Long
-        Dim Enabled As Boolean
-        Dim Visible As Boolean
-        Dim CanDrag As Boolean
-        Dim Max As Long
-        Dim Min As Long
-        Dim Value As Long
-        Dim Text As String
-        Dim Length As String
-        Dim Image() As Long
-        Dim Texture() As String
-        Dim Design() As Long
-        Dim Color As Microsoft.Xna.Framework.Color
-        Dim Alpha As Long
-        Dim ClickThrough As Boolean
-        Dim Icon As Long
-        Dim xOffset As Long
-        Dim yOffset As Long
-        Dim Align As Byte
-        Dim Font As FontType
-        Dim zChange As Byte
-        Dim OnDraw As Action
-        Dim OrigLeft As Long
-        Dim OrigTop As Long
-        Dim Tooltip As String
-        Dim Group As Long
-        Dim List() As String
-        Dim Activated As Boolean
-        Dim LinkedToWin As Long
-        Dim LinkedToCon As Long
-        Dim State As EntState
-        Dim movedX As Long
-        Dim movedY As Long
-        Dim zOrder As Long
-        Dim Censor As Boolean
-        Dim Locked As Boolean
-        Dim CallBack() As Action
-    End Structure
-
     Public Structure ControlPartStruct
         Dim Type As PartType
         Dim Origin As PartOriginType
         Dim Value As Long
         Dim Slot As Long
-    End Structure
-
-    Public Structure WindowStruct
-        Dim Window As ControlStruct
-        Dim Controls() As ControlStruct
-        Dim ControlCount As Long
-        Dim ActiveControl As Long
-        Dim LastControl As Long
     End Structure
 
     Public Structure CSMapStruct
