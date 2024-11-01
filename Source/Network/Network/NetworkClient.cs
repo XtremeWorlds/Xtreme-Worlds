@@ -125,6 +125,24 @@ namespace Mirage.Sharp.Asfw.Network
         this._connecting = false;
         return;
       }
+      
+      this._connecting = false;
+      this.ConnectionSuccess?.Invoke();
+
+      this._socket.ReceiveBufferSize = this._packetSize;
+      this._socket.SendBufferSize = this._packetSize;
+
+      if (!this.ThreadControl)
+      {
+        try
+        {
+          this.BeginReceiveData();
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Error starting data reception: {ex.Message}");
+        }
+      }
     }
 
     public bool IsConnected => this._socket != null && this._socket.Connected;

@@ -319,7 +319,7 @@ namespace Mirage.Sharp.Asfw.Network
     }
 
     // Append received data to the ring buffer
-    AppendToRingBuffer(asyncState, receivedLength);
+    AppendToRingBuffer(ref asyncState, receivedLength);
 
     // Check for buffer overflow
     if (this.BufferLimit > 0 && asyncState.RingBuffer.Length > this.BufferLimit)
@@ -367,23 +367,25 @@ namespace Mirage.Sharp.Asfw.Network
       this.Disconnect(index);
       state.Dispose();
   }
-
+  
   // Append new data to the ring buffer safely
-  private void AppendToRingBuffer(NetworkServer.ReceiveState state, int length)
+  private void AppendToRingBuffer(ref NetworkServer.ReceiveState state, int length)
   {
-      if (state.RingBuffer == null)
-      {
-          state.RingBuffer = new byte[length];
-          Buffer.BlockCopy(state.Buffer, 0, state.RingBuffer, 0, length);
-      }
-      else
-      {
-          int oldLength = state.RingBuffer.Length;
-          byte[] newBuffer = new byte[oldLength + length];
-          Buffer.BlockCopy(state.RingBuffer, 0, newBuffer, 0, oldLength);
-          Buffer.BlockCopy(state.Buffer, 0, newBuffer, oldLength, length);
-          state.RingBuffer = newBuffer;
-      }
+    if (state.RingBuffer == null)
+    {
+      // Initialize RingBuffer if it's null
+      state.RingBuffer = new byte[length];
+      Buffer.BlockCopy(state.Buffer, 0, state.RingBuffer, 0, length);
+    }
+    else
+    {
+      // Expand RingBuffer if it already has data
+      int oldLength = state.RingBuffer.Length;
+      byte[] newBuffer = new byte[oldLength + length];
+      Buffer.BlockCopy(state.RingBuffer, 0, newBuffer, 0, oldLength);
+      Buffer.BlockCopy(state.Buffer, 0, newBuffer, oldLength, length);
+      state.RingBuffer = newBuffer;
+    }
   }
 
     private void PacketHandler(ref NetworkServer.ReceiveState so)
