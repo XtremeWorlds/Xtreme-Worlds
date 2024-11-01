@@ -33,7 +33,7 @@ Friend Module S_NetworkConfig
     Function IsMultiAccounts(Index As Integer, Login As String) As Boolean
         For i = 1 To Socket.HighIndex()
             If i <> Index then
-                If Type.Account(i).Login.ToLower() Then
+                If Type.Account(i).Login.ToLower() = login Then
                     Return True
                 End If
             End If
