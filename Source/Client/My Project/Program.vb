@@ -808,9 +808,9 @@ Public Class GameClient
             End If
             
             ' Check for MouseUp event (button released)
-            If Not GameClient.IsMouseButtonUp(button) Then
-                Gui.HandleInterfaceEvents(EntState.MouseUp)
-            End If
+            'If Not GameClient.IsMouseButtonUp(button) Then
+               ' Gui.HandleInterfaceEvents(EntState.MouseUp)
+            'End If
 
             ' Double-click detection for left button
             If button = MouseButton.Left AndAlso 
