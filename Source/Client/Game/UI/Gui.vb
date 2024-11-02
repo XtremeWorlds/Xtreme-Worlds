@@ -1008,11 +1008,6 @@ Public Class Gui
                             Case ControlType.Combobox
                                 ShowComboMenu(curWindow, curControl)
                         End Select
-
-                        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
-                            .movedX = GameState.CurMouseX - .Left
-                            .movedY = GameState.CurMouseY - .Top
-                        End If
                         
                         If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                             SetActiveControl(curWindow, curControl)
