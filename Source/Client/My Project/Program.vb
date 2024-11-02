@@ -441,8 +441,6 @@ Public Class GameClient
             MyBase.Update(gameTime)
             Return
         End If
-        
-        IsMouseVisible = True
 
         UpdateMouseCache()
         UpdateKeyCache()
