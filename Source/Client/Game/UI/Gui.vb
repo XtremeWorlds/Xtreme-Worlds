@@ -514,7 +514,7 @@ Public Class Gui
         If curWindow = 0 Then Exit Sub
         Windows(curWindow).Visible = True
 
-        If forced Then
+        If forced = True Then
             UpdateZOrder(curWindow, forced)
             activeWindow = curWindow
         ElseIf Windows(curWindow).zChange Then
@@ -1025,7 +1025,7 @@ Public Class Gui
             End If
 
             ' Reset mouse state on MouseUp
-            If entState = EntState.MouseUp Then ResetMouseDown()
+            If GameClient.IsMouseButtonUp(MouseButton.Left) Then ResetMouseDown()
         End SyncLock
 
         Return True
@@ -1046,21 +1046,22 @@ Public Class Gui
     Public Shared Sub ResetMouseDown()
         Dim callBack As Action
         Dim i As Long, x As Long
-
+        
         SyncLock GameClient.InputLock
             For i = 1 To Windows.Count
                 With Windows(i)
                     .State = EntState.Normal
                     callBack = .CallBack(EntState.Normal)
-
                     If callBack IsNot Nothing Then callBack?.Invoke()
 
                     ' Check if Controls is not Nothing and has at least one element
                     If .Controls IsNot Nothing AndAlso .Controls.Count > 0 Then
                         For x = 0 To .Controls.Count - 1
-                            .Controls(x).State = EntState.Normal
-                            callBack = .Controls(x).CallBack(EntState.Normal)
+                            Dim control = .Controls(x)
 
+                            control.State = EntState.Normal
+
+                            callBack = control.CallBack(control.State)
                             If callBack IsNot Nothing Then callBack?.Invoke()
                         Next
                     End If
@@ -1098,7 +1099,6 @@ Public Class Gui
         Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
         Dim textArray() As String, count As Long, i As Long, taddText As String
         Dim yOffset As Long
-        Dim stateNum As Long
 
         ' Check if the window and Control exist
         If winNum <= 0 Or winNum > Windows.Count OrElse entNum <= 0 Or entNum > Windows(winNum).Controls.Count - 1 Then
@@ -1110,33 +1110,24 @@ Public Class Gui
         yO = Gui.Windows(winNum).Top
 
         With Windows(winNum).Controls(entNum)
-            ' Render MouseUp as normal
-            If .State = EntState.MouseUp Then 
-                stateNum = EntState.Normal
-            Else 
-                stateNum = .State
-            End If
-            
             Select Case .Type
                 Case ControlType.PictureBox
-                    If .Design(stateNum) > 0 Then
-                        Gui.RenderDesign(.Design(stateNum), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
-                    End If
+                    Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
 
-                    If Not .Image(stateNum) = 0 Then
-                        GameClient.RenderTexture(IO.Path.Combine(.Texture(stateNum), .Image(stateNum)),
+                    If Not .Image(.State) = 0 Then
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                                  .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
                 Case ControlType.TextBox
                     ' Render the design if available
-                    If .Design(stateNum) > 0 Then
-                        RenderDesign(.Design(stateNum), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
+                    If .Design(.State) > 0 Then
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
                     End If
 
                     ' Render the image if present
-                    If Not .Image(stateNum) = 0 Then
-                        GameClient.RenderTexture(IO.Path.Combine(.Texture(stateNum), .Image(stateNum)),
+                    If Not .Image(.State) = 0 Then
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                                  .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
                     End If
 
@@ -1162,13 +1153,13 @@ Public Class Gui
 
                 Case ControlType.Button
                     ' Render the button design if defined
-                    If .Design(stateNum) > 0 Then
-                        RenderDesign(.Design(stateNum), .Left + xO, .Top + yO, .Width, .Height)
+                    If .Design(.State) > 0 Then
+                        RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height)
                     End If
 
                     ' Enqueue the button image if present
-                    If Not .Image(stateNum) = 0 Then
-                        GameClient.RenderTexture(IO.Path.Combine(.Texture(stateNum), .Image(stateNum)),
+                    If Not .Image(.State) = 0 Then
+                        GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                                  .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, )
                     End If
 
@@ -1179,7 +1170,7 @@ Public Class Gui
                             Dim iconWidth = gfxInfo.Width
                             Dim iconHeight = gfxInfo.Height
 
-                            GameClient.RenderTexture(IO.Path.Combine(.Texture(stateNum), .Icon),
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Icon),
                                                      .Left + xO + .xOffset, .Top + yO + .yOffset,
                                                      0, 0, iconWidth, iconHeight, iconWidth, iconHeight, )
                         End If
