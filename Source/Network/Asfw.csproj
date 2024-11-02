@@ -22,6 +22,8 @@
     <Version>$(VersionPrefix)</Version>
     <AssemblyVersion>$(AssemblyVersion)</AssemblyVersion>
     <FileVersion>$(AssemblyFileVersion)</FileVersion>
+    <DebugType>Full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

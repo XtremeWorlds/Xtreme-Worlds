@@ -6,6 +6,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Configurations>Release;Debug</Configurations>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <DebugType>Full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
