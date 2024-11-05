@@ -1004,10 +1004,15 @@ Public Class Gui
                 ' Handle active control
                 If curControl > 0 Then
                     With Windows(curWindow).Controls(curControl)
-                        If .State <> EntState.MouseDown Then
-                            .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
+                        ' Handle hover state separately
+                        If entState = EntState.MouseMove Then
+                            .State = EntState.Hover
+                        ElseIf entState = EntState.MouseDown Then
+                            .State = EntState.MouseDown
+                        Else
+                            .State = entState
                         End If
-
+                        
                         If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
                             .movedX = GameState.CurMouseX - .Left
                             .movedY = GameState.CurMouseY - .Top
@@ -1070,29 +1075,36 @@ Public Class Gui
     Public Shared Sub ResetMouseDown()
         Dim callBack As Action
         Dim i As Long, x As Long
-        
+
         SyncLock GameClient.InputLock
             For i = 1 To Windows.Count
                 With Windows(i)
-                    .State = EntState.Normal
-                    callBack = .CallBack(EntState.Normal)
-                    If callBack IsNot Nothing Then callBack?.Invoke()
+                    ' Only reset the state if it was in MouseDown
+                    If .State = EntState.MouseDown Then
+                        .State = EntState.Normal
+                        callBack = .CallBack(EntState.Normal)
+                        If callBack IsNot Nothing Then callBack?.Invoke()
+                    End If
 
                     ' Check if Controls is not Nothing and has at least one element
                     If .Controls IsNot Nothing AndAlso .Controls.Count > 0 Then
                         For x = 0 To .Controls.Count - 1
                             Dim control = .Controls(x)
 
-                            control.State = EntState.Normal
+                            ' Only reset the state if it was in MouseDown
+                            If control.State = EntState.MouseDown Then
+                                control.State = EntState.Normal
 
-                            callBack = control.CallBack(control.State)
-                            If callBack IsNot Nothing Then callBack?.Invoke()
+                                callBack = control.CallBack(control.State)
+                                If callBack IsNot Nothing Then callBack?.Invoke()
+                            End If
                         Next
                     End If
                 End With
             Next
         End SyncLock
     End Sub
+
 
     Public Shared Sub Render()
         ' Exit if no windows are present
@@ -1136,8 +1148,10 @@ Public Class Gui
         With Windows(winNum).Controls(entNum)
             Select Case .Type
                 Case ControlType.PictureBox
-                    Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
-
+                    If .Design(.State) > 0 Then
+                        Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
+                    End If
+                    
                     If Not .Image(.State) = 0 Then
                         GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                                  .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
