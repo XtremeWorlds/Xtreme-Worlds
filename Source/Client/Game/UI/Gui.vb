@@ -5,6 +5,7 @@ Imports System.Text.RegularExpressions
 Imports Core
 Imports Microsoft.Xna.Framework
 Imports Microsoft.Xna.Framework.Graphics
+Imports Microsoft.Xna.Framework.Input
 
 Public Class Gui
    ' GUI
@@ -17,6 +18,11 @@ Public Class Gui
     ' Used for automatically the zOrder
     Private Shared zOrder_Win As Long
     Private Shared zOrder_Con As Long
+    
+    ' Declare a timer to control when dragging can begin
+    Private Shared dragTimer As New Stopwatch()
+    Private Const dragInterval As Double = 50 ' Set the interval in milliseconds to start dragging
+    Private Shared canDrag As Boolean = False  ' Flag to control when dragging is allowed
 
     Public Class Window
         Public Property Name As String
@@ -918,6 +924,23 @@ Public Class Gui
     Public Shared Function HandleInterfaceEvents(entState As EntState) As Boolean
         Dim i As Long, curWindow As Long, curControl As Long, callBack As Action, x As Long
 
+        ' Check for MouseDown to start the drag timer
+        If GameClient.CurrentMouseState.LeftButton = ButtonState.Pressed AndAlso GameClient.PreviousMouseState.LeftButton = ButtonState.Released Then
+            dragTimer.Restart() ' Start the timer on initial mouse down
+            canDrag = False ' Reset drag flag to ensure it doesn't drag immediately
+        End If
+
+        ' Check for MouseUp to reset dragging
+        If GameClient.CurrentMouseState.LeftButton = ButtonState.Released Then
+            canDrag = False
+            dragTimer.Reset() ' Stop the timer on mouse up
+        End If
+
+        ' Enable dragging if the mouse has been held down for the specified interval
+        If Not canDrag AndAlso dragTimer.ElapsedMilliseconds >= dragInterval Then
+            canDrag = True
+        End If
+
         SyncLock GameClient.InputLock
             ' Find the container
             For i = 1 To Windows.Count
@@ -927,7 +950,7 @@ Public Class Gui
 
                         If GameState.CurMouseX >= .Left AndAlso GameState.CurMouseX <= .Width + .Left AndAlso
                            GameState.CurMouseY >= .Top AndAlso GameState.CurMouseY <= .Height + .Top Then
-                            
+
                             ' Handle combo menu logic
                             If .Design(0) = DesignType.ComboMenuNorm Then
                                 If entState = EntState.MouseMove OrElse entState = EntState.Hover Then
@@ -943,8 +966,8 @@ Public Class Gui
                             End If
                         End If
 
-                        ' Handle window dragging
-                        If entState = EntState.MouseMove AndAlso .CanDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
+                        ' Handle window dragging only if dragging is enabled
+                        If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
                             .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, GameState.ResolutionWidth - .Width)
                             .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, GameState.ResolutionHeight - .Height)
                         End If
@@ -958,7 +981,7 @@ Public Class Gui
                     With Windows(curWindow).Controls(i)
                         If .Enabled AndAlso .Visible Then
                             If .State <> EntState.MouseDown Then .State = EntState.Normal
-                            
+
                             If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
                                GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
                                GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
@@ -969,8 +992,8 @@ Public Class Gui
                                 End If
                             End If
 
-                            ' Handle control dragging
-                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
+                            ' Handle control dragging only if dragging is enabled
+                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
                                 .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, Windows(curWindow).Width - .Width)
                                 .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, Windows(curWindow).Height - .Height)
                             End If
@@ -984,7 +1007,7 @@ Public Class Gui
                         If .State <> EntState.MouseDown Then
                             .State = If(entState = EntState.MouseMove, EntState.Hover, entState)
                         End If
-                        
+
                         If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
                             .movedX = GameState.CurMouseX - .Left
                             .movedY = GameState.CurMouseY - .Top
@@ -1008,11 +1031,11 @@ Public Class Gui
                             Case ControlType.Combobox
                                 ShowComboMenu(curWindow, curControl)
                         End Select
-                        
+
                         If GameClient.IsMouseButtonDown(MouseButton.Left) Then
                             SetActiveControl(curWindow, curControl)
                         End If
-                        
+
                         callBack = .CallBack(entState)
                     End With
                 Else
@@ -1030,6 +1053,7 @@ Public Class Gui
 
         Return True
     End Function
+    
     Public Shared Sub ResetInterface()
         Dim i As Long, x As Long
 
