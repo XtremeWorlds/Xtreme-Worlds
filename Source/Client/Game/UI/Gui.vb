@@ -1009,8 +1009,6 @@ Public Class Gui
                             .State = EntState.Hover
                         ElseIf entState = EntState.MouseDown Then
                             .State = EntState.MouseDown
-                        Else
-                            .State = entState
                         End If
                         
                         If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
@@ -1075,7 +1073,7 @@ Public Class Gui
     Public Shared Sub ResetMouseDown()
         Dim callBack As Action
         Dim i As Long, x As Long
-
+        
         SyncLock GameClient.InputLock
             For i = 1 To Windows.Count
                 With Windows(i)
