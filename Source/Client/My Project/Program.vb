@@ -96,25 +96,34 @@ Public Class GameClient
     
     Public Sub New()
         GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
-    
+
         Graphics = New GraphicsDeviceManager(Me)
 
-        ' Set basic properties
-        Graphics.PreferHalfPixelOffset = True
-        Graphics.PreferMultiSampling = True
-        Graphics.PreferredBackBufferWidth = GameState.ResolutionWidth
-        Graphics.PreferredBackBufferHeight = GameState.ResolutionHeight
-        Graphics.SynchronizeWithVerticalRetrace = Settings.Vsync
+        ' Set basic properties for GraphicsDeviceManager
+        With Graphics
+            .IsFullScreen = Settings.FullScreen
+            .PreferredBackBufferWidth = GameState.ResolutionWidth
+            .PreferredBackBufferHeight = GameState.ResolutionHeight
+            .SynchronizeWithVerticalRetrace = Settings.Vsync
+            .HardwareModeSwitch = False
+            .PreferHalfPixelOffset = True
+            .PreferMultiSampling = True
+        End With
 
-        ' Add handler for PreparingDeviceSettings to modify the PresentationParameters
+        ' Add handler for PreparingDeviceSettings
         AddHandler Graphics.PreparingDeviceSettings, Sub(sender, args)
             args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8
+
+            ' Ensure the window handle is valid before setting it
+            Dim hwnd As IntPtr = Me.Window.Handle
+            If hwnd <> IntPtr.Zero Then
+                args.GraphicsDeviceInformation.PresentationParameters.DeviceWindowHandle = hwnd
+            Else
+                Debug.WriteLine("Warning: Window handle is not set yet.")
+            End If
         End Sub
 
-        ' Apply changes to ensure the window resizes
-        Graphics.ApplyChanges()
-        
 #If DEBUG Then
         Me.IsMouseVisible = True
 #End If
@@ -125,7 +134,6 @@ Public Class GameClient
         AddHandler Me.Exiting, AddressOf OnWindowClose
         AddHandler Graphics.DeviceReset, AddressOf OnDeviceReset
     End Sub
-
     
     Protected Overrides Sub Initialize()
         Window.Title = Settings.GameName
@@ -140,6 +148,14 @@ Public Class GameClient
             DepthFormat.Depth24)
         
         InitializeMultiplyBlendState()
+        
+        ' Apply changes to GraphicsDeviceManager
+        Try
+            Graphics.ApplyChanges()
+        Catch ex As Exception
+            Debug.WriteLine($"GraphicsDevice initialization failed: {ex.Message}")
+            Throw
+        End Try
 
         MyBase.Initialize()
     End Sub
