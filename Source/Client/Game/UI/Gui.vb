@@ -482,7 +482,12 @@ Public Class Gui
         Dim currentActive As Integer = Windows(activeWindow).ActiveControl
         Dim lastControl As Integer = Windows(activeWindow).LastControl
 
-        ' Attempt to activate the next available control
+        ' Ensure the starting index is correct
+        If startIndex <= currentActive Then
+            startIndex = currentActive + 1
+        End If
+
+        ' Attempt to activate the next available control, starting from the given index
         For i As Integer = startIndex To Windows(activeWindow).Controls.Count - 1
             If i <> currentActive AndAlso (Not skipLast OrElse i <> lastControl) Then
                 If SetActiveControl(activeWindow, i) Then
@@ -491,13 +496,23 @@ Public Class Gui
             End If
         Next
 
-        ' If no control was activated and skipping the last control, try again without skipping
+        ' If we reached the end, wrap around and start from the beginning
+        For i As Integer = 0 To startIndex - 1
+            If i <> currentActive AndAlso (Not skipLast OrElse i <> lastControl) Then
+                If SetActiveControl(activeWindow, i) Then
+                    Return i  ' Return the index of the control that was activated
+                End If
+            End If
+        Next
+
+        ' No control was activated, return 0 or handle as needed
         If skipLast Then
-            Return ActivateControl(0, False)  ' Recursive call without skipping the last control
-        Else 
-            Return 0
+            Return ActivateControl(0, False)  ' Retry without skipping the last control
+        Else
+            Return 0  ' Indicate no control was activated
         End If
     End Function
+
 
     Public Shared Sub CentralizeWindow(curWindow As Long)
         With Windows(curWindow)
