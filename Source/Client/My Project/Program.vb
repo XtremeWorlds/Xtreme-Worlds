@@ -96,16 +96,28 @@ Public Class GameClient
     
     Public Sub New()
         GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
-        
+    
         Graphics = New GraphicsDeviceManager(Me)
 
-        ' Set the desired window size
+        ' Set basic properties
+        Graphics.PreferHalfPixelOffset = True
+        Graphics.PreferMultiSampling = True
         Graphics.PreferredBackBufferWidth = GameState.ResolutionWidth
         Graphics.PreferredBackBufferHeight = GameState.ResolutionHeight
         Graphics.SynchronizeWithVerticalRetrace = Settings.Vsync
- 
+
+        ' Add handler for PreparingDeviceSettings to modify the PresentationParameters
+        AddHandler Graphics.PreparingDeviceSettings, Sub(sender, args)
+            args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents
+            args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8
+        End Sub
+
         ' Apply changes to ensure the window resizes
         Graphics.ApplyChanges()
+        
+#If DEBUG Then
+        Me.IsMouseVisible = True
+#End If
 
         Content.RootDirectory = "Content"
 
@@ -113,6 +125,7 @@ Public Class GameClient
         AddHandler Me.Exiting, AddressOf OnWindowClose
         AddHandler Graphics.DeviceReset, AddressOf OnDeviceReset
     End Sub
+
     
     Protected Overrides Sub Initialize()
         Window.Title = Settings.GameName
