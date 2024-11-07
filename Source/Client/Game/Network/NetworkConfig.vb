@@ -12,8 +12,8 @@ Friend Module NetworkConfig
             ' Start the connection attempt.
             AddHandler Socket.ConnectionSuccess, AddressOf OnConnectionSuccess
             AddHandler Socket.ConnectionFailed, AddressOf OnConnectionFailed
-            
-            Socket.Connect("127.0.0.1", Settings.Port) ' Adjust IP and port as needed
+
+            Socket.Connect(Settings.Ip, Settings.Port) ' Adjust IP and port as needed
         Catch ex As Exception
             Console.WriteLine($"Network initialization failed: {ex.Message}")
         End Try
@@ -38,15 +38,15 @@ Friend Module NetworkConfig
 #Region " Events "
 
     Private Sub Socket_ConnectionSuccess() Handles Socket.ConnectionSuccess
-
+        Console.WriteLine("Connection sucess.")
     End Sub
 
     Private Sub Socket_ConnectionFailed() Handles Socket.ConnectionFailed
-        
+        Console.WriteLine("Connection failed.")
     End Sub
 
     Private Sub Socket_ConnectionLost() Handles Socket.ConnectionLost
-        
+        Console.WriteLine("Connection lost.")
     End Sub
 
     Private Sub Socket_CrashReport(err As String) Handles Socket.CrashReport
