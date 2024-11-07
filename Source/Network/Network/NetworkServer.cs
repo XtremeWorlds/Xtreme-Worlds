@@ -195,50 +195,52 @@ namespace Mirage.Sharp.Asfw.Network
 
     public void StartListening(int port, int backlog)
     {
-      if (this._socket == null || this.IsListening || this._listener != null)
-        return;
-      this._listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-      this._listener.NoDelay = true;
-      this._listener?.Bind((EndPoint) new IPEndPoint(IPAddress.Any, port));
-      this.IsListening = true;
-      this._listener.Listen(backlog);
-      this.ListenManager();
+        if (this._socket == null || this.IsListening || this._listener != null)
+            return;
+        this._listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        this._listener.NoDelay = true;
+        this._listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true); // Enable SO_KEEPALIVE
+        this._listener.Bind(new IPEndPoint(IPAddress.Any, port));
+        this.IsListening = true;
+        this._listener.Listen(backlog);
+        this.ListenManager();
     }
 
     public void StopListening()
     {
-      if (!this.IsListening || this._socket == null)
+        if (!this.IsListening || this._socket == null)
         return;
-      this.IsListening = false;
-      if (this._listener == null)
+        this.IsListening = false;
+        if (this._listener == null)
         return;
-      this._listener.Close();
-      this._listener.Dispose();
-      this._listener = (Socket) null;
+        this._listener.Close();
+        this._listener.Dispose();
+        this._listener = (Socket) null;
     }
 
     private void DoAcceptClient(IAsyncResult ar)
     {
-      try
-      {
-        Socket socket = this.EndAccept(ar);
-        if (socket != null)
+        try
         {
-          int emptySlot = this.FindEmptySlot(this.MinimumIndex);
-          this._socket.Add(emptySlot, socket);
-          this._socket[emptySlot].ReceiveBufferSize = this._packetSize;
-          this._socket[emptySlot].SendBufferSize = this._packetSize;
-          this.BeginReceiveData(emptySlot);
-          NetworkServer.ConnectionArgs connectionReceived = this.ConnectionReceived;
-          if (connectionReceived != null)
-            connectionReceived(emptySlot);
+            Socket socket = this.EndAccept(ar);
+            if (socket != null)
+            {
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true); // Enable SO_KEEPALIVE for the client socket
+                int emptySlot = this.FindEmptySlot(this.MinimumIndex);
+                this._socket.Add(emptySlot, socket);
+                this._socket[emptySlot].ReceiveBufferSize = this._packetSize;
+                this._socket[emptySlot].SendBufferSize = this._packetSize;
+                this.BeginReceiveData(emptySlot);
+                NetworkServer.ConnectionArgs connectionReceived = this.ConnectionReceived;
+                if (connectionReceived != null)
+                    connectionReceived(emptySlot);
+            }
         }
-      }
-      catch
-      {
-        return;
-      }
-      this.ListenManager();
+        catch
+        {
+            return;
+        }
+        this.ListenManager();
     }
 
     private Socket EndAccept(IAsyncResult ar = null)
