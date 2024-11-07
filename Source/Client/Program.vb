@@ -87,13 +87,15 @@ Public Class GameClient
         Public Height As Integer
     End Class
 
-    ' Method to retrieve a GfxInfo object safely
     Public Shared Function GetGfxInfo(key As String) As GfxInfo
         Dim result As GfxInfo = Nothing
-        GfxInfoCache.TryGetValue(key, result)
+        If Not GfxInfoCache.TryGetValue(key, result) Then
+            ' Log or handle the case where the key is not found
+            Debug.WriteLine($"Warning: GfxInfo for key '{key}' not found in cache.")
+        End If
         Return result
     End Function
-    
+
     Public Sub New()
         GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
 
@@ -270,10 +272,9 @@ Public Class GameClient
         ' Retrieve the texture
         Dim texture = GetTexture(path)
         If texture Is Nothing Then
-            Console.WriteLine($"Texture not found: {path}")
             Return
         End If
-        
+
         SyncLock batchLock
             TextureCounter += 1
             
@@ -317,10 +318,9 @@ Public Class GameClient
         ' Retrieve the texture
         Dim texture = GameClient.GetTexture(path)
         If texture Is Nothing Then
-            Console.WriteLine($"Texture not found: {path}")
             Return
         End If
-        
+
         SpriteBatch.Draw(texture, dRect, sRect, Color)
     End Sub
     

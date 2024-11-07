@@ -322,6 +322,10 @@ Public Class Gui
         Dim texture As New List(Of String)(Enumerable.Repeat(Path.Designs, EntState.Count).ToList())
         Dim callback As New List(Of Action)(Enumerable.Repeat(Of Action)(Nothing, EntState.Count).ToList())
 
+        If texturePath = "" Then
+            texturePath = Path.Gui
+        End If
+
         ' fill temp arrays
         design(EntState.Normal) = design_norm
         design(EntState.Hover) = design_hover
@@ -597,7 +601,7 @@ Public Class Gui
         UpdateLabel(Windows.Count, "lblPassword", 72, 75, 142, 10, "Password", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' Textboxes
-        If Settings.SaveUsername Then
+        If Settings.SaveUsername = True Then
             UpdateTextbox(Windows.Count, "txtUsername", 67, 55, 142, 19, Settings.Username, FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
         Else
             UpdateTextbox(Windows.Count, "txtUsername", 67, 55, 142, 19, "", FontType.Arial, AlignmentType.Left, , , , 5, 3, , , , DesignType.TextWhite, DesignType.TextWhite, DesignType.TextWhite)
@@ -1164,7 +1168,7 @@ Public Class Gui
                     If .Design(.State) > 0 Then
                         Gui.RenderDesign(.Design(.State), .Left + xO, .Top + yO, .Width, .Height, .Alpha)
                     End If
-                    
+
                     If Not .Image(.State) = 0 Then
                         GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Image(.State)),
                                                  .Left + xO, .Top + yO, 0, 0, .Width, .Height, .Width, .Height, .Alpha)
