@@ -319,7 +319,7 @@ mapsync:
             Gui.ResizeGUI()
             
             ' Signal that loading is complete
-            SyncLock GameClient.loadLock
+            SyncLock GameClient.LoadLock
                 if GameClient.IsLoading Then
                     GameClient.isLoading = 0
                 End If

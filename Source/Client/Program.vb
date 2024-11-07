@@ -1,10 +1,10 @@
-﻿Imports Microsoft.Xna.Framework
+﻿Imports System.Collections.Concurrent
+Imports System.IO
+Imports System.Threading
+Imports Core
+Imports Microsoft.Xna.Framework
 Imports Microsoft.Xna.Framework.Graphics
 Imports Microsoft.Xna.Framework.Input
-Imports Core
-Imports System.IO
-Imports System.Collections.Concurrent
-Imports System.Threading
 
 Public Class GameClient
     Inherits Game
@@ -22,20 +22,20 @@ Public Class GameClient
     Public Shared Batches As New ConcurrentDictionary(Of Integer, RenderBatch)()
     Public Shared ReadOnly BatchLock As New Object()
     
-    Private Shared gameFps As Integer
+    Private Shared _gameFps As Integer
     Private Shared ReadOnly FpsLock As New Object()
 
     ' Safely set FPS with a lock
     Public Shared Sub SetFps(newFps As Integer)
         SyncLock FpsLock
-            gameFps = newFps
+            _gameFps = newFps
         End SyncLock
     End Sub
 
     ' Safely get FPS with a lock
     Public Shared Function GetFps() As Integer
         SyncLock FpsLock
-            Return gameFps
+            Return _gameFps
         End SyncLock
     End Function
 
@@ -48,7 +48,7 @@ Public Class GameClient
     
     ' ManualResetEvent to signal when loading is complete
     Public Shared IsLoading As Boolean = True
-    Public Shared ReadOnly loadLock As New Object()
+    Public Shared ReadOnly LoadLock As New Object()
     
     ' State tracking variables
     ' Shared keyboard and mouse states for cross-thread access
@@ -213,7 +213,7 @@ Public Class GameClient
         loadingCompleted.Set()
     End Sub
 
-    Public Function LoadFont(path As String, font As FontType) As SpriteFont
+    Public Function LoadFont(path As String, font As [Enum].FontType) As SpriteFont
         Return Content.Load(Of SpriteFont)(IO.Path.Combine(path, font))
     End Function
 
@@ -414,7 +414,7 @@ Public Class GameClient
     Protected Overrides Sub Draw(gameTime As GameTime)
         Graphics.GraphicsDevice.Clear(Color.Black)
 
-        SyncLock loadLock
+        SyncLock LoadLock
             If IsLoading = True then Exit Sub
         End SyncLock
         
@@ -470,7 +470,7 @@ Public Class GameClient
             TakeScreenshot()
         End If
         
-        SetFps(gameFps + 1)
+        SetFps(_gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
         
         If elapsedTime.TotalSeconds >= 1 Then
