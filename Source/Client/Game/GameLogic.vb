@@ -1742,8 +1742,20 @@ Continue1:
 
     Friend Sub UpdateCamera()
         Dim lerpSpeed As Double = 0.05 ' Lerp speed for smooth camera movement
-        Dim mapMaxWidth As Double = MyMap.MaxX * GameState.TileSize
-        Dim mapMaxHeight As Double = MyMap.MaxY * GameState.TileSize
+        Dim mapMaxWidth As Double
+        Dim mapMaxHeight As Double
+
+        Try
+            mapMaxWidth = MyMap.MaxX * GameState.TileSize
+            mapMaxHeight = MyMap.MaxY * GameState.TileSize
+            If mapMaxWidth > Double.MaxValue Then
+                Throw New OverflowException()
+            End If
+        Catch ex As OverflowException
+            ' Handle the overflow exception
+            mapMaxWidth = Double.MaxValue
+            mapMaxHeight = Double.MaxValue
+        End Try
 
         ' Get player's position in pixels
         Dim playerPosX As Double = GetPlayerX(GameState.MyIndex)

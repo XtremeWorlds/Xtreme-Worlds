@@ -1,4 +1,5 @@
-﻿Imports Core
+﻿Imports System.Text
+Imports Core
 Imports Microsoft.Xna.Framework
 Imports Microsoft.Xna.Framework.Content
 Imports Microsoft.Xna.Framework.Graphics
@@ -21,10 +22,23 @@ Module Text
         Return New String("*"c, input.Length)
     End Function
 
+    Public Function SanitizeText(text As String, font As SpriteFont) As String
+        Dim sanitizedText As New StringBuilder()
+        For Each ch As Char In text
+            If font.Characters.Contains(ch) Then
+                sanitizedText.Append(ch)
+            Else
+                sanitizedText.Append("?"c) ' Replace unsupported characters with a placeholder
+            End If
+        Next
+        Return sanitizedText.ToString()
+    End Function
+
     ' Get the width of the text with optional scaling
     Public Function TextWidth(text As String, Optional font As FontType = FontType.Georgia, Optional textSize As Single = 1.0F) As Integer
         If Not Fonts.ContainsKey(font) Then Throw New ArgumentException("Font not found.")
-        Dim textDimensions = Fonts(font).MeasureString(text)
+        Dim sanitizedText = SanitizeText(text, Fonts(font))
+        Dim textDimensions = Fonts(font).MeasureString(sanitizedText)
         Return CInt(textDimensions.X * textSize)
     End Function
 
@@ -230,10 +244,10 @@ Module Text
 
     Public Sub RenderText(text As String, x As Integer, y As Integer,
                                frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia)
-        
-        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X + 1, Y + 1), backColor,
+
+        GameClient.SpriteBatch.DrawString(Fonts(font), text, New Vector2(x + 1, y + 1), backColor,
                                0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
-        GameClient.SpriteBatch.DrawString(Fonts(font), Text, New Vector2(X, Y), frontColor,
+        GameClient.SpriteBatch.DrawString(Fonts(font), text, New Vector2(x, y), frontColor,
                                0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
     End Sub
 
@@ -243,23 +257,22 @@ Module Text
         Dim color As Color, backColor As Color
         Dim npcNum As Integer
 
-        npcNum = MyMapNPC(MapNPCNum).Num
+        npcNum = MyMapNPC(MapNpcNum).Num
 
-        Select Case Type.NPC(NPCNum).Behaviour
+        Select Case Type.NPC(npcNum).Behaviour
             Case 0 ' attack on sight
                 color = Color.Red
                 backColor = Color.Black
             Case 1, 4 ' attack when attacked + guard
                 color = Color.Green
-                backcolor = Color.Black
+                backColor = Color.Black
             Case 2, 3, 5 ' friendly + shopkeeper + quest
                 color = Color.Yellow
                 backColor = Color.Black
         End Select
-
-        textX = ConvertMapX(MyMapNPC(MapNPCNum).X * GameState.PicX) + MyMapNPC(MapNPCNum).XOffset + (GameState.PicX \ 2) - (TextWidth((Type.NPC(NPCNum).Name))) / 2 - 2
-        If Type.NPC(NPCNum).Sprite < 1 Or Type.NPC(NPCNum).Sprite > GameState.NumCharacters Then
-            textY = ConvertMapY(MyMapNPC(MapNPCNum).Y * GameState.PicY) + MyMapNPC(MapNPCNum).YOffset - 16
+        textX = ConvertMapX(MyMapNPC(MapNpcNum).X * GameState.PicX) + MyMapNPC(MapNpcNum).XOffset + (GameState.PicX \ 2) - (TextWidth((Type.NPC(npcNum).Name))) / 2 - 2
+        If Type.NPC(npcNum).Sprite < 1 Or Type.NPC(npcNum).Sprite > GameState.NumCharacters Then
+            textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * GameState.PicY) + MyMapNPC(MapNpcNum).YOffset - 16
         Else
             textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * GameState.PicY) + MyMapNPC(MapNpcNum).YOffset - (GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, Type.NPC(npcNum).Sprite)).Height / 4) + 16
         End If

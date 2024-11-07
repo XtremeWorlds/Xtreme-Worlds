@@ -1138,7 +1138,7 @@ Public Class Gui
                     Gui.RenderWindow(i)
 
                     ' Render visible controls within the window
-                    For x = 1 To Windows(i).Controls.Count - 1
+                    For x = 0 To Windows(i).Controls?.Count - 1
                         If Windows(i).Controls(x).Visible Then
                             Gui.RenderControl(i, x)
                         End If
@@ -2113,12 +2113,13 @@ Public Class Gui
         ' Wrap text to fit within 330 pixels
         WordWrap(text, Windows(GetWindowIndex("winJob")).Font, 330, textArray)
 
-        ' Render each line of the wrapped text
         count = UBound(textArray)
         y = yO + 60
         For I = 1 To count
             x = xO + 118 + (200 \ 2) - (TextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Font) \ 2)
-            Dim actualSize = Fonts(Windows(GetWindowIndex("winJob")).Font).MeasureString(textArray(I))
+            ' Render each line of the wrapped text
+            Dim sanitizedText As String = New String(textArray(I).Where(Function(c) Fonts(Windows(GetWindowIndex("winJob")).Font).Characters.Contains(c)).ToArray())
+            Dim actualSize = Fonts(Windows(GetWindowIndex("winJob")).Font).MeasureString(sanitizedText)
             Dim actualWidth = actualSize.X
             Dim actualHeight = actualSize.Y
 
