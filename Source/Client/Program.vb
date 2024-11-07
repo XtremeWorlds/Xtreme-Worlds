@@ -88,13 +88,24 @@ Public Class GameClient
     End Class
 
     Public Shared Function GetGfxInfo(key As String) As GfxInfo
+        ' Check if the key does not end with ".gfxext" and append if needed
+        If Not key.EndsWith(GameState.GfxExt, StringComparison.OrdinalIgnoreCase) Then
+            key &= GameState.GfxExt
+        End If
+
+        ' Retrieve the texture
+        Dim texture = GameClient.GetTexture(key)
+
         Dim result As GfxInfo = Nothing
         If Not GfxInfoCache.TryGetValue(key, result) Then
-            ' Log or handle the case where the key is not found
+            ' Log or handle the case where the key is not found in the cache
             Debug.WriteLine($"Warning: GfxInfo for key '{key}' not found in cache.")
+            Return Nothing
         End If
+
         Return result
     End Function
+
 
     Public Sub New()
         GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
