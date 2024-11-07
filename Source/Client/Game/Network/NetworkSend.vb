@@ -81,7 +81,7 @@ Module NetworkSend
             user = .Controls(Gui.GetControlIndex("winLogin", "txtUsername")).Text
             pass = .Controls(Gui.GetControlIndex("winLogin", "txtPassword")).Text
 
-            If Socket.IsConnected() Then
+            If Socket?.IsConnected() Then
                 SendLogin(user, pass)
             Else
                 InitNetwork()
