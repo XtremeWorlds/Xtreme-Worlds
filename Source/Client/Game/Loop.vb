@@ -18,13 +18,8 @@ Module [Loop]
             GameState.ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
             
             frameTime = tick
-            
-            'SyncLock loadLock
-            '    TextureCounter = 0
-            'End SyncLock
 
             If GameStarted() Then
-                'Calculate FPS
                 If tmr1000 < tick Then
                     GetPing()
                     tmr1000 = tick + 1000
