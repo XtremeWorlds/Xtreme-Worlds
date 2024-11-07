@@ -5,7 +5,7 @@ Public Class Settings
     Public Shared Language As String = "English"
 
     Public Shared Username As String = ""
-    Public Shared SaveUsername As Boolean = False
+    Public Shared SaveUsername As Boolean = True
 
     Public Shared MenuMusic As String = "menu.mid"
     Public Shared Music As Boolean = True
@@ -17,13 +17,13 @@ Public Class Settings
     Public Shared SoundExt As String = ".ogg"
 
     Public Shared Resolution As Byte = 13
-    Public Shared Vsync As Byte = 1
-    Public Shared ShowNpcBar As Byte = 1
-    Public Shared Fullscreen As Byte = 0
+    Public Shared Vsync As Boolean = True
+    Public Shared ShowNpcBar As Boolean = True
+    Public Shared Fullscreen As Boolean = False
     Public Shared CameraWidth As Byte = 32
     Public Shared CameraHeight As Byte = 24
-    Public Shared OpenAdminPanelOnLogin As Byte = 1
-    Public Shared DynamicLightRendering As Byte = 1
+    Public Shared OpenAdminPanelOnLogin As Boolean = True
+    Public Shared DynamicLightRendering As Boolean = True
     Public Shared ChannelState(ChatChannel.Count - 1) As Byte
 
     Public Shared Ip As String = "127.0.0.1"
@@ -34,7 +34,7 @@ Public Class Settings
 
     Public Shared Welcome As String = "Welcome to XtremeWorlds, enjoy your stay!"
 
-    Public Shared TimeSpeed As Integer = 1
+    Public Shared TimeSpeed As Boolean = True
 
     Public Shared Autotile As Boolean = True
 
