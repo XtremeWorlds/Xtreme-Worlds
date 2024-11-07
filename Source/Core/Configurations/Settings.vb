@@ -19,7 +19,7 @@ Public Class Settings
     Public Shared Resolution As Byte = 13
     Public Shared Vsync As Byte = 1
     Public Shared ShowNpcBar As Byte = 1
-    Public Shared Fullscreen As Byte = 1
+    Public Shared Fullscreen As Byte = 0
     Public Shared CameraWidth As Byte = 32
     Public Shared CameraHeight As Byte = 24
     Public Shared OpenAdminPanelOnLogin As Byte = 1

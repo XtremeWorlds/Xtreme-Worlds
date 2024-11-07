@@ -105,7 +105,6 @@ Public Class GameClient
             .PreferredBackBufferWidth = GameState.ResolutionWidth
             .PreferredBackBufferHeight = GameState.ResolutionHeight
             .SynchronizeWithVerticalRetrace = Settings.Vsync
-            .HardwareModeSwitch = False
             .PreferHalfPixelOffset = True
             .PreferMultiSampling = True
         End With
@@ -114,14 +113,6 @@ Public Class GameClient
         AddHandler Graphics.PreparingDeviceSettings, Sub(sender, args)
             args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8
-
-            ' Ensure the window handle is valid before setting it
-            Dim hwnd As IntPtr = Me.Window.Handle
-            If hwnd <> IntPtr.Zero Then
-                args.GraphicsDeviceInformation.PresentationParameters.DeviceWindowHandle = hwnd
-            Else
-                Debug.WriteLine("Warning: Window handle is not set yet.")
-            End If
         End Sub
 
 #If DEBUG Then
