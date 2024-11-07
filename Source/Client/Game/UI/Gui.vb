@@ -2118,9 +2118,15 @@ Public Class Gui
         y = yO + 60
         For I = 1 To count
             x = xO + 118 + (200 \ 2) - (TextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Font) \ 2)
+            Dim actualSize = Fonts(Windows(GetWindowIndex("winJob")).Font).MeasureString(textArray(I))
+            Dim actualWidth = actualSize.X
+            Dim actualHeight = actualSize.Y
+
+            ' Calculate horizontal and vertical centers with padding
+            Dim padding = actualWidth / 6.0
             RenderText(
                 textArray(I),
-                x, y,
+                x + padding, y,
                 Microsoft.Xna.Framework.Color.White,
                 Microsoft.Xna.Framework.Color.Black
                 )
