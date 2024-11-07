@@ -30,15 +30,29 @@ namespace Mirage.Sharp.Asfw.Network
 
     public NetworkClient(int packetCount, int packetSize = 8192)
     {
-      if (this._socket != null)
-        return;
-      if (packetSize <= 0)
-        packetSize = 8192;
-      this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-      this._socket.NoDelay = true;
-      this._packetCount = packetCount;
-      this._packetSize = packetSize;
-      this.PacketId = new NetworkClient.DataArgs[packetCount];
+        if (this._socket != null)
+            return;
+
+        if (packetSize <= 0)
+            packetSize = 8192;
+
+        this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        this._socket.NoDelay = true;
+
+        // Enable TCP Keep-Alive on the client
+        this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+        // Set keep-alive options (platform-dependent code may be needed for finer control)
+        byte[] keepAliveSettings = new byte[12];
+        BitConverter.GetBytes(1).CopyTo(keepAliveSettings, 0);  // Enable keep-alive
+        BitConverter.GetBytes(10000).CopyTo(keepAliveSettings, 4);  // Time (10 seconds)
+        BitConverter.GetBytes(1000).CopyTo(keepAliveSettings, 8);  // Interval (1 second)
+
+        this._socket.IOControl(IOControlCode.KeepAliveValues, keepAliveSettings, null);
+
+        this._packetCount = packetCount;
+        this._packetSize = packetSize;
+        this.PacketId = new NetworkClient.DataArgs[packetCount];
     }
 
     public void Dispose()
