@@ -549,7 +549,7 @@ Module Pet
         name = GetPlayerName(index) & "'s " & Type.Pet(Type.Player(index).Pet.Num).Name
 
         ' calc pos
-        textX = ConvertMapX(Type.Player(index).Pet.X * GameState.PicX) + Type.Player(index).Pet.XOffset + (GameState.PicX \ 2) - TextWidth(name) / 2
+        textX = ConvertMapX(Type.Player(index).Pet.X * GameState.PicX) + Type.Player(index).Pet.XOffset + (GameState.PicX \ 2) - GetTextWidth(name) / 2
         If Type.Pet(Type.Player(index).Pet.Num).Sprite < 1 Or Type.Pet(Type.Player(index).Pet.Num).Sprite > GameState.NumCharacters Then
             textY = ConvertMapY(Type.Player(index).Pet.Y * GameState.PicY) + Type.Player(index).Pet.YOffset - 16
         Else

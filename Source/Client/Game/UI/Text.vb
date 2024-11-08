@@ -35,7 +35,7 @@ Module Text
     End Function
 
     ' Get the width of the text with optional scaling
-    Public Function TextWidth(text As String, Optional font As FontType = FontType.Georgia, Optional textSize As Single = 1.0F) As Integer
+    Public Function GetTextWidth(text As String, Optional font As FontType = FontType.Georgia, Optional textSize As Single = 1.0F) As Integer
         If Not Fonts.ContainsKey(font) Then Throw New ArgumentException("Font not found.")
         Dim sanitizedText = SanitizeText(text, Fonts(font))
         Dim textDimensions = Fonts(font).MeasureString(sanitizedText)
@@ -121,7 +121,7 @@ Module Text
 
                     b = lastSpace + 1
                     'Count all the words we ignored (the ones that weren't printed, but are before "i")
-                    size = TextWidth(Mid$(text, lastSpace, i - lastSpace), font)
+                    size = GetTextWidth(Mid$(text, lastSpace, i - lastSpace), font)
                 End If
             End If
 
@@ -174,7 +174,7 @@ Module Text
                         skipCount = skipCount - 1
                     ElseIf TSLoop > 0 Then
                         'Add up the size
-                        size = size + TextWidth(TempSplit(TSLoop), font)
+                        size = size + GetTextWidth(TempSplit(TSLoop), font)
 
                         'Check for too large of a size
                         If size > MaxLineLen Then
@@ -192,7 +192,7 @@ Module Text
                                 b = lastSpace + 1
 
                                 'Count all the words we ignored (the ones that weren't printed, but are before "i")
-                                size = TextWidth(Mid$(TempSplit(TSLoop), lastSpace, i - lastSpace), font)
+                                size = GetTextWidth(Mid$(TempSplit(TSLoop), lastSpace, i - lastSpace), font)
                             End If
                         End If
 
@@ -271,7 +271,7 @@ Module Text
                 color = Color.Yellow
                 backColor = Color.Black
         End Select
-        textX = ConvertMapX(MyMapNPC(MapNpcNum).X * GameState.PicX) + MyMapNPC(MapNpcNum).XOffset + (GameState.PicX \ 2) - (TextWidth((Type.NPC(npcNum).Name))) / 2 - 2
+        textX = ConvertMapX(MyMapNPC(MapNpcNum).X * GameState.PicX) + MyMapNPC(MapNpcNum).XOffset + (GameState.PicX \ 2) - (GetTextWidth((Type.NPC(npcNum).Name))) / 2 - 2
         If Type.NPC(npcNum).Sprite < 1 Or Type.NPC(npcNum).Sprite > GameState.NumCharacters Then
             textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * GameState.PicY) + MyMapNPC(MapNpcNum).YOffset - 16
         Else
@@ -294,7 +294,7 @@ Module Text
         name = MapEvents(index).Name
 
         ' calc pos
-        textX = ConvertMapX(MapEvents(index).X * GameState.PicX) + MapEvents(index).XOffset + (GameState.PicX \ 2) - (TextWidth(name)) \ 2 - 2
+        textX = ConvertMapX(MapEvents(index).X * GameState.PicX) + MapEvents(index).XOffset + (GameState.PicX \ 2) - (GetTextWidth(name)) \ 2 - 2
         If MapEvents(index).GraphicType = 0 Then
             textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - 16
         ElseIf MapEvents(index).GraphicType = 1 Then
@@ -316,7 +316,7 @@ Module Text
         ' Draw name
         RenderText(name, textX, textY, color, backcolor)
     End Sub
-    
+
     Sub DrawActionMsg(index As Integer)
         Dim x As Integer, y As Integer, i As Integer, time As Integer
 
@@ -403,13 +403,13 @@ Module Text
             If Settings.ChannelState(Type.Chat(i).Channel) = 0 Then isVisible = False
 
             ' make sure it's visible
-            If isVisible = True
+            If isVisible = True Then
                 ' render line
                 Color = Chat(i).Color
                 Color2 = GameClient.QbColorToXnaColor(Color)
 
                 ' check if we need to word wrap
-                If TextWidth(Chat(i).Text) > GameState.ChatWidth Then
+                If GetTextWidth(Chat(i).Text) > GameState.ChatWidth Then
                     ' word wrap
                     tmpText = WordWrap(Chat(i).Text, FontType.Georgia, GameState.ChatWidth)
 
@@ -424,7 +424,7 @@ Module Text
                     ' set the top width
                     tmpArray = Split(tmpText, vbNewLine)
                     For x = 0 To UBound(tmpArray)
-                        If TextWidth(tmpArray(x)) > topWidth Then topWidth = TextWidth(tmpArray(x))
+                        If GetTextWidth(tmpArray(x)) > topWidth Then topWidth = GetTextWidth(tmpArray(x))
                     Next
                 Else
                     ' normal
@@ -434,7 +434,7 @@ Module Text
                     rLines = rLines + 1
 
                     ' set the top width
-                    If TextWidth(Chat(i).Text) > topWidth Then topWidth = TextWidth(Chat(i).Text)
+                    If GetTextWidth(Chat(i).Text) > topWidth Then topWidth = GetTextWidth(Chat(i).Text)
                 End If
             End If
             ' increment chat pointer
@@ -447,7 +447,7 @@ Module Text
     End Sub
 
     Sub DrawMapName()
-        RenderText(Language.Game.MapName & MyMap.Name, GameState.ResolutionWidth / 2 - TextWidth(MyMap.Name), 10, GameState.DrawMapNameColor, Color.Black)
+        RenderText(Language.Game.MapName & MyMap.Name, GameState.ResolutionWidth / 2 - GetTextWidth(MyMap.Name), 10, GameState.DrawMapNameColor, Color.Black)
     End Sub
 
     Sub DrawPlayerName(index As Integer)
@@ -483,7 +483,7 @@ Module Text
 
         ' calc pos
         textX = ConvertMapX(GetPlayerX(index) * GameState.PicX) + Type.Player(index).XOffset + (GameState.PicX \ 2) - 2
-        textX = textX - (TextWidth((name)) / 2)
+        textX = textX - (GetTextWidth((name)) / 2)
 
         If GetPlayerSprite(index) < 0 Or GetPlayerSprite(index) > GameState.NumCharacters Then
             textY = ConvertMapY(GetPlayerY(index) * GameState.PicY) + Type.Player(GameState.MyIndex).YOffset - 16

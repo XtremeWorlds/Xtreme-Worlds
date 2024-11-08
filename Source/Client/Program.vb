@@ -1433,7 +1433,7 @@ Public Class GameClient
             .Y = 0
             .Height = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Misc, "Target")).Height
             .X = 0
-            .Width = GameClient.GetGfxInfo("Target").Width / 2
+            .Width = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Misc, "Target")).Width / 2
         End With
         x = ConvertMapX(x2 + 4)
         y = ConvertMapY(y2 - 32)
@@ -1495,7 +1495,7 @@ Public Class GameClient
             tmpNum = UBound(theArray)
 
             For i = 1 To tmpNum
-                If TextWidth(theArray(i), 15) > MaxWidth Then MaxWidth = TextWidth(theArray(i), 15)
+                If GetTextWidth(theArray(i), 15) > MaxWidth Then MaxWidth = GetTextWidth(theArray(i), 15)
             Next
 
             ' calculate the new position
@@ -1539,7 +1539,7 @@ Public Class GameClient
             tmpNum = UBound(theArray)
 
             For i = 1 To tmpNum
-                RenderText(theArray(i), x - (theArray(i).Length / 2) - (TextWidth(theArray(i)) / 2), y2, QbColorToXnaColor(.Color), Microsoft.Xna.Framework.Color.Black)
+                RenderText(theArray(i), x - (theArray(i).Length / 2) - (GetTextWidth(theArray(i)) / 2), y2, QbColorToXnaColor(.Color), Microsoft.Xna.Framework.Color.Black)
                 y2 = y2 + 12
             Next
 

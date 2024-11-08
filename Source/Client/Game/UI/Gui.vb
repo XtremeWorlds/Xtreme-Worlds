@@ -1251,7 +1251,7 @@ Public Class Gui
                     If Len(.Text) > 0 Then
                         Select Case .Align
                             Case AlignmentType.Left
-                                If TextWidth(.Text, .Font) > .Width Then
+                                If GetTextWidth(.Text, .Font) > .Width Then
                                     WordWrap(.Text, .Font, .Width, textArray)
                                     count = UBound(textArray)
                                     For i = 1 To count
@@ -1274,7 +1274,7 @@ Public Class Gui
                                 End If
 
                             Case AlignmentType.Right
-                                If TextWidth(.Text, .Font) > .Width Then
+                                If GetTextWidth(.Text, .Font) > .Width Then
                                     WordWrap(.Text, .Font, .Width, textArray)
                                     count = UBound(textArray)
                                     For i = 1 To count
@@ -1297,7 +1297,7 @@ Public Class Gui
                                 End If
 
                             Case AlignmentType.Center
-                                If TextWidth(.Text, .Font) > .Width Then
+                                If GetTextWidth(.Text, .Font) > .Width Then
                                     WordWrap(.Text, .Font, .Width, textArray)
                                     count = UBound(textArray)
 
@@ -1341,9 +1341,9 @@ Public Class Gui
                                 Case AlignmentType.Left
                                     left = .Left + 18 + xO
                                 Case AlignmentType.Right
-                                    left = .Left + 18 + (.Width - 18) - TextWidth(.Text, .Font) + xO
+                                    left = .Left + 18 + (.Width - 18) - GetTextWidth(.Text, .Font) + xO
                                 Case AlignmentType.Center
-                                    left = .Left + 18 + ((.Width - 18) / 2) - (TextWidth(.Text, .Font) / 2) + xO
+                                    left = .Left + 18 + ((.Width - 18) / 2) - (GetTextWidth(.Text, .Font) / 2) + xO
                             End Select
 
                             ' render text
@@ -1356,7 +1356,7 @@ Public Class Gui
                             GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 51), .Left + xO, .Top + yO, 0, 0, 49, 23, 49, 23)
 
                             ' render text
-                            left = .Left + 22 - (TextWidth(.Text, .Font) / 2) + xO
+                            left = .Left + 22 - (GetTextWidth(.Text, .Font) / 2) + xO
                             RenderText(.Text, left, .Top + yO + 4, .Color, Microsoft.Xna.Framework.Color.Black)
 
                         Case DesignType.ChkBuying
@@ -1421,7 +1421,7 @@ Public Class Gui
                             End If
 
                             ' Render the text, centered
-                            left = x + (.Width \ 2) - (TextWidth(.List(i), .Font) \ 2)
+                            left = x + (.Width \ 2) - (GetTextWidth(.List(i), .Font) \ 2)
                             RenderText(.List(i), left, y, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.Black)
 
                             y += 16
@@ -2177,7 +2177,7 @@ Public Class Gui
         count = UBound(textArray)
         y = yO + 60
         For I = 1 To count
-            x = xO + 118 + (200 \ 2) - (TextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Font) \ 2)
+            x = xO + 118 + (200 \ 2) - (GetTextWidth(textArray(I), Windows(GetWindowIndex("winJob")).Font) \ 2)
             ' Render each line of the wrapped text
             Dim sanitizedText As String = New String(textArray(I).Where(Function(c) Fonts(Windows(GetWindowIndex("winJob")).Font).Characters.Contains(c)).ToArray())
             Dim actualSize = Fonts(Windows(GetWindowIndex("winJob")).Font).MeasureString(sanitizedText)
@@ -3548,7 +3548,7 @@ Public Class Gui
         y = 18
         count = UBound(GameState.descText)
         For I = 1 To count
-            RenderText(GameState.descText(I).Text, xO + 141 - (TextWidth(GameState.descText(I).Text) \ 2), yO + y, GameState.descText(I).Color, Microsoft.Xna.Framework.Color.Black)
+            RenderText(GameState.descText(I).Text, xO + 141 - (GetTextWidth(GameState.descText(I).Text) \ 2), yO + y, GameState.descText(I).Color, Microsoft.Xna.Framework.Color.Black)
             y = y + 12
         Next
     End Sub
