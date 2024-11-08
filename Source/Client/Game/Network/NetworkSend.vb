@@ -84,7 +84,6 @@ Module NetworkSend
             If Socket?.IsConnected() Then
                 SendLogin(user, pass)
             Else
-                InitNetwork()
                 Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
             End If
         End With

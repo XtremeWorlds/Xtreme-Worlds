@@ -106,7 +106,6 @@ Public Class GameClient
         Return result
     End Function
 
-
     Public Sub New()
         GetResolutionSize(Settings.Resolution, GameState.ResolutionWidth, GameState.ResolutionHeight)
 
@@ -432,10 +431,9 @@ Public Class GameClient
         SpriteBatch.Begin()
         If GameState.InGame = True Then
             Render_Game()
-        Else 
+        Else
             Render_Menu()
         End If
-        'RenderBatches()
         SpriteBatch.End()
 
         MyBase.Draw(gameTime)
@@ -826,23 +824,30 @@ Public Class GameClient
             End If
         End SyncLock
     End Sub
-    
+
+    Private Shared _leftMouseHandled As Boolean = False
+
     Private Shared Sub HandleMouseClick(button As MouseButton)
         SyncLock GameClient.InputLock
             Dim currentTime As Integer = Environment.TickCount
 
             ' Handle MouseMove event when the mouse moves
             If GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
-               GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
+           GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
                 Gui.HandleInterfaceEvents(EntState.MouseMove)
             End If
 
             ' Check for MouseDown event (button pressed)
             If GameClient.IsMouseButtonDown(button) Then
-                Gui.HandleInterfaceEvents(EntState.MouseDown)
-                GameState.LastLeftClickTime = currentTime ' Track time for double-click detection
+                If Not _leftMouseHandled Then
+                    Gui.HandleInterfaceEvents(EntState.MouseDown)
+                    GameState.LastLeftClickTime = currentTime ' Track time for double-click detection
+                    _leftMouseHandled = True ' Set flag to indicate the left mouse button has been processed
+                End If
+            Else
+                _leftMouseHandled = False ' Reset flag when the button is released
             End If
-            
+
             ' Check for MouseUp event (button released)
             If Not GameClient.IsMouseButtonUp(button) Then
                 Gui.HandleInterfaceEvents(EntState.MouseUp)
@@ -850,19 +855,20 @@ Public Class GameClient
 
             ' Double-click detection for left button
             If GameClient.IsMouseButtonDown(button) AndAlso
-               currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
+           currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
                 Gui.HandleInterfaceEvents(EntState.DblClick)
                 GameState.LastLeftClickTime = 0 ' Reset double-click timer
             End If
 
             ' In-game interactions for left click
             If GameState.InGame = True Then
-                If GameClient.IsMouseButtonDown(button) Then
+                If GameClient.IsMouseButtonDown(button) AndAlso Not _leftMouseHandled Then
                     If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
                         PetMove(GameState.CurX, GameState.CurY)
                     End If
                     CheckAttack(True)
                     PlayerSearch(GameState.CurX, GameState.CurY, 0)
+                    _leftMouseHandled = True ' Set flag after handling in-game interactions
                 End If
 
                 ' Right-click interactions
@@ -880,7 +886,7 @@ Public Class GameClient
             End If
         End SyncLock
     End Sub
-    
+
     Private Shared Sub HandleRightClickMenu()
         ' Loop through all players and display the right-click menu for the matching one
         For i = 1 To MAX_PLAYERS

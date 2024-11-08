@@ -959,10 +959,9 @@ Continue1:
     End Sub
 
     Public Sub AddChar(name As String, sex As Integer, job As Integer, sprite As Integer)
-        If Socket.IsConnected() Then
+        If Socket?.IsConnected() Then
             Call SendAddChar(name, sex, job)
         Else
-            InitNetwork()
             Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
         End If
     End Sub

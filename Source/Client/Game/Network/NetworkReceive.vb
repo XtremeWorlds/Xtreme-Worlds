@@ -371,7 +371,7 @@ Module NetworkReceive
         buffer.Dispose()
     End Sub
 
-    Private Sub Packet_NpcMove(ByRef data() As Byte)
+    Private Sub Packet_NPCMove(ByRef data() As Byte)
         Dim mapNpcNum As Integer, movement As Integer
         Dim x As Integer, y As Integer, dir As Integer
         Dim buffer As New ByteStream(data)
@@ -382,7 +382,7 @@ Module NetworkReceive
         dir = buffer.ReadInt32
         movement = buffer.ReadInt32
 
-        With MyMapNPC(MapNPCNum)
+        With MyMapNPC(mapNpcNum)
             .X = x
             .Y = y
             .Dir = dir
@@ -405,7 +405,7 @@ Module NetworkReceive
         buffer.Dispose()
     End Sub
 
-    Private Sub Packet_NpcDir(ByRef data() As Byte)
+    Private Sub Packet_NPCDir(ByRef data() As Byte)
         Dim dir As Integer, i As Integer
         Dim buffer As New ByteStream(data)
 
