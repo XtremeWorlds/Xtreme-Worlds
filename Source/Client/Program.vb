@@ -849,7 +849,7 @@ Public Class GameClient
             End If
 
             ' Double-click detection for left button
-            If button = MouseButton.Left AndAlso 
+            If GameClient.IsMouseButtonDown(button) AndAlso
                currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
                 Gui.HandleInterfaceEvents(EntState.DblClick)
                 GameState.LastLeftClickTime = 0 ' Reset double-click timer
@@ -857,7 +857,7 @@ Public Class GameClient
 
             ' In-game interactions for left click
             If GameState.InGame = True Then
-                If button = MouseButton.Left Then
+                If GameClient.IsMouseButtonDown(button) Then
                     If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
                         PetMove(GameState.CurX, GameState.CurY)
                     End If
@@ -866,8 +866,8 @@ Public Class GameClient
                 End If
 
                 ' Right-click interactions
-                If button = MouseButton.Right and GameState.InGame = True Then
-                    If GameState.VbKeyShift Then
+                If GameClient.IsMouseButtonDown(MouseButton.Right) And GameState.InGame = True Then
+                    If GameState.VbKeyShift = True Then
                         ' Admin warp if Shift is held and the player has moderator access
                         If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
                             AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
