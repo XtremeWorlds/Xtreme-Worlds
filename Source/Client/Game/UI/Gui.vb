@@ -541,7 +541,8 @@ Public Class Gui
 
         If forced = True Then
             UpdateZOrder(curWindow, forced)
-            activeWindow = curWindow
+            ActiveWindow = curWindow
+            HandleInterfaceEvents(EntState.MouseMove)
         ElseIf Windows(curWindow).zChange Then
             UpdateZOrder(curWindow)
             activeWindow = curWindow
