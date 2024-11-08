@@ -562,7 +562,7 @@ Public Class Gui
         Windows(curWindow).Visible = False
 
         ' find next window to set as active
-        For i = Windows.Count - 1 To 1 Step -1
+        For i = Windows.Count To 1 Step -1
             If Windows(i).Visible = True And Windows(i).zChange = 1 Then
                 ActiveWindow = i
                 Exit For

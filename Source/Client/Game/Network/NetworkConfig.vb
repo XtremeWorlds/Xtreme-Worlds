@@ -38,7 +38,7 @@ Friend Module NetworkConfig
 #Region " Events "
 
     Private Sub Socket_ConnectionSuccess() Handles Socket.ConnectionSuccess
-        Console.WriteLine("Connection sucess.")
+        Console.WriteLine("Connection success.")
     End Sub
 
     Private Sub Socket_ConnectionFailed() Handles Socket.ConnectionFailed
