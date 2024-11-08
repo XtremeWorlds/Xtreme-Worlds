@@ -245,9 +245,10 @@ Module Text
     Public Sub RenderText(text As String, x As Integer, y As Integer,
                                frontColor As Color, backColor As Color, Optional font As FontType = FontType.Georgia)
 
-        GameClient.SpriteBatch.DrawString(Fonts(font), text, New Vector2(x + 1, y + 1), backColor,
+        Dim sanitizedText As String = New String(text.Where(Function(c) Fonts(font).Characters.Contains(c)).ToArray())
+        GameClient.SpriteBatch.DrawString(Fonts(font), sanitizedText, New Vector2(x + 1, y + 1), backColor,
                                0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
-        GameClient.SpriteBatch.DrawString(Fonts(font), text, New Vector2(x, y), frontColor,
+        GameClient.SpriteBatch.DrawString(Fonts(font), sanitizedText, New Vector2(x, y), frontColor,
                                0.0F, Vector2.Zero, 12 / 16.0F, SpriteEffects.None, 0.0F)
     End Sub
 

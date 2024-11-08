@@ -749,13 +749,13 @@ Public Class Gui
 
         ' Control Buttons
         UpdateButton(Windows.Count, "btnSelectChar_1", 22, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_1))
-        UpdateButton(Windows.Count, "btnControlChar_1", 22, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_1))
+        UpdateButton(Windows.Count, "btnCreateChar_1", 22, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnCreateChar_1))
         UpdateButton(Windows.Count, "btnDelChar_1", 22, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_1))
         UpdateButton(Windows.Count, "btnSelectChar_2", 132, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnAcceptChar_2))
-        UpdateButton(Windows.Count, "btnControlChar_2", 132, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_2))
+        UpdateButton(Windows.Count, "btnCreateChar_2", 132, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnCreateChar_2))
         UpdateButton(Windows.Count, "btnDelChar_2", 132, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_2))
         UpdateButton(Windows.Count, "btnSelectChar_3", 242, 155, 98, 24, "Select", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click,, , New Action(AddressOf btnAcceptChar_3))
-        UpdateButton(Windows.Count, "btnControlChar_3", 242, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnControlChar_3))
+        UpdateButton(Windows.Count, "btnCreateChar_3", 242, 155, 98, 24, "Create", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnCreateChar_3))
         UpdateButton(Windows.Count, "btnDelChar_3", 242, 183, 98, 24, "Delete", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnDelChar_3))
     End Sub
 
@@ -987,8 +987,8 @@ Public Class Gui
 
                         ' Handle window dragging only if dragging is enabled
                         If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                            .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, GameState.ResolutionWidth - .Width)
-                            .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, GameState.ResolutionHeight - .Height)
+                            .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .MovedX), 0, GameState.ResolutionWidth - .Width)
+                            .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .MovedY), 0, GameState.ResolutionHeight - .Height)
                         End If
                     End If
                 End With
@@ -996,7 +996,7 @@ Public Class Gui
 
             If curWindow > 0 Then
                 ' Handle controls in the active window
-                For i = 0 To Windows(curWindow).Controls.Count - 1
+                For i = 0 To Windows(curWindow).Controls?.Count - 1
                     With Windows(curWindow).Controls(i)
                         If .Enabled AndAlso .Visible Then
                             If .State <> EntState.MouseDown Then .State = EntState.Normal
@@ -1013,8 +1013,8 @@ Public Class Gui
 
                             ' Handle control dragging only if dragging is enabled
                             If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                                .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .movedX), 0, Windows(curWindow).Width - .Width)
-                                .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .movedY), 0, Windows(curWindow).Height - .Height)
+                                .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .MovedX), 0, Windows(curWindow).Width - .Width)
+                                .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .MovedY), 0, Windows(curWindow).Height - .Height)
                             End If
                         End If
                     End With
@@ -1029,10 +1029,10 @@ Public Class Gui
                         ElseIf entState = EntState.MouseDown Then
                             .State = EntState.MouseDown
                         End If
-                        
+
                         If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso .CanDrag Then
-                            .movedX = GameState.CurMouseX - .Left
-                            .movedY = GameState.CurMouseY - .Top
+                            .MovedX = GameState.CurMouseX - .Left
+                            .MovedY = GameState.CurMouseY - .Top
                         End If
 
                         ' Handle specific control types
@@ -1075,7 +1075,7 @@ Public Class Gui
 
         Return True
     End Function
-    
+
     Public Shared Sub ResetInterface()
         Dim i As Long, x As Long
 
@@ -1092,7 +1092,7 @@ Public Class Gui
     Public Shared Sub ResetMouseDown()
         Dim callBack As Action
         Dim i As Long, x As Long
-        
+
         SyncLock GameClient.InputLock
             For i = 1 To Windows.Count
                 With Windows(i)
@@ -1187,7 +1187,7 @@ Public Class Gui
                     End If
 
                     ' Handle active window text input
-                    If activeWindow = winNum And Windows(winNum).ActiveControl = entNum Then
+                    If ActiveWindow = winNum And Windows(winNum).ActiveControl = entNum Then
                         taddText = GameState.chatShowLine
                     End If
 
@@ -1202,7 +1202,7 @@ Public Class Gui
                     ' Apply padding and calculate position
                     Dim left = .Left + xO + .xOffset
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
-           
+
                     ' Render the final text
                     RenderText(finalText, left, top, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
 
@@ -1244,7 +1244,7 @@ Public Class Gui
 
                     ' Render the button's text
                     RenderText(.Text, horCentre, verCentre, .Color, Microsoft.Xna.Framework.Color.Black, .Font)
-            
+
                 Case ControlType.Label
                     If Len(.Text) > 0 Then
                         Select Case .Align
@@ -1330,7 +1330,7 @@ Public Class Gui
         End With
     End Sub
 
-     Public Shared Sub RenderWindow(winNum As Long)
+    Public Shared Sub RenderWindow(winNum As Long)
         Dim x As Long, y As Long, i As Long, left As Long
 
         ' Check if the window exists
@@ -1610,7 +1610,7 @@ Public Class Gui
         GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + bs, y, bs, 0, width - (bs * 2), bs, 1, bs, alpha, ,  , )
 
         ' Draw left side
-        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha )
+        GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x, y + bs, 0, bs, bs, height - (bs * 2), bs, , alpha)
 
         ' Draw right side
         GameClient.RenderTexture(IO.Path.Combine(Path.Designs, sprite), x + width - bs, y + bs, bs + 3, bs, bs, height - (bs * 2), bs, , alpha)
@@ -1876,7 +1876,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winCharacter")
 
-        If Windows(curWindow).Visible = True
+        If Windows(curWindow).Visible = True Then
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1888,7 +1888,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winInventory")
 
-        If Windows(curWindow).Visible = True
+        If Windows(curWindow).Visible = True Then
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1900,7 +1900,7 @@ Public Class Gui
 
         curWindow = GetWindowIndex("winSkills")
 
-        If Windows(curWindow).Visible = True
+        If Windows(curWindow).Visible = True Then
             HideWindow(curWindow)
         Else
             ShowWindow(curWindow, , False)
@@ -1966,17 +1966,17 @@ Public Class Gui
         Dialogue("Delete Character", "Deleting this character is permanent.", "Are you sure you want to delete this character?", DialogueType.DelChar, DialogueStyle.YesNo, 3)
     End Sub
 
-    Public Shared Sub btnControlChar_1()
+    Public Shared Sub btnCreateChar_1()
         GameState.CharNum = 1
         ShowJobs()
     End Sub
 
-    Public Shared Sub btnControlChar_2()
+    Public Shared Sub btnCreateChar_2()
         GameState.CharNum = 2
         ShowJobs()
     End Sub
 
-    Public Shared Sub btnControlChar_3()
+    Public Shared Sub btnCreateChar_3()
         GameState.CharNum = 3
         ShowJobs()
     End Sub
