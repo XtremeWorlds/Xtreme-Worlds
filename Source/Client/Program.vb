@@ -805,7 +805,6 @@ Public Class GameClient
 
     Private Shared Sub HandleMouseInputs()
         HandleMouseClick(MouseButton.Left)
-        HandleMouseClick(MouseButton.Right)
         HandleScrollWheel()
     End Sub
     

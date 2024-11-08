@@ -1913,10 +1913,9 @@ Public Class Gui
                 Exit Sub
             End If
 
-            If Socket.IsConnected() Then
+            If Socket?.IsConnected() Then
                 SendRegister(User, Pass)
             Else
-                InitNetwork()
                 Dialogue("Invalid Connection", "Cannot connect to game server.", "Please try again.", DialogueType.Alert)
             End If
         End With
@@ -2129,9 +2128,6 @@ Public Class Gui
 
         ' Render the character's face
         Dim gfxInfo = GameClient.GetGfxInfo(System.IO.Path.Combine(Core.Path.Characters, imageChar))
-        If gfxInfo Is Nothing Then
-            Return ' Or skip this frame to avoid the crash
-        End If
 
         GameClient.RenderTexture(
             IO.Path.Combine(Core.Path.Characters, imageChar),
