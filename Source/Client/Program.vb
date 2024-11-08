@@ -534,8 +534,10 @@ Public Class GameClient
     
     Public Shared Function IsKeyStateActive(key As Keys) As Boolean
         SyncLock InputLock
-            ' Check if the key is down in the current keyboard state
-            Return CurrentKeyboardState.IsKeyDown(key)
+            If CanProcessKey(key) = True Then
+                ' Check if the key is down in the current keyboard state
+                Return CurrentKeyboardState.IsKeyDown(key)
+            End If
         End SyncLock
     End Function
 
@@ -630,15 +632,15 @@ Public Class GameClient
                     End If
                 End If
             End If
-            
+
             If GameClient.IsKeyStateActive(Keys.Space) Then
                 CheckMapGetItem()
             End If
-            
+
             If GameClient.IsKeyStateActive(Keys.Insert) Then
                 SendRequestAdmin()
             End If
-            
+
             HandleMouseInputs()
             HandleActiveWindowInput()
             HandleTextInput()
@@ -688,8 +690,7 @@ Public Class GameClient
                     Dim activeControl = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
 
                     ' Check if the Enter key is active and can be processed.
-                    key = Keys.Enter
-                    If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
+                    If GameClient.IsKeyStateActive(Keys.Enter) Then
                         ' Handle Enter: Call the control's callback or activate a new control.
                         If activeControl.CallBack(EntState.Enter) IsNot Nothing Then
                             activeControl.CallBack(EntState.Enter).Invoke()
@@ -701,9 +702,8 @@ Public Class GameClient
                         End If
                     End If
 
-                    ' Check if the Tab key is active and can be processed.
-                    key = Keys.Tab
-                    If CanProcessKey(key) AndAlso GameClient.IsKeyStateActive(key) Then
+                    ' Check if the Tab key is active and can be processed
+                    If GameClient.IsKeyStateActive(Keys.Tab) Then
                         ' Handle Tab: Switch to the next control.
                         If Gui.ActivateControl() = 0 Then
                             Gui.ActivateControl(0, False)
@@ -732,7 +732,7 @@ Public Class GameClient
         SyncLock GameClient.InputLock
             ' Iterate over all pressed keys
             For Each key As Keys In GameClient.CurrentKeyboardState.GetPressedKeys()
-                If GameClient.IsKeyStateActive(key) AndAlso CanProcessKey(key) Then
+                If GameClient.IsKeyStateActive(key) Then
                     ' Handle Backspace key separately
                     If key = Keys.Back Then
                         Dim activeControl = Gui.GetActiveControl()
@@ -758,17 +758,19 @@ Public Class GameClient
                             Gui.UpdateActiveControl(activeControl)
                         End If
                     End If
-                ElseIf KeyStates.ContainsKey(key) Then
-                    ' If the key is released, remove it from KeyStates and reset the timer
-                    KeyStates.Remove(key)
-                    KeyRepeatTimers.Remove(key)
                 End If
             Next
         End SyncLock
     End Sub
 
     ' Check if the key can be processed (with interval-based repeat logic)
-    Private Function CanProcessKey(key As Keys) As Boolean
+    Private Shared Function CanProcessKey(key As Keys) As Boolean
+        If KeyStates.ContainsKey(key) Then
+            ' If the key is released, remove it from KeyStates and reset the timer
+            KeyStates.Remove(key)
+            KeyRepeatTimers.Remove(key)
+        End If
+
         Dim now = DateTime.Now
         If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
             KeyRepeatTimers(key) = now ' Update the timer for the key
@@ -778,7 +780,7 @@ Public Class GameClient
     End Function
 
     ' Convert a key to a character (if possible)
-    Private Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char?
+    Private Shared Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char?
         ' Handle alphabetic keys
         If key >= Keys.A AndAlso key <= Keys.Z Then
             Dim baseChar As Char = ChrW(AscW("A"c) + (key - Keys.A))
@@ -797,7 +799,7 @@ Public Class GameClient
         ' Ignore unsupported keys (e.g., function keys, control keys)
         Return Nothing
     End Function
-    
+
     Private Shared Sub HandleMouseInputs()
         HandleMouseClick(MouseButton.Left)
         HandleMouseClick(MouseButton.Right)
