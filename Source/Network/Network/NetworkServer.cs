@@ -130,25 +130,32 @@ namespace Mirage.Sharp.Asfw.Network
     // Callback for handling the end of the disconnect
     private void DoDisconnect(IAsyncResult ar)
     {
-      int index = (int)ar.AsyncState;
+        int index = (int)ar.AsyncState;
 
-      try
-      {
-        // Complete the disconnection process
-        if (_socket.ContainsKey(index) && _socket[index] != null)
+        try
         {
-          _socket[index].EndDisconnect(ar);
-          _socket[index].Close();
-        }
+            // Complete the disconnection process
+            if (_socket.ContainsKey(index) && _socket[index] != null)
+            {
+                _socket[index].EndDisconnect(ar);
+                _socket[index].Close();
+            }
 
-        // Remove the socket and mark the index as available
-        _socket.Remove(index);
-        _unsignedIndex.Add(index);
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine($"Error in DoDisconnect: {ex.Message}");
-      }
+            // Remove the socket and mark the index as available
+            _socket.Remove(index);
+            _unsignedIndex.Add(index);
+
+            // Trigger the ConnectionLost event
+            NetworkServer.ConnectionArgs connectionLost = this.ConnectionLost;
+            if (connectionLost != null)
+            {
+                connectionLost(index);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in DoDisconnect: {ex.Message}");
+        }
     }
 
     // Fallback method to forcefully remove the socket if needed
