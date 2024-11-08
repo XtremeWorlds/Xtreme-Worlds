@@ -423,7 +423,7 @@ Public Class Gui
     End Sub
 
 
-    Public Shared Sub ControlComboBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, design As Long)
+    Public Shared Sub UpdateComboBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, design As Long)
         ' Initialize lists for the control states
         Dim theDesign As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
         Dim image As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
@@ -432,6 +432,7 @@ Public Class Gui
 
         ' Set the design for the normal state
         theDesign(0) = design
+        texture(0) = Path.Gui
 
         ' Update the control in the window using the updated lists
         UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Combobox, theDesign, image, texture, callback, left, top, width, height)
@@ -448,15 +449,15 @@ Public Class Gui
             End If
 
         Next
-        
+
     End Function
 
     Public Shared Function GetControlIndex(winName As String, controlName As String) As Long
         Dim i As Long
         Dim winIndex As Long
-        
+
         winIndex = GetWindowIndex(winName)
-        
+
         For i = 0 To Windows(winIndex).Controls.Count - 1
 
             If LCase$(Windows(winIndex).Controls(i).Name) = LCase$(controlName) Then
@@ -465,8 +466,8 @@ Public Class Gui
             End If
 
         Next
-    
-         End Function
+
+    End Function
 
     Public Shared Function SetActiveControl(curWindow As Long, curControl As Long) As Boolean
         If Windows(curWindow).Controls(curControl).Locked Then
@@ -483,8 +484,8 @@ Public Class Gui
     End Function
 
     Public Shared Function ActivateControl(Optional startIndex As Integer = 0, Optional skipLast As Boolean = True) As Integer
-        Dim currentActive As Integer = Windows(activeWindow).ActiveControl
-        Dim lastControl As Integer = Windows(activeWindow).LastControl
+        Dim currentActive As Integer = Windows(ActiveWindow).ActiveControl
+        Dim lastControl As Integer = Windows(ActiveWindow).LastControl
 
         ' Ensure the starting index is correct
         If startIndex <= currentActive Then
@@ -492,9 +493,9 @@ Public Class Gui
         End If
 
         ' Attempt to activate the next available control, starting from the given index
-        For i As Integer = startIndex To Windows(activeWindow).Controls.Count - 1
+        For i As Integer = startIndex To Windows(ActiveWindow).Controls.Count - 1
             If i <> currentActive AndAlso (Not skipLast OrElse i <> lastControl) Then
-                If SetActiveControl(activeWindow, i) Then
+                If SetActiveControl(ActiveWindow, i) Then
                     Return i  ' Return the index of the control that was activated
                 End If
             End If
@@ -503,7 +504,7 @@ Public Class Gui
         ' If we reached the end, wrap around and start from the beginning
         For i As Integer = 0 To startIndex - 1
             If i <> currentActive AndAlso (Not skipLast OrElse i <> lastControl) Then
-                If SetActiveControl(activeWindow, i) Then
+                If SetActiveControl(ActiveWindow, i) Then
                     Return i  ' Return the index of the control that was activated
                 End If
             End If
@@ -545,7 +546,7 @@ Public Class Gui
             HandleInterfaceEvents(EntState.MouseMove)
         ElseIf Windows(curWindow).zChange Then
             UpdateZOrder(curWindow)
-            activeWindow = curWindow
+            ActiveWindow = curWindow
         End If
 
         If resetPosition Then
@@ -565,7 +566,7 @@ Public Class Gui
         ' find next window to set as active
         For i = Windows.Count - 1 To 1 Step -1
             If Windows(i).Visible = True And Windows(i).zChange = 1 Then
-                activeWindow = i
+                ActiveWindow = i
                 Exit For
             End If
         Next
@@ -645,7 +646,7 @@ Public Class Gui
         UpdatePictureBox(Windows.Count, "picShadow_3", 67, 115, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         'UpdatePictureBox(Windows.Count, "picShadow_4", 67, 151, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
         'UpdatePictureBox(Windows.Count, "picShadow_5", 67, 187, 142, 9, , , , , , , , DesignType.BlackOval, DesignType.BlackOval, DesignType.BlackOval)
-        
+
         ' Buttons
         UpdateButton(Windows.Count, "btnAccept", 68, 152, 67, 22, "Accept", FontType.Arial, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , New Action(AddressOf btnSendRegister_Click))
         UpdateButton(Windows.Count, "btnExit", 142, 152, 67, 22, "Back", FontType.Arial, , , , , , , DesignType.Red, DesignType.Red_Hover, DesignType.Red_Click, , , New Action(AddressOf btnReturnMain_Click))
@@ -998,27 +999,29 @@ Public Class Gui
             If curWindow > 0 Then
                 ' Handle controls in the active window
                 For i = 0 To Windows(curWindow).Controls?.Count - 1
-                    With Windows(curWindow).Controls(i)
-                        If .Enabled AndAlso .Visible Then
-                            If .State <> EntState.MouseDown Then .State = EntState.Normal
+                    If Windows(curWindow).Controls IsNot Nothing Then
+                        With Windows(curWindow).Controls(i)
+                            If .Enabled AndAlso .Visible Then
+                                If .State <> EntState.MouseDown Then .State = EntState.Normal
 
-                            If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
-                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
+                                If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
+                                   GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                                   GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                                   GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
 
-                                If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
-                                    curControl = i
+                                    If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
+                                        curControl = i
+                                    End If
+                                End If
+
+                                ' Handle control dragging only if dragging is enabled
+                                If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
+                                    .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .MovedX), 0, Windows(curWindow).Width - .Width)
+                                    .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .MovedY), 0, Windows(curWindow).Height - .Height)
                                 End If
                             End If
-
-                            ' Handle control dragging only if dragging is enabled
-                            If entState = EntState.MouseMove AndAlso .CanDrag AndAlso canDrag AndAlso GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                                .Left = Clamp(.Left + (GameState.CurMouseX - .Left - .MovedX), 0, Windows(curWindow).Width - .Width)
-                                .Top = Clamp(.Top + (GameState.CurMouseY - .Top - .MovedY), 0, Windows(curWindow).Height - .Height)
-                            End If
-                        End If
-                    End With
+                        End With
+                    End If
                 Next
 
                 ' Handle active control
@@ -1226,9 +1229,9 @@ Public Class Gui
                             Dim iconWidth = gfxInfo.Width
                             Dim iconHeight = gfxInfo.Height
 
-                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), .Icon),
+                            GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon),
                                                      .Left + xO + .xOffset, .Top + yO + .yOffset,
-                                                     0, 0, iconWidth, iconHeight, iconWidth, iconHeight, )
+                                                     0, 0, iconWidth, iconHeight, iconWidth, iconHeight)
                         End If
                     End If
 
@@ -1338,15 +1341,15 @@ Public Class Gui
                             ' find text position
                             Select Case .Align
                                 Case AlignmentType.Left
-                                    Left = .Left + 18 + xO
+                                    left = .Left + 18 + xO
                                 Case AlignmentType.Right
-                                    Left = .Left + 18 + (.Width - 18) - TextWidth(.Text, .Font) + xO
+                                    left = .Left + 18 + (.Width - 18) - TextWidth(.Text, .Font) + xO
                                 Case AlignmentType.Center
-                                    Left = .Left + 18 + ((.Width - 18) / 2) - (TextWidth(.Text, .Font) / 2) + xO
+                                    left = .Left + 18 + ((.Width - 18) / 2) - (TextWidth(.Text, .Font) / 2) + xO
                             End Select
 
                             ' render text
-                            RenderText(.Text, Left, .Top + yO, .Color, Microsoft.Xna.Framework.Color.Black)
+                            RenderText(.Text, left, .Top + yO, .Color, Microsoft.Xna.Framework.Color.Black)
 
                         Case DesignType.ChkChat
                             If .Value = 0 Then .Alpha = 150 Else .Alpha = 255
@@ -1356,7 +1359,7 @@ Public Class Gui
 
                             ' render text
                             left = .Left + 22 - (TextWidth(.Text, .Font) / 2) + xO
-                            RenderText(.Text, Left, .Top + yO + 4, .Color, Microsoft.Xna.Framework.Color.Black)
+                            RenderText(.Text, left, .Top + yO + 4, .Color, Microsoft.Xna.Framework.Color.Black)
 
                         Case DesignType.ChkBuying
                             If .Value = 0 Then sprite = 58 Else sprite = 56
@@ -1382,7 +1385,7 @@ Public Class Gui
                             End If
 
                             ' draw the little arow
-                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), "66"), .Left + xO + .Width, .Top + yO, 0, 0, 5, 4, 5, 4)
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(0S), "66"), .Left + xO + .Width, .Top + yO, 0, 0, 5, 4, 5, 4)
                     End Select
             End Select
 
@@ -2057,9 +2060,9 @@ Public Class Gui
         yO = Windows(GetWindowIndex("winBars")).Top
 
         ' Bars
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 27), xO + 15, yO + 15, 0, 0, GameState.BarWidth_GuiHP, 13, GameState.BarWidth_GuiHP, 13)
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 28), xO + 15, yO + 32, 0, 0, GameState.BarWidth_GuiSP, 13, GameState.BarWidth_GuiSP, 13)
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 29), xO + 15, yO + 49, 0, 0, GameState.BarWidth_GuiEXP, 13, GameState.BarWidth_GuiEXP, 13)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 27), xO + 15, yO + 15, 0, 0, GameState.BarWidth_GuiHP, 13, GameState.BarWidth_GuiHP, 13)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 28), xO + 15, yO + 32, 0, 0, GameState.BarWidth_GuiSP, 13, GameState.BarWidth_GuiSP, 13)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 29), xO + 15, yO + 49, 0, 0, GameState.BarWidth_GuiEXP, 13, GameState.BarWidth_GuiEXP, 13)
     End Sub
 
     ' #######################
@@ -2444,8 +2447,8 @@ Public Class Gui
                 GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
-                .movedX = GameState.CurMouseX - .Left
-                .movedY = GameState.CurMouseY - .Top
+                .MovedX = GameState.CurMouseX - .Left
+                .MovedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2555,7 +2558,7 @@ Public Class Gui
     ' ##    Bank   ##
     ' ###############
     Public Shared Sub btnMenu_Bank()
-        If Windows(GetWindowIndex("winBank")).Visible = True
+        If Windows(GetWindowIndex("winBank")).Visible = True Then
             CloseBank()
         End If
     End Sub
@@ -2611,8 +2614,8 @@ Public Class Gui
                 GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
-                .movedX = GameState.CurMouseX - .Left
-                .movedY = GameState.CurMouseY - .Top
+                .MovedX = GameState.CurMouseX - .Left
+                .MovedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2678,7 +2681,7 @@ Public Class Gui
         ' check for other windows
         For I = 1 To Windows.Count
             With Windows(I)
-                If .Visible = True
+                If .Visible = True Then
                     ' can't drag to self
                     If .Name <> "winDragBox" Then
                         If GameState.CurMouseX >= .Left And GameState.CurMouseX <= .Left + .Width Then
@@ -2873,8 +2876,8 @@ Public Class Gui
                 GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
-                .movedX = GameState.CurMouseX - .Left
-                .movedY = GameState.CurMouseY - .Top
+                .MovedX = GameState.CurMouseX - .Left
+                .MovedY = GameState.CurMouseY - .Top
             End With
 
             ShowWindow(winIndex, , False)
@@ -2953,8 +2956,8 @@ Public Class Gui
                 GameClient.IsMouseButtonDown(MouseButton.Left)
                 .Left = GameState.CurMouseX - 16
                 .Top = GameState.CurMouseY - 16
-                .movedX = GameState.CurMouseX - .Left
-                .movedY = GameState.CurMouseY - .Top
+                .MovedX = GameState.CurMouseX - .Left
+                .MovedY = GameState.CurMouseY - .Top
             End With
             ShowWindow(winIndex, , False)
 
@@ -3171,7 +3174,7 @@ Public Class Gui
         'UpdateButton Windows.Count, "btnGuild", 155, 1, 29, 29, , , , 107, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Guild), , , -1, -1
         'UpdateButton Windows.Count, "btnQuest", 191, 1, 29, 29, , , , 23, , , , , , DesignType.desGreen, DesignType.desGreen_Hover, DesignType.desGreen_Click, , , New Action(AddressOf btnMenu_Quest), , , -1, -2
         UpdateButton(Windows.Count, "btnMap", 119, 1, 29, 29, , , 106, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Map), , , -1, -2)
-        UpdateButton(Windows.Count, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , , , -1, -1)
+        UpdateButton(Windows.Count, "btnGuild", 155, 1, 29, 29, , , 107, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Guild), , , -1, -1)
         UpdateButton(Windows.Count, "btnQuest", 191, 1, 29, 29, , , 23, , , , , , DesignType.Grey, DesignType.Grey, DesignType.Grey, , , New Action(AddressOf btnMenu_Quest), , , -1, -2)
     End Sub
 
@@ -3287,8 +3290,8 @@ Public Class Gui
     Public Shared Sub DrawCharacter()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, sprite As Long, itemNum As Long, ItemIcon As Long
 
-        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
-    
+        If GameState.MyIndex < 1 Or GameState.MyIndex > MAX_PLAYERS Then Exit Sub
+
         xO = Windows(GetWindowIndex("winCharacter")).Left
         yO = Windows(GetWindowIndex("winCharacter")).Top
 
@@ -3392,8 +3395,8 @@ Public Class Gui
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, itemNum As Long, ItemIcon As Long, x As Long, Top As Long, Left As Long, Amount As String
         Dim Color As Microsoft.Xna.Framework.Color, skipItem As Boolean, amountModifier As Long, tmpItem As Long
 
-        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
-    
+        If GameState.MyIndex < 1 Or GameState.MyIndex > MAX_PLAYERS Then Exit Sub
+
         xO = Windows(GetWindowIndex("winInventory")).Left
         yO = Windows(GetWindowIndex("winInventory")).Top
         Width = Windows(GetWindowIndex("winInventory")).Width
@@ -3534,7 +3537,7 @@ Public Class Gui
 
                 ' render bar
                 With Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "picBar"))
-                    If .Visible = True
+                    If .Visible = True Then
                         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12)
                     End If
                 End With
@@ -3587,7 +3590,7 @@ Public Class Gui
         UpdateLabel(Windows.Count, "lblBlank", 35, 92, 140, 10, "Select Resolution", FontType.Georgia, Microsoft.Xna.Framework.Color.White, AlignmentType.Center)
 
         ' combobox
-        ControlComboBox(Windows.Count, "cmbRes", 30, 100, 150, 18, DesignType.ComboNorm)
+        UpdateComboBox(Windows.Count, "cmbRes", 30, 100, 150, 18, DesignType.ComboNorm)
 
         ' Button
         UpdateButton(Windows.Count, "btnConfirm", 65, 168, 80, 22, "Confirm", FontType.Georgia, , , , , , , DesignType.Green, DesignType.Green_Hover, DesignType.Green_Click, , , AddressOf btnOptions_Confirm)
@@ -4158,8 +4161,8 @@ Public Class Gui
         yO = Windows(GetWindowIndex("winHotbar")).Top
 
         ' Render start + end wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
         For i = 1 To MAX_Hotbar
             xO = Windows(GetWindowIndex("winHotbar")).Left + GameState.HotbarLeft + ((i - 1) * GameState.HotbarOffsetX)
             yO = Windows(GetWindowIndex("winHotbar")).Top + GameState.HotbarTop
@@ -4169,11 +4172,11 @@ Public Class Gui
             ' Don't render last one
             If i <> MAX_Hotbar Then
                 ' Render wood
-                GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 32), xO + 30, yO + 3, 0, 0, 13, 26, 13, 26)
+                GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 32), xO + 30, yO + 3, 0, 0, 13, 26, 13, 26)
             End If
 
             ' Render box
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 30), xO - 2, yO - 2, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 30), xO - 2, yO - 2, 0, 0, Width, Height, Width, Height)
 
             ' Render icon
             If Not (DragBox.Origin = PartOriginType.Hotbar And DragBox.Slot = i) Then
