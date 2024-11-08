@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Mirage.Sharp.Asfw.Network
 {
   public sealed class NetworkClient : IDisposable
   {
+    private string _lastIp;
+    private int _lastPort;
+
     private Socket _socket;
     private byte[] _receiveBuffer;
     private byte[] _packetRing;
@@ -13,7 +17,9 @@ namespace Mirage.Sharp.Asfw.Network
     private int _packetSize;
     private bool _connecting;
     public NetworkClient.DataArgs[] PacketId;
-
+    private const int ReconnectInterval = 5000; // 5 seconds
+    private const int MaxReconnectDuration = 30000; // 30 seconds
+    
     public bool ThreadControl { get; set; }
 
     public event NetworkClient.ConnectionArgs ConnectionSuccess;
@@ -30,9 +36,6 @@ namespace Mirage.Sharp.Asfw.Network
 
     public NetworkClient(int packetCount, int packetSize = 8192)
     {
-        if (this._socket != null)
-            return;
-
         if (packetSize <= 0)
             packetSize = 8192;
 
@@ -40,15 +43,15 @@ namespace Mirage.Sharp.Asfw.Network
         this._socket.NoDelay = true;
 
         // Enable TCP Keep-Alive on the client
+#if WINDOWS
         this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-
-        // Set keep-alive options (platform-dependent code may be needed for finer control)
         byte[] keepAliveSettings = new byte[12];
         BitConverter.GetBytes(1).CopyTo(keepAliveSettings, 0);  // Enable keep-alive
         BitConverter.GetBytes(10000).CopyTo(keepAliveSettings, 4);  // Time (10 seconds)
         BitConverter.GetBytes(1000).CopyTo(keepAliveSettings, 8);  // Interval (1 second)
 
         this._socket.IOControl(IOControlCode.KeepAliveValues, keepAliveSettings, null);
+#endif
 
         this._packetCount = packetCount;
         this._packetSize = packetSize;
@@ -75,19 +78,19 @@ namespace Mirage.Sharp.Asfw.Network
 
     public void Connect(string ip, int port)
     {
-      if (this._socket == null)
+      if (_socket == null)
       {
         Console.WriteLine("Error: Socket is null.");
         return;
       }
 
-      if (this._socket.Connected)
+      if (_socket.Connected)
       {
         Console.WriteLine("Warning: Already connected.");
         return;
       }
 
-      if (this._connecting)
+      if (_connecting)
       {
         Console.WriteLine("Warning: Connection already in progress.");
         return;
@@ -95,20 +98,21 @@ namespace Mirage.Sharp.Asfw.Network
 
       try
       {
-        this._connecting = true;
+        _connecting = true;
+        _lastIp = ip;     // Store IP for reconnection
+        _lastPort = port; // Store port for reconnection
         Console.WriteLine($"Attempting to connect to {ip}:{port}...");
 
         IPAddress address = ip.ToLower() == "localhost" 
           ? IPAddress.Loopback 
           : IPAddress.Parse(ip);
 
-        _socket.BeginConnect(new IPEndPoint(address, port), 
-          new AsyncCallback(this.DoConnect), null);
+        _socket.BeginConnect(new IPEndPoint(address, port), new AsyncCallback(this.DoConnect), null);
       }
       catch (Exception ex)
       {
         Console.WriteLine($"Connection error: {ex.Message}");
-        this._connecting = false;
+        _connecting = false;
       }
     }
 
@@ -158,33 +162,104 @@ namespace Mirage.Sharp.Asfw.Network
         }
       }
     }
+    
+    public async void Reconnect()
+    {
+      if (_socket == null || _lastIp == null || _lastPort == 0)
+      {
+        Console.WriteLine("Reconnect error: No previous connection information.");
+        return;
+      }
+
+      int elapsed = 0;
+
+      while (elapsed < MaxReconnectDuration && !_socket.Connected)
+      {
+        Console.WriteLine($"Attempting to reconnect to {_lastIp}:{_lastPort}...");
+
+        try
+        {
+          IPAddress address = _lastIp.ToLower() == "localhost" 
+            ? IPAddress.Loopback 
+            : IPAddress.Parse(_lastIp);
+
+          await Task.Run(() => _socket.Connect(new IPEndPoint(address, _lastPort)));
+
+          if (_socket.Connected)
+          {
+            Console.WriteLine("Reconnection successful.");
+            this.ConnectionSuccess?.Invoke();
+            BeginReceiveData(); // Start receiving data after reconnect
+            break;
+          }
+        }
+        catch (SocketException ex)
+        {
+          Console.WriteLine($"Reconnection attempt failed: {ex.Message}");
+        }
+
+        await Task.Delay(ReconnectInterval);
+        elapsed += ReconnectInterval;
+      }
+
+      if (!_socket.Connected)
+      {
+        Console.WriteLine("Failed to reconnect within the timeout period.");
+      }
+    }
 
     public bool IsConnected => this._socket != null && this._socket.Connected;
 
-    public void Disconnect()
+    public void Disconnect(bool tryReconnect = false)
     {
-      if (this._socket == null || !this._socket.Connected)
+      if (_socket == null || !_socket.Connected)
+      {
+        Console.WriteLine("Disconnect called, but socket is either null or already disconnected.");
         return;
-      this._socket.BeginDisconnect(false, new AsyncCallback(this.DoDisconnect), (object) null);
+      }
+
+      try
+      {
+        _socket.Shutdown(SocketShutdown.Both);
+        _socket.Close();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Error during disconnect: {ex.Message}");
+      }
+      finally
+      {
+        _socket = null;
+      }
+
+      Console.WriteLine("Disconnected.");
+
+      // Trigger reconnection if requested
+      if (tryReconnect)
+      {
+        Console.WriteLine("Attempting to reconnect...");
+        Reconnect(); // Uses the stored IP and port
+      }
     }
 
     private void DoDisconnect(IAsyncResult ar)
     {
-      if (this._socket == null)
+      if (_socket == null)
         return;
+
       try
       {
-        this._socket.EndDisconnect(ar);
+        _socket.EndDisconnect(ar);
       }
-      catch
+      catch (Exception ex)
       {
+        Console.WriteLine($"Error in DoDisconnect: {ex.Message}");
       }
-      NetworkClient.ConnectionArgs connectionLost = this.ConnectionLost;
-      if (connectionLost == null)
-        return;
-      connectionLost();
-    }
 
+      Console.WriteLine("Disconnected. Attempting to reconnect...");
+      Reconnect(); // Use stored IP and port for reconnection
+    }
+    
     private void BeginReceiveData()
     {
       this._receiveBuffer = new byte[this._packetSize];

@@ -225,7 +225,9 @@ namespace Mirage.Sharp.Asfw.Network
             Socket socket = this.EndAccept(ar);
             if (socket != null)
             {
+#if WINDOWS
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true); // Enable SO_KEEPALIVE for the client socket
+#endif                
                 int emptySlot = this.FindEmptySlot(this.MinimumIndex);
                 this._socket.Add(emptySlot, socket);
                 this._socket[emptySlot].ReceiveBufferSize = this._packetSize;
@@ -358,6 +360,7 @@ namespace Mirage.Sharp.Asfw.Network
   // Helper to handle socket errors and cleanup
   private void HandleSocketError(NetworkServer.ReceiveState state, string error, Exception ex = null)
   {
+      return;
       this.CrashReport?.Invoke(state.Index, error);
       if (ex != null) Console.WriteLine($"Exception: {ex.Message}");
       DisconnectAndDispose(state.Index, state);
