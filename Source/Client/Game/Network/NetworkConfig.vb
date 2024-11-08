@@ -25,8 +25,8 @@ Friend Module NetworkConfig
     End Sub
 
     Private Sub OnConnectionFailed()
-        Console.WriteLine("Failed to connect to the server. Retrying in 5 seconds...")
-        Task.Delay(5000).ContinueWith(Sub() Socket.Connect("127.0.0.1", Settings.Port))
+        Console.WriteLine("Failed to connect to the server. Retrying...")
+        Socket.Connect(Settings.Ip, Settings.Port)
     End Sub
 
     Friend Sub DestroyNetwork()
