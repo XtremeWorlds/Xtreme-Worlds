@@ -598,7 +598,7 @@ Public Class GameClient
             GameState.VbKeyShift = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)
 
             ' Handle Escape key to toggle menus
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Escape) Then
+            If GameClient.IsKeyStateActive(Keys.Escape) Then
                 If GameState.InMenu = True Then Exit Sub
 
                 ' Hide options screen
