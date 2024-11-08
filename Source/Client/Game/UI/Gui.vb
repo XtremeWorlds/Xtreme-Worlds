@@ -1151,7 +1151,7 @@ Public Class Gui
     Public Shared Sub RenderControl(winNum As Long, entNum As Long)
         Dim xO As Long, yO As Long, hor_centre As Double, ver_centre As Double, height As Double, width As Double
         Dim textArray() As String, count As Long, i As Long, taddText As String
-        Dim yOffset As Long
+        Dim yOffset As Long, sprite As Long, left As Long
 
         ' Check if the window and Control exist
         If winNum <= 0 Or winNum > Windows.Count OrElse entNum <= 0 Or entNum > Windows(winNum).Controls.Count - 1 Then
@@ -1200,7 +1200,7 @@ Public Class Gui
                     Dim actualHeight = actualSize.Y
 
                     ' Apply padding and calculate position
-                    Dim left = .Left + xO + .xOffset
+                    left = .Left + xO + .xOffset
                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
                     ' Render the final text
@@ -1256,7 +1256,7 @@ Public Class Gui
                                         Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                         Dim actualWidth = actualSize.X
                                         Dim padding = actualWidth / 6.0
-                                        Dim left = .Left + xO + .xOffset + padding
+                                        left = .Left + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
                                                    .Color, Microsoft.Xna.Framework.Color.Black, .Font)
@@ -1265,7 +1265,7 @@ Public Class Gui
                                 Else
                                     Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                     Dim actualWidth = actualSize.X
-                                    Dim left = .Left + xO + .xOffset
+                                    left = .Left + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
                                                .Color, Microsoft.Xna.Framework.Color.Black, .Font)
@@ -1279,7 +1279,7 @@ Public Class Gui
                                         Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                         Dim actualWidth = actualSize.X
                                         Dim padding = actualWidth / 6.0
-                                        Dim left = .Left + .Width - actualWidth + xO + .xOffset + padding
+                                        left = .Left + .Width - actualWidth + xO + .xOffset + padding
 
                                         RenderText(textArray(i), left, .Top + yO + .yOffset + yOffset,
                                                    .Color, Microsoft.Xna.Framework.Color.Black, .Font)
@@ -1288,7 +1288,7 @@ Public Class Gui
                                 Else
                                     Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
                                     Dim actualWidth = actualSize.X
-                                    Dim left = .Left + .Width - actualSize.X + xO + .xOffset
+                                    left = .Left + .Width - actualSize.X + xO + .xOffset
 
                                     RenderText(.Text, left, .Top + yO + .yOffset,
                                                .Color, Microsoft.Xna.Framework.Color.Black, .Font)
@@ -1304,7 +1304,7 @@ Public Class Gui
                                         Dim actualWidth = actualSize.X
                                         Dim actualHeight = actualSize.Y
                                         Dim padding = actualWidth / 6.0
-                                        Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
+                                        left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
                                         Dim top = .Top + yO + .yOffset + yOffset + ((.Height - actualHeight) / 2.0)
 
                                         RenderText(textArray(i), left, top,
@@ -1316,7 +1316,7 @@ Public Class Gui
                                     Dim actualWidth = actualSize.X
                                     Dim actualHeight = actualSize.Y
                                     Dim padding = actualWidth / 6.0
-                                    Dim left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
+                                    left = .Left + ((.Width - actualWidth) / 2.0) + xO + .xOffset + padding - 4
                                     Dim top = .Top + yO + .yOffset + ((.Height - actualHeight) / 2.0)
 
                                     RenderText(.Text, left, top,
@@ -1324,6 +1324,65 @@ Public Class Gui
                                 End If
                         End Select
                     End If
+                ' Checkboxes
+                Case ControlType.Checkbox
+                    Select Case .Design(0)
+                        Case DesignType.ChkNorm
+                            ' empty?
+                            If .Value = 0 Then sprite = 2 Else sprite = 3
+
+                            ' ren'der box
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(0), sprite), .Left + xO, .Top + yO, 0, 0, 16, 16, 16, 16)
+
+                            ' find text position
+                            Select Case .Align
+                                Case AlignmentType.Left
+                                    Left = .Left + 18 + xO
+                                Case AlignmentType.Right
+                                    Left = .Left + 18 + (.Width - 18) - TextWidth(.Text, .Font) + xO
+                                Case AlignmentType.Center
+                                    Left = .Left + 18 + ((.Width - 18) / 2) - (TextWidth(.Text, .Font) / 2) + xO
+                            End Select
+
+                            ' render text
+                            RenderText(.Text, Left, .Top + yO, .Color, Microsoft.Xna.Framework.Color.Black)
+
+                        Case DesignType.ChkChat
+                            If .Value = 0 Then .Alpha = 150 Else .Alpha = 255
+
+                            ' render box
+                            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 51), .Left + xO, .Top + yO, 0, 0, 49, 23, 49, 23)
+
+                            ' render text
+                            left = .Left + 22 - (TextWidth(.Text, .Font) / 2) + xO
+                            RenderText(.Text, Left, .Top + yO + 4, .Color, Microsoft.Xna.Framework.Color.Black)
+
+                        Case DesignType.ChkBuying
+                            If .Value = 0 Then sprite = 58 Else sprite = 56
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), sprite), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
+
+                        Case DesignType.ChkSelling
+                            If .Value = 0 Then sprite = 59 Else sprite = 57
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), sprite), .Left + xO, .Top + yO, 0, 0, 49, 20, 49, 20)
+                    End Select
+
+                ' comboboxes
+                Case ControlType.Combobox
+                    Select Case .Design(0)
+                        Case DesignType.ComboNorm
+                            ' draw the background
+                            RenderDesign(DesignType.TextBlack, .Left + xO, .Top + yO, .Width, .Height)
+
+                            ' render the text
+                            If .Value > 0 Then
+                                If .Value <= .List.Count - 1 Then
+                                    RenderText(.List(.Value), .Left + xO, .Top + yO, .Color, Microsoft.Xna.Framework.Color.Black)
+                                End If
+                            End If
+
+                            ' draw the little arow
+                            GameClient.RenderTexture(IO.Path.Combine(.Texture(.State), "66"), .Left + xO + .Width, .Top + yO, 0, 0, 5, 4, 5, 4)
+                    End Select
             End Select
 
             If Not .OnDraw Is Nothing Then .OnDraw.Invoke()
