@@ -37,7 +37,7 @@ Friend Module NetworkConfig
 
     Private Sub Socket_ConnectionFailed() Handles Socket.ConnectionFailed
         Console.WriteLine("Failed to connect to the server. Retrying...")
-        Socket.Connect(Settings.Ip, Settings.Port)
+        InitNetwork()
     End Sub
 
     Private Sub Socket_ConnectionLost() Handles Socket.ConnectionLost
