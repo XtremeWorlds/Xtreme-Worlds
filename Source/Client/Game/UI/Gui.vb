@@ -997,17 +997,17 @@ Public Class Gui
             Next
 
             If curWindow > 0 Then
-                ' Handle controls in the active window
-                For i = 0 To Windows(curWindow).Controls?.Count - 1
-                    If Windows(curWindow).Controls IsNot Nothing Then
+                If Windows(curWindow).Controls IsNot Nothing Then
+                    ' Handle controls in the active window
+                    For i = 0 To Windows(curWindow).Controls?.Count - 1
                         With Windows(curWindow).Controls(i)
                             If .Enabled AndAlso .Visible Then
                                 If .State <> EntState.MouseDown Then .State = EntState.Normal
 
                                 If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
-                                   GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
-                                   GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
-                                   GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
+                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
 
                                     If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
                                         curControl = i
@@ -1021,8 +1021,8 @@ Public Class Gui
                                 End If
                             End If
                         End With
-                    End If
-                Next
+                    Next
+                End If
 
                 ' Handle active control
                 If curControl > 0 Then
@@ -1225,14 +1225,12 @@ Public Class Gui
                     ' Render the icon if available
                     If .Icon > 0 Then
                         Dim gfxInfo = GameClient.GetGfxInfo(IO.Path.Combine(Core.Path.Items, .Icon))
-                        If gfxInfo IsNot Nothing Then
-                            Dim iconWidth = gfxInfo.Width
-                            Dim iconHeight = gfxInfo.Height
+                        Dim iconWidth = gfxInfo.Width
+                        Dim iconHeight = gfxInfo.Height
 
-                            GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon),
+                        GameClient.RenderTexture(IO.Path.Combine(Path.Items, .Icon),
                                                      .Left + xO + .xOffset, .Top + yO + .yOffset,
                                                      0, 0, iconWidth, iconHeight, iconWidth, iconHeight)
-                        End If
                     End If
 
                     ' Measure button text size and apply padding
@@ -3790,7 +3788,7 @@ Public Class Gui
         ' move menu
         Windows(GetWindowIndex("winMenu")).Left = GameState.ResolutionWidth - 242
         Windows(GetWindowIndex("winMenu")).Top = -42
-        
+
         ' loop through
         Top = -80
         
