@@ -429,10 +429,6 @@ Module NetworkReceive
             ' send them to the character portal
             Call SendPlayerChars(index)
 
-            For i = 1 To MAX_JOBS
-                Call SendUpdateJob(index, i)
-            Next
-
             buffer.Dispose()
         End If
     End Sub
