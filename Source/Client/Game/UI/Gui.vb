@@ -2117,9 +2117,6 @@ Public Class Gui
         xO = Windows(GetWindowIndex("winJob")).Left
         yO = Windows(GetWindowIndex("winJob")).Top
 
-        ' Ensure a valid job is selected
-        If GameState.newCharJob = 0 Then GameState.newCharJob = 1
-
         ' Determine character image based on job
         Select Case GameState.newCharJob
             Case 1 ' Warrior
@@ -2154,9 +2151,6 @@ Public Class Gui
         ' Get window coordinates
         xO = Windows(GetWindowIndex("winJob")).Left
         yO = Windows(GetWindowIndex("winJob")).Top
-
-        ' Ensure a valid job is selected
-        If GameState.newCharJob = 0 Then GameState.newCharJob = 1
 
         ' Get job description or use default
         If Type.Job(GameState.newCharJob).Desc = "" Then
