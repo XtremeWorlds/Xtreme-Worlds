@@ -271,7 +271,9 @@ Module Text
                 color = Color.Yellow
                 backColor = Color.Black
         End Select
-        textX = ConvertMapX(MyMapNPC(MapNpcNum).X * GameState.PicX) + MyMapNPC(MapNpcNum).XOffset + (GameState.PicX \ 2) - (GetTextWidth((Type.NPC(npcNum).Name))) / 2 - 2
+        textX = ConvertMapX(MyMapNPC(MapNpcNum).X * GameState.PicX) + MyMapNPC(MapNpcNum).XOffset + (GameState.PicX \ 2) - 6
+        textX -= GetTextWidth((Type.NPC(npcNum).Name) / 6)
+
         If Type.NPC(npcNum).Sprite < 1 Or Type.NPC(npcNum).Sprite > GameState.NumCharacters Then
             textY = ConvertMapY(MyMapNPC(MapNpcNum).Y * GameState.PicY) + MyMapNPC(MapNpcNum).YOffset - 16
         Else
@@ -294,7 +296,9 @@ Module Text
         name = MapEvents(index).Name
 
         ' calc pos
-        textX = ConvertMapX(MapEvents(index).X * GameState.PicX) + MapEvents(index).XOffset + (GameState.PicX \ 2) - (GetTextWidth(name)) \ 2 - 2
+        textX = ConvertMapX(GetPlayerX(index) * GameState.PicX) + MapEvents(index).XOffset + (GameState.PicX \ 2) - 6
+        textX -= GetTextWidth((name) / 6)
+
         If MapEvents(index).GraphicType = 0 Then
             textY = ConvertMapY(MapEvents(index).Y * GameState.PicY) + MapEvents(index).YOffset - 16
         ElseIf MapEvents(index).GraphicType = 1 Then
@@ -482,8 +486,8 @@ Module Text
         name = Type.Player(index).Name
 
         ' calc pos
-        textX = ConvertMapX(GetPlayerX(index) * GameState.PicX) + Type.Player(index).XOffset + (GameState.PicX \ 2) - 2
-        textX = textX - (GetTextWidth((name)) / 2)
+        textX = ConvertMapX(GetPlayerX(index) * GameState.PicX) + Type.Player(index).XOffset + (GameState.PicX \ 2) - 6
+        textX -= GetTextWidth(name) / 6
 
         If GetPlayerSprite(index) < 0 Or GetPlayerSprite(index) > GameState.NumCharacters Then
             textY = ConvertMapY(GetPlayerY(index) * GameState.PicY) + Type.Player(GameState.MyIndex).YOffset - 16

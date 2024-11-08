@@ -1128,7 +1128,7 @@ Module NetworkSend
 
         buffer.WriteInt32(ServerPackets.SHotbar)
 
-        For i = 1 To MAX_Hotbar
+        For i = 1 To MAX_HOTBAR
             buffer.WriteInt32(Type.Player(index).Hotbar(i).Slot)
             buffer.WriteInt32(Type.Player(index).Hotbar(i).SlotType)
         Next

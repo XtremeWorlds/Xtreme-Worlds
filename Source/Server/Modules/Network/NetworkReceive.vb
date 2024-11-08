@@ -2193,9 +2193,9 @@ Module NetworkReceive
         oldSlot = buffer.ReadInt32
         skill = buffer.ReadInt32
 
-        If newSlot < 1 Or newSlot > MAX_Hotbar Then Exit Sub
+        If newSlot < 1 Or newSlot > MAX_HOTBAR Then Exit Sub
         If type = PartOriginType.Hotbar Then
-            If oldSlot < 1 Or oldSlot > MAX_Hotbar Then Exit Sub
+            If oldSlot < 1 Or oldSlot > MAX_HOTBAR Then Exit Sub
 
             Core.Player(index).Hotbar(newSlot).Slot = skill
             Core.Player(index).Hotbar(newSlot).SlotType = Core.Player(index).Hotbar(oldSlot).SlotType
@@ -2218,7 +2218,7 @@ Module NetworkReceive
 
         slot = buffer.ReadInt32
 
-        If slot < 1 Or slot > MAX_Hotbar Then Exit Sub
+        If slot < 1 Or slot > MAX_HOTBAR Then Exit Sub
 
         Core.Player(index).Hotbar(slot).Slot = 0
         Core.Player(index).Hotbar(slot).SlotType = 0
@@ -2235,7 +2235,7 @@ Module NetworkReceive
         slot = buffer.ReadInt32
         buffer.Dispose()
 
-        If slot < 1 Or slot > MAX_Hotbar Then Exit Sub
+        If slot < 1 Or slot > MAX_HOTBAR Then Exit Sub
 
         If Core.Player(index).Hotbar(slot).Slot > 0 Then
             If Core.Player(index).Hotbar(slot).SlotType = PartType.Item Then

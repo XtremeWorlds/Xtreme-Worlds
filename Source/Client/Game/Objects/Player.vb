@@ -72,7 +72,7 @@ Module Player
         Type.Player(index).Y = 0
         Type.Player(index).YOffset = 0
 
-        ReDim Type.Player(index).Hotbar(MAX_Hotbar)
+        ReDim Type.Player(index).Hotbar(MAX_HOTBAR)
         ReDim Type.Player(index).GatherSkills(ResourceType.Count - 1)
         ReDim Type.Player(index).GatherSkills(ResourceType.Count - 1)
 

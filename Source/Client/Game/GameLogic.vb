@@ -1019,7 +1019,7 @@ Continue1:
         Dim tempRec As RectangleStruct
         Dim i As Long
 
-        For i = 1 To MAX_Hotbar
+        For i = 1 To MAX_HOTBAR
             With tempRec
                 .Top = StartY + GameState.HotbarTop
                 .Left = StartX + ((i - 1) * GameState.HotbarOffsetX)

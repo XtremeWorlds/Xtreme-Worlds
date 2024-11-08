@@ -422,7 +422,6 @@ Public Class Gui
         UpdateControl(winNum, zOrder_Con, name, Microsoft.Xna.Framework.Color.White, ControlType.Checkbox, design, image, texture, callback, left, top, width, height, visible, , , , value, text, align, font, , alpha, , , , censor, , , , , group)
     End Sub
 
-
     Public Shared Sub UpdateComboBox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long, design As Long)
         ' Initialize lists for the control states
         Dim theDesign As New List(Of Long)(Enumerable.Repeat(0L, EntState.Count).ToList())
@@ -517,7 +516,6 @@ Public Class Gui
             Return 0  ' Indicate no control was activated
         End If
     End Function
-
 
     Public Shared Sub CentralizeWindow(curWindow As Long)
         With Windows(curWindow)
@@ -2796,7 +2794,7 @@ Public Class Gui
                     If DragBox.Origin <> PartOriginType.None Then
                         If DragBox.Type <> PartType.None Then
                             ' find the slot
-                            For I = 1 To MAX_Hotbar
+                            For I = 1 To MAX_HOTBAR
                                 With tmpRec
                                     .Top = Windows(curWindow).Top + GameState.HotbarTop
                                     .Bottom = .Top + 32
@@ -3791,7 +3789,7 @@ Public Class Gui
 
         ' loop through
         Top = -80
-        
+
         ' re-size right-click background
         Windows(GetWindowIndex("winRightClickBG")).Width = GameState.ResolutionWidth
         Windows(GetWindowIndex("winRightClickBG")).Height = GameState.ResolutionHeight
@@ -3804,8 +3802,8 @@ Public Class Gui
     Public Shared Sub DrawSkills()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, y As Long, Skillnum As Long, SkillPic As Long, x As Long, Top As Long, Left As Long
 
-        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
-    
+        If GameState.MyIndex < 1 Or GameState.MyIndex > MAX_PLAYERS Then Exit Sub
+
         xO = Windows(GetWindowIndex("winSkills")).Left
         yO = Windows(GetWindowIndex("winSkills")).Top
 
@@ -4152,23 +4150,23 @@ Public Class Gui
 
     Public Shared Sub DrawHotbar()
         Dim xO As Long, yO As Long, Width As Long, Height As Long, i As Long, t As Long, sS As String
-    
-        if GameState.MyIndex < 1 or GameState.MyIndex > MAX_PLAYERS then Exit Sub
-    
+
+        If GameState.MyIndex < 1 Or GameState.MyIndex > MAX_PLAYERS Then Exit Sub
+
         xO = Windows(GetWindowIndex("winHotbar")).Left
         yO = Windows(GetWindowIndex("winHotbar")).Top
 
         ' Render start + end wood
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 31), xO - 1, yO + 3, 0, 0, 11, 26, 11, 26)
         GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 31), xO + 407, yO + 3, 0, 0, 11, 26, 11, 26)
-        For i = 1 To MAX_Hotbar
+        For i = 1 To MAX_HOTBAR
             xO = Windows(GetWindowIndex("winHotbar")).Left + GameState.HotbarLeft + ((i - 1) * GameState.HotbarOffsetX)
             yO = Windows(GetWindowIndex("winHotbar")).Top + GameState.HotbarTop
             Width = 36
             Height = 36
 
             ' Don't render last one
-            If i <> MAX_Hotbar Then
+            If i <> MAX_HOTBAR Then
                 ' Render wood
                 GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 32), xO + 30, yO + 3, 0, 0, 13, 26, 13, 26)
             End If
@@ -4202,7 +4200,7 @@ Public Class Gui
 
             ' Draw the numbers
             sS = Str(i)
-            If i = MAX_Hotbar Then sS = "0"
+            If i = MAX_HOTBAR Then sS = "0"
             RenderText(sS, xO + 4, yO + 19, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.White)
         Next
     End Sub

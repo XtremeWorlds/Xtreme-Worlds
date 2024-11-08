@@ -593,18 +593,12 @@ Public Class GameClient
             GameState.CurMouseX = mouseX
             GameState.CurMouseY = mouseY
 
-            ' Check for movement keys
-            GameState.DirUp = GameClient.IsKeyStateActive(Keys.W) Or GameClient.IsKeyStateActive(Keys.Up)
-            GameState.DirDown = GameClient.IsKeyStateActive(Keys.S) Or GameClient.IsKeyStateActive(Keys.Down)
-            GameState.DirLeft = GameClient.IsKeyStateActive(Keys.A) Or GameClient.IsKeyStateActive(Keys.Left)
-            GameState.DirRight = GameClient.IsKeyStateActive(Keys.D) Or GameClient.IsKeyStateActive(Keys.Right)
-
             ' Check for action keys
-            GameState.VbKeyControl = GameClient.IsKeyStateActive(Keys.LeftControl)
-            GameState.VbKeyShift = GameClient.IsKeyStateActive(Keys.LeftShift)
+            GameState.VbKeyControl = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftControl)
+            GameState.VbKeyShift = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)
 
             ' Handle Escape key to toggle menus
-            If GameClient.IsKeyStateActive(Keys.Escape) Then
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Escape) Then
                 If GameState.InMenu = True Then Exit Sub
 
                 ' Hide options screen
@@ -633,40 +627,46 @@ Public Class GameClient
                 End If
             End If
 
-            If GameClient.IsKeyStateActive(Keys.Space) Then
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Space) Then
                 CheckMapGetItem()
             End If
 
-            If GameClient.IsKeyStateActive(Keys.Insert) Then
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Insert) Then
                 SendRequestAdmin()
             End If
 
             HandleMouseInputs()
             HandleActiveWindowInput()
             HandleTextInput()
-            
+
             If GameState.InGame = True Then
+                ' Check for movement keys
+                GameState.DirUp = GameClient.CurrentKeyboardState.IsKeyDown(Keys.W) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Up)
+                GameState.DirDown = GameClient.CurrentKeyboardState.IsKeyDown(Keys.S) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Down)
+                GameState.DirLeft = GameClient.CurrentKeyboardState.IsKeyDown(Keys.A) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Left)
+                GameState.DirRight = GameClient.CurrentKeyboardState.IsKeyDown(Keys.D) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Right)
+
                 HandleHotbarInput()
-                
+
                 If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
-            
-                If GameClient.IsKeyStateActive(Keys.I) Then
+
+                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.I) Then
                     ' hide/show inventory
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv()
                 End If
-                
-                If GameClient.IsKeyStateActive(Keys.C) Then
+
+                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.C) Then
                     ' hide/show char
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char()
                 End If
-            
-                If GameClient.IsKeyStateActive(Keys.K) Then
+
+                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.K) Then
                     ' hide/show skills
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills
+                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills()
                 End If
-            
-                If GameClient.IsKeyStateActive(Keys.Enter)
-                    If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True
+
+                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
+                    If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True Then
                         ShowChat()
                         GameState.inSmallChat = 0
                         Exit Sub
@@ -720,7 +720,7 @@ Public Class GameClient
             ' Iterate through hotbar slots and check for corresponding keys
             For i = 1 To MAX_HOTBAR
                 ' Check if the corresponding hotbar key is pressed
-                If  GameClient.IsKeyStateActive(Keys.D0 + i) Then
+                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.D0 + i) Then
                     SendUseHotbarSlot(i)
                     Exit Sub ' Exit once the matching slot is used
                 End If
@@ -752,12 +752,16 @@ Public Class GameClient
                     If character.HasValue Then
                         Dim activeControl = Gui.GetActiveControl()
 
-                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked Then
+                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Enabled Then
                             ' Append character to the control's text
                             activeControl.Text &= character.Value
                             Gui.UpdateActiveControl(activeControl)
+                            Continue For ' Move to the next key
                         End If
                     End If
+
+                    KeyStates.Remove(key)
+                    KeyRepeatTimers.Remove(key)
                 End If
             Next
         End SyncLock
@@ -765,18 +769,19 @@ Public Class GameClient
 
     ' Check if the key can be processed (with interval-based repeat logic)
     Private Shared Function CanProcessKey(key As Keys) As Boolean
-        If KeyStates.ContainsKey(key) Then
-            ' If the key is released, remove it from KeyStates and reset the timer
-            KeyStates.Remove(key)
-            KeyRepeatTimers.Remove(key)
-        End If
-
-        Dim now = DateTime.Now
-        If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
-            KeyRepeatTimers(key) = now ' Update the timer for the key
-            Return True
-        End If
-        Return False
+        SyncLock InputLock
+            Dim now = DateTime.Now
+            If CurrentKeyboardState.IsKeyDown(key) Then
+                If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
+                    ' If the key is released, remove it from KeyStates and reset the timer
+                    KeyStates.Remove(key)
+                    KeyRepeatTimers.Remove(key)
+                    KeyRepeatTimers(key) = now ' Update the timer for the key
+                    Return True
+                End If
+            End If
+            Return False
+        End SyncLock
     End Function
 
     ' Convert a key to a character (if possible)

@@ -1183,7 +1183,7 @@ Module NetworkReceive
         Dim i As Integer
         Dim buffer As New ByteStream(data)
 
-        For i = 1 To MAX_Hotbar
+        For i = 1 To MAX_HOTBAR
             Type.Player(GameState.MyIndex).Hotbar(i).Slot = buffer.ReadInt32
             Type.Player(GameState.MyIndex).Hotbar(i).SlotType = buffer.ReadInt32
         Next

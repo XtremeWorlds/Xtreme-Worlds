@@ -1285,8 +1285,8 @@ Module Database
         Type.Player(index).X = 0
         Type.Player(index).Y = 0
 
-        ReDim Type.Player(index).Hotbar(MAX_Hotbar)
-        For i = 1 To MAX_Hotbar
+        ReDim Type.Player(index).Hotbar(MAX_HOTBAR)
+        For i = 1 To MAX_HOTBAR
             Type.Player(index).Hotbar(i).Slot = 0
             Type.Player(index).Hotbar(i).SlotType = 0
         Next
