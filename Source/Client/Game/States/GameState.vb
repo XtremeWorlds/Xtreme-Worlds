@@ -326,8 +326,8 @@ Public Class GameState
     Public Shared Night As Boolean
 
     ' Speed moving vars
-    Public Const WalkSpeed As Byte = 4
-    Public Const RunSpeed As Byte = 8
+    Public Const WalkSpeed As Byte = 8
+    Public Const RunSpeed As Byte = 16
 
     ' Tile size constants
     Public Const PicX As Integer = 32

@@ -600,7 +600,7 @@ Module Player
 
         ' Adjust speed for diagonal movement
         If GetPlayerDir(index) = DirectionType.UpRight OrElse GetPlayerDir(index) = DirectionType.UpLeft OrElse GetPlayerDir(index) = DirectionType.DownRight OrElse GetPlayerDir(index) = DirectionType.DownLeft Then
-            GameState.MovementSpeed = Math.Sqrt(GameState.MovementSpeed)
+            GameState.MovementSpeed = GameState.MovementSpeed / 2
         End If
 
         GameState.MovementSpeed = Math.Round(GameState.MovementSpeed)
