@@ -764,7 +764,7 @@ Continue1:
 
             Case DialogueMsg.MultiAccount
                 header = "Multiple Accounts"
-                body = "Multiple accounts is not authorized."
+                body = "Multiple accounts are not authorized."
                 body2 = "Please logout and try again!"
 
             Case DialogueMsg.Login
