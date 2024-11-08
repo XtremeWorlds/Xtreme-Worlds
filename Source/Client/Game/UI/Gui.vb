@@ -2148,7 +2148,7 @@ Public Class Gui
 
     Public Shared Sub btnJobs_Right()
         ' Exit if the job is invalid or exceeds limits
-        If GameState.newCharJob > MAX_JOBS OrElse (Type.Job(GameState.newCharJob).Desc = "" And GameState.newCharJob >= 3) Then Exit Sub
+        If GameState.newCharJob > MAX_JOBS OrElse (Type.Job(GameState.newCharJob).Desc = "" And GameState.newCharJob >= MAX_JOBS) Then Exit Sub
 
         ' Move to the next job
         GameState.newCharJob += 1

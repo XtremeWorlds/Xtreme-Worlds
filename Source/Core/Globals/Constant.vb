@@ -1,7 +1,7 @@
 ﻿Public Module Constant
     Public Const MAX_ANIMATIONS As Integer = 100
     Public Const MAX_BANK As Byte = 90
-    Public Const MAX_JOBS As Byte = 10
+    Public Const MAX_JOBS As Byte = 3
     Public Const MAX_MORALS As Byte = 50
     Public Const MAX_COTS As Integer = 30
     Public Const MAX_INV As Byte = 35
