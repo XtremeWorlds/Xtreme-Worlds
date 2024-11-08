@@ -1263,7 +1263,7 @@ Public Class Gui
                                         yOffset += 14
                                     Next
                                 Else
-                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    Dim actualSize = Fonts(.Font).MeasureString(.Text)
                                     Dim actualWidth = actualSize.X
                                     left = .Left + xO + .xOffset
 
@@ -1286,7 +1286,7 @@ Public Class Gui
                                         yOffset += 14
                                     Next
                                 Else
-                                    Dim actualSize = Fonts(.Font).MeasureString(textArray(i))
+                                    Dim actualSize = Fonts(.Font).MeasureString(.Text)
                                     Dim actualWidth = actualSize.X
                                     left = .Left + .Width - actualSize.X + xO + .xOffset
 
