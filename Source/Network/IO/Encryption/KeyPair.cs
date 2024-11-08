@@ -43,30 +43,35 @@ namespace Mirage.Sharp.Asfw.IO.Encryption
       streamReader.Close();
     }
 
-    public byte[] EncryptBytes(byte[] value)
-    {
-      if (this._rsa == null)
-        throw new CryptographicException("Key not set.");
-      var rijndaelManaged1 = Aes.Create("AesManaged");
-      rijndaelManaged1.KeySize = 256;
-      rijndaelManaged1.BlockSize = 128;
-      rijndaelManaged1.Mode = CipherMode.CBC;
-      var rijndaelManaged2 = rijndaelManaged1;
-      using (MemoryStream memoryStream = new MemoryStream())
-      {
-        memoryStream.Write(this._rsa?.Encrypt(rijndaelManaged2?.Key, false), 0, 256);
-        memoryStream.Write(rijndaelManaged2.IV, 0, 16);
-        using (ICryptoTransform encryptor = rijndaelManaged2.CreateEncryptor())
+        public byte[] EncryptBytes(byte[] value)
         {
-          using (CryptoStream cryptoStream = new CryptoStream((Stream) memoryStream, encryptor, CryptoStreamMode.Write))
-          {
-            cryptoStream.Write(value, 0, value.Length);
-            cryptoStream.FlushFinalBlock();
-          }
+            if (this._rsa == null)
+                throw new CryptographicException("Key not set.");
+            var rijndaelManaged1 = Aes.Create("AesManaged");
+            rijndaelManaged1.KeySize = 256;
+            rijndaelManaged1.BlockSize = 128;
+            rijndaelManaged1.Mode = CipherMode.CBC;
+            var rijndaelManaged2 = rijndaelManaged1;
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                var encryptedKey = this._rsa?.Encrypt(rijndaelManaged2?.Key, false);
+                if (encryptedKey.Length != 256)
+                {
+                    return new byte[0]; // Return an empty byte array
+                }
+                memoryStream.Write(encryptedKey, 0, encryptedKey.Length);
+                memoryStream.Write(rijndaelManaged2.IV, 0, 16);
+                using (ICryptoTransform encryptor = rijndaelManaged2.CreateEncryptor())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        cryptoStream.Write(value, 0, value.Length);
+                        cryptoStream.FlushFinalBlock();
+                    }
+                }
+                return memoryStream.ToArray();
+            }
         }
-        return memoryStream.ToArray();
-      }
-    }
 
     public async Task<byte[]> EncryptBytesAsync(byte[] value)
     {
