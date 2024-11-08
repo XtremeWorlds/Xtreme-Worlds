@@ -367,7 +367,6 @@ namespace Mirage.Sharp.Asfw.Network
   // Helper to handle socket errors and cleanup
   private void HandleSocketError(NetworkServer.ReceiveState state, string error, Exception ex = null)
   {
-      return;
       this.CrashReport?.Invoke(state.Index, error);
       if (ex != null) Console.WriteLine($"Exception: {ex.Message}");
       DisconnectAndDispose(state.Index, state);
