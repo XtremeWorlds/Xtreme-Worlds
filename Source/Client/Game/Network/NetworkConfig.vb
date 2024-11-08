@@ -11,22 +11,16 @@ Friend Module NetworkConfig
 
             ' Start the connection attempt.
             AddHandler Socket.ConnectionSuccess, AddressOf OnConnectionSuccess
-            AddHandler Socket.ConnectionFailed, AddressOf OnConnectionFailed
 
             Socket.Connect(Settings.Ip, Settings.Port) ' Adjust IP and port as needed
         Catch ex As Exception
             Console.WriteLine($"Network initialization failed: {ex.Message}")
         End Try
     End Sub
-    
+
     Private Sub OnConnectionSuccess()
         Console.WriteLine("Connection established. Starting packet router...")
         PacketRouter()
-    End Sub
-
-    Private Sub OnConnectionFailed()
-        Console.WriteLine("Failed to connect to the server. Retrying...")
-        Socket.Connect(Settings.Ip, Settings.Port)
     End Sub
 
     Friend Sub DestroyNetwork()
@@ -42,7 +36,8 @@ Friend Module NetworkConfig
     End Sub
 
     Private Sub Socket_ConnectionFailed() Handles Socket.ConnectionFailed
-        Console.WriteLine("Connection failed.")
+        Console.WriteLine("Failed to connect to the server. Retrying...")
+        Socket.Connect(Settings.Ip, Settings.Port)
     End Sub
 
     Private Sub Socket_ConnectionLost() Handles Socket.ConnectionLost
