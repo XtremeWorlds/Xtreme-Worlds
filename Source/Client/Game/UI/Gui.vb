@@ -1196,6 +1196,9 @@ Public Class Gui
                     ' Final text with potential censoring and additional input
                     Dim finalText As String = If(.Censor, CensorText(.Text), .Text) & taddText
 
+                    ' Remove vbNullChar from the finalText
+                    finalText = finalText.Replace(vbNullChar, String.Empty)
+
                     ' Measure the text size
                     Dim actualSize = Fonts(.Font).MeasureString(finalText)
                     Dim actualWidth = actualSize.X
