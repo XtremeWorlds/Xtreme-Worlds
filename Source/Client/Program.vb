@@ -1505,6 +1505,8 @@ Public Class GameClient
                     Exit Sub
             End Select
 
+            .Msg = .Msg.Replace(vbNullChar, String.Empty)
+
             ' word wrap
             WordWrap(.Msg, FontType.Georgia, GameState.ChatBubbleWidth, theArray)
 
@@ -1556,7 +1558,15 @@ Public Class GameClient
             tmpNum = UBound(theArray)
 
             For i = 1 To tmpNum
-                RenderText(theArray(i), x - (theArray(i).Length / 2) - (GetTextWidth(theArray(i)) / 2), y2, QbColorToXnaColor(.Color), Microsoft.Xna.Framework.Color.Black)
+                ' Measure button text size and apply padding
+                Dim textSize = Fonts(FontType.Georgia).MeasureString(theArray(i))
+                Dim actualWidth = textSize.X
+                Dim actualHeight = textSize.Y
+
+                ' Calculate horizontal and vertical centers with padding
+                Dim padding = actualWidth / 6.0
+
+                RenderText(theArray(i), x - (theArray(i).Length / 2) - (GetTextWidth(theArray(i)) / 2) + padding, y2, QbColorToXnaColor(.Color), Microsoft.Xna.Framework.Color.Black)
                 y2 = y2 + 12
             Next
 
