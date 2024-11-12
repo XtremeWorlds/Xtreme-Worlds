@@ -783,7 +783,7 @@ Public Class GameClient
     End Function
 
     ' Convert a key to a character (if possible)
-    Private Shared Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char?
+    Private Shared Function ConvertKeyToChar(key As Keys, shiftPressed As Boolean) As Char
         ' Handle alphabetic keys
         If key >= Keys.A AndAlso key <= Keys.Z Then
             Dim baseChar As Char = ChrW(AscW("A"c) + (key - Keys.A))
@@ -798,6 +798,11 @@ Public Class GameClient
 
         ' Handle space key
         If key = Keys.Space Then Return " "c
+
+        ' Handle the "/" character (typically mapped to OemQuestion)
+        If key = Keys.OemQuestion Then
+            Return If(shiftPressed, "?"c, "/"c)
+        End If
 
         ' Ignore unsupported keys (e.g., function keys, control keys)
         Return Nothing
