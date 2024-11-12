@@ -1003,9 +1003,9 @@ Public Class Gui
                                 If .State <> EntState.MouseDown Then .State = EntState.Normal
 
                                 If GameState.CurMouseX >= .Left + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
-                               GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
-                               GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
+                                   GameState.CurMouseX <= .Left + .Width + Windows(curWindow).Left AndAlso
+                                   GameState.CurMouseY >= .Top + Windows(curWindow).Top AndAlso
+                                   GameState.CurMouseY <= .Top + .Height + Windows(curWindow).Top Then
 
                                     If curControl = 0 OrElse .zOrder > Windows(curWindow).Controls(curControl).zOrder Then
                                         curControl = i
@@ -1123,7 +1123,6 @@ Public Class Gui
             Next
         End SyncLock
     End Sub
-
 
     Public Shared Sub Render()
         ' Exit if no windows are present
