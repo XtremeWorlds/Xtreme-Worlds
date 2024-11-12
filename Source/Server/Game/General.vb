@@ -183,13 +183,21 @@ Module General
     End Sub
 
     ' Used for checking validity of names
-    Function IsNameLegal(sInput As Integer) As Boolean
-        If (sInput >= 65 And sInput <= 90) Or (sInput >= 97 And sInput <= 122) Or (sInput = 95) Or (sInput = 32) Or (sInput >= 48 And sInput <= 57) Then
-            Return True
-        Else
-            Return False
-        End If
+    Function IsNameLegal(sInput As String) As Boolean
+        For Each ch As Char In sInput
+            Dim asciiValue As Integer = AscW(ch)
+            ' Check if character is a letter (A-Z, a-z), a digit (0-9), an underscore (_), or a space ( )
+            If Not ((asciiValue >= 65 And asciiValue <= 90) Or
+                (asciiValue >= 97 And asciiValue <= 122) Or
+                (asciiValue = 95) Or
+                (asciiValue = 32) Or
+                (asciiValue >= 48 And asciiValue <= 57)) Then
+                Return False
+            End If
+        Next
+        Return True
     End Function
+
 
     Friend Sub CheckDir(path As String)
         If Not Directory.Exists(path) Then Directory.CreateDirectory(path)
