@@ -51,14 +51,22 @@ Module Database
         If Not DatabaseExists("mirage") Then
             Dim sql As String = $"CREATE DATABASE {databaseName};"
 
-            ' Connect to the "postgres" maintenance database
-            Dim builder As New NpgsqlConnectionStringBuilder(connectionString)
-            builder.Database = "postgres"
+        Using connection As New NpgsqlConnection(connectionString.Substring(0, connectionString.LastIndexOf(";"c)))
+            connection.Open()
 
             Dim maintenanceConnectionString As String = builder.ConnectionString
 
-            ExecuteSql(maintenanceConnectionString, sql)
-        End If
+                If Not dbExists Then
+                    Using createCommand As New NpgsqlCommand(createDbSql, connection)
+                        Dim discard = createCommand.ExecuteNonQuery()
+
+                        Using dbConnection As New NpgsqlConnection(connectionString)
+                            dbConnection.Close()
+                        End Using
+                    End Using
+                End If
+            End Using
+        End Using
     End Sub
 
     Public Function RowExistsByColumn(columnName As String, value As Int64, tableName As String) As Boolean
