@@ -110,10 +110,20 @@ Module General
     ' Pinvoke
     Private Delegate Function ConsoleEventDelegate(eventType As Integer) As Boolean
 
+    Function CountPlayersOnline() As Integer
+        Dim count = 0
+        For i = 1 To Socket.HighIndex()
+            If Not IsPlaying(i) Then Continue For
+            count += 1
+        Next
+        Return count
+    End Function
+
     Sub UpdateCaption()
         Try
-            Global.System.Console.Title = String.Format("{0} <IP {1}:{2}> ({3} Players Online) - Current Errors: {4} - Time: {5}", Settings.GameName, MyIPAddress, Settings.Port, Socket.HighIndex(), ErrorCount, Core.Time.Instance.ToString())
+            Global.System.Console.Title = $"{Settings.GameName} <IP {MyIPAddress}:{Settings.Port}> ({CountPlayersOnline()} Players Online) - Current Errors: {ErrorCount} - Time: {Core.Time.Instance.ToString()}"
         Catch ex As Exception
+            Global.System.Console.Title = $"{Settings.GameName}"
             Exit Sub
         End Try
     End Sub
