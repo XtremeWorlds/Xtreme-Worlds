@@ -471,9 +471,11 @@ Public Class GameClient
             Return
         End If
 
-        UpdateMouseCache()
-        UpdateKeyCache()
-        ProcessInputs()
+        SyncLock InputLock
+            UpdateMouseCache()
+            UpdateKeyCache()
+            ProcessInputs()
+        End SyncLock
 
         If IsKeyStateActive(Keys.F12)
             TakeScreenshot()
@@ -492,35 +494,29 @@ Public Class GameClient
     End Sub
     
     ' Reset keyboard and mouse states
-    Private Sub ResetInputStates()
-        SyncLock InputLock
-            CurrentKeyboardState = New KeyboardState()
-            PreviousKeyboardState = New KeyboardState()
-            CurrentMouseState = New MouseState()
-            PreviousMouseState = New MouseState()
-        End SyncLock
+    Private Shared Sub ResetInputStates()
+        CurrentKeyboardState = New KeyboardState()
+        PreviousKeyboardState = New KeyboardState()
+        CurrentMouseState = New MouseState()
+        PreviousMouseState = New MouseState()
     End Sub
 
     Private Shared Sub UpdateKeyCache()
-        SyncLock InputLock
-            ' Get the current keyboard state
-            Dim keyboardState As KeyboardState = Keyboard.GetState()
+        ' Get the current keyboard state
+        Dim keyboardState As KeyboardState = Keyboard.GetState()
 
-            ' Update the previous and current states
-            PreviousKeyboardState = currentKeyboardState
-            CurrentKeyboardState = keyboardState
-        End SyncLock
+        ' Update the previous and current states
+        PreviousKeyboardState = CurrentKeyboardState
+        CurrentKeyboardState = keyboardState
     End Sub
     
     Private Shared Sub UpdateMouseCache()
-        SyncLock InputLock
-            ' Get the current mouse state
-            Dim mouseState As MouseState = Mouse.GetState()
+        ' Get the current mouse state
+        Dim mouseState As MouseState = Mouse.GetState()
 
-            ' Update the previous and current states
-            PreviousMouseState = CurrentMouseState
-            CurrentMouseState = mouseState
-        End SyncLock
+        ' Update the previous and current states
+        PreviousMouseState = CurrentMouseState
+        CurrentMouseState = mouseState
     End Sub
     
     Public Shared Function GetMouseScrollDelta() As Integer
@@ -531,185 +527,173 @@ Public Class GameClient
     End Function
     
     Public Shared Function IsKeyStateActive(key As Keys) As Boolean
-        SyncLock InputLock
-            If CanProcessKey(key) = True Then
-                ' Check if the key is down in the current keyboard state
-                Return CurrentKeyboardState.IsKeyDown(key)
-            End If
-        End SyncLock
+        If CanProcessKey(key) = True Then
+            ' Check if the key is down in the current keyboard state
+            Return CurrentKeyboardState.IsKeyDown(key)
+        End If
     End Function
 
     Public Shared Function GetMousePosition() As Tuple(Of Integer, Integer)
-        SyncLock InputLock
-            ' Return the current mouse position as a Tuple
-            Return New Tuple(Of Integer, Integer)(CurrentMouseState.X, CurrentMouseState.Y)
-        End SyncLock
+        ' Return the current mouse position as a Tuple
+        Return New Tuple(Of Integer, Integer)(CurrentMouseState.X, CurrentMouseState.Y)
     End Function
 
     Public Shared Function IsMouseButtonDown(button As MouseButton) As Boolean
-        SyncLock InputLock
-            Select Case button
-                Case MouseButton.Left
-                    Return CurrentMouseState.LeftButton = ButtonState.Pressed
-                Case MouseButton.Right
-                    Return CurrentMouseState.RightButton = ButtonState.Pressed
-                Case MouseButton.Middle
-                    Return CurrentMouseState.MiddleButton = ButtonState.Pressed
-                Case Else
-                    Return False
-            End Select
-        End SyncLock
+        Select Case button
+            Case MouseButton.Left
+                Return CurrentMouseState.LeftButton = ButtonState.Pressed
+            Case MouseButton.Right
+                Return CurrentMouseState.RightButton = ButtonState.Pressed
+            Case MouseButton.Middle
+                Return CurrentMouseState.MiddleButton = ButtonState.Pressed
+            Case Else
+                Return False
+        End Select
     End Function
     
     Public Shared Function IsMouseButtonUp(button As MouseButton) As Boolean
-        SyncLock InputLock
-            Select Case button
-                Case MouseButton.Left
-                    Return CurrentMouseState.LeftButton = ButtonState.Released
-                Case MouseButton.Right
-                    Return CurrentMouseState.RightButton = ButtonState.Released
-                Case MouseButton.Middle
-                    Return CurrentMouseState.MiddleButton = ButtonState.Released
-                Case Else
-                    Return False
-            End Select
-        End SyncLock
+        Select Case button
+            Case MouseButton.Left
+                Return CurrentMouseState.LeftButton = ButtonState.Released
+            Case MouseButton.Right
+                Return CurrentMouseState.RightButton = ButtonState.Released
+            Case MouseButton.Middle
+                Return CurrentMouseState.MiddleButton = ButtonState.Released
+            Case Else
+                Return False
+        End Select
     End Function
-    
-  Public Sub ProcessInputs()
-        SyncLock GameClient.InputLock
-            ' Get the mouse position from the cache
-            Dim mousePos As Tuple(Of Integer, Integer) = GameClient.GetMousePosition()
-            Dim mouseX As Integer = mousePos.Item1
-            Dim mouseY As Integer = mousePos.Item2
 
-            ' Convert adjusted coordinates to game world coordinates
-            GameState.CurX = GameState.TileView.Left + Math.Floor((mouseX + GameState.Camera.Left) / GameState.PicX)
-            GameState.CurY = GameState.TileView.Top + Math.Floor((mouseY + GameState.Camera.Top) / GameState.PicY)
+    Public Shared Sub ProcessInputs()
+        ' Get the mouse position from the cache
+        Dim mousePos As Tuple(Of Integer, Integer) = GameClient.GetMousePosition()
+        Dim mouseX As Integer = mousePos.Item1
+        Dim mouseY As Integer = mousePos.Item2
 
-            ' Store raw mouse coordinates for interface interactions
-            GameState.CurMouseX = mouseX
-            GameState.CurMouseY = mouseY
+        ' Convert adjusted coordinates to game world coordinates
+        GameState.CurX = GameState.TileView.Left + Math.Floor((mouseX + GameState.Camera.Left) / GameState.PicX)
+        GameState.CurY = GameState.TileView.Top + Math.Floor((mouseY + GameState.Camera.Top) / GameState.PicY)
 
-            ' Check for action keys
-            GameState.VbKeyControl = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftControl)
-            GameState.VbKeyShift = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)
+        ' Store raw mouse coordinates for interface interactions
+        GameState.CurMouseX = mouseX
+        GameState.CurMouseY = mouseY
 
-            ' Handle Escape key to toggle menus
-            If GameClient.IsKeyStateActive(Keys.Escape) Then
-                If GameState.InMenu = True Then Exit Sub
+        ' Check for action keys
+        GameState.VbKeyControl = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftControl)
+        GameState.VbKeyShift = GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)
 
-                ' Hide options screen
-                If Gui.Windows(Gui.GetWindowIndex("winOptions")).Visible = True Then
-                    Gui.HideWindow(Gui.GetWindowIndex("winOptions"))
-                    Gui.CloseComboMenu()
+        ' Handle Escape key to toggle menus
+        If GameClient.IsKeyStateActive(Keys.Escape) Then
+            If GameState.InMenu = True Then Exit Sub
+
+            ' Hide options screen
+            If Gui.Windows(Gui.GetWindowIndex("winOptions")).Visible = True Then
+                Gui.HideWindow(Gui.GetWindowIndex("winOptions"))
+                Gui.CloseComboMenu()
+                Exit Sub
+            End If
+
+            ' hide/show chat window
+            If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then
+                Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
+                HideChat()
+                Exit Sub
+            End If
+
+            If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then
+                Gui.HideWindow(Gui.GetWindowIndex("winEscMenu"))
+                Exit Sub
+            Else
+                ' show them
+                If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = False Then
+                    Gui.ShowWindow(Gui.GetWindowIndex("winEscMenu"), True)
+                    Exit Sub
+                End If
+            End If
+        End If
+
+        If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Space) Then
+            CheckMapGetItem()
+        End If
+
+        If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Insert) Then
+            SendRequestAdmin()
+        End If
+
+        HandleMouseInputs()
+        HandleActiveWindowInput()
+        HandleTextInput()
+
+        If GameState.InGame = True Then
+            ' Check for movement keys
+            GameState.DirUp = GameClient.CurrentKeyboardState.IsKeyDown(Keys.W) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Up)
+            GameState.DirDown = GameClient.CurrentKeyboardState.IsKeyDown(Keys.S) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Down)
+            GameState.DirLeft = GameClient.CurrentKeyboardState.IsKeyDown(Keys.A) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Left)
+            GameState.DirRight = GameClient.CurrentKeyboardState.IsKeyDown(Keys.D) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Right)
+
+            HandleHotbarInput()
+
+            If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
+
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.I) Then
+                ' hide/show inventory
+                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv()
+            End If
+
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.C) Then
+                ' hide/show char
+                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char()
+            End If
+
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.K) Then
+                ' hide/show skills
+                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills()
+            End If
+
+            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
+                If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True Then
+                    ShowChat()
+                    GameState.inSmallChat = 0
                     Exit Sub
                 End If
 
-                ' hide/show chat window
-                If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then
-                    Gui.Windows(Gui.GetWindowIndex("winChat")).Controls(Gui.GetControlIndex("winChat", "txtChat")).Text = ""
-                    HideChat()
-                    Exit Sub
-                End If
-
-                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then
-                    Gui.HideWindow(Gui.GetWindowIndex("winEscMenu"))
-                    Exit Sub
-                Else
-                    ' show them
-                    If Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = False Then
-                        Gui.ShowWindow(Gui.GetWindowIndex("winEscMenu"), True)
-                        Exit Sub
-                    End If
-                End If
+                HandlePressEnter()
             End If
-
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Space) Then
-                CheckMapGetItem()
-            End If
-
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Insert) Then
-                SendRequestAdmin()
-            End If
-
-            HandleMouseInputs()
-            HandleActiveWindowInput()
-            HandleTextInput()
-
-            If GameState.InGame = True Then
-                ' Check for movement keys
-                GameState.DirUp = GameClient.CurrentKeyboardState.IsKeyDown(Keys.W) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Up)
-                GameState.DirDown = GameClient.CurrentKeyboardState.IsKeyDown(Keys.S) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Down)
-                GameState.DirLeft = GameClient.CurrentKeyboardState.IsKeyDown(Keys.A) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Left)
-                GameState.DirRight = GameClient.CurrentKeyboardState.IsKeyDown(Keys.D) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Right)
-
-                HandleHotbarInput()
-
-                If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
-
-                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.I) Then
-                    ' hide/show inventory
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv()
-                End If
-
-                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.C) Then
-                    ' hide/show char
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char()
-                End If
-
-                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.K) Then
-                    ' hide/show skills
-                    If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills()
-                End If
-
-                If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
-                    If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True Then
-                        ShowChat()
-                        GameState.inSmallChat = 0
-                        Exit Sub
-                    End If
-
-                    HandlePressEnter()
-                End If
-            End If
-        End SyncLock
+        End If
     End Sub
     
     Private Sub HandleActiveWindowInput()
         Dim key As Keys
 
-        SyncLock GameClient.InputLock
-            ' Check if there is an active window and that it is visible.
-            If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Visible Then
-                ' Check if an active control exists.
-                If Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
-                    ' Get the active control.
-                    Dim activeControl = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
+        ' Check if there is an active window and that it is visible.
+        If Gui.ActiveWindow > 0 AndAlso Gui.Windows(Gui.ActiveWindow).Visible Then
+            ' Check if an active control exists.
+            If Gui.Windows(Gui.ActiveWindow).ActiveControl > 0 Then
+                ' Get the active control.
+                Dim activeControl = Gui.Windows(Gui.ActiveWindow).Controls(Gui.Windows(Gui.ActiveWindow).ActiveControl)
 
-                    ' Check if the Enter key is active and can be processed.
-                    If GameClient.IsKeyStateActive(Keys.Enter) Then
-                        ' Handle Enter: Call the control's callback or activate a new control.
-                        If activeControl.CallBack(EntState.Enter) IsNot Nothing Then
-                            activeControl.CallBack(EntState.Enter).Invoke()
-                        Else
-                            ' If no callback, activate a new control.
-                            If Gui.ActivateControl() = 0 Then
-                                Gui.ActivateControl(0, False)
-                            End If
-                        End If
-                    End If
-
-                    ' Check if the Tab key is active and can be processed
-                    If GameClient.IsKeyStateActive(Keys.Tab) Then
-                        ' Handle Tab: Switch to the next control.
+                ' Check if the Enter key is active and can be processed.
+                If GameClient.IsKeyStateActive(Keys.Enter) Then
+                    ' Handle Enter: Call the control's callback or activate a new control.
+                    If activeControl.CallBack(EntState.Enter) IsNot Nothing Then
+                        activeControl.CallBack(EntState.Enter).Invoke()
+                    Else
+                        ' If no callback, activate a new control.
                         If Gui.ActivateControl() = 0 Then
                             Gui.ActivateControl(0, False)
                         End If
                     End If
                 End If
+
+                ' Check if the Tab key is active and can be processed
+                If GameClient.IsKeyStateActive(Keys.Tab) Then
+                    ' Handle Tab: Switch to the next control.
+                    If Gui.ActivateControl() = 0 Then
+                        Gui.ActivateControl(0, False)
+                    End If
+                End If
             End If
-        End SyncLock
+        End If
     End Sub
     
     ' Handles the hotbar key presses using KeyboardState
@@ -726,60 +710,56 @@ Public Class GameClient
         End If
     End Sub
 
-    Private Sub HandleTextInput()
-        SyncLock GameClient.InputLock
-            ' Iterate over all pressed keys
-            For Each key As Keys In GameClient.CurrentKeyboardState.GetPressedKeys()
-                If GameClient.IsKeyStateActive(key) Then
-                    ' Handle Backspace key separately
-                    If key = Keys.Back Then
-                        Dim activeControl = Gui.GetActiveControl()
+    Private Shared Sub HandleTextInput()
+        ' Iterate over all pressed keys
+        For Each key As Keys In GameClient.CurrentKeyboardState.GetPressedKeys()
+            If GameClient.IsKeyStateActive(key) Then
+                ' Handle Backspace key separately
+                If key = Keys.Back Then
+                    Dim activeControl = Gui.GetActiveControl()
 
-                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Text.Length > 0 Then
-                            ' Modify the text and update it back in the window
-                            activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
-                            Gui.UpdateActiveControl(activeControl)
-                        End If
+                    If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Text.Length > 0 Then
+                        ' Modify the text and update it back in the window
+                        activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
+                        Gui.UpdateActiveControl(activeControl)
+                    End If
+                    Continue For ' Move to the next key
+                End If
+
+                ' Convert key to a character, considering Shift key
+                Dim character As Nullable(Of Char) = ConvertKeyToChar(key, GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+
+                ' If the character is valid, update the active control's text
+                If character.HasValue Then
+                    Dim activeControl = Gui.GetActiveControl()
+
+                    If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Enabled Then
+                        ' Append character to the control's text
+                        activeControl.Text &= character.Value
+                        Gui.UpdateActiveControl(activeControl)
                         Continue For ' Move to the next key
                     End If
-
-                    ' Convert key to a character, considering Shift key
-                    Dim character As Nullable(Of Char) = ConvertKeyToChar(key, GameClient.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-
-                    ' If the character is valid, update the active control's text
-                    If character.HasValue Then
-                        Dim activeControl = Gui.GetActiveControl()
-
-                        If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Enabled Then
-                            ' Append character to the control's text
-                            activeControl.Text &= character.Value
-                            Gui.UpdateActiveControl(activeControl)
-                            Continue For ' Move to the next key
-                        End If
-                    End If
-
-                    KeyStates.Remove(key)
-                    KeyRepeatTimers.Remove(key)
                 End If
-            Next
-        End SyncLock
+
+                KeyStates.Remove(key)
+                KeyRepeatTimers.Remove(key)
+            End If
+        Next
     End Sub
 
     ' Check if the key can be processed (with interval-based repeat logic)
     Private Shared Function CanProcessKey(key As Keys) As Boolean
-        SyncLock InputLock
-            Dim now = DateTime.Now
-            If CurrentKeyboardState.IsKeyDown(key) Then
-                If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
-                    ' If the key is released, remove it from KeyStates and reset the timer
-                    KeyStates.Remove(key)
-                    KeyRepeatTimers.Remove(key)
-                    KeyRepeatTimers(key) = now ' Update the timer for the key
-                    Return True
-                End If
+        Dim now = DateTime.Now
+        If CurrentKeyboardState.IsKeyDown(key) Then
+            If Not KeyRepeatTimers.ContainsKey(key) OrElse (now - KeyRepeatTimers(key)).TotalMilliseconds >= KeyRepeatInterval Then
+                ' If the key is released, remove it from KeyStates and reset the timer
+                KeyStates.Remove(key)
+                KeyRepeatTimers.Remove(key)
+                KeyRepeatTimers(key) = now ' Update the timer for the key
+                Return True
             End If
-            Return False
-        End SyncLock
+        End If
+        Return False
     End Function
 
     ' Convert a key to a character (if possible)
@@ -814,81 +794,97 @@ Public Class GameClient
     End Sub
     
     Private Shared Sub HandleScrollWheel()
-        SyncLock GameClient.InputLock
-            ' Handle scroll wheel (assuming delta calculation happens elsewhere)
-            Dim scrollValue = GameClient.GetMouseScrollDelta()
-            If scrollValue > 0 Then
-                ScrollChatBox(0) ' Scroll up
-            ElseIf scrollValue < 0 Then
+        ' Handle scroll wheel (assuming delta calculation happens elsewhere)
+        Dim scrollValue = GameClient.GetMouseScrollDelta()
+        If scrollValue > 0 Then
+            ScrollChatBox(0) ' Scroll up
+
+            If GameState.MyEditorType = EditorType.Map Then
+                If GameState.VbKeyShift = Keys.LeftShift Then
+                    If frmEditor_Map.Instance.cmbLayers.SelectedIndex + 1 < LayerType.Count - 1 Then
+                        frmEditor_Map.Instance.cmbLayers.SelectedIndex = frmEditor_Map.Instance.cmbLayers.SelectedIndex + 1
+                    End If
+
+                Else
+                    If frmEditor_Map.Instance.cmbTileSets.SelectedIndex > 0 Then
+                        frmEditor_Map.Instance.cmbTileSets.SelectedIndex = frmEditor_Map.Instance.cmbTileSets.SelectedIndex - 1
+                    End If
+                End If
+
+            End If
+        ElseIf scrollValue < 0 Then
+            If GameState.MyEditorType = EditorType.Map Then
+                If GameState.VbKeyShift = Keys.LeftShift Then
+                    If frmEditor_Map.Instance.cmbLayers.SelectedIndex > 0 Then
+                        frmEditor_Map.Instance.cmbLayers.SelectedIndex = frmEditor_Map.Instance.cmbLayers.SelectedIndex - 1
+                    End If
+                Else
+                    If frmEditor_Map.Instance.cmbTileSets.SelectedIndex + 1 < GameState.NumTileSets Then
+                        frmEditor_Map.Instance.cmbTileSets.SelectedIndex = frmEditor_Map.Instance.cmbTileSets.SelectedIndex + 1
+                    End If
+                End If
                 ScrollChatBox(1) ' Scroll down
             End If
-            
-            if scrollvalue <> 0 Then
+
+            If scrollValue <> 0 Then
                 Gui.HandleInterfaceEvents(EntState.MouseScroll)
             End If
-        End SyncLock
+        End If
     End Sub
 
-    Private Shared _leftMouseHandled As Boolean = False
+    Private Shared Sub HandleMouseClick()
+        Dim currentTime As Integer = Environment.TickCount
 
-    Private Shared Sub HandleMouseClick(button As MouseButton)
-        SyncLock GameClient.InputLock
-            Dim currentTime As Integer = Environment.TickCount
+        ' Handle MouseMove event when the mouse moves
+        If GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
+       GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
+            Gui.HandleInterfaceEvents(EntState.MouseMove)
+        End If
 
-            ' Handle MouseMove event when the mouse moves
-            If GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
-           GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
-                Gui.HandleInterfaceEvents(EntState.MouseMove)
-            End If
+        ' Check for MouseDown event (button pressed)
+        If GameClient.IsMouseButtonDown(MouseButton.Left) Then
+            Gui.HandleInterfaceEvents(EntState.MouseDown)
+            GameState.LastLeftClickTime = currentTime ' Track time for double-click detection
+        End If
 
-            ' Check for MouseDown event (button pressed)
-            If GameClient.IsMouseButtonDown(button) Then
-                If Not _leftMouseHandled Then
-                    Gui.HandleInterfaceEvents(EntState.MouseDown)
-                    GameState.LastLeftClickTime = currentTime ' Track time for double-click detection
-                    _leftMouseHandled = True ' Set flag to indicate the left mouse button has been processed
+        ' Check for MouseUp event (button released)
+        If Not GameClient.IsMouseButtonUp(MouseButton.Left) Then
+            Gui.HandleInterfaceEvents(EntState.MouseUp)
+        End If
+
+        ' Double-click detection for left button
+        If GameClient.IsMouseButtonDown(MouseButton.Left) AndAlso
+       currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
+            Gui.HandleInterfaceEvents(EntState.DblClick)
+            GameState.LastLeftClickTime = 0 ' Reset double-click timer
+        End If
+
+        ' In-game interactions for left click
+        If GameState.InGame = True Then
+            If GameClient.IsMouseButtonDown(MouseButton.Left) Then
+                If GameState.MyEditorType = EditorType.Map Then
+                    frmEditor_Map.MapEditorMouseDown(GameState.CurX, GameState.CurY, False)
                 End If
-            Else
-                _leftMouseHandled = False ' Reset flag when the button is released
+                If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
+                    PetMove(GameState.CurX, GameState.CurY)
+                End If
+                CheckAttack(True)
+                PlayerSearch(GameState.CurX, GameState.CurY, 0)
             End If
 
-            ' Check for MouseUp event (button released)
-            If Not GameClient.IsMouseButtonUp(button) Then
-                Gui.HandleInterfaceEvents(EntState.MouseUp)
-            End If
-
-            ' Double-click detection for left button
-            If GameClient.IsMouseButtonDown(button) AndAlso
-           currentTime - GameState.LastLeftClickTime <= GameState.DoubleClickTImer Then
-                Gui.HandleInterfaceEvents(EntState.DblClick)
-                GameState.LastLeftClickTime = 0 ' Reset double-click timer
-            End If
-
-            ' In-game interactions for left click
-            If GameState.InGame = True Then
-                If GameClient.IsMouseButtonDown(button) AndAlso Not _leftMouseHandled Then
-                    If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
-                        PetMove(GameState.CurX, GameState.CurY)
+            ' Right-click interactions
+            If GameClient.IsMouseButtonDown(MouseButton.Right) Then
+                If GameState.VbKeyShift = True Then
+                    ' Admin warp if Shift is held and the player has moderator access
+                    If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
+                        AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
                     End If
-                    CheckAttack(True)
-                    PlayerSearch(GameState.CurX, GameState.CurY, 0)
-                    _leftMouseHandled = True ' Set flag after handling in-game interactions
-                End If
-
-                ' Right-click interactions
-                If GameClient.IsMouseButtonDown(MouseButton.Right) And GameState.InGame = True Then
-                    If GameState.VbKeyShift = True Then
-                        ' Admin warp if Shift is held and the player has moderator access
-                        If GetPlayerAccess(GameState.MyIndex) >= AccessType.Moderator Then
-                            AdminWarp(GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
-                        End If
-                    Else
-                        ' Handle right-click menu
-                        HandleRightClickMenu()
-                    End If
+                Else
+                    ' Handle right-click menu
+                    HandleRightClickMenu()
                 End If
             End If
-        End SyncLock
+        End If
     End Sub
 
     Private Shared Sub HandleRightClickMenu()
