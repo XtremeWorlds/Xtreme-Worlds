@@ -1967,15 +1967,15 @@ Public Class Gui
     End Sub
 
     Public Shared Sub btnMenu_Map()
-        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
+        'Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     Public Shared Sub btnMenu_Guild()
-        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
+        'Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     Public Shared Sub btnMenu_Quest()
-        Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
+        'Windows(GetWindowIndex("winCharacter")).Visible = Not Windows(GetWindowIndex("winCharacter")).Visible
     End Sub
 
     ' ##############
