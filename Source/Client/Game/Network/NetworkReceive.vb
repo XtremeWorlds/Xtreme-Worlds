@@ -324,7 +324,7 @@ Module NetworkReceive
         Gui.ShowWindow(Gui.GetWindowIndex("winHotbar"), , False)
         Gui.ShowWindow(Gui.GetWindowIndex("winMenu"), , False)
         Gui.ShowWindow(Gui.GetWindowIndex("winBars"), , False)
-        HideChat()
+        Gui.HideChat()
 
         GameInit()
     End Sub
