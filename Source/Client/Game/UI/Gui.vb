@@ -2256,7 +2256,7 @@ Public Class Gui
         yO = GameState.ResolutionHeight - 10
 
         ' draw the background
-        RenderDesign(DesignType.Win_Shadow, xO, yO, 160, 10, , winIndex)
+        RenderDesign(DesignType.Win_Shadow, xO, yO, 160, 10)
     End Sub
 
     Public Shared Sub chkChat_Game()
@@ -3779,7 +3779,7 @@ Public Class Gui
 
         ' move menu
         Windows(GetWindowIndex("winMenu")).Left = GameState.ResolutionWidth - 242
-        Windows(GetWindowIndex("winMenu")).Top = -42
+        Windows(GetWindowIndex("winMenu")).Top = GameState.ResolutionHeight - 42
 
         ' loop through
         Top = -80
