@@ -15,13 +15,13 @@ Public Class GameClient
     Public Shared ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
     Public Shared TextureCounter As Integer
     Public Shared LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
-    
+
     Public ReadOnly MultiplyBlendState As New BlendState()
 
     ' Queue to maintain FIFO order of batches
     Public Shared Batches As New ConcurrentDictionary(Of Integer, RenderBatch)()
     Public Shared ReadOnly BatchLock As New Object()
-    
+
     Private Shared _gameFps As Integer
     Private Shared ReadOnly FpsLock As New Object()
 
@@ -42,14 +42,14 @@ Public Class GameClient
     Public Class RenderBatch
         Public Property Texture As Texture2D
         Public Property TextureCounter As Integer
-        Public Property Font as SpriteFont
+        Public Property Font As SpriteFont
         Public Property Commands As New List(Of RenderCommand)()
     End Class
-    
+
     ' ManualResetEvent to signal when loading is complete
     Public Shared IsLoading As Boolean = True
     Public Shared ReadOnly LoadLock As New Object()
-    
+
     ' State tracking variables
     ' Shared keyboard and mouse states for cross-thread access
     Public Shared CurrentKeyboardState As KeyboardState
@@ -57,10 +57,10 @@ Public Class GameClient
 
     Public Shared CurrentMouseState As MouseState
     Public Shared PreviousMouseState As MouseState
-    
+
     ' Keep track of the key states to avoid repeated input
     Public Shared ReadOnly KeyStates As New Dictionary(Of Keys, Boolean)
-    
+
     ' Define a dictionary to store the last time a key was processed
     Public Shared KeyRepeatTimers As New Dictionary(Of Keys, DateTime)
 
@@ -113,7 +113,7 @@ Public Class GameClient
 
         ' Set basic properties for GraphicsDeviceManager
         With Graphics
-            .IsFullScreen = Settings.FullScreen
+            .IsFullScreen = Settings.Fullscreen
             .PreferredBackBufferWidth = GameState.ResolutionWidth
             .PreferredBackBufferHeight = GameState.ResolutionHeight
             .SynchronizeWithVerticalRetrace = Settings.Vsync
@@ -123,9 +123,9 @@ Public Class GameClient
 
         ' Add handler for PreparingDeviceSettings
         AddHandler Graphics.PreparingDeviceSettings, Sub(sender, args)
-            args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents
-            args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8
-        End Sub
+                                                         args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents
+                                                         args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8
+                                                     End Sub
 
 #If DEBUG Then
         Me.IsMouseVisible = True
@@ -137,7 +137,7 @@ Public Class GameClient
         AddHandler Me.Exiting, AddressOf OnWindowClose
         AddHandler Graphics.DeviceReset, AddressOf OnDeviceReset
     End Sub
-    
+
     Protected Overrides Sub Initialize()
         Window.Title = Settings.GameName
 
@@ -149,9 +149,9 @@ Public Class GameClient
             False,
             Graphics.GraphicsDevice.PresentationParameters.BackBufferFormat,
             DepthFormat.Depth24)
-        
+
         InitializeMultiplyBlendState()
-        
+
         ' Apply changes to GraphicsDeviceManager
         Try
             Graphics.ApplyChanges()
@@ -187,13 +187,13 @@ Public Class GameClient
         Public Property EntityID As Integer
         Public Property TextureID As Integer
     End Class
-    
+
     Private Sub LoadFonts()
         For i = 1 To FontType.Count - 1
             Fonts(i) = LoadFont(Core.Path.Fonts, i)
         Next
     End Sub
-    
+
     ' Method to center the window using GraphicsAdapter
     Private Sub CenterWindow()
         ' Get the primary display's resolution
@@ -202,8 +202,8 @@ Public Class GameClient
         Dim screenWidth As Integer = displayMode.Width
         Dim screenHeight As Integer = displayMode.Height
 
-        Dim windowWidth As Integer = graphics.PreferredBackBufferWidth
-        Dim windowHeight As Integer = graphics.PreferredBackBufferHeight
+        Dim windowWidth As Integer = Graphics.PreferredBackBufferWidth
+        Dim windowHeight As Integer = Graphics.PreferredBackBufferHeight
 
         ' Calculate centered position
         Dim posX As Integer = (screenWidth - windowWidth) / 2
@@ -212,7 +212,7 @@ Public Class GameClient
         ' Set the new window position
         Window.Position = New Point(posX, posY)
     End Sub
-    
+
     Protected Overrides Sub LoadContent()
         SpriteBatch = New SpriteBatch(GraphicsDevice)
 
@@ -220,22 +220,22 @@ Public Class GameClient
         TransparentTexture.SetData(New Color() {Color.White})
 
         LoadFonts()
-        
+
         ' Signal that loading is complete
-        loadingCompleted.Set()
+        LoadingCompleted.Set()
     End Sub
 
     Public Function LoadFont(path As String, font As [Enum].FontType) As SpriteFont
         Return Content.Load(Of SpriteFont)(IO.Path.Combine(path, font))
     End Function
 
-    Public Shared Sub EnqueueText(ByRef text As String, path As String, x As Integer, y As Integer, 
+    Public Shared Sub EnqueueText(ByRef text As String, path As String, x As Integer, y As Integer,
                            font As FontType, frontColor As Color, backColor As Color,
                            Optional entityID As Integer = 0)
-        
-        SyncLock batchLock
+
+        SyncLock BatchLock
             TextureCounter += 1
-            
+
             ' Create the new render command
             Dim newCommand = New RenderCommand With {
                     .Type = RenderType.Font,
@@ -248,7 +248,7 @@ Public Class GameClient
                     .EntityID = entityID,
                     .TextureID = GenerateUniqueTextureID(.Path, TextureCounter)
                     }
-            
+
             ' Try to update an existing batch with the same TextCounter
             If Not UpdateBatches(newCommand) Then
                 ' Create a new batch if no matching batch was found
@@ -259,7 +259,7 @@ Public Class GameClient
                 batch.Commands.Add(newCommand)
 
                 ' Enqueue the new batch
-                batches.TryAdd(TextureCounter, batch)
+                Batches.TryAdd(TextureCounter, batch)
             End If
         End SyncLock
     End Sub
@@ -285,9 +285,9 @@ Public Class GameClient
             Return
         End If
 
-        SyncLock batchLock
+        SyncLock BatchLock
             TextureCounter += 1
-            
+
             ' Create a new render command
             Dim newCommand = New RenderCommand With {
                     .Type = RenderType.Texture,
@@ -298,7 +298,7 @@ Public Class GameClient
                     .EntityID = entityID,
                     .TextureID = GenerateUniqueTextureID(.Path, TextureCounter)
                     }
-            
+
             ' Try to update an existing batch with the same TextureID
             If Not UpdateBatches(newCommand) Then
                 ' Create a new batch if no matching batch was found
@@ -307,11 +307,11 @@ Public Class GameClient
                         .TextureCounter = TextureCounter
                         }
                 batch.Commands.Add(newCommand)
-                batches.TryAdd(TextureCounter, batch)
+                Batches.TryAdd(TextureCounter, batch)
             End If
         End SyncLock
     End Sub
-    
+
     Public Shared Sub RenderTexture(ByRef path As String, dX As Integer, dY As Integer,
                               sX As Integer, sY As Integer, dW As Integer, dH As Integer,
                               Optional sW As Integer = 1, Optional sH As Integer = 1,
@@ -331,20 +331,20 @@ Public Class GameClient
             Return
         End If
 
-        SpriteBatch.Draw(texture, dRect, sRect, Color)
+        SpriteBatch.Draw(texture, dRect, sRect, color)
     End Sub
-    
+
     Private Shared Function GenerateUniqueTextureID(path As String, index As Integer) As Integer
         Dim pathHash = path.GetHashCode() ' Generate a hash from the path
         Dim uniqueID = Math.Abs(pathHash + index) ' Ensure the ID is non-negative
 
         Return uniqueID
     End Function
-    
+
     Private Shared Function UpdateBatches(newCommand As RenderCommand) As Boolean
         Dim batchToUpdate As RenderBatch = Nothing
         Dim matchingCommand As RenderCommand
- 
+
         SyncLock BatchLock
             ' Iterate over each batch in the dictionary
             For Each key As Integer In Batches.Keys.ToList()
@@ -355,12 +355,12 @@ Public Class GameClient
                         Function(cmd) cmd.EntityID = newCommand.EntityID)
 
                     If matchingCommand IsNot Nothing Then
-                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Visible = True
+                        If matchingCommand.EntityID > 0 And Not Gui.Windows(matchingCommand.EntityID).Visible = True Then
                             Batches.TryRemove(key, batchToUpdate)
                             Continue For
                         End If
                     End If
-                    
+
                     ' Search for an existing command in the dequeued batch.
                     matchingCommand = batchToUpdate.Commands.FirstOrDefault(
                         Function(cmd) cmd.TextureID = newCommand.TextureID)
@@ -381,7 +381,7 @@ Public Class GameClient
                         If newCommand.Type = RenderType.Texture Then
                             batchToUpdate.Texture = GetTexture(newCommand.Path)
                         End If
-                        
+
                         Continue For
                     End If
                 End If
@@ -389,28 +389,28 @@ Public Class GameClient
         End SyncLock
         Return False
     End Function
-    
+
     Public Shared Function GetTexture(path As String) As Texture2D
         If Not GameClient.TextureCache.ContainsKey(path) Then
             Dim texture = GameClient.LoadTexture(path)
-            return texture
+            Return texture
         End If
-        
+
         Return TextureCache(path)
     End Function
-    
+
     Public Shared Function LoadTexture(path As String) As Texture2D
         Try
             Using stream As New FileStream(path, FileMode.Open)
                 Dim texture = Texture2D.FromStream(GameClient.Graphics.GraphicsDevice, stream)
-                
+
                 ' Cache graphics information
                 Dim gfxInfo As New GfxInfo With {
                         .Width = texture.Width,
                         .Height = texture.Height
                         }
                 GfxInfoCache.TryAdd(path, gfxInfo)
-                
+
                 TextureCache(path) = texture
 
                 Return texture
@@ -420,14 +420,14 @@ Public Class GameClient
             Return Nothing
         End Try
     End Function
-    
+
     Protected Overrides Sub Draw(gameTime As GameTime)
         Graphics.GraphicsDevice.Clear(Color.Black)
 
         SyncLock LoadLock
-            If IsLoading = True then Exit Sub
+            If IsLoading = True Then Exit Sub
         End SyncLock
-        
+
         SpriteBatch.Begin()
         If GameState.InGame = True Then
             Render_Game()
@@ -438,7 +438,7 @@ Public Class GameClient
 
         MyBase.Draw(gameTime)
     End Sub
-    
+
     ' Render method to iterate over the batches and draw them.
     Private Sub RenderBatches()
         SyncLock BatchLock
@@ -462,7 +462,7 @@ Public Class GameClient
             Next
         End SyncLock
     End Sub
-    
+
     Protected Overrides Sub Update(gameTime As GameTime)
         ' Ignore input if the window is minimized or inactive
         If Not IsActive OrElse Window.ClientBounds.Width = 0 Or Window.ClientBounds.Height = 0 Then
@@ -477,22 +477,22 @@ Public Class GameClient
             ProcessInputs()
         End SyncLock
 
-        If IsKeyStateActive(Keys.F12)
+        If IsKeyStateActive(Keys.F12) Then
             TakeScreenshot()
         End If
-        
+
         SetFps(_gameFps + 1)
         elapsedTime += gameTime.ElapsedGameTime
-        
+
         If elapsedTime.TotalSeconds >= 1 Then
-            Console.WriteLine("FPS: " & GetFps())    
+            Console.WriteLine("FPS: " & GetFps())
             SetFps(0)
             elapsedTime = TimeSpan.Zero
         End If
 
         MyBase.Update(gameTime)
     End Sub
-    
+
     ' Reset keyboard and mouse states
     Private Shared Sub ResetInputStates()
         CurrentKeyboardState = New KeyboardState()
@@ -509,7 +509,7 @@ Public Class GameClient
         PreviousKeyboardState = CurrentKeyboardState
         CurrentKeyboardState = keyboardState
     End Sub
-    
+
     Private Shared Sub UpdateMouseCache()
         ' Get the current mouse state
         Dim mouseState As MouseState = Mouse.GetState()
@@ -518,14 +518,14 @@ Public Class GameClient
         PreviousMouseState = CurrentMouseState
         CurrentMouseState = mouseState
     End Sub
-    
+
     Public Shared Function GetMouseScrollDelta() As Integer
         SyncLock ScrollLock
             ' Calculate the scroll delta between the previous and current states
             Return CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue
         End SyncLock
     End Function
-    
+
     Public Shared Function IsKeyStateActive(key As Keys) As Boolean
         If CanProcessKey(key) = True Then
             ' Check if the key is down in the current keyboard state
@@ -550,7 +550,7 @@ Public Class GameClient
                 Return False
         End Select
     End Function
-    
+
     Public Shared Function IsMouseButtonUp(button As MouseButton) As Boolean
         Select Case button
             Case MouseButton.Left
@@ -661,8 +661,8 @@ Public Class GameClient
             End If
         End If
     End Sub
-    
-    Private Sub HandleActiveWindowInput()
+
+    Private Shared Sub HandleActiveWindowInput()
         Dim key As Keys
 
         ' Check if there is an active window and that it is visible.
@@ -695,9 +695,9 @@ Public Class GameClient
             End If
         End If
     End Sub
-    
+
     ' Handles the hotbar key presses using KeyboardState
-    Private Sub HandleHotbarInput()
+    Private Shared Sub HandleHotbarInput()
         If GameState.inSmallChat Then
             ' Iterate through hotbar slots and check for corresponding keys
             For i = 1 To MAX_HOTBAR
@@ -789,42 +789,17 @@ Public Class GameClient
     End Function
 
     Private Shared Sub HandleMouseInputs()
-        HandleMouseClick(MouseButton.Left)
+        HandleMouseClick()
         HandleScrollWheel()
     End Sub
-    
+
     Private Shared Sub HandleScrollWheel()
         ' Handle scroll wheel (assuming delta calculation happens elsewhere)
         Dim scrollValue = GameClient.GetMouseScrollDelta()
         If scrollValue > 0 Then
             ScrollChatBox(0) ' Scroll up
-
-            If GameState.MyEditorType = EditorType.Map Then
-                If GameState.VbKeyShift = Keys.LeftShift Then
-                    If frmEditor_Map.Instance.cmbLayers.SelectedIndex + 1 < LayerType.Count - 1 Then
-                        frmEditor_Map.Instance.cmbLayers.SelectedIndex = frmEditor_Map.Instance.cmbLayers.SelectedIndex + 1
-                    End If
-
-                Else
-                    If frmEditor_Map.Instance.cmbTileSets.SelectedIndex > 0 Then
-                        frmEditor_Map.Instance.cmbTileSets.SelectedIndex = frmEditor_Map.Instance.cmbTileSets.SelectedIndex - 1
-                    End If
-                End If
-
-            End If
         ElseIf scrollValue < 0 Then
-            If GameState.MyEditorType = EditorType.Map Then
-                If GameState.VbKeyShift = Keys.LeftShift Then
-                    If frmEditor_Map.Instance.cmbLayers.SelectedIndex > 0 Then
-                        frmEditor_Map.Instance.cmbLayers.SelectedIndex = frmEditor_Map.Instance.cmbLayers.SelectedIndex - 1
-                    End If
-                Else
-                    If frmEditor_Map.Instance.cmbTileSets.SelectedIndex + 1 < GameState.NumTileSets Then
-                        frmEditor_Map.Instance.cmbTileSets.SelectedIndex = frmEditor_Map.Instance.cmbTileSets.SelectedIndex + 1
-                    End If
-                End If
-                ScrollChatBox(1) ' Scroll down
-            End If
+            ScrollChatBox(1) ' Scroll down
 
             If scrollValue <> 0 Then
                 Gui.HandleInterfaceEvents(EntState.MouseScroll)
@@ -862,9 +837,6 @@ Public Class GameClient
         ' In-game interactions for left click
         If GameState.InGame = True Then
             If GameClient.IsMouseButtonDown(MouseButton.Left) Then
-                If GameState.MyEditorType = EditorType.Map Then
-                    frmEditor_Map.MapEditorMouseDown(GameState.CurX, GameState.CurY, False)
-                End If
                 If PetAlive(GameState.MyIndex) AndAlso IsInBounds() Then
                     PetMove(GameState.CurX, GameState.CurY)
                 End If
@@ -891,7 +863,7 @@ Public Class GameClient
         ' Loop through all players and display the right-click menu for the matching one
         For i = 1 To MAX_PLAYERS
             If IsPlaying(i) AndAlso GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
-                If GetPlayerX(i) = GameState.CurX AndAlso GetPlayerY(i) = GameState. CurY Then
+                If GetPlayerX(i) = GameState.CurX AndAlso GetPlayerY(i) = GameState.CurY Then
                     ' Use current mouse state for the X and Y positions
                     ShowPlayerMenu(i, GameClient.CurrentMouseState.X, GameClient.CurrentMouseState.Y)
                 End If
@@ -901,12 +873,12 @@ Public Class GameClient
         ' Perform player search at the current cursor position
         PlayerSearch(GameState.CurX, GameState.CurY, 1)
     End Sub
-    
+
     Private Sub OnWindowClose(ByVal sender As Object, ByVal e As EventArgs)
         DestroyGame()
         End
     End Sub
-    
+
     Private Sub OnDeviceReset()
         Console.WriteLine("Device Reset")
     End Sub
@@ -927,12 +899,12 @@ Public Class GameClient
         ' Save the contents of the RenderTarget2D to a PNG file
         Dim timestamp As String = DateTime.Now.ToString("yyyyMMdd_HHmmss")
         Using stream As New FileStream($"screenshot_{timestamp}.png", FileMode.Create)
-            GameClient.RenderTarget.SaveAsPng(stream, 
-                                              GameClient.RenderTarget.Width, 
+            GameClient.RenderTarget.SaveAsPng(stream,
+                                              GameClient.RenderTarget.Width,
                                               GameClient.RenderTarget.Height)
         End Using
     End Sub
-    
+
     ' Draw a filled rectangle with an optional outline
     Public Shared Sub DrawRectangle(position As Vector2, size As Vector2, fillColor As Color, outlineColor As Color, outlineThickness As Single)
         ' Create a 1x1 white texture for drawing
@@ -1070,7 +1042,7 @@ Public Class GameClient
                 Throw New ArgumentOutOfRangeException(NameOf(qbColor), "Invalid QbColor value.")
         End Select
     End Function
-    
+
     Friend Shared Sub DrawEmote(x2 As Integer, y2 As Integer, sprite As Integer)
         Dim rec As Rectangle
         Dim x As Integer, y As Integer, anim As Integer
@@ -1265,7 +1237,7 @@ Public Class GameClient
 
         RenderTexture(IO.Path.Combine(Core.Path.Characters, sprite), x, y, sRECT.X, sRECT.Y, sRECT.Width, sRECT.Height, sRECT.Width, sRECT.Height)
     End Sub
-    
+
     Friend Shared Sub DrawBlood(index As Integer)
         Dim srcrec As Rectangle
         Dim destrec As Rectangle
@@ -1436,7 +1408,7 @@ Public Class GameClient
 
         SpriteBatch.End()
     End Sub
-    
+
     Friend Shared Sub DrawTarget(x2 As Integer, y2 As Integer)
         Dim rec As Rectangle
         Dim x As Integer, y As Integer
@@ -1475,7 +1447,7 @@ Public Class GameClient
 
         RenderTexture(IO.Path.Combine(Core.Path.Misc, "Target"), x, y, rec.X, rec.Y, rec.Width, rec.Height, rec.Width, rec.Height)
     End Sub
-    
+
     Public Shared Sub DrawChatBubble(ByVal Index As Long)
         Dim theArray() As String, x As Long, y As Long, i As Long, MaxWidth As Long, x2 As Long, y2 As Long, Color As Integer, tmpNum As Long
 
@@ -1704,7 +1676,7 @@ Public Class GameClient
             DrawEmote(x, y, Type.Player(GameState.MyIndex).Emote)
         End If
     End Sub
-    
+
     Friend Sub DrawEvents()
         If MyMap.EventCount <= 0 Then Exit Sub ' Exit early if no events
 
@@ -2070,7 +2042,7 @@ Public Class GameClient
         If GameState.MapGrid = 1 And GameState.MyEditorType = EditorType.Map Then
             GameClient.DrawGrid()
         End If
-        
+
         For i = 1 To MAX_PLAYERS
             If IsPlaying(i) And GetPlayerMap(i) = GetPlayerMap(GameState.MyIndex) Then
                 DrawPlayerName(i)

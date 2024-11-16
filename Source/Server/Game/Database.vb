@@ -48,13 +48,14 @@ Module Database
     End Function
 
     Public Sub CreateDatabase(databaseName As String)
-        If Not DatabaseExists("mirage") Then
-            Dim sql As String = $"CREATE DATABASE {databaseName};"
+        Dim checkDbExistsSql As String = $"SELECT 1 FROM pg_database WHERE datname = '{databaseName}'"
+        Dim createDbSql As String = $"CREATE DATABASE {databaseName}"
 
         Using connection As New NpgsqlConnection(connectionString.Substring(0, connectionString.LastIndexOf(";"c)))
             connection.Open()
 
-            Dim maintenanceConnectionString As String = builder.ConnectionString
+            Using checkCommand As New NpgsqlCommand(checkDbExistsSql, connection)
+                Dim dbExists As Boolean = checkCommand.ExecuteScalar() IsNot Nothing
 
                 If Not dbExists Then
                     Using createCommand As New NpgsqlCommand(createDbSql, connection)
@@ -529,19 +530,19 @@ Module Database
 
         CacheResources(MapNum)
 
-        If File.Exists(mapsDir & "\cs\map" & mapNum & ".ini")
+        If File.Exists(mapsDir & "\cs\map" & MapNum & ".ini") Then
             Dim csMap As CSMapStruct = LoadCSMap(MapNum)
             Type.Map(MapNum) = MapFromCSMap(csMap)
             Exit Sub
         End If
 
-        If File.Exists(mapsDir & "\xw\map" & mapNum & ".dat")
-            Dim xwMap As XWMapStruct = LoadXWMap(mapsDir & "\xw\map" & mapNum.ToString() & ".dat")
+        If File.Exists(mapsDir & "\xw\map" & MapNum & ".dat") Then
+            Dim xwMap As XWMapStruct = LoadXWMap(mapsDir & "\xw\map" & MapNum.ToString() & ".dat")
             Type.Map(MapNum) = MapFromXWMap(xwMap)
             Exit Sub
         End If
 
-        If File.Exists(mapsDir & "\sd\map" & mapNum & ".dat")
+        If File.Exists(mapsDir & "\sd\map" & MapNum & ".dat") Then
             'Dim sdMap As SDMapStruct = loadsdmap(Type.MapsDir & "\sd\map" & mapNum.ToString() & ".dat")
             'Type.Map(MapNum) = MapFromSDMap(sdMap)
             Exit Sub
@@ -569,7 +570,7 @@ Module Database
         ' Load map data
         filename = AppDomain.CurrentDomain.BaseDirectory & "\maps\cs\map" & MapNum & ".ini"
 
-        ReDim csMap.MapData.NPC(MAX_MAP_NPCS)
+        ReDim csMap.MapData.Npc(MAX_MAP_NPCS)
 
         ' General
         With csMap.MapData
@@ -600,7 +601,7 @@ Module Database
 
             .BossNpc = Val(GetVar(filename, "General", "BossNpc"))
             For i = 1 To 30
-                .NPC(i) = Val(GetVar(filename, "General", "Npc" & i))
+                .Npc(i) = Val(GetVar(filename, "General", "Npc" & i))
             Next
         End With
 
@@ -651,7 +652,7 @@ Module Database
     End Function
 
     Sub ClearMapItem(index As Integer, mapNum As Integer)
-        MapItem(MapNum, index).PlayerName = ""
+        MapItem(mapNum, index).PlayerName = ""
     End Sub
 
     Sub ClearMapItems()
@@ -926,7 +927,7 @@ Module Database
         Next
 
         For i As Integer = 1 To 30
-            mwMap.NPC(i) = csMap.MapData.NPC(i)
+            mwMap.NPC(i) = csMap.MapData.Npc(i)
         Next
 
         Return mwMap
