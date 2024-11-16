@@ -236,7 +236,8 @@ Module General
         ' break out of GameLoop
         GameState.InGame = False
         GameState.InMenu = False
-        FreeBASS
+        FreeBASS()
+        DestroyNetwork()
         End
     End Sub
 
