@@ -110,11 +110,11 @@ Public Class Gui
         Public Property Texture As List(Of String)
         Public Property CallBack As List(Of Action)
     End Class
-    
-      Public Shared Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, design As List(Of Long), image As List(Of Long), texture As List(Of String), callback As List(Of Action),
-                                    Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
-                                    Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
-                                    Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
+
+    Public Shared Sub UpdateControl(winNum As Long, zOrder As Long, name As String, color As Microsoft.Xna.Framework.Color, tType As ControlType, design As List(Of Long), image As List(Of Long), texture As List(Of String), callback As List(Of Action),
+        Optional left As Long = 0, Optional top As Long = 0, Optional width As Long = 0, Optional height As Long = 0, Optional visible As Boolean = True, Optional canDrag As Boolean = False, Optional Max As Long = 0, Optional Min As Long = 0, Optional value As Long = 0, Optional text As String = "",
+        Optional align As Byte = 0, Optional font As FontType = FontType.Georgia, Optional alpha As Long = 255, Optional clickThrough As Boolean = False, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional zChange As Byte = 0, Optional censor As Boolean = False, Optional icon As Long = 0,
+                                  Optional onDraw As Action = Nothing, Optional isActive As Boolean = True, Optional tooltip As String = "", Optional group As Long = 0, Optional locked As Boolean = False, Optional length As Byte = NAME_LENGTH)
 
         ' Ensure the window exists in the Windows collection
         If Not Windows.ContainsKey(winNum) Then Exit Sub
@@ -159,7 +159,10 @@ Public Class Gui
                 }
 
         ' Add the new control to the specified window's controls list
-        If Windows(winNum).Controls Is Nothing Then Windows(winNum).Controls = New List(Of Control)()
+        If Windows(winNum).Controls Is Nothing Then
+            Windows(winNum).Controls = New List(Of Control)()
+            Windows(winNum).Controls.Add(New Control)
+        End If
         Windows(winNum).Controls.Add(newControl)
         
         ' Update active control if necessary
@@ -580,8 +583,6 @@ Public Class Gui
         zOrder_Con = 1
 
         ' Parchment
-        UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
-        ' FIX: We have to do it twice because the first time it doesn't work
         UpdatePictureBox(Windows.Count, "picParchment", 6, 26, 264, 180, , , , , , , , DesignType.Parchment, DesignType.Parchment, DesignType.Parchment)
 
         ' Shadows
