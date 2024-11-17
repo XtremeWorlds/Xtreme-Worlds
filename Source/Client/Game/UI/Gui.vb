@@ -8,7 +8,7 @@ Imports Microsoft.Xna.Framework.Graphics
 Imports Microsoft.Xna.Framework.Input
 
 Public Class Gui
-   ' GUI
+    ' GUI
     Public Shared ReadOnly Windows As New ConcurrentDictionary(Of Long, Window)
     Public Shared ActiveWindow As Long
 
@@ -18,7 +18,7 @@ Public Class Gui
     ' Used for automatically the zOrder
     Private Shared zOrder_Win As Long
     Private Shared zOrder_Con As Long
-    
+
     ' Declare a timer to control when dragging can begin
     Private Shared dragTimer As New Stopwatch()
     Private Const dragInterval As Double = 50 ' Set the interval in milliseconds to start dragging
@@ -164,10 +164,10 @@ Public Class Gui
             Windows(winNum).Controls.Add(New Control)
         End If
         Windows(winNum).Controls.Add(newControl)
-        
+
         ' Update active control if necessary
         If isActive Then Windows(winNum).ActiveControl = Gui.Windows(winNum).Controls.Count - 1
-        
+
         ' set the zOrder
         zOrder_Con = zOrder_Con + 1
     End Sub
@@ -225,8 +225,8 @@ Public Class Gui
         End If
         Windows(winName).Controls(controlIndex).List.Add(text)
     End Sub
-    
-      Public Shared Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
+
+    Public Shared Sub UpdateWindow(name As String, caption As String, font As FontType, zOrder As Long, left As Long, top As Long, width As Long, height As Long, icon As Long,
                                    Optional visible As Boolean = True, Optional xOffset As Long = 0, Optional yOffset As Long = 0, Optional design_norm As Long = 0, Optional design_hover As Long = 0, Optional design_mousedown As Long = 0,
                                    Optional image_norm As Long = 0, Optional image_hover As Long = 0, Optional image_mousedown As Long = 0,
                                    Optional callback_norm As Action = Nothing, Optional callback_hover As Action = Nothing, Optional callback_mousemove As Action = Nothing, Optional callback_mousedown As Action = Nothing, Optional callback_dblclick As Action = Nothing, Optional onDraw As Action = Nothing,
@@ -250,7 +250,7 @@ Public Class Gui
         callback(EntState.MouseDown) = callback_mousedown
         callback(EntState.MouseMove) = callback_mousemove
         callback(EntState.DblClick) = callback_dblclick
-  
+
         ' Create a new instance of Window and populate it
         Dim newWindow As New Window With {
                 .Name = name,
@@ -277,12 +277,12 @@ Public Class Gui
                 .Image = image,
                 .CallBack = callback
                 }
-        
+
         ' Add the new control to the specified window's controls list
         Windows.TryAdd(Windows.Count + 1, newWindow)
 
         ' Set the active window if visible
-        If visible Then activeWindow = Gui.Windows.Count
+        If visible Then ActiveWindow = Gui.Windows.Count
     End Sub
 
     Public Shared Sub UpdateTextbox(winNum As Long, name As String, left As Long, top As Long, width As Long, height As Long,
@@ -4535,6 +4535,16 @@ Public Class Gui
         ' No active control found, return Nothing
         Return Nothing
     End Function
+
+    Public Shared Sub ShowChat()
+        Gui.ShowWindow(Gui.GetWindowIndex("winChat"), , False)
+        Gui.HideWindow(Gui.GetWindowIndex("winChatSmall"))
+        ' Set the active control
+        Gui.ActiveWindow = Gui.GetWindowIndex("winChat")
+        Gui.SetActiveControl(Gui.GetWindowIndex("winChat"), Gui.GetControlIndex("winChat", "txtChat"))
+        GameState.inSmallChat = 0
+        GameState.ChatScroll = 0
+    End Sub
 
     Public Shared Sub HideChat()
         Gui.ShowWindow(Gui.GetWindowIndex("winChatSmall"), , False)
