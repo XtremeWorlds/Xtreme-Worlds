@@ -3266,12 +3266,12 @@ Public Class Gui
         UpdatePictureBox(Windows.Count, "btnGreyStat_5", 144, 268, 15, 15, , , , , 47, 47, 47)
 
         ' Labels
-        UpdateLabel(Windows.Count, "lblStat_1", 50, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(Windows.Count, "lblStat_2", 50, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(Windows.Count, "lblStat_3", 50, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(Windows.Count, "lblStat_4", 50, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(Windows.Count, "lblStat_5", 50, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
-        UpdateLabel(Windows.Count, "lblPoints", 65, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_1", 42, 188, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_2", 42, 208, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_3", 42, 228, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_4", 42, 248, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblStat_5", 42, 268, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
+        UpdateLabel(Windows.Count, "lblPoints", 57, 288, 100, 15, "255", FontType.Arial, Microsoft.Xna.Framework.Color.White, AlignmentType.Right)
     End Sub
 
 
