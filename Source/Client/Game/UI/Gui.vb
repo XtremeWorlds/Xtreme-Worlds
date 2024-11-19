@@ -1353,7 +1353,7 @@ Public Class Gui
                             If .Value = 0 Then .Alpha = 150 Else .Alpha = 255
 
                             ' render box
-                            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 51), .Left + xO, .Top + yO, 0, 0, 49, 23, 49, 23)
+                            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 51), .Left + xO, .Top + yO, 0, 0, 49, 23, 49, 23)
 
                             ' render text
                             left = .Left + 22 - (GetTextWidth(.Text, .Font) / 2) + xO
@@ -2238,8 +2238,8 @@ Public Class Gui
         RenderDesign(DesignType.Win_Desc, xO, yO, 352, 152)
 
         ' draw the input box
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22)
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 46), xO + 7, yO + 123, 0, 0, 171, 22, 171, 22)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 46), xO + 174, yO + 123, 0, 22, 171, 22, 171, 22)
 
         ' call the chat render
         DrawChat()
@@ -3394,7 +3394,7 @@ Public Class Gui
         Height = Windows(GetWindowIndex("winInventory")).Height
 
         ' render green
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -3403,14 +3403,14 @@ Public Class Gui
         ' render grid - row
         For i = 1 To 4
             If i = 4 Then Height = 38
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
             y = y + 76
         Next
 
         ' render bottom wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), xO + 4, yO + 289, 100, 100, 194, 26, 194, 26)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), xO + 4, yO + 289, 100, 100, 194, 26, 194, 26)
 
         ' actually draw the icons
         For i = 1 To MAX_INV
@@ -3529,7 +3529,7 @@ Public Class Gui
                 ' render bar
                 With Windows(GetWindowIndex("winDescription")).Controls(GetControlIndex("winDescription", "picBar"))
                     If .Visible = True Then
-                        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12)
+                        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 45), xO + .Left, yO + .Top, 0, 12, .Value, 12, .Value, 12)
                     End If
                 End With
 
@@ -3806,7 +3806,7 @@ Public Class Gui
         Height = Windows(GetWindowIndex("winSkills")).Height
 
         ' render green
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 34), xO + 4, yO + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -3815,9 +3815,9 @@ Public Class Gui
         ' render grid - row
         For i = 1 To 4
             If i = 4 Then Height = 42
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 4, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 80, y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), xO + 156, y, 0, 0, 42, Height, 42, Height)
             y = y + 76
         Next
 
@@ -4221,7 +4221,7 @@ Public Class Gui
 
                 ' draw selected square
                 If GameState.shopSelectedSlot = i Then
-                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
+                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 61), Left, Top, 0, 0, 32, 32, 32, 32)
                 End If
 
                 If ItemNum > 0 And ItemNum <= MAX_ITEMS Then
@@ -4243,7 +4243,7 @@ Public Class Gui
 
                 ' draw selected square
                 If GameState.shopSelectedSlot = i Then
-                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 61), Left, Top, 0, 0, 32, 32, 32, 32)
+                    GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 61), Left, Top, 0, 0, 32, 32, 32, 32)
                 End If
 
                 If ItemNum > 0 And ItemNum <= MAX_ITEMS Then
@@ -4284,7 +4284,7 @@ Public Class Gui
         Height = Windows(GetWindowIndex("winShop")).Height
 
         ' render green
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         Width = 76
         Height = 76
@@ -4293,15 +4293,15 @@ Public Class Gui
         ' render grid - row
         For i = 1 To 3
             If i = 3 Then Height = 42
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 4, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 80, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 156, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 232, Y, 0, 0, 42, Height, 42, Height)
             Y = Y + 76
         Next
 
         ' render bottom wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Y - 34, 0, 0, 270, 72, 270, 72)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + 4, Y - 34, 0, 0, 270, 72, 270, 72)
     End Sub
 
     Public Shared Sub DrawBank()
@@ -4319,7 +4319,7 @@ Public Class Gui
         height = Windows(GetWindowIndex("winBank")).Height
 
         ' render green
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, width - 8, height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 34), Xo + 4, Yo + 23, 0, 0, width - 8, height - 27, 4, 4)
 
         width = 76
         height = 76
@@ -4328,11 +4328,11 @@ Public Class Gui
         ' render grid - row
         For i = 1 To 5
             If i = 5 Then height = 42
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4, Y, 0, 0, width, height, width, height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80, Y, 0, 0, width, height, width, height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156, Y, 0, 0, width, height, width, height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 232, Y, 0, 0, width, height, width, height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 308, Y, 0, 0, 79, height, 79, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 4, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 80, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 156, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 232, Y, 0, 0, width, height, width, height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 308, Y, 0, 0, 79, height, 79, height)
             Y = Y + 76
         Next
 
@@ -4386,22 +4386,22 @@ Public Class Gui
         Height = Windows(GetWindowIndex("winTrade")).Height
 
         ' render green
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 34), Xo + 4, Yo + 23, 0, 0, Width - 8, Height - 27, 4, 4)
 
         ' top wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 23, 100, 100, Width - 8, 18, Width - 8, 18)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + 4, Yo + 23, 100, 100, Width - 8, 18, Width - 8, 18)
 
         ' left wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + 4, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
 
         ' right wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + Width - 9, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + Width - 9, Yo + 41, 350, 0, 5, Height - 45, 5, Height - 45)
 
         ' centre wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 203, Yo + 41, 350, 0, 6, Height - 45, 6, Height - 45)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + 203, Yo + 41, 350, 0, 6, Height - 45, 6, Height - 45)
 
         ' bottom wood
-        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 1), Xo + 4, Yo + 307, 100, 100, Width - 8, 75, Width - 8, 75)
+        GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 1), Xo + 4, Yo + 307, 100, 100, Width - 8, 75, Width - 8, 75)
 
         ' left
         Width = 76
@@ -4409,9 +4409,9 @@ Public Class Gui
         Y = Yo + 41
         For i = 1 To 4
             If i = 4 Then Height = 38
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 5, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 5, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 5, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 4 + 5, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 80 + 5, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 156 + 5, Y, 0, 0, 42, Height, 42, Height)
             Y = Y + 76
         Next
 
@@ -4421,9 +4421,9 @@ Public Class Gui
         Y = Yo + 41
         For i = 1 To 4
             If i = 4 Then Height = 38
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 4 + 205, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 80 + 205, Y, 0, 0, Width, Height, Width, Height)
-            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui & 35), Xo + 156 + 205, Y, 0, 0, 42, Height, 42, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 4 + 205, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 80 + 205, Y, 0, 0, Width, Height, Width, Height)
+            GameClient.RenderTexture(System.IO.Path.Combine(Path.Gui, 35), Xo + 156 + 205, Y, 0, 0, 42, Height, 42, Height)
 
             Y = Y + 76
         Next
