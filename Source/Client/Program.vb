@@ -816,7 +816,7 @@ Public Class GameClient
 
         ' Handle MouseMove event when the mouse moves
         If GameClient.CurrentMouseState.X <> GameClient.PreviousMouseState.X OrElse
-       GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
+            GameClient.CurrentMouseState.Y <> GameClient.PreviousMouseState.Y Then
             Gui.HandleInterfaceEvents(EntState.MouseMove)
         End If
 
