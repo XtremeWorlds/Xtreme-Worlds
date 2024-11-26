@@ -241,8 +241,6 @@ Public Class GameState
     Public Shared NumInterface As Integer
     Public Shared NumGradients As Integer
     Public Shared NumDesigns As Integer
-    
-    Public Shared GameDestroyed As Boolean
 
     Public Shared VbKeyRight As Boolean
     Public Shared VbKeyLeft As Boolean

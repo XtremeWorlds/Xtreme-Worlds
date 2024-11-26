@@ -23,9 +23,6 @@ Module [Loop]
     Private animationtmr(1) As Integer ' Array of size 2
 
     Sub GameLoop()
-        ' Main game loop
-        If GameState.GameDestroyed = True Then End
-
         tick = GetTickCount()
         GameState.ElapsedTime = tick - frameTime ' Set the time difference for time-based movement
 
