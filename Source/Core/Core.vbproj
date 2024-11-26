@@ -22,9 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" />
-    <PackageReference Include="MonoGame.Library.SDL" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="NLua" />
     <PackageReference Include="Npgsql" />

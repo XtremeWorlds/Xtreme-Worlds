@@ -418,7 +418,6 @@ mapsync:
         Next
 
         ClearMapEvents()
-        TileLights = Nothing
 
     End Sub
 

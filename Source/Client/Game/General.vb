@@ -15,8 +15,6 @@ Module General
         GameState.InMenu = True
         ClearGameData()
         LoadGame()
-        GameClient.LoadingCompleted.WaitOne()
-        GameLoop()
     End Sub
 
     Friend Sub LoadGame()

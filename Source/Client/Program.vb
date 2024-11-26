@@ -14,7 +14,6 @@ Public Class GameClient
     Public Shared ReadOnly TextureCache As New ConcurrentDictionary(Of String, Texture2D)()
     Public Shared ReadOnly GfxInfoCache As New ConcurrentDictionary(Of String, GfxInfo)()
     Public Shared TextureCounter As Integer
-    Public Shared LoadingCompleted As ManualResetEvent = New ManualResetEvent(False)
 
     Public ReadOnly MultiplyBlendState As New BlendState()
 
@@ -219,15 +218,21 @@ Public Class GameClient
 
         TransparentTexture = New Texture2D(GraphicsDevice, 1, 1)
         TransparentTexture.SetData(New Color() {Color.White})
+        PixelTexture = New Texture2D(GraphicsDevice, 1, 1)
 
         LoadFonts()
-
-        ' Signal that loading is complete
-        LoadingCompleted.Set()
+        Startup()
     End Sub
 
     Public Function LoadFont(path As String, font As [Enum].FontType) As SpriteFont
         Return Content.Load(Of SpriteFont)(IO.Path.Combine(path, font))
+    End Function
+
+    Public Shared Function ToXnaColor(drawingColor As System.Drawing.Color) As Microsoft.Xna.Framework.Color
+        Return New Microsoft.Xna.Framework.Color(drawingColor.R, drawingColor.G, drawingColor.B, drawingColor.A)
+    End Function
+    Public Shared Function ToDrawingColor(xnaColor As Microsoft.Xna.Framework.Color) As System.Drawing.Color
+        Return System.Drawing.Color.FromArgb(xnaColor.A, xnaColor.R, xnaColor.G, xnaColor.B)
     End Function
 
     Public Shared Sub EnqueueText(ByRef text As String, path As String, x As Integer, y As Integer,
@@ -402,6 +407,11 @@ Public Class GameClient
 
     Public Shared Function LoadTexture(path As String) As Texture2D
         Try
+            ' Check if the key does not end with ".gfxext" and append if needed
+            If Not path.EndsWith(GameState.GfxExt, StringComparison.OrdinalIgnoreCase) Then
+                path &= GameState.GfxExt
+            End If
+
             Using stream As New FileStream(path, FileMode.Open)
                 Dim texture = Texture2D.FromStream(GameClient.Graphics.GraphicsDevice, stream)
 
@@ -490,6 +500,8 @@ Public Class GameClient
             SetFps(0)
             elapsedTime = TimeSpan.Zero
         End If
+
+        GameLoop()
 
         MyBase.Update(gameTime)
     End Sub

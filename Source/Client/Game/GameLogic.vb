@@ -1374,7 +1374,7 @@ Continue1:
         count = UBound(GameState.descText)
         ReDim Preserve GameState.descText(count + 1)
         GameState.descText(count + 1).Text = text
-        GameState.descText(count + 1).Color = color
+        GameState.descText(count + 1).Color = GameClient.ToDrawingColor(color)
     End Sub
 
     Public Sub LogoutGame()

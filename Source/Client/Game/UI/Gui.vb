@@ -3541,7 +3541,7 @@ Public Class Gui
         y = 18
         count = UBound(GameState.descText)
         For I = 1 To count
-            RenderText(GameState.descText(I).Text, xO + 141 - (GetTextWidth(GameState.descText(I).Text) \ 2), yO + y, GameState.descText(I).Color, Microsoft.Xna.Framework.Color.Black)
+            RenderText(GameState.descText(I).Text, xO + 141 - (GetTextWidth(GameState.descText(I).Text) \ 2), yO + y, GameClient.ToXnaColor(GameState.descText(I).Color), Microsoft.Xna.Framework.Color.Black)
             y = y + 12
         Next
     End Sub

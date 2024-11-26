@@ -2,7 +2,6 @@
 Imports System.Drawing
 Imports System.Xml.Serialization
 Imports Core.Database
-Imports Microsoft.Xna.Framework.Graphics
 
 Public Module Type
     ' Common data structure arrays
@@ -1042,8 +1041,6 @@ Public Module Type
     Public ActionMsg(Byte.MaxValue) As ActionMsgStruct
     Public Blood(Byte.MaxValue) As BloodStruct
     Public Chat(CHAT_LINES) As ChatStruct
-    Public TileLights As List(Of LightTileStruct)
-    Public MapNames(MAX_MAPS) As String
     Public MapTile(,) As TileStruct
     Public TileHistory() As TileHistoryStruct
     Public Autotile(,) As AutotileStruct
@@ -1121,16 +1118,9 @@ Public Module Type
         Dim Y As Integer
     End Structure
 
-    Public Structure LightTileStruct
-        Public Tiles As List(Of Microsoft.Xna.Framework.Vector2)
-        Public IsFlicker As Boolean
-        Public IsSmooth As Boolean
-        Public Scale As Microsoft.Xna.Framework.Vector2 
-    End Structure
-
     Public Structure TextStruct
         Public Text As String
-        Public Color As Microsoft.Xna.Framework.Color
+        Public Color As Color
     End Structure
     
     Public Structure WeatherParticleStruct
