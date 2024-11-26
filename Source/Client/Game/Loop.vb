@@ -321,12 +321,5 @@ mapsync:
         End If
 
         Gui.ResizeGUI()
-
-        ' Signal that loading is complete
-        SyncLock GameClient.LoadLock
-            If GameClient.IsLoading Then
-                GameClient.IsLoading = 0
-            End If
-        End SyncLock
     End Sub
 End Module

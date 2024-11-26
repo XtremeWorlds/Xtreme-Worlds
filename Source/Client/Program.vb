@@ -45,10 +45,6 @@ Public Class GameClient
         Public Property Commands As New List(Of RenderCommand)()
     End Class
 
-    ' ManualResetEvent to signal when loading is complete
-    Public Shared IsLoading As Boolean = True
-    Public Shared ReadOnly LoadLock As New Object()
-
     ' State tracking variables
     ' Shared keyboard and mouse states for cross-thread access
     Public Shared CurrentKeyboardState As KeyboardState
@@ -433,10 +429,6 @@ Public Class GameClient
 
     Protected Overrides Sub Draw(gameTime As GameTime)
         Graphics.GraphicsDevice.Clear(Color.Black)
-
-        SyncLock LoadLock
-            If IsLoading = True Then Exit Sub
-        End SyncLock
 
         SpriteBatch.Begin()
         If GameState.InGame = True Then
