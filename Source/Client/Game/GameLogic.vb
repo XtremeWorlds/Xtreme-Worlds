@@ -51,22 +51,22 @@ Module GameLogic
     End Sub
 
     Friend Function IsInBounds()
-        IsInBounds = 0
+        IsInBounds = False
 
         If (GameState.CurX >= 0) And (GameState.CurX <= MyMap.MaxX) Then
             If (GameState.CurY >= 0) And (GameState.CurY <= MyMap.MaxY) Then
-                IsInBounds = 1
+                IsInBounds = True
             End If
         End If
 
     End Function
 
     Function GameStarted() As Boolean
-        GameStarted = 0
+        GameStarted = False
         If GameState.InGame = False Then Exit Function
         If GameState.MapData = False Then Exit Function
         If GameState.PlayerData = False Then Exit Function
-        GameStarted = 1
+        GameStarted = True
     End Function
 
     Friend Sub CreateActionMsg(message As String, color As Integer, msgType As Byte, x As Integer, y As Integer)
