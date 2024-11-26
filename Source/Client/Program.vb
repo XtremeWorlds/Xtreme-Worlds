@@ -74,11 +74,9 @@ Public Class GameClient
 
     Private elapsedTime As TimeSpan = TimeSpan.Zero
 
-    Private Shared TilesetWindow As RenderTarget2D
-    Private EditorAnimation_Anim1 As RenderTarget2D
-    Private EditorAnimation_Anim2 As RenderTarget2D
     Private Shared RenderTarget As RenderTarget2D
     Public Shared TransparentTexture As Texture2D
+    Public Shared PixelTexture As Texture2D
 
     ' Ensure this class exists to store graphic info
     Public Class GfxInfo
@@ -503,7 +501,6 @@ Public Class GameClient
         End If
 
         GameLoop()
-        UpdateForms()
 
         MyBase.Update(gameTime)
     End Sub
@@ -985,18 +982,6 @@ Public Class GameClient
 
         ' Dispose the texture after use
         whiteTexture.Dispose()
-    End Sub
-
-    Public Shared Sub DrawSelectionRectangle()
-        Dim selectionRect As New Rectangle(
-            GameState.EditorTileSelStart.X * GameState.PicX, GameState.EditorTileSelStart.Y * GameState.PicY,
-            GameState.EditorTileWidth * GameState.PicX, GameState.EditorTileHeight * GameState.PicY
-        )
-
-        ' Begin the sprite batch and draw a semi-transparent overlay (optional)
-        SpriteBatch.Begin()
-        SpriteBatch.Draw(TilesetWindow, selectionRect, Color.Red * 0.4F)
-        SpriteBatch.End()
     End Sub
 
     Private Sub DrawOutlineRectangle(x As Integer, y As Integer, width As Integer, height As Integer, color As Color, thickness As Single)

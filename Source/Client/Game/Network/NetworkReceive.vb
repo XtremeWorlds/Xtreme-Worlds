@@ -1044,7 +1044,7 @@ Module NetworkReceive
         Dim buffer As New ByteStream(data)
 
         For i = 1 To MAX_MAPS
-            MapNames(i) = buffer.ReadString()
+            GameState.MapNames(i) = buffer.ReadString()
         Next
         
         buffer.Dispose()
@@ -1058,7 +1058,7 @@ Module NetworkReceive
         Dim i As Integer
         Dim buffer As New ByteStream(data)
         For i = 1 To MAX_MAPS
-            MapNames(i) = buffer.ReadString()
+            GameState.MapNames(i) = buffer.ReadString()
         Next
 
         buffer.Dispose()
