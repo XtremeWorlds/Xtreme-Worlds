@@ -106,7 +106,7 @@ Public Class GameClient
 
         ' Set basic properties for GraphicsDeviceManager
         With Graphics
-            .GraphicsProfile = GraphicsProfile.HiDef
+            .GraphicsProfile = GraphicsProfile.Reach
             .IsFullScreen = Settings.Fullscreen
             .PreferredBackBufferWidth = GameState.ResolutionWidth
             .PreferredBackBufferHeight = GameState.ResolutionHeight
