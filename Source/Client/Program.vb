@@ -568,6 +568,10 @@ Public Class GameClient
         End Select
     End Function
 
+    ' Add a timer to prevent spam
+    Private Shared lastInputTime As DateTime = DateTime.MinValue
+    Private Const inputCooldown As Integer = 250
+
     Public Shared Sub ProcessInputs()
         ' Get the mouse position from the cache
         Dim mousePos As Tuple(Of Integer, Integer) = GameClient.GetMousePosition()
@@ -639,29 +643,49 @@ Public Class GameClient
 
             If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
 
+            ' Check if enough time has passed since the last input
+            If (DateTime.Now - lastInputTime).TotalMilliseconds < inputCooldown Then
+                Exit Sub
+            End If
+
             If GameClient.CurrentKeyboardState.IsKeyDown(Keys.I) Then
                 ' hide/show inventory
                 If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv()
+
+                ' Update the last input time
+                lastInputTime = DateTime.Now
             End If
 
             If GameClient.CurrentKeyboardState.IsKeyDown(Keys.C) Then
                 ' hide/show char
                 If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char()
+
+                ' Update the last input time
+                lastInputTime = DateTime.Now
             End If
 
             If GameClient.CurrentKeyboardState.IsKeyDown(Keys.K) Then
                 ' hide/show skills
                 If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills()
+
+                ' Update the last input time
+                lastInputTime = DateTime.Now
             End If
 
             If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
                 If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True Then
                     Gui.ShowChat()
                     GameState.inSmallChat = 0
+
+                    ' Update the last input time
+                    lastInputTime = DateTime.Now
                     Exit Sub
                 End If
 
                 HandlePressEnter()
+
+                ' Update the last input time
+                lastInputTime = DateTime.Now
             End If
         End If
     End Sub

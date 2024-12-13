@@ -2231,6 +2231,7 @@ Public Class Gui
 
     Public Shared Sub Chat_OnDraw()
         Dim winIndex As Long, xO As Long, yO As Long
+
         winIndex = GetWindowIndex("winChat")
         xO = Windows(winIndex).Left
         yO = Windows(winIndex).Top + 16
