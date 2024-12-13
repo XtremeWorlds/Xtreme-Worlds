@@ -632,61 +632,62 @@ Public Class GameClient
         HandleActiveWindowInput()
         HandleTextInput()
 
-        If GameState.InGame = True Then
+        If GameState.InGame Then
             ' Check for movement keys
-            GameState.DirUp = GameClient.CurrentKeyboardState.IsKeyDown(Keys.W) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Up)
-            GameState.DirDown = GameClient.CurrentKeyboardState.IsKeyDown(Keys.S) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Down)
-            GameState.DirLeft = GameClient.CurrentKeyboardState.IsKeyDown(Keys.A) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Left)
-            GameState.DirRight = GameClient.CurrentKeyboardState.IsKeyDown(Keys.D) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Right)
+            UpdateMovementKeys()
 
             HandleHotbarInput()
 
-            If Gui.Windows(Gui.GetWindowIndex("winEscMenu")).Visible = True Then Exit Sub
+            ' Exit if escape menu is open
+            If IsWindowVisible("winEscMenu") Then Exit Sub
 
-            ' Check if enough time has passed since the last input
-            If (DateTime.Now - lastInputTime).TotalMilliseconds < inputCooldown Then
-                Exit Sub
-            End If
+            ' Check for input cooldown
+            If Not IsInputCooldownElapsed() Then Exit Sub
 
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.I) Then
-                ' hide/show inventory
-                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Inv()
+            ' Process toggle actions
+            HandleWindowToggle(Keys.I, "winInventory", AddressOf Gui.btnMenu_Inv)
+            HandleWindowToggle(Keys.C, "winCharacter", AddressOf Gui.btnMenu_Char)
+            HandleWindowToggle(Keys.K, "winSkills", AddressOf Gui.btnMenu_Skills)
 
-                ' Update the last input time
-                lastInputTime = DateTime.Now
-            End If
-
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.C) Then
-                ' hide/show char
-                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Char()
-
-                ' Update the last input time
-                lastInputTime = DateTime.Now
-            End If
-
-            If GameClient.CurrentKeyboardState.IsKeyDown(Keys.K) Then
-                ' hide/show skills
-                If Not Gui.Windows(Gui.GetWindowIndex("winChat")).Visible = True Then Gui.btnMenu_Skills()
-
-                ' Update the last input time
-                lastInputTime = DateTime.Now
-            End If
-
+            ' Handle chat input
             If GameClient.CurrentKeyboardState.IsKeyDown(Keys.Enter) Then
-                If Gui.Windows(Gui.GetWindowIndex("winChatSmall")).Visible = True Then
+
+                If IsWindowVisible("winChatSmall") Then
                     Gui.ShowChat()
                     GameState.inSmallChat = 0
-
-                    ' Update the last input time
-                    lastInputTime = DateTime.Now
-                    Exit Sub
+                Else
+                    HandlePressEnter()
                 End If
 
-                HandlePressEnter()
-
-                ' Update the last input time
-                lastInputTime = DateTime.Now
+                UpdateLastInputTime()
             End If
+        End If
+    End Sub
+
+    ' Helper methods
+    Private Shared Sub UpdateMovementKeys()
+        GameState.DirUp = GameClient.CurrentKeyboardState.IsKeyDown(Keys.W) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Up)
+        GameState.DirDown = GameClient.CurrentKeyboardState.IsKeyDown(Keys.S) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Down)
+        GameState.DirLeft = GameClient.CurrentKeyboardState.IsKeyDown(Keys.A) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Left)
+        GameState.DirRight = GameClient.CurrentKeyboardState.IsKeyDown(Keys.D) Or GameClient.CurrentKeyboardState.IsKeyDown(Keys.Right)
+    End Sub
+
+    Private Shared Function IsWindowVisible(windowName As String) As Boolean
+        Return Gui.Windows(Gui.GetWindowIndex(windowName)).Visible
+    End Function
+
+    Private Shared Function IsInputCooldownElapsed() As Boolean
+        Return (DateTime.Now - lastInputTime).TotalMilliseconds >= inputCooldown
+    End Function
+
+    Private Shared Sub UpdateLastInputTime()
+        lastInputTime = DateTime.Now
+    End Sub
+
+    Private Shared Sub HandleWindowToggle(key As Keys, windowName As String, toggleAction As Action)
+        If GameClient.CurrentKeyboardState.IsKeyDown(key) AndAlso Not IsWindowVisible("winChat") Then
+            toggleAction.Invoke()
+            UpdateLastInputTime()
         End If
     End Sub
 
