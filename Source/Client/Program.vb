@@ -747,7 +747,7 @@ Public Class GameClient
                 If key = Keys.Back Then
                     Dim activeControl = Gui.GetActiveControl()
 
-                    If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Text.Length > 0 Then
+                    If activeControl IsNot Nothing AndAlso activeControl.Visible AndAlso activeControl.Text.Length > 0 Then
                         ' Modify the text and update it back in the window
                         activeControl.Text = activeControl.Text.Substring(0, activeControl.Text.Length - 1)
                         Gui.UpdateActiveControl(activeControl)
@@ -762,7 +762,7 @@ Public Class GameClient
                 If character.HasValue Then
                     Dim activeControl = Gui.GetActiveControl()
 
-                    If activeControl IsNot Nothing AndAlso Not activeControl.Locked AndAlso activeControl.Enabled Then
+                    If activeControl IsNot Nothing AndAlso activeControl.Visible AndAlso activeControl.Enabled Then
                         ' Append character to the control's text
                         activeControl.Text &= character.Value
                         Gui.UpdateActiveControl(activeControl)
