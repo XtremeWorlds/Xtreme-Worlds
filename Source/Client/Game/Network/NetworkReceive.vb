@@ -1051,7 +1051,7 @@ Module NetworkReceive
     End Sub
 
     Private Sub Packet_Admin(ByRef data() As Byte)
-
+        GameState.InitAdminForm = True
     End Sub
 
     Private Sub Packet_MapNames(ByRef data() As Byte)
