@@ -126,7 +126,7 @@ Public Class LanguageDef
                                    /editmap, /edititem, /editresource,
                                    /editskill, /editpet, /editshop
                                    /editprojectile, /editnpc, /editjob
-                                   /editjob"
+                                   /editjob, /acp"
 
         Public Welcome As String = "Usage : /welcome [message]"
         Public Access As String = "Usage : /access [player] [access]"
