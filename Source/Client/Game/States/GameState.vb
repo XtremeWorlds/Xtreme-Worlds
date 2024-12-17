@@ -182,7 +182,7 @@ Public Class GameState
     Public Shared MapEditorHealAmount As Integer
     Public Shared MapEditorSlideDir As Integer
 
-    Public Shared Camera As Rectangle
+    Public Shared Camera As RectStruct
     Public Shared TileView As RectStruct
 
     ' Pinging

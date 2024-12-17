@@ -1,55 +1,54 @@
-﻿Imports Core
+﻿Imports System.Windows.Forms
+Imports Core
 Imports Mirage.Sharp.Asfw
 
 Module GameLogic
     Sub ProcessNpcMovement(MapNpcNum As Integer)
         ' Check if NPC is walking, and if so process moving them over
-        If MyMapNPC(MapNPCNum).Moving = MovementType.Walking Then
+        If MyMapNPC(MapNpcNum).Moving = MovementType.Walking Then
 
-            Select Case MyMapNPC(MapNPCNum).Dir
+            Select Case MyMapNPC(MapNpcNum).Dir
                 Case DirectionType.Up
-                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
-                    If MyMapNPC(MapNPCNum).YOffset < 0 Then MyMapNPC(MapNPCNum).YOffset = 0
+                    MyMapNPC(MapNpcNum).YOffset = MyMapNPC(MapNpcNum).YOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
+                    If MyMapNPC(MapNpcNum).YOffset < 0 Then MyMapNPC(MapNpcNum).YOffset = 0
 
                 Case DirectionType.Down
-                    MyMapNPC(MapNPCNum).YOffset = MyMapNPC(MapNPCNum).YOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
-                    If MyMapNPC(MapNPCNum).YOffset > 0 Then MyMapNPC(MapNPCNum).YOffset = 0
+                    MyMapNPC(MapNpcNum).YOffset = MyMapNPC(MapNpcNum).YOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeY))
+                    If MyMapNPC(MapNpcNum).YOffset > 0 Then MyMapNPC(MapNpcNum).YOffset = 0
 
                 Case DirectionType.Left
-                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
-                    If MyMapNPC(MapNPCNum).XOffset < 0 Then MyMapNPC(MapNPCNum).XOffset = 0
+                    MyMapNPC(MapNpcNum).XOffset = MyMapNPC(MapNpcNum).XOffset - ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
+                    If MyMapNPC(MapNpcNum).XOffset < 0 Then MyMapNPC(MapNpcNum).XOffset = 0
 
                 Case DirectionType.Right
-                    MyMapNPC(MapNPCNum).XOffset = MyMapNPC(MapNPCNum).XOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
-                    If MyMapNPC(MapNPCNum).XOffset > 0 Then MyMapNPC(MapNPCNum).XOffset = 0
-
+                    MyMapNPC(MapNpcNum).XOffset = MyMapNPC(MapNpcNum).XOffset + ((GameState.ElapsedTime / 1000) * (GameState.WalkSpeed * GameState.SizeX))
+                    If MyMapNPC(MapNpcNum).XOffset > 0 Then MyMapNPC(MapNpcNum).XOffset = 0
             End Select
 
             ' Check if completed walking over to the next tile
-            If MyMapNPC(MapNPCNum).Moving > 0 Then
-                If MyMapNPC(MapNPCNum).Dir = DirectionType.Right Or MyMapNPC(MapNPCNum).Dir = DirectionType.Down Then
-                    If (MyMapNPC(MapNPCNum).XOffset >= 0) And (MyMapNPC(MapNPCNum).YOffset >= 0) Then
-                        MyMapNPC(MapNPCNum).Moving = 0
-                        If MyMapNPC(MapNPCNum).Steps = 1 Then
-                            MyMapNPC(MapNPCNum).Steps = 3
+            If MyMapNPC(MapNpcNum).Moving > 0 Then
+                If MyMapNPC(MapNpcNum).Dir = DirectionType.Right Or MyMapNPC(MapNpcNum).Dir = DirectionType.Down Then
+                    If (MyMapNPC(MapNpcNum).XOffset >= 0) And (MyMapNPC(MapNpcNum).YOffset >= 0) Then
+                        MyMapNPC(MapNpcNum).Moving = 0
+                        If MyMapNPC(MapNpcNum).Steps = 1 Then
+                            MyMapNPC(MapNpcNum).Steps = 3
                         Else
-                            MyMapNPC(MapNPCNum).Steps = 1
+                            MyMapNPC(MapNpcNum).Steps = 1
                         End If
                     End If
                 Else
-                    If (MyMapNPC(MapNPCNum).XOffset <= 0) And (MyMapNPC(MapNPCNum).YOffset <= 0) Then
-                        MyMapNPC(MapNPCNum).Moving = 0
-                        If MyMapNPC(MapNPCNum).Steps = 1 Then
-                            MyMapNPC(MapNPCNum).Steps = 3
+                    If (MyMapNPC(MapNpcNum).XOffset <= 0) And (MyMapNPC(MapNpcNum).YOffset <= 0) Then
+                        MyMapNPC(MapNpcNum).Moving = 0
+                        If MyMapNPC(MapNpcNum).Steps = 1 Then
+                            MyMapNPC(MapNpcNum).Steps = 3
                         Else
-                            MyMapNPC(MapNPCNum).Steps = 1
+                            MyMapNPC(MapNpcNum).Steps = 1
                         End If
                     End If
                 End If
             End If
         End If
     End Sub
-
     Friend Function IsInBounds()
         IsInBounds = False
 
@@ -1721,61 +1720,103 @@ Continue1:
     End Function
 
     Friend Sub UpdateCamera()
-        Dim lerpSpeed As Double = 0.05 ' Lerp speed for smooth camera movement
-        Dim mapMaxWidth As Double
-        Dim mapMaxHeight As Double
+        Dim offsetX As Long, offsetY As Long, StartX As Long, StartY As Long, EndX As Long, EndY As Long
+        Dim tileHeight As Long, tileWidth As Long
+        Dim ScreenX As Long, ScreenY As Long
 
-        Try
-            mapMaxWidth = MyMap.MaxX * GameState.TileSize
-            mapMaxHeight = MyMap.MaxY * GameState.TileSize
-            If mapMaxWidth > Double.MaxValue Then
-                Throw New OverflowException()
+        tileWidth = GameState.ResolutionWidth / 32
+        tileHeight = GameState.ResolutionHeight / 32
+
+        ScreenX = (tileWidth + 1) * GameState.PicX
+        ScreenY = (tileHeight + 1) * GameState.PicY
+
+        offsetX = Type.Player(GameState.MyIndex).XOffset + GameState.PicX
+        offsetY = Type.Player(GameState.MyIndex).YOffset + GameState.PicY
+        StartX = GetPlayerX(GameState.MyIndex) - ((tileWidth + 1) \ 2) - 1
+        StartY = GetPlayerY(GameState.MyIndex) - ((tileHeight + 1) \ 2) - 1
+
+        If tileWidth + 1 <= Type.MyMap.MaxX Then
+            If StartX < 0 Then
+                offsetX = 0
+
+                If StartX = -1 Then
+                    If Type.Player(GameState.MyIndex).XOffset > 0 Then
+                        offsetX = Type.Player(GameState.MyIndex).XOffset
+                    End If
+                End If
+
+                StartX = 0
             End If
-        Catch ex As OverflowException
-            ' Handle the overflow exception
-            mapMaxWidth = Double.MaxValue
-            mapMaxHeight = Double.MaxValue
-        End Try
 
-        ' Get player's position in pixels
-        Dim playerPosX As Double = GetPlayerX(GameState.MyIndex)
-        Dim playerPosY As Double = GetPlayerY(GameState.MyIndex)
+            EndX = StartX + (tileWidth + 1) + 1
 
-        ' Calculate the target camera position to center on the player
-        Dim targetX As Double = playerPosX - (GameState.ResolutionWidth / 2)
-        Dim targetY As Double = playerPosY - (GameState.ResolutionHeight / 2)
+            If EndX > MyMap.MaxX Then
+                offsetX = 32
 
-        ' Smoothly interpolate the camera position using Lerp
-        GameState.CurrentCameraX = Lerp(GameState.CurrentCameraX, targetX, lerpSpeed)
-        GameState.CurrentCameraY = Lerp(GameState.CurrentCameraY, targetY, lerpSpeed)
+                If EndX = MyMap.MaxX + 1 Then
+                    If Type.Player(GameState.MyIndex).XOffset < 0 Then
+                        offsetX = Type.Player(GameState.MyIndex).XOffset + GameState.PicX
+                    End If
+                End If
 
-        ' Clamp the camera position within the map bounds after interpolation
-        If GameState.CurrentCameraX < 0 Then
-            GameState.CurrentCameraX = 0
-        ElseIf GameState.CurrentCameraX + Settings.CameraWidth > mapMaxWidth Then
-            GameState.CurrentCameraX = mapMaxWidth - Settings.CameraWidth
+                EndX = MyMap.MaxX
+                StartX = EndX - tileWidth - 1
+            End If
+        Else
+            EndX = StartX + (TileWidth + 1) + 1
         End If
 
-        If GameState.CurrentCameraY < 0 Then
-            GameState.CurrentCameraY = 0
-        ElseIf GameState.CurrentCameraY + Settings.CameraHeight > mapMaxHeight Then
-            GameState.CurrentCameraY = mapMaxHeight - Settings.CameraHeight
+        If tileHeight + 1 <= MyMap.MaxY Then
+            If StartY < 0 Then
+                offsetY = 0
+
+                If StartY = -1 Then
+                    If Type.Player(GameState.MyIndex).YOffset > 0 Then
+                        offsetY = Type.Player(GameState.MyIndex).YOffset
+                    End If
+                End If
+
+                StartY = 0
+            End If
+
+            EndY = StartY + (tileHeight + 1) + 1
+
+            If EndY > MyMap.MaxY Then
+                offsetY = 32
+
+                If EndY = MyMap.MaxY + 1 Then
+                    If Type.Player(GameState.MyIndex).YOffset < 0 Then
+                        offsetY = Type.Player(GameState.MyIndex).YOffset + GameState.PicY
+                    End If
+                End If
+
+                EndY = MyMap.MaxY
+                StartY = EndY - tileHeight - 1
+            End If
+        Else
+            EndY = StartY + (TileHeight + 1) + 1
         End If
 
-        ' Set the TileView properties based on the clamped camera position
+        If tileWidth + 1 = MyMap.MaxX Then
+            offsetX = 0
+        End If
+
+        If tileHeight + 1 = MyMap.MaxY Then
+            offsetY = 0
+        End If
+
         With GameState.TileView
-            .Top = GameState.CurrentCameraY
-            .Bottom = GameState.CurrentCameraY + Settings.CameraHeight + 3
-            .Left = GameState.CurrentCameraX
-            .Right = GameState.CurrentCameraX + Settings.CameraWidth + 3
+            .Top = StartY
+            .Bottom = EndY
+            .Left = StartX
+            .Right = EndX
         End With
 
-        ' Update the Camera properties
         With GameState.Camera
-            .Y = GameState.CurrentCameraY
-            .X = GameState.CurrentCameraX
-            .Height = GameState.ResolutionHeight
-            .Width = GameState.ResolutionWidth
+            .Top = offsetY
+            .Bottom = .Top + ScreenY
+            .Left = offsetX
+            .Right = .Left + ScreenX
         End With
 
         ' Optional: Update the map name display
