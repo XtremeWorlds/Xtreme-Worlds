@@ -2175,7 +2175,7 @@ Module NetworkReceive
 
     Sub Packet_Admin(index As Integer, ByRef data() As Byte)
         ' Prevent hacking
-        If GetPlayerAccess(index) < AccessType.Mapper Then Exit Sub
+        If GetPlayerAccess(index) < AccessType.Moderator Then Exit Sub
 
         SendAdminPanel(index)
     End Sub
