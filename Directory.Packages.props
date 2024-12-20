@@ -12,6 +12,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageVersion Include="MonoGame.Framework.DesktopGL" Version="3.8.2.1105" />
     <PackageVersion Include="MonoGame.Framework.WindowsDX" Version="3.8.2.1105" />
     <PackageVersion Include="MonoGame.Library.SDL" Version="2.26.5.5" />

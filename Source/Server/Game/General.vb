@@ -1,13 +1,17 @@
 ﻿Imports System.IO
 Imports Core
 Imports Core.Database
+Imports Microsoft.Extensions.DependencyInjection
 Imports Newtonsoft.Json.Linq
 Imports Xtreme.Worlds.Engine.Configuration
 Imports Xtreme.Worlds.Engine.Configuration.Interfaces
+Imports Xtreme.Worlds.Engine.Services.Providers
+Imports Xtreme.Worlds.Engine.Services.Providers.Interfaces
 
 Module General
     Public Random As New Random()
 
+    Public Services As IEngineServiceProvider
     Public Configuration As IEngineConfiguration
 
     Friend ServerDestroyed As Boolean
@@ -27,7 +31,21 @@ Module General
 
         myStopWatch.Start()
 
-        Configuration = BuildEngineConfiguration()
+        ' Create the service provider.
+        Using builder As IEngineConfigurationBuilder = New EngineConfigurationBuilder()
+            ' Add setting files and environment variables to the builder.
+            builder.LoadSettingsFiles()
+            builder.LoadEnvironmentSettingsFiles()
+            builder.LoadEnvironmentVariables()
+
+            ' The service provider will build and add the configuration to itself automatically.
+            Services = New EngineServiceProvider(builder)
+        End Using
+
+        ' TODO -> Implement services here, they need to be registered before the first Services.ServiceProvider call.
+
+        ' Get the configuration from the service provider.
+        Configuration = Services.ServiceProvider.GetRequiredService(Of IEngineConfiguration)
 
         Settings.Load()
 
@@ -97,16 +115,6 @@ Module General
         ServerLoop()
 
     End Sub
-
-    Private Function BuildEngineConfiguration() As IEngineConfiguration
-        Dim builder As IEngineConfigurationBuilder = New EngineConfigurationBuilder()
-
-        builder.LoadSettingsFiles()
-        builder.LoadEnvironmentSettingsFiles()
-        builder.LoadEnvironmentVariables()
-
-        Return CType(builder.Build(), IEngineConfiguration)
-    End Function
 
     Private Function ConsoleEventCallback(eventType As Integer) As Boolean
         If eventType = 2 Then
