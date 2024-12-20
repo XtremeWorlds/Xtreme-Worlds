@@ -2,11 +2,13 @@
 Imports Core
 Imports Core.Database
 Imports Newtonsoft.Json.Linq
+Imports Xtreme.Worlds.Engine.Configuration
+Imports Xtreme.Worlds.Engine.Configuration.Interfaces
 
 Module General
     Public Random As New Random()
 
-    Public Configuration As MirageConfiguration
+    Public Configuration As IEngineConfiguration
 
     Friend ServerDestroyed As Boolean
     Friend MyIPAddress As String
@@ -25,7 +27,7 @@ Module General
 
         myStopWatch.Start()
 
-        Configuration = New MirageConfiguration("MIRAGE")
+        Configuration = BuildEngineConfiguration()
 
         Settings.Load()
 
@@ -81,7 +83,7 @@ Module General
         Call Global.System.Console.WriteLine("  > < | __| '__/ _ \ '_ ` _ \ / _ \ \/  \/ / _ \| '__| |/ _` / __|")
         Call Global.System.Console.WriteLine(" / . \| |_| | |  __/ | | | | |  __/\  /\  / (_) | |  | | (_| \__ \")
         Call Global.System.Console.WriteLine("/_/ \_\\__|_|  \___|_| |_| |_|\___| \/  \/ \___/|_|  |_|\__,_|___/")
- 
+
         Call Global.System.Console.WriteLine("Initialization complete. Server loaded in " & time2 - time1 & "ms.")
         Call Global.System.Console.WriteLine("")
         Call Global.System.Console.WriteLine("Use /help for the available commands.")
@@ -95,6 +97,16 @@ Module General
         ServerLoop()
 
     End Sub
+
+    Private Function BuildEngineConfiguration() As IEngineConfiguration
+        Dim builder As IEngineConfigurationBuilder = New EngineConfigurationBuilder()
+
+        builder.LoadSettingsFiles()
+        builder.LoadEnvironmentSettingsFiles()
+        builder.LoadEnvironmentVariables()
+
+        Return CType(builder.Build(), IEngineConfiguration)
+    End Function
 
     Private Function ConsoleEventCallback(eventType As Integer) As Boolean
         If eventType = 2 Then
@@ -164,7 +176,7 @@ Module General
         Call Global.System.Console.WriteLine("Clearing Maps...") : ClearMaps()
         Call Global.System.Console.WriteLine("Clearing Map Items...") : ClearMapItems()
         Call Global.System.Console.WriteLine("Clearing Map NPC's...") : ClearAllMapNPCs()
-        Call Global.System.Console.WriteLine("Clearing NPC's...") : ClearNpcs()
+        Call Global.System.Console.WriteLine("Clearing NPC's...") : ClearNPCs()
         Call Global.System.Console.WriteLine("Clearing Resources...") : ClearResources()
         Call Global.System.Console.WriteLine("Clearing Items...") : ClearItems()
         Call Global.System.Console.WriteLine("Clearing Shops...") : ClearShops()
@@ -180,7 +192,7 @@ Module General
         Call Global.System.Console.WriteLine("Loading Morals...") : LoadMorals()
         Call Global.System.Console.WriteLine("Loading Maps...") : LoadMaps()
         Call Global.System.Console.WriteLine("Loading Items...") : LoadItems()
-        Call Global.System.Console.WriteLine("Loading NPCs...") : LoadNpcs()
+        Call Global.System.Console.WriteLine("Loading NPCs...") : LoadNPCs()
         Call Global.System.Console.WriteLine("Loading Resources...") : LoadResources()
         Call Global.System.Console.WriteLine("Loading Shops...") : LoadShops()
         Call Global.System.Console.WriteLine("Loading Skills...") : LoadSkills()

@@ -54,6 +54,9 @@
     <None Update="appsettings.server.secret.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="appsettings.server.secret.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.server.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -68,5 +71,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vbproj" />
      <ProjectReference Include="..\Network\Asfw.csproj" />
+     <ProjectReference Include="..\Xtreme.Worlds.Engine\Xtreme.Worlds.Engine.vbproj" />
   </ItemGroup>
 </Project>
